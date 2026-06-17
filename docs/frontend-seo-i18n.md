@@ -8,7 +8,7 @@
 - Public SEO pages must never expose private beneficiary records.
 - Authenticated app pages should generally be `noindex` once auth SEO handling is added.
 
-## Current Scaffold
+## Current Structure
 
 The public site uses:
 
