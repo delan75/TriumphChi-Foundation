@@ -1,14 +1,14 @@
-# TriumphChi NGO Education Sponsorship Platform
+# TriumphChi Foundation
 
-Modern beneficiary management and educational sponsorship system for an NGO serving orphan-focused education programs in Cameroon.
+TriumphChi Foundation is an education sponsorship and beneficiary management platform for orphan-focused support programs in Cameroon.
 
-This repository is scaffolded as a decoupled application:
+The system manages the full beneficiary lifecycle, from application intake and verification through sponsorship, school payments, active support, reporting, and completion.
 
-- `backend/` Laravel 12 REST API, Sanctum-ready, versioned under `/api/v1`
-- `frontend/` React + TypeScript + Vite SPA
-- `docs/` architecture, lifecycle, data model, and implementation notes
+## Product Direction
 
-The product is primarily a beneficiary management system, not a donation-only website. The core lifecycle is:
+This is a beneficiary management and education sponsorship system. Donation handling is part of the platform, but the product is centered on accountable support for children, schools, donors, field teams, and NGO staff.
+
+The lifecycle model is:
 
 ```text
 Application
@@ -20,18 +20,67 @@ Application
   -> Graduated / Completed
 ```
 
-## Core Principles
+## Architecture
 
-- Child privacy and safeguarding by default
-- Auditability for status changes, allocations, payments, and permissions
-- Bilingual English/French experience
-- Mobile-first UX for field and school users
-- Low-cost deployment path, with future-ready storage, queues, and payment integrations
-- Domain model built around beneficiaries, schools, donors, funds, needs, allocations, sponsorships, payments, and impact updates
+The platform uses a decoupled architecture.
 
-## Suggested Local Setup
+- Backend: Laravel 12 REST API
+- Authentication: Laravel Sanctum
+- Authorization: Spatie Permission and Laravel Policies
+- Database: MySQL with InnoDB
+- Frontend: React, TypeScript, Vite, TanStack Query, Tailwind CSS
+- API versioning: `/api/v1`
 
-The current repository is a scaffold. Dependencies are intentionally not installed yet.
+Roles are bundles of permissions. APIs authorize permissions, not role names. Policies handle record-level rules such as future field officer region ownership.
+
+## Frontend Ownership
+
+React is the product frontend for core workflows:
+
+- Applications
+- Beneficiaries
+- Schools
+- Donor portal
+- Sponsor portal
+- Impact tracking
+- Allocations
+- Funding dashboard
+- Reports
+
+These areas need workflow-specific UX, mobile support, localization, and future public or portal access.
+
+Filament may be introduced later only for internal administration:
+
+- Users
+- Roles
+- Permissions
+- Audit logs
+- Settings
+- CMS content
+
+## Domain Model
+
+The main domain records are:
+
+- Applications
+- Beneficiaries
+- Schools
+- Donors
+- Donations
+- Funds
+- Educational needs
+- Allocations
+- Sponsorships
+- Payments
+- Academic records
+- Mentorship sessions
+- Impact updates
+- Documents
+- Audit logs
+
+Beneficiary records are private. Public pages use curated content and aggregate impact reporting, not raw child records.
+
+## Local Development
 
 Backend:
 
@@ -40,11 +89,10 @@ cd backend
 composer install
 cp .env.example .env
 php artisan key:generate
-php artisan migrate
+php artisan migrate --seed
 php artisan test
+php artisan serve
 ```
-
-Use your local `.env` for machine-specific settings such as database host, port, username, and password.
 
 Frontend:
 
@@ -54,35 +102,16 @@ npm install
 npm run dev
 ```
 
-## Initial Build Phases
+Machine-specific settings such as database host, port, username, and password belong in the local `.env` file.
 
-Phase 1:
+## Documentation
 
-- Authentication
-- Roles and permissions
-- Applications
-- Beneficiaries
-- Schools
-- Donors
-- Donations
-- Funds
-- Educational needs
-- Allocations
-- Payments
-- Impact updates
-- Audit logs
-
-Phase 2:
-
-- Sponsor portal
-- Volunteer portal
-- Mentorship
-- Advanced reporting
-
-Phase 3:
-
-- Recurring donations
-- Payment gateway integrations
-- SMS notifications
-- Mobile application
-- AI-assisted reporting
+- [Architecture](docs/architecture.md)
+- [System Design](docs/system-design.md)
+- [Lifecycle](docs/lifecycle.md)
+- [Database Design](docs/database-design.md)
+- [ERD](docs/erd.md)
+- [Indexes and Transactions](docs/indexes-and-transactions.md)
+- [Permissions](docs/permissions.md)
+- [Frontend SEO and i18n](docs/frontend-seo-i18n.md)
+- [GitHub Workflow](docs/github-workflow.md)
