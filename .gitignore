@@ -23,3 +23,7 @@ frontend/.env
 # Test/runtime caches
 .phpunit.result.cache
 backend/.phpunit.result.cache
+*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
+/package-lock.json

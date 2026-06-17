@@ -1,10 +1,24 @@
 export type Locale = 'en' | 'fr';
 
 export const locales: Locale[] = ['en', 'fr'];
+export const defaultLocale: Locale = 'en';
+
+export function isLocale(value: string | undefined): value is Locale {
+  return value === 'en' || value === 'fr';
+}
 
 export const messages = {
   en: {
     appName: 'TriumphChi Foundation',
+    operationsSubtitle: 'Education sponsorship operations',
+    home: 'Home',
+    about: 'About',
+    programs: 'Programs',
+    impact: 'Impact',
+    donate: 'Donate',
+    apply: 'Apply',
+    sponsorChild: 'Sponsor a Child',
+    contact: 'Contact',
     dashboard: 'Dashboard',
     applications: 'Applications',
     beneficiaries: 'Beneficiaries',
@@ -13,9 +27,18 @@ export const messages = {
   },
   fr: {
     appName: 'Fondation TriumphChi',
+    operationsSubtitle: "Opérations de parrainage scolaire",
+    home: 'Accueil',
+    about: 'À propos',
+    programs: 'Programmes',
+    impact: 'Impact',
+    donate: 'Donner',
+    apply: 'Postuler',
+    sponsorChild: 'Parrainer un enfant',
+    contact: 'Contact',
     dashboard: 'Tableau de bord',
     applications: 'Demandes',
-    beneficiaries: 'Beneficiaires',
+    beneficiaries: 'Bénéficiaires',
     funding: 'Financement',
     reports: 'Rapports',
   },
