@@ -33,6 +33,8 @@ Application
 
 The current repository is a scaffold. Dependencies are intentionally not installed yet.
 
+XAMPP MySQL is expected on port `3309` for local development.
+
 Backend:
 
 ```bash
@@ -84,4 +86,3 @@ Phase 3:
 - SMS notifications
 - Mobile application
 - AI-assisted reporting
-
