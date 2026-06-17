@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-## Current Scaffold
+## Current Foundation
 
 This branch establishes the first working shape of the system:
 
@@ -10,7 +10,7 @@ This branch establishes the first working shape of the system:
 - API controllers, requests, resources, and privacy policies
 - Role and permission seeder
 - React TypeScript Vite frontend shell
-- Staff dashboard, lifecycle pipeline, application, beneficiary, funding, and reporting scaffold pages
+- Staff dashboard, lifecycle pipeline, application, beneficiary, funding, and reporting pages
 - Bilingual route structure for English and French
 
 ## Next Feature Branches

@@ -33,6 +33,9 @@ Admin support:
 - Permission-based API authorization.
 - Policy-based resource authorization.
 - Auditable financial and beneficiary workflows.
+- Soft deletion for sensitive and financial records.
+- Tamper-resistant audit evidence through queryable logs and append-only audit files.
+- Donor accountability from donation receipt through impact evidence.
 - Public pages never expose private child records.
 
 ## Module Boundaries
@@ -75,6 +78,21 @@ Owned records:
 - Payments
 
 Money enters through donations, is assigned through allocations, and leaves through payments. These steps remain separate for traceability.
+
+### Evidence and Reporting Domain
+
+Owned records:
+
+- Documents
+- Document links
+- Donation receipts
+- Tax certificates
+- Report snapshots
+- Evidence packages
+- Evidence package items
+- Audit event files
+
+Evidence records prove what happened to donated money after receipt. Generated reports store snapshots so issued documents remain historically accurate even if source records are corrected later.
 
 ### Content and Public Website
 
@@ -130,4 +148,20 @@ Examples:
 - Publishing an impact update to sponsors.
 
 For financial operations, lock affected rows with `SELECT ... FOR UPDATE` through Laravel's `lockForUpdate()` before adjusting balances.
+
+## Information Architecture
+
+The database design is responsible for representing the business accurately:
+
+- conceptual entities and relationships
+- logical tables and cardinality
+- normalization
+- referential integrity
+- lifecycle states and status history
+- data classification
+- auditability
+- reportability
+- growth and archival strategy
+
+Framework code implements these rules, but the rules belong to the data model.
 
