@@ -44,19 +44,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('educational_needs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('beneficiary_id')->constrained()->cascadeOnDelete();
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->decimal('amount_required', 14, 2);
-            $table->decimal('amount_funded', 14, 2)->default(0);
-            $table->string('status')->index();
-            $table->date('funding_starts_at')->nullable();
-            $table->date('funding_ends_at')->nullable();
-            $table->timestamps();
-        });
-
         Schema::create('allocations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('fund_id')->constrained()->restrictOnDelete();
@@ -84,10 +71,8 @@ return new class extends Migration
     {
         Schema::dropIfExists('sponsorships');
         Schema::dropIfExists('allocations');
-        Schema::dropIfExists('educational_needs');
         Schema::dropIfExists('donations');
         Schema::dropIfExists('funds');
         Schema::dropIfExists('donors');
     }
 };
-

@@ -16,7 +16,7 @@ class BeneficiaryController extends Controller
 
         return BeneficiaryResource::collection(
             Beneficiary::query()
-                ->with(['school', 'needs'])
+                ->with(['application', 'region', 'village', 'school.region', 'school.village', 'needs'])
                 ->latest()
                 ->paginate($request->integer('per_page', 15))
         );
@@ -26,14 +26,17 @@ class BeneficiaryController extends Controller
     {
         $this->authorize('create', Beneficiary::class);
 
-        return BeneficiaryResource::make(Beneficiary::create($request->validated())->load(['school', 'needs']));
+        return BeneficiaryResource::make(
+            Beneficiary::create($request->validated())
+                ->load(['application', 'region', 'village', 'school.region', 'school.village', 'needs'])
+        );
     }
 
     public function show(Beneficiary $beneficiary)
     {
         $this->authorize('view', $beneficiary);
 
-        return BeneficiaryResource::make($beneficiary->load(['school', 'needs']));
+        return BeneficiaryResource::make($beneficiary->load(['application', 'region', 'village', 'school.region', 'school.village', 'needs']));
     }
 
     public function update(StoreBeneficiaryRequest $request, Beneficiary $beneficiary)
@@ -42,7 +45,7 @@ class BeneficiaryController extends Controller
 
         $beneficiary->update($request->validated());
 
-        return BeneficiaryResource::make($beneficiary->load(['school', 'needs']));
+        return BeneficiaryResource::make($beneficiary->load(['application', 'region', 'village', 'school.region', 'school.village', 'needs']));
     }
 
     public function destroy(Beneficiary $beneficiary)
@@ -53,4 +56,3 @@ class BeneficiaryController extends Controller
         return response()->noContent();
     }
 }
-

@@ -18,7 +18,7 @@ class ApplicationController extends Controller
 
         return ApplicationResource::collection(
             Application::query()
-                ->with('school')
+                ->with(['region', 'village', 'school.region', 'school.village'])
                 ->latest()
                 ->paginate($request->integer('per_page', 15))
         );
@@ -28,14 +28,14 @@ class ApplicationController extends Controller
     {
         $application = Application::create($request->validated());
 
-        return ApplicationResource::make($application->load('school'));
+        return ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village']));
     }
 
     public function show(Application $application)
     {
         $this->authorize('view', $application);
 
-        return ApplicationResource::make($application->load('school'));
+        return ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village']));
     }
 
     public function update(StoreApplicationRequest $request, Application $application)
@@ -44,7 +44,7 @@ class ApplicationController extends Controller
 
         $application->update($request->validated());
 
-        return ApplicationResource::make($application->load('school'));
+        return ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village']));
     }
 
     public function destroy(Application $application)
@@ -62,6 +62,7 @@ class ApplicationController extends Controller
 
         $next = ApplicationStatus::from($request->validated('status'));
         abort_unless($application->status->canTransitionTo($next), 422, 'Invalid application status transition.');
+        $previous = $application->status;
 
         $application->update([
             'status' => $next,
@@ -73,7 +74,15 @@ class ApplicationController extends Controller
                 : $application->reviewed_at,
         ]);
 
-        return ApplicationResource::make($application->fresh('school'));
+        $application->statusHistory()->create([
+            'from_status' => $previous->value,
+            'to_status' => $next->value,
+            'changed_by' => $request->user()?->id,
+            'changed_at' => now(),
+            'notes' => $request->validated('notes'),
+            'ip_address' => $request->ip(),
+        ]);
+
+        return ApplicationResource::make($application->fresh(['region', 'village', 'school.region', 'school.village']));
     }
 }
-

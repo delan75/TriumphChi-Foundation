@@ -12,24 +12,29 @@ class SchoolController extends Controller
 {
     public function index(Request $request)
     {
-        return SchoolResource::collection(School::query()->latest()->paginate($request->integer('per_page', 15)));
+        return SchoolResource::collection(
+            School::query()
+                ->with(['region', 'village'])
+                ->latest()
+                ->paginate($request->integer('per_page', 15))
+        );
     }
 
     public function store(StoreSchoolRequest $request)
     {
-        return SchoolResource::make(School::create($request->validated()));
+        return SchoolResource::make(School::create($request->validated())->load(['region', 'village']));
     }
 
     public function show(School $school)
     {
-        return SchoolResource::make($school);
+        return SchoolResource::make($school->load(['region', 'village']));
     }
 
     public function update(StoreSchoolRequest $request, School $school)
     {
         $school->update($request->validated());
 
-        return SchoolResource::make($school);
+        return SchoolResource::make($school->load(['region', 'village']));
     }
 
     public function destroy(School $school)
@@ -39,4 +44,3 @@ class SchoolController extends Controller
         return response()->noContent();
     }
 }
-
