@@ -9,11 +9,13 @@ class EducationalNeed extends Model
 {
     protected $fillable = [
         'beneficiary_id',
+        'type',
         'title',
         'description',
         'amount_required',
         'amount_funded',
         'status',
+        'academic_year',
         'funding_starts_at',
         'funding_ends_at',
     ];
@@ -28,5 +30,9 @@ class EducationalNeed extends Model
             'funding_ends_at' => 'date',
         ];
     }
-}
 
+    public function beneficiary()
+    {
+        return $this->belongsTo(Beneficiary::class);
+    }
+}

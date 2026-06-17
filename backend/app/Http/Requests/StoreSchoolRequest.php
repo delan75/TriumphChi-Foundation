@@ -15,9 +15,10 @@ class StoreSchoolRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'code' => ['required', 'string', 'max:80', Rule::unique('schools', 'code')->ignore($this->route('school'))],
             'name' => ['required', 'string', 'max:255'],
-            'region' => ['nullable', 'string', 'max:120'],
-            'village' => ['nullable', 'string', 'max:120'],
+            'region_id' => ['nullable', 'exists:regions,id'],
+            'village_id' => ['nullable', 'exists:villages,id'],
             'address' => ['nullable', 'string', 'max:500'],
             'principal_name' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:40'],
@@ -26,4 +27,3 @@ class StoreSchoolRequest extends FormRequest
         ];
     }
 }
-
