@@ -135,7 +135,7 @@ class CoreSchemaIntegrityTest extends TestCase
         $user = User::create([
             'name' => 'Program Lead',
             'email' => 'lead@example.org',
-            'password' => 'password',
+            'password' => bcrypt('password'),
         ]);
 
         $application = Application::create([
