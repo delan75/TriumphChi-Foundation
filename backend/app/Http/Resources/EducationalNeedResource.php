@@ -17,6 +17,7 @@ class EducationalNeedResource extends JsonResource
         return [
             'id' => $this->id,
             'beneficiary_id' => $this->beneficiary_id,
+            'type' => $this->type,
             'title' => $this->title,
             'description' => $this->description,
             'amount_required' => $this->amount_required,
@@ -26,6 +27,7 @@ class EducationalNeedResource extends JsonResource
                 : 0,
             'status' => $status,
             'status_label' => $this->localizedLabel('need_statuses', $status),
+            'academic_year' => $this->academic_year,
             'funding_starts_at' => $this->funding_starts_at,
             'funding_ends_at' => $this->funding_ends_at,
         ];
