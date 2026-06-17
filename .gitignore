@@ -19,3 +19,7 @@ frontend/.env
 
 # Logs
 *.log
+
+# Test/runtime caches
+.phpunit.result.cache
+backend/.phpunit.result.cache
