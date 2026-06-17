@@ -12,6 +12,7 @@ class Donor extends Model
         'email',
         'phone',
         'type',
+        'preferred_locale',
         'communication_preferences',
     ];
 
@@ -20,4 +21,3 @@ class Donor extends Model
         return ['communication_preferences' => 'array'];
     }
 }
-

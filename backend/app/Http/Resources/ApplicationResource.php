@@ -2,17 +2,24 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\LocalizesResourceLabels;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ApplicationResource extends JsonResource
 {
+    use LocalizesResourceLabels;
+
     public function toArray(Request $request): array
     {
+        $status = $this->normalizedLabelValue($this->status);
+
         return [
             'id' => $this->id,
             'source' => $this->source,
-            'status' => $this->status?->value,
+            'source_label' => $this->localizedLabel('application_sources', $this->source),
+            'status' => $status,
+            'status_label' => $this->localizedLabel('application_statuses', $status),
             'applicant_name' => $this->applicant_name,
             'date_of_birth' => $this->date_of_birth,
             'guardian_name' => $this->guardian_name,

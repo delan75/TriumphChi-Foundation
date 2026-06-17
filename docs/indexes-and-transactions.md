@@ -23,6 +23,8 @@ Common index patterns:
 - `parent_id, created_at`
 - `region_id, status`
 - unique public references such as `application_number`, `internal_id`, `donations.reference`, and `payments.reference`
+- unique localized content rows such as `content_page_id, locale`
+- localized content lookup such as `locale, title`
 - `donor_id, period_start, period_end` for evidence packages and donor reporting
 - `entity_type, entity_id` for document links, status history, and audit trails
 - `report_type, generated_at` for report snapshots

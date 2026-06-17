@@ -1,6 +1,6 @@
 {
   "name": "chisolution/triumphchi-api",
-  "description": "Laravel API scaffold for an NGO education sponsorship and beneficiary management platform.",
+  "description": "Laravel API for an NGO education sponsorship and beneficiary management platform.",
   "type": "project",
   "license": "proprietary",
   "require": {

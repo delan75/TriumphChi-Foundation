@@ -30,6 +30,8 @@ erDiagram
     USERS ||--o| DONORS : may_link_to
     DONORS ||--o{ DONATIONS : gives
     DONORS ||--o{ SPONSORSHIPS : sponsors
+    USERS ||--o{ CONTENT_PAGES : creates
+    CONTENT_PAGES ||--o{ CONTENT_PAGE_TRANSLATIONS : translates
     DONORS ||--o{ EVIDENCE_PACKAGES : receives
 
     FUNDS ||--o{ DONATIONS : receives
@@ -137,6 +139,7 @@ erDiagram
         bigint user_id FK
         string email
         string type
+        string preferred_locale
         string status
     }
 
@@ -354,6 +357,28 @@ erDiagram
         string entity_type
         bigint entity_id
         bigint document_id FK
+    }
+
+    CONTENT_PAGES {
+        bigint id PK
+        string slug UK
+        string type
+        string status
+        bigint created_by FK
+        timestamp published_at
+        timestamp deleted_at
+    }
+
+    CONTENT_PAGE_TRANSLATIONS {
+        bigint id PK
+        bigint content_page_id FK
+        string locale
+        string title
+        string summary
+        text body
+        string seo_title
+        string seo_description
+        json schema_data
     }
 ```
 
