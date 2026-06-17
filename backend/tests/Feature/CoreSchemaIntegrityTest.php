@@ -180,7 +180,7 @@ class CoreSchemaIntegrityTest extends TestCase
         ]);
     }
 
-    public function test_region_with_villages_cannot_be_hard_deleted(): void
+    public function test_region_with_villages_hard_delete_is_prevented_by_constraint(): void
     {
         $region = Region::create(['name' => 'Littoral']);
 
