@@ -86,6 +86,19 @@ Use translation tables for CMS and public content that is written separately in 
 - SEO metadata
 
 Domain records such as beneficiaries, schools, donors, donations, allocations, payments, and audit logs are stored once.
+### Evidence
+
+Evidence records prove use of funds.
+
+The evidence chain is:
+
+```text
+Donor -> Donation -> Fund -> Allocation -> Educational Need -> Payment -> School -> Beneficiary -> Impact Update -> Generated Report
+```
+
+Documents, report snapshots, receipts, tax certificates, and evidence packages should be modeled separately from donations and payments.
+
+Do not treat a donation receipt as the full evidence record. It proves money was received, not how it was used.
 
 ## Core Tables
 
@@ -409,22 +422,41 @@ Indexes:
 ### documents
 
 - `id`
-- `documentable_type`
-- `documentable_id`
 - `type`
+- `title`
 - `file_name`
 - `path`
 - `mime_type`
+- `file_sha256`
+- `classification`
+- `generated_at`
 - `uploaded_by`
 - `verified_by`
+- `retention_until`
 - timestamps
 
 Indexes:
 
-- `documentable_type, documentable_id`
 - `type`
+- `classification`
+- `file_sha256`
 - `uploaded_by`
 - `verified_by`
+
+### document_links
+
+- `id`
+- `document_id`
+- `entity_type`
+- `entity_id`
+- `link_role`
+- timestamps
+
+Indexes:
+
+- `document_id`
+- `entity_type, entity_id`
+- `entity_type, entity_id, link_role`
 
 ### audit_logs
 
@@ -455,6 +487,16 @@ Indexes:
 - `created_by`
 - `published_at`
 - soft deletes
+### audit_event_files
+
+- `id`
+- `storage_path`
+- `file_sha256`
+- `previous_file_sha256`
+- `opened_at`
+- `closed_at`
+- `event_count`
+- `status`
 - timestamps
 
 Indexes:
@@ -476,12 +518,160 @@ Indexes:
 - `seo_title`
 - `seo_description`
 - `schema_data`
+- `closed_at`
+- `status`
+- `file_sha256`
+
+### application_status_history
+
+- `id`
+- `application_id`
+- `from_status`
+- `to_status`
+- `changed_by`
+- `changed_at`
+- `reason`
+- `notes`
+- `ip_address`
+
+Indexes:
+
+- `application_id, changed_at`
+- `to_status, changed_at`
+- `changed_by, changed_at`
+
+### beneficiary_status_history
+
+- `id`
+- `beneficiary_id`
+- `from_status`
+- `to_status`
+- `changed_by`
+- `changed_at`
+- `reason`
+- `notes`
+- `ip_address`
+
+Indexes:
+
+- `beneficiary_id, changed_at`
+- `to_status, changed_at`
+- `changed_by, changed_at`
+
+### deletion_requests
+
+- `id`
+- `entity_type`
+- `entity_id`
+- `classification`
+- `requested_by`
+- `approved_by`
+- `status`
+- `reason`
+- `approved_at`
+- `executed_at`
+- timestamps
+
+Indexes:
+
+- `entity_type, entity_id`
+- `status, created_at`
+- `requested_by, created_at`
+- `approved_by, approved_at`
+
+### donation_receipts
+
+- `id`
+- `donation_id`
+- `receipt_number`
+- `document_id`
+- `issued_at`
+- `status`
+- timestamps
+
+Indexes:
+
+- unique `receipt_number`
+- `donation_id`
+- `document_id`
+- `status, issued_at`
+
+### tax_certificates
+
+- `id`
+- `donation_id`
+- `certificate_number`
+- `tax_year`
+- `document_id`
+- `issued_at`
+- `status`
+- timestamps
+
+Indexes:
+
+- unique `certificate_number`
+- `donation_id`
+- `tax_year, issued_at`
+- `document_id`
+
+### report_snapshots
+
+- `id`
+- `report_type`
+- `generated_for_type`
+- `generated_for_id`
+- `period_start`
+- `period_end`
+- `snapshot_json`
+- `source_hash`
+- `document_id`
+- `generated_by`
+- `generated_at`
+
+Indexes:
+
+- `report_type, generated_at`
+- `generated_for_type, generated_for_id`
+- `period_start, period_end`
+- `source_hash`
+
+### evidence_packages
+
+- `id`
+- `donor_id`
+- `title`
+- `period_start`
+- `period_end`
+- `status`
+- `summary_snapshot_json`
+- `approved_by`
+- `approved_at`
+- `generated_at`
+- timestamps
+
+Indexes:
+
+- `donor_id, period_start, period_end`
+- `status, generated_at`
+- `approved_by, approved_at`
+
+### evidence_package_items
+
+- `id`
+- `evidence_package_id`
+- `item_type`
+- `entity_type`
+- `entity_id`
+- `document_id`
 - timestamps
 
 Indexes:
 
 - unique `content_page_id, locale`
 - `locale, title`
+- `evidence_package_id`
+- `entity_type, entity_id`
+- `document_id`
 
 ## Money Flow
 
@@ -540,6 +730,15 @@ Use soft deletes for:
 Avoid hard deletes for financial records, child records, and application history.
 
 Use hard deletes only for temporary drafts or records that do not affect audit, finance, or safeguarding.
+
+Financial and Restricted records should require a deletion request and approval before soft deletion.
+
+Deletion should write:
+
+- soft delete timestamp on the source row
+- deletion request record
+- queryable audit log
+- append-only audit file entry
 
 ## Reporting Strategy
 

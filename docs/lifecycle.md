@@ -32,6 +32,15 @@ Each transition should capture:
 - Notes
 - Source IP where applicable
 
+Status history belongs in dedicated history tables for important lifecycle records.
+
+Recommended tables:
+
+- `application_status_history`
+- `beneficiary_status_history`
+
+These tables preserve the sequence of changes even when the current status changes again later.
+
 ## First Workflow
 
 ```text
@@ -47,3 +56,10 @@ Draft Application
   -> Graduated / Archived
 ```
 
+## Soft Delete Direction
+
+Rejected applications, graduated beneficiaries, inactive donors, closed schools, donations, allocations, and payments remain part of organizational history.
+
+Use soft deletes for normal application deletion. Hard deletion is reserved for controlled retention purging outside daily workflows.
+
+Sensitive or financial records should require a deletion request and approval before soft deletion.
