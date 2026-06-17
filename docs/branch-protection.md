@@ -62,7 +62,7 @@ The repository is private, so GitHub code-scanning upload requires GitHub Advanc
 - SARIF results are attached to the workflow run as `codeql-js-ts-sarif`.
 - After Advanced Security is enabled, change the CodeQL analyze step from `upload: never` to `upload: always` and restore `security-events: write`.
 
-PHP backend security is covered by Composer dependency auditing and backend tests. CodeQL should not be configured with `php` unless GitHub adds PHP as a recognized CodeQL language for this repository environment.
+PHP backend security is currently covered by Composer dependency auditing and backend tests. CodeQL supports PHP, but PHP analysis is not enabled in this repository's CodeQL workflow at this time.
 
 ## Merge Standard
 
