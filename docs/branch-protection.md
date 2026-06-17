@@ -22,7 +22,7 @@ Protect `main` with:
 Required checks:
 
 - `backend-tests`
-- `codeql-php`
+- `codeql-js-ts`
 
 ### `dev`
 
@@ -35,7 +35,7 @@ Protect `dev` with:
 Required checks:
 
 - `backend-tests`
-- `codeql-php`
+- `codeql-js-ts`
 
 ## Automated Workflows
 
@@ -45,6 +45,7 @@ It checks:
 
 - Composer configuration
 - Dependency installation
+- Backend dependency advisories with `composer audit`
 - Laravel Pint formatting in check mode for changed backend PHP files
 - Backend test suite
 
@@ -52,8 +53,10 @@ CodeQL runs on pull requests, pushes, and a weekly schedule.
 
 It checks:
 
-- PHP security issues
-- PHP quality issues
+- JavaScript and TypeScript security issues
+- JavaScript and TypeScript quality issues
+
+PHP backend security is covered by Composer dependency auditing and backend tests. CodeQL should not be configured with `php` unless GitHub adds PHP as a recognized CodeQL language for this repository environment.
 
 ## Merge Standard
 
