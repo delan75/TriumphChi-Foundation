@@ -9,42 +9,32 @@ class ApplicationPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $this->canManageBeneficiaries($user);
+        return $user->can('applications.view');
     }
 
     public function view(User $user, Application $application): bool
     {
-        return $this->canManageBeneficiaries($user);
+        return $user->can('applications.view');
     }
 
     public function create(User $user): bool
     {
-        return $this->canManageBeneficiaries($user);
+        return $user->can('applications.create');
     }
 
     public function update(User $user, Application $application): bool
     {
-        return $this->canManageBeneficiaries($user);
+        return $user->can('applications.update');
     }
 
     public function transition(User $user, Application $application): bool
     {
-        return $this->canManageBeneficiaries($user);
+        return $user->can('applications.verify');
     }
 
     public function delete(User $user, Application $application): bool
     {
-        return $this->hasRole($user, ['administrator', 'super_administrator']);
-    }
-
-    private function canManageBeneficiaries(User $user): bool
-    {
-        return $this->hasRole($user, ['field_officer', 'ngo_staff', 'administrator', 'super_administrator']);
-    }
-
-    private function hasRole(User $user, array $roles): bool
-    {
-        return $user->roles()->whereIn('name', $roles)->exists();
+        return $user->can('applications.delete');
     }
 }
 

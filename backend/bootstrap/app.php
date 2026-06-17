@@ -10,6 +10,10 @@ if (class_exists(\NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider
     $providers[] = \NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider::class;
 }
 
+if (class_exists(\Spatie\Permission\PermissionServiceProvider::class)) {
+    $providers[] = \Spatie\Permission\PermissionServiceProvider::class;
+}
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders($providers)
     ->withRouting(

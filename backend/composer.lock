@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d3516cc3ae5a3272474bd9d84e46673",
+    "content-hash": "11a3002a2346ef13ae58bade0172710d",
     "packages": [
         {
             "name": "brick/math",
@@ -3159,6 +3159,90 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.2"
             },
             "time": "2025-12-14T04:43:48+00:00"
+        },
+        {
+            "name": "spatie/laravel-permission",
+            "version": "6.25.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-permission.git",
+                "reference": "d7d4cb0d58616722f1afc90e0484e4825155b9b3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/d7d4cb0d58616722f1afc90e0484e4825155b9b3",
+                "reference": "d7d4cb0d58616722f1afc90e0484e4825155b9b3",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/auth": "^8.12|^9.0|^10.0|^11.0|^12.0|^13.0",
+                "illuminate/container": "^8.12|^9.0|^10.0|^11.0|^12.0|^13.0",
+                "illuminate/contracts": "^8.12|^9.0|^10.0|^11.0|^12.0|^13.0",
+                "illuminate/database": "^8.12|^9.0|^10.0|^11.0|^12.0|^13.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "laravel/passport": "^11.0|^12.0|^13.0",
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^6.23|^7.0|^8.0|^9.0|^10.0|^11.0",
+                "pestphp/pest": "^2.0|^3.0|^4.0",
+                "pestphp/pest-plugin-laravel": "^2.0|^3.0|^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spatie\\Permission\\PermissionServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-main": "6.x-dev",
+                    "dev-master": "6.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Spatie\\Permission\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Permission handling for Laravel 8.0 and up",
+            "homepage": "https://github.com/spatie/laravel-permission",
+            "keywords": [
+                "acl",
+                "laravel",
+                "permission",
+                "permissions",
+                "rbac",
+                "roles",
+                "security",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/laravel-permission/issues",
+                "source": "https://github.com/spatie/laravel-permission/tree/6.25.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-03-17T22:46:46+00:00"
         },
         {
             "name": "symfony/clock",
@@ -6340,38 +6424,36 @@
         },
         {
             "name": "nunomaduro/collision",
-            "version": "v8.6.0",
+            "version": "v8.9.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nunomaduro/collision.git",
-                "reference": "a94c0fb8f33da6a113cdc0eac936f7c42134de9d"
+                "reference": "716af8f95a470e9094cfca09ed897b023be191a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nunomaduro/collision/zipball/a94c0fb8f33da6a113cdc0eac936f7c42134de9d",
-                "reference": "a94c0fb8f33da6a113cdc0eac936f7c42134de9d",
+                "url": "https://api.github.com/repos/nunomaduro/collision/zipball/716af8f95a470e9094cfca09ed897b023be191a5",
+                "reference": "716af8f95a470e9094cfca09ed897b023be191a5",
                 "shasum": ""
             },
             "require": {
-                "filp/whoops": "^2.16.0",
-                "nunomaduro/termwind": "^2.3.0",
+                "filp/whoops": "^2.18.4",
+                "nunomaduro/termwind": "^2.4.0",
                 "php": "^8.2.0",
-                "symfony/console": "^7.2.1"
+                "symfony/console": "^7.4.8 || ^8.0.8"
             },
             "conflict": {
-                "laravel/framework": "<11.39.1 || >=13.0.0",
-                "phpunit/phpunit": "<11.5.3 || >=12.0.0"
+                "laravel/framework": "<11.48.0 || >=14.0.0",
+                "phpunit/phpunit": "<11.5.50 || >=14.0.0"
             },
             "require-dev": {
-                "larastan/larastan": "^2.9.12",
-                "laravel/framework": "^11.39.1",
-                "laravel/pint": "^1.20.0",
-                "laravel/sail": "^1.40.0",
-                "laravel/sanctum": "^4.0.7",
-                "laravel/tinker": "^2.10.0",
-                "orchestra/testbench-core": "^9.9.2",
-                "pestphp/pest": "^2.36.0 || ^3.7.2",
-                "sebastian/environment": "^6.1.0 || ^7.2.0"
+                "brianium/paratest": "^7.8.5",
+                "larastan/larastan": "^3.9.6",
+                "laravel/framework": "^11.48.0 || ^12.56.0 || ^13.5.0",
+                "laravel/pint": "^1.29.1",
+                "orchestra/testbench-core": "^9.12.0 || ^10.12.1 || ^11.2.1",
+                "pestphp/pest": "^3.8.5 || ^4.4.3 || ^5.0.0",
+                "sebastian/environment": "^7.2.1 || ^8.0.4 || ^9.3.0"
             },
             "type": "library",
             "extra": {
@@ -6408,6 +6490,7 @@
                 "cli",
                 "command-line",
                 "console",
+                "dev",
                 "error",
                 "handling",
                 "laravel",
@@ -6433,7 +6516,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-01-23T12:48:18+00:00"
+            "time": "2026-04-21T14:04:20+00:00"
         },
         {
             "name": "phar-io/manifest",
