@@ -7,6 +7,7 @@ use App\Http\Requests\StoreSponsorshipRequest;
 use App\Http\Resources\SponsorshipResource;
 use App\Models\Sponsorship;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SponsorshipController extends Controller
 {
@@ -17,7 +18,7 @@ class SponsorshipController extends Controller
 
     public function store(StoreSponsorshipRequest $request)
     {
-        return SponsorshipResource::make(Sponsorship::create($request->validated()));
+        return SponsorshipResource::make(DB::transaction(fn () => Sponsorship::create($request->validated())));
     }
 
     public function show(Sponsorship $sponsorship)
@@ -27,16 +28,15 @@ class SponsorshipController extends Controller
 
     public function update(StoreSponsorshipRequest $request, Sponsorship $sponsorship)
     {
-        $sponsorship->update($request->validated());
+        DB::transaction(fn () => $sponsorship->update($request->validated()));
 
         return SponsorshipResource::make($sponsorship);
     }
 
     public function destroy(Sponsorship $sponsorship)
     {
-        $sponsorship->delete();
+        DB::transaction(fn () => $sponsorship->delete());
 
         return response()->noContent();
     }
 }
-

@@ -7,6 +7,7 @@ use App\Http\Requests\StoreDonorRequest;
 use App\Http\Resources\DonorResource;
 use App\Models\Donor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DonorController extends Controller
 {
@@ -17,7 +18,7 @@ class DonorController extends Controller
 
     public function store(StoreDonorRequest $request)
     {
-        return DonorResource::make(Donor::create($request->validated()));
+        return DonorResource::make(DB::transaction(fn () => Donor::create($request->validated())));
     }
 
     public function show(Donor $donor)
@@ -27,16 +28,15 @@ class DonorController extends Controller
 
     public function update(StoreDonorRequest $request, Donor $donor)
     {
-        $donor->update($request->validated());
+        DB::transaction(fn () => $donor->update($request->validated()));
 
         return DonorResource::make($donor);
     }
 
     public function destroy(Donor $donor)
     {
-        $donor->delete();
+        DB::transaction(fn () => $donor->delete());
 
         return response()->noContent();
     }
 }
-

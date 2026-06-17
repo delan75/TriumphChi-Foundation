@@ -28,12 +28,15 @@ class StorePaymentRequest extends FormRequest
             'currency' => ['required', 'string', 'size:3'],
             'method' => ['nullable', Rule::in(['mtn_mobile_money', 'orange_money', 'bank_transfer', 'cash', 'stripe', 'paypal'])],
             'payment_date' => ['required', 'date'],
-            'approved_by' => ['nullable', 'exists:users,id'],
-            'disbursed_by' => ['nullable', 'exists:users,id'],
+            'approved_by' => ['prohibited'],
+            'disbursed_by' => ['prohibited'],
             'proof_path' => ['nullable', 'string', 'max:500'],
-            'status' => ['required', Rule::in(['draft', 'pending', 'paid', 'confirmed', 'void'])],
+            'status' => ['required', Rule::in(['draft', 'pending', 'approved', 'paid', 'confirmed', 'void'])],
             'metadata' => ['nullable', 'array'],
             'notes' => ['nullable', 'string'],
+            'allocations' => ['nullable', 'array'],
+            'allocations.*.allocation_id' => ['required_with:allocations', 'distinct', 'exists:allocations,id'],
+            'allocations.*.amount_applied' => ['required_with:allocations', 'numeric', 'min:0.01'],
         ];
     }
 }

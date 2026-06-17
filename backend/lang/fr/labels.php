@@ -58,6 +58,12 @@ return [
         'cancelled' => 'Annulé',
     ],
 
+    'allocation_statuses' => [
+        'proposed' => 'Proposee',
+        'approved' => 'Approuvee',
+        'cancelled' => 'Annulee',
+    ],
+
     'payment_methods' => [
         'mtn_mobile_money' => 'MTN Mobile Money',
         'orange_money' => 'Orange Money',
