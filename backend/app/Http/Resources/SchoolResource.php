@@ -14,9 +14,10 @@ class SchoolResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'code' => $this->code,
             'name' => $this->name,
-            'region' => $this->region,
-            'village' => $this->village,
+            'region' => RegionResource::make($this->whenLoaded('region')),
+            'village' => VillageResource::make($this->whenLoaded('village')),
             'address' => $this->address,
             'principal_name' => $this->principal_name,
             'phone' => $this->phone,
