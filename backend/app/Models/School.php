@@ -40,4 +40,9 @@ class School extends Model
     {
         return $this->hasMany(Beneficiary::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

@@ -20,6 +20,7 @@ class DonorResource extends JsonResource
             'phone' => $this->phone,
             'type' => $this->type,
             'type_label' => $this->localizedLabel('donor_types', $this->type),
+            'status' => $this->status,
             'preferred_locale' => $this->preferred_locale,
             'communication_preferences' => $this->communication_preferences,
         ];
