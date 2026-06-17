@@ -19,9 +19,10 @@ class StoreDonorRequest extends FormRequest
             'name' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:40'],
-            'type' => ['required', Rule::in(['individual', 'corporate', 'anonymous'])],
+            'type' => ['required', Rule::in(['individual', 'organization', 'corporate', 'anonymous'])],
+            'status' => ['required', Rule::in(['active', 'inactive', 'blocked'])],
+            'preferred_locale' => ['nullable', Rule::in(['en', 'fr'])],
             'communication_preferences' => ['nullable', 'array'],
         ];
     }
 }
-

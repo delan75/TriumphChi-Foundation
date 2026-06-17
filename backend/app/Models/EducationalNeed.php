@@ -35,4 +35,14 @@ class EducationalNeed extends Model
     {
         return $this->belongsTo(Beneficiary::class);
     }
+
+    public function allocations()
+    {
+        return $this->hasMany(Allocation::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

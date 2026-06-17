@@ -48,19 +48,26 @@ return [
     ],
 
     'payment_statuses' => [
+        'draft' => 'Draft',
         'pending' => 'Pending',
         'approved' => 'Approved',
         'paid' => 'Paid',
+        'confirmed' => 'Confirmed',
         'failed' => 'Failed',
         'cancelled' => 'Cancelled',
+        'void' => 'Void',
     ],
 
     'payment_methods' => [
         'cash' => 'Cash',
         'bank_transfer' => 'Bank transfer',
         'mobile_money' => 'Mobile money',
+        'mtn_mobile_money' => 'MTN Mobile Money',
+        'orange_money' => 'Orange Money',
         'card' => 'Card',
         'cheque' => 'Cheque',
+        'stripe' => 'Stripe',
+        'paypal' => 'PayPal',
     ],
 
     'school_verification_statuses' => [
@@ -80,6 +87,7 @@ return [
         'organization' => 'Organization',
         'corporate' => 'Corporate',
         'foundation' => 'Foundation',
+        'anonymous' => 'Anonymous',
     ],
 
     'sponsorship_types' => [
@@ -87,9 +95,11 @@ return [
         'partial' => 'Partial sponsorship',
         'recurring' => 'Recurring sponsorship',
         'one_time' => 'One-time sponsorship',
+        'program' => 'Program sponsorship',
     ],
 
     'sponsorship_statuses' => [
+        'draft' => 'Draft',
         'active' => 'Active',
         'paused' => 'Paused',
         'completed' => 'Completed',

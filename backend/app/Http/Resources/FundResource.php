@@ -11,12 +11,18 @@ class FundResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'code' => $this->code,
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'balance' => $this->balance,
-            'is_active' => $this->is_active,
+            'currency' => $this->currency,
+            'restriction_type' => $this->restriction_type,
+            'restricted_to_type' => $this->restricted_to_type,
+            'restricted_to_id' => $this->restricted_to_id,
+            'status' => $this->status,
+            'starts_at' => $this->starts_at,
+            'ends_at' => $this->ends_at,
+            'created_by' => $this->created_by,
         ];
     }
 }
-

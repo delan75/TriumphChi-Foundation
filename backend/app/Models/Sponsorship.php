@@ -3,17 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Sponsorship extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
+        'sponsorship_reference',
         'donor_id',
         'beneficiary_id',
+        'fund_id',
         'type',
         'pledged_amount',
+        'currency',
+        'billing_frequency',
         'starts_at',
         'ends_at',
         'status',
+        'notes',
     ];
 
     protected function casts(): array
@@ -24,5 +32,19 @@ class Sponsorship extends Model
             'ends_at' => 'date',
         ];
     }
-}
 
+    public function donor()
+    {
+        return $this->belongsTo(Donor::class);
+    }
+
+    public function beneficiary()
+    {
+        return $this->belongsTo(Beneficiary::class);
+    }
+
+    public function fund()
+    {
+        return $this->belongsTo(Fund::class);
+    }
+}

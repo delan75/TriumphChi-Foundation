@@ -69,4 +69,14 @@ class Beneficiary extends Model
     {
         return $this->hasMany(BeneficiaryStatusHistory::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function sponsorships()
+    {
+        return $this->hasMany(Sponsorship::class);
+    }
 }

@@ -48,6 +48,9 @@ return [
     ],
 
     'payment_statuses' => [
+        'draft' => 'Brouillon',
+        'confirmed' => 'Confirme',
+        'void' => 'Annule juridiquement',
         'pending' => 'En attente',
         'approved' => 'Approuvé',
         'paid' => 'Payé',
@@ -56,6 +59,10 @@ return [
     ],
 
     'payment_methods' => [
+        'mtn_mobile_money' => 'MTN Mobile Money',
+        'orange_money' => 'Orange Money',
+        'stripe' => 'Stripe',
+        'paypal' => 'PayPal',
         'cash' => 'Espèces',
         'bank_transfer' => 'Virement bancaire',
         'mobile_money' => 'Mobile money',
@@ -76,6 +83,7 @@ return [
     ],
 
     'donor_types' => [
+        'anonymous' => 'Anonyme',
         'individual' => 'Individuel',
         'organization' => 'Organisation',
         'corporate' => 'Entreprise',
@@ -83,6 +91,7 @@ return [
     ],
 
     'sponsorship_types' => [
+        'program' => 'Parrainage de programme',
         'full' => 'Parrainage complet',
         'partial' => 'Parrainage partiel',
         'recurring' => 'Parrainage récurrent',
@@ -90,6 +99,7 @@ return [
     ],
 
     'sponsorship_statuses' => [
+        'draft' => 'Brouillon',
         'active' => 'Actif',
         'paused' => 'Suspendu',
         'completed' => 'Terminé',
