@@ -56,6 +56,12 @@ It checks:
 - JavaScript and TypeScript security issues
 - JavaScript and TypeScript quality issues
 
+The repository is private, so GitHub code-scanning upload requires GitHub Advanced Security. Until Advanced Security is enabled, the CodeQL workflow runs in SARIF artifact mode:
+
+- The `codeql-js-ts` check must pass before merge.
+- SARIF results are attached to the workflow run as `codeql-js-ts-sarif`.
+- After Advanced Security is enabled, change the CodeQL analyze step from `upload: never` to `upload: always` and restore `security-events: write`.
+
 PHP backend security is covered by Composer dependency auditing and backend tests. CodeQL should not be configured with `php` unless GitHub adds PHP as a recognized CodeQL language for this repository environment.
 
 ## Merge Standard
