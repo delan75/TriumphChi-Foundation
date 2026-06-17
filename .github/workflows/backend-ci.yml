@@ -39,6 +39,9 @@ jobs:
       - name: Install backend dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: Audit backend dependencies
+        run: composer audit
+
       - name: Check formatting on changed PHP files
         shell: bash
         run: |
