@@ -16,15 +16,24 @@ class StorePaymentRequest extends FormRequest
     {
         return [
             'payment_reference' => ['required', 'string', 'max:120'],
-            'school_id' => ['required', 'exists:schools,id'],
+            'idempotency_key' => ['nullable', 'string', 'max:180'],
+            'fund_id' => ['nullable', 'exists:funds,id'],
+            'school_id' => ['nullable', 'exists:schools,id'],
             'beneficiary_id' => ['nullable', 'exists:beneficiaries,id'],
             'educational_need_id' => ['nullable', 'exists:educational_needs,id'],
+            'payee_type' => ['required', Rule::in(['school', 'vendor', 'guardian'])],
+            'payee_name' => ['nullable', 'string', 'max:255'],
+            'vendor_reference' => ['nullable', 'string', 'max:180'],
             'amount' => ['required', 'numeric', 'min:0.01'],
+            'currency' => ['required', 'string', 'size:3'],
+            'method' => ['nullable', Rule::in(['mtn_mobile_money', 'orange_money', 'bank_transfer', 'cash', 'stripe', 'paypal'])],
             'payment_date' => ['required', 'date'],
+            'approved_by' => ['nullable', 'exists:users,id'],
+            'disbursed_by' => ['nullable', 'exists:users,id'],
             'proof_path' => ['nullable', 'string', 'max:500'],
             'status' => ['required', Rule::in(['draft', 'pending', 'paid', 'confirmed', 'void'])],
+            'metadata' => ['nullable', 'array'],
             'notes' => ['nullable', 'string'],
         ];
     }
 }
-

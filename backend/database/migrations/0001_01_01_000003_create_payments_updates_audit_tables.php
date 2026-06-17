@@ -11,21 +11,44 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->string('payment_reference')->unique();
-            $table->foreignId('school_id')->constrained()->restrictOnDelete();
-            $table->foreignId('beneficiary_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('educational_need_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('idempotency_key')->nullable()->unique();
+            $table->foreignId('fund_id')->nullable()->constrained()->restrictOnDelete();
+            $table->foreignId('school_id')->nullable()->constrained()->restrictOnDelete();
+            $table->foreignId('beneficiary_id')->nullable()->constrained()->restrictOnDelete();
+            $table->foreignId('educational_need_id')->nullable()->constrained()->restrictOnDelete();
+            $table->string('payee_type')->default('school')->index();
+            $table->string('payee_name')->nullable();
+            $table->string('vendor_reference')->nullable();
             $table->decimal('amount', 14, 2);
+            $table->char('currency', 3)->default('XAF');
+            $table->string('method')->nullable()->index();
             $table->date('payment_date');
+            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('disbursed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('proof_path', 500)->nullable();
             $table->string('status')->index();
+            $table->json('metadata')->nullable();
             $table->text('notes')->nullable();
+            $table->softDeletes();
             $table->timestamps();
+
+            $table->index(['fund_id', 'status']);
+            $table->index(['school_id', 'status']);
+            $table->index(['beneficiary_id', 'status']);
+            $table->index(['educational_need_id', 'status']);
+            $table->index(['status', 'payment_date']);
+            $table->index(['payee_type', 'payee_name']);
         });
 
         Schema::create('allocation_payment', function (Blueprint $table) {
-            $table->foreignId('allocation_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('payment_id')->constrained()->cascadeOnDelete();
-            $table->primary(['allocation_id', 'payment_id']);
+            $table->id();
+            $table->foreignId('allocation_id')->constrained()->restrictOnDelete();
+            $table->foreignId('payment_id')->constrained()->restrictOnDelete();
+            $table->decimal('amount_applied', 14, 2);
+            $table->timestamps();
+
+            $table->unique(['allocation_id', 'payment_id']);
+            $table->index(['payment_id', 'allocation_id']);
         });
 
         Schema::create('impact_updates', function (Blueprint $table) {
@@ -60,4 +83,3 @@ return new class extends Migration
         Schema::dropIfExists('payments');
     }
 };
-
