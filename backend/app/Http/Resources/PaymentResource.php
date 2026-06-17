@@ -2,11 +2,14 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\LocalizesResourceLabels;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PaymentResource extends JsonResource
 {
+    use LocalizesResourceLabels;
+
     public function toArray(Request $request): array
     {
         return [
@@ -19,8 +22,8 @@ class PaymentResource extends JsonResource
             'payment_date' => $this->payment_date,
             'proof_path' => $this->proof_path,
             'status' => $this->status,
+            'status_label' => $this->localizedLabel('payment_statuses', $this->status),
             'notes' => $this->notes,
         ];
     }
 }
-

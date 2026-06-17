@@ -113,5 +113,6 @@ Machine-specific settings such as database host, port, username, and password be
 - [ERD](docs/erd.md)
 - [Indexes and Transactions](docs/indexes-and-transactions.md)
 - [Permissions](docs/permissions.md)
+- [Localization](docs/localization.md)
 - [Frontend SEO and i18n](docs/frontend-seo-i18n.md)
 - [GitHub Workflow](docs/github-workflow.md)

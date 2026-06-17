@@ -32,6 +32,7 @@ Admin support:
 - Minimal duplication.
 - Permission-based API authorization.
 - Policy-based resource authorization.
+- API-level localization for server-owned labels and messages.
 - Auditable financial and beneficiary workflows.
 - Public pages never expose private child records.
 
@@ -111,12 +112,33 @@ This keeps the system flexible. Roles can change without changing controller cod
 ## Request Flow
 
 1. React calls `/api/v1`.
-2. Sanctum authenticates the request.
-3. Route middleware checks the required permission.
-4. Controller calls policy checks for resource-specific authorization.
-5. Form Request validates input.
-6. Database transaction writes related state changes.
-7. Audit log records critical actions.
+2. Locale middleware resolves the active language.
+3. Sanctum authenticates the request.
+4. Route middleware checks the required permission.
+5. Controller calls policy checks for resource-specific authorization.
+6. Form Request validates input.
+7. Database transaction writes related state changes.
+8. API resources return stable values with localized labels.
+9. Audit log records critical actions.
+
+## Localization Model
+
+The API supports localized responses without duplicating domain records.
+
+Locale is resolved from explicit request locale, saved user preference, browser language, then fallback language. API resources return source values and localized labels together:
+
+```json
+{
+  "status": "active_support",
+  "status_label": "Soutien actif"
+}
+```
+
+System language such as statuses, permissions, validation messages, report headings, and notification text belongs in language files.
+
+Public CMS content such as pages, blog posts, news posts, program descriptions, success stories, and SEO metadata belongs in translation tables.
+
+Beneficiaries, schools, donors, donations, allocations, payments, and audit records remain single-source domain data.
 
 ## Transaction Boundaries
 

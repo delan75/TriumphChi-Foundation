@@ -20,6 +20,8 @@ Common index patterns:
 - `parent_id, created_at`
 - `region_id, status`
 - unique public references such as `application_number`, `internal_id`, `donations.reference`, and `payments.reference`
+- unique localized content rows such as `content_page_id, locale`
+- localized content lookup such as `locale, title`
 
 Avoid indexing every column. Add indexes for query patterns that exist in API filters, reporting views, or integrity constraints.
 
