@@ -2,6 +2,7 @@
   "name": "chisolution/triumphchi-api",
   "description": "Laravel API scaffold for an NGO education sponsorship and beneficiary management platform.",
   "type": "project",
+  "license": "proprietary",
   "require": {
     "php": "^8.4",
     "laravel/framework": "^12.0",
@@ -32,4 +33,3 @@
   "minimum-stability": "stable",
   "prefer-stable": true
 }
-
