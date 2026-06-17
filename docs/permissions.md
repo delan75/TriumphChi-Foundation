@@ -49,7 +49,7 @@ public function update(User $user, Beneficiary $beneficiary): bool
 }
 ```
 
-The region check is intentionally not implemented yet because the current scaffold does not have region ownership tables.
+The region check becomes active once region ownership tables are added.
 
 ## Admin UI Direction
 

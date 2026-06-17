@@ -33,3 +33,18 @@ Sponsorship is many-to-many:
 
 The system must not assume a one-to-one child sponsorship relationship.
 
+## Evidence Flow
+
+```text
+Donation -> Allocation -> Payment -> Beneficiary / School -> Impact Update -> Report Snapshot -> Evidence Package
+```
+
+Generated evidence is separate from source records. Receipts, tax certificates, CSR reports, and annual statements are documents linked back to the source chain.
+
+## Audit Flow
+
+```text
+Source Change -> Audit Log -> Append-Only Audit File
+```
+
+Audit logs support querying. Audit files provide tamper-resistant evidence outside normal application editing workflows.

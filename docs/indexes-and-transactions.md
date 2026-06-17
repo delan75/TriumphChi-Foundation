@@ -12,6 +12,9 @@ List endpoints should filter by:
 - region
 - school
 - academic year
+- report period
+- donor
+- evidence package
 
 Common index patterns:
 
@@ -20,8 +23,32 @@ Common index patterns:
 - `parent_id, created_at`
 - `region_id, status`
 - unique public references such as `application_number`, `internal_id`, `donations.reference`, and `payments.reference`
+- `donor_id, period_start, period_end` for evidence packages and donor reporting
+- `entity_type, entity_id` for document links, status history, and audit trails
+- `report_type, generated_at` for report snapshots
+- `classification, created_at` for restricted audit and document review
 
 Avoid indexing every column. Add indexes for query patterns that exist in API filters, reporting views, or integrity constraints.
+
+## Evidence Query Patterns
+
+Evidence management should support:
+
+- all documents linked to a donation
+- all payments funded by a corporate donor in a reporting period
+- all beneficiaries impacted by a donation or evidence package
+- all reports generated for a donor
+- all certificates issued in a tax year
+- all audit events for a sensitive entity
+
+Indexes should favor these paths:
+
+- `document_links.entity_type, document_links.entity_id`
+- `donation_receipts.donation_id`
+- `tax_certificates.tax_year, tax_certificates.issued_at`
+- `report_snapshots.generated_for_type, report_snapshots.generated_for_id`
+- `evidence_packages.donor_id, evidence_packages.period_start, evidence_packages.period_end`
+- `evidence_package_items.evidence_package_id`
 
 ## Financial Transactions
 
