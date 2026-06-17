@@ -1,0 +1,35 @@
+{
+  "name": "chisolution/triumphchi-api",
+  "description": "Laravel API scaffold for an NGO education sponsorship and beneficiary management platform.",
+  "type": "project",
+  "require": {
+    "php": "^8.4",
+    "laravel/framework": "^12.0",
+    "laravel/sanctum": "^4.0"
+  },
+  "require-dev": {
+    "fakerphp/faker": "^1.24",
+    "laravel/pint": "^1.18",
+    "mockery/mockery": "^1.6",
+    "phpunit/phpunit": "^11.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/",
+      "Database\\Factories\\": "database/factories/",
+      "Database\\Seeders\\": "database/seeders/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "php artisan test",
+    "lint": "vendor/bin/pint"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
+

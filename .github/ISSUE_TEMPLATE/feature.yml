@@ -1,0 +1,51 @@
+name: Feature
+description: Plan a feature before implementation starts.
+title: "[Feature]: "
+labels:
+  - feature
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What should be built?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Why is this needed for the NGO platform?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is included in this issue?
+      placeholder: |
+        - Backend API
+        - Frontend screens
+        - Tests
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: What must be true before this issue is complete?
+      placeholder: |
+        - Users can...
+        - API returns...
+        - Tests cover...
+    validations:
+      required: true
+  - type: textarea
+    id: safeguards
+    attributes:
+      label: Privacy and Safeguarding Notes
+      description: Mention any child privacy, file access, audit, or permission requirements.
+    validations:
+      required: false
+

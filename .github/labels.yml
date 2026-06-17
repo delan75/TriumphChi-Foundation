@@ -1,0 +1,22 @@
+- name: feature
+  color: "1f883d"
+  description: New functionality
+- name: bug
+  color: "d1242f"
+  description: Defect or regression
+- name: documentation
+  color: "0969da"
+  description: Documentation changes
+- name: backend
+  color: "6f42c1"
+  description: Laravel API work
+- name: frontend
+  color: "fbca04"
+  description: React application work
+- name: privacy
+  color: "bf3989"
+  description: Child safeguarding, privacy, or access control concern
+- name: reports
+  color: "0a7ea4"
+  description: Reporting and exports
+
