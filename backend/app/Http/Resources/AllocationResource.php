@@ -2,11 +2,14 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\LocalizesResourceLabels;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AllocationResource extends JsonResource
 {
+    use LocalizesResourceLabels;
+
     public function toArray(Request $request): array
     {
         return [
@@ -18,6 +21,7 @@ class AllocationResource extends JsonResource
             'amount' => $this->amount,
             'currency' => $this->currency,
             'status' => $this->status,
+            'status_label' => $this->localizedLabel('allocation_statuses', $this->status),
             'allocated_at' => $this->allocated_at,
             'reason' => $this->reason,
             'created_by' => $this->created_by,

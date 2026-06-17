@@ -7,6 +7,7 @@ use App\Http\Requests\StoreFundRequest;
 use App\Http\Resources\FundResource;
 use App\Models\Fund;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FundController extends Controller
 {
@@ -17,7 +18,7 @@ class FundController extends Controller
 
     public function store(StoreFundRequest $request)
     {
-        return FundResource::make(Fund::create($request->validated()));
+        return FundResource::make(DB::transaction(fn () => Fund::create($request->validated())));
     }
 
     public function show(Fund $fund)
@@ -27,16 +28,15 @@ class FundController extends Controller
 
     public function update(StoreFundRequest $request, Fund $fund)
     {
-        $fund->update($request->validated());
+        DB::transaction(fn () => $fund->update($request->validated()));
 
         return FundResource::make($fund);
     }
 
     public function destroy(Fund $fund)
     {
-        $fund->delete();
+        DB::transaction(fn () => $fund->delete());
 
         return response()->noContent();
     }
 }
-

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAllocationRequest;
 use App\Http\Resources\AllocationResource;
 use App\Models\Allocation;
+use App\Services\FundingTransactionService;
 use Illuminate\Http\Request;
 
 class AllocationController extends Controller
@@ -15,12 +16,9 @@ class AllocationController extends Controller
         return AllocationResource::collection(Allocation::query()->latest()->paginate($request->integer('per_page', 15)));
     }
 
-    public function store(StoreAllocationRequest $request)
+    public function store(StoreAllocationRequest $request, FundingTransactionService $funding)
     {
-        return AllocationResource::make(Allocation::create([
-            ...$request->validated(),
-            'created_by' => $request->user()->id,
-        ]));
+        return AllocationResource::make($funding->createAllocation($request->validated(), $request->user()));
     }
 
     public function show(Allocation $allocation)
@@ -28,4 +26,3 @@ class AllocationController extends Controller
         return AllocationResource::make($allocation);
     }
 }
-

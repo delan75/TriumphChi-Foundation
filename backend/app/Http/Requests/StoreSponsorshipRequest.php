@@ -15,7 +15,12 @@ class StoreSponsorshipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sponsorship_reference' => ['required', 'string', 'max:120'],
+            'sponsorship_reference' => [
+                'required',
+                'string',
+                'max:120',
+                Rule::unique('sponsorships', 'sponsorship_reference')->ignore($this->route('sponsorship')),
+            ],
             'donor_id' => ['required', 'exists:donors,id'],
             'beneficiary_id' => ['required', 'exists:beneficiaries,id'],
             'fund_id' => ['nullable', 'exists:funds,id'],

@@ -15,9 +15,19 @@ class StoreFundRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['nullable', 'string', 'max:80'],
+            'code' => [
+                'nullable',
+                'string',
+                'max:80',
+                Rule::unique('funds', 'code')->ignore($this->route('fund')),
+            ],
             'name' => ['required', 'string', 'max:160'],
-            'slug' => ['required', 'string', 'max:180'],
+            'slug' => [
+                'required',
+                'string',
+                'max:180',
+                Rule::unique('funds', 'slug')->ignore($this->route('fund')),
+            ],
             'description' => ['nullable', 'string'],
             'currency' => ['required', 'string', 'size:3'],
             'restriction_type' => ['required', 'string', 'max:80'],
