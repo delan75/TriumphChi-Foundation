@@ -11,12 +11,13 @@ use App\Http\Controllers\Api\V1\ImpactUpdateController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\SchoolController;
 use App\Http\Controllers\Api\V1\SponsorshipController;
+use App\Http\Middleware\SetLocale;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('health', fn () => ['status' => 'ok']);
 
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth:sanctum', SetLocale::class])->group(function () {
         Route::apiResource('applications', ApplicationController::class)
             ->middlewareFor(['index', 'show'], 'can:applications.view')
             ->middlewareFor('store', 'can:applications.create')

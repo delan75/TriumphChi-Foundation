@@ -118,5 +118,6 @@ Machine-specific settings such as database host, port, username, and password be
 - [Reporting and Growth](docs/reporting-and-growth.md)
 - [Data Classification](docs/data-classification.md)
 - [Permissions](docs/permissions.md)
+- [Localization](docs/localization.md)
 - [Frontend SEO and i18n](docs/frontend-seo-i18n.md)
 - [GitHub Workflow](docs/github-workflow.md)

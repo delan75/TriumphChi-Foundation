@@ -49,6 +49,8 @@ Donors are separate from users because many donors may never sign in.
 
 If a donor creates an account later, `donors.user_id` can link the donor record to a user.
 
+Donors also store `preferred_locale` so communication can remain localized before or without a user account.
+
 ### Documents
 
 Documents are centralized through a polymorphic table:
@@ -61,6 +63,29 @@ documents
 
 Documents can belong to applications, beneficiaries, schools, payments, educational needs, and impact updates.
 
+### Localization
+
+Do not duplicate operational data per language.
+
+Use language files for fixed system values:
+
+- statuses
+- permission labels
+- validation messages
+- dashboard labels
+- report headings
+- notification messages
+
+Use translation tables for CMS and public content that is written separately in each language:
+
+- pages
+- blog posts
+- news posts
+- program descriptions
+- public success stories
+- SEO metadata
+
+Domain records such as beneficiaries, schools, donors, donations, allocations, payments, and audit logs are stored once.
 ### Evidence
 
 Evidence records prove use of funds.
@@ -227,6 +252,7 @@ Indexes:
 - `email`
 - `phone`
 - `type`
+- `preferred_locale`
 - `status`
 - soft deletes
 - timestamps
@@ -236,6 +262,7 @@ Indexes:
 - `user_id`
 - `email`
 - `type, status`
+- `preferred_locale`
 - `status`
 
 ### funds
@@ -451,6 +478,15 @@ Indexes:
 - `entity_type, entity_id`
 - `action, created_at`
 
+### content_pages
+
+- `id`
+- `slug`
+- `type`
+- `status`
+- `created_by`
+- `published_at`
+- soft deletes
 ### audit_event_files
 
 - `id`
@@ -465,6 +501,23 @@ Indexes:
 
 Indexes:
 
+- unique `slug`
+- `type`
+- `status`
+- `published_at`
+- `created_by`
+
+### content_page_translations
+
+- `id`
+- `content_page_id`
+- `locale`
+- `title`
+- `summary`
+- `body`
+- `seo_title`
+- `seo_description`
+- `schema_data`
 - `closed_at`
 - `status`
 - `file_sha256`
@@ -614,6 +667,8 @@ Indexes:
 
 Indexes:
 
+- unique `content_page_id, locale`
+- `locale, title`
 - `evidence_package_id`
 - `entity_type, entity_id`
 - `document_id`

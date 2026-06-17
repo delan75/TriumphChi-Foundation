@@ -2,17 +2,23 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\LocalizesResourceLabels;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class BeneficiaryResource extends JsonResource
 {
+    use LocalizesResourceLabels;
+
     public function toArray(Request $request): array
     {
+        $status = $this->normalizedLabelValue($this->status);
+
         return [
             'id' => $this->id,
             'internal_id' => $this->internal_id,
-            'status' => $this->status?->value,
+            'status' => $status,
+            'status_label' => $this->localizedLabel('beneficiary_statuses', $status),
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'date_of_birth' => $this->date_of_birth,
