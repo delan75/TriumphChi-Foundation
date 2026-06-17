@@ -57,6 +57,7 @@ jobs:
             exit 0
           fi
 
+
           vendor/bin/pint --test "${FILES[@]}"
 
       - name: Run backend tests
