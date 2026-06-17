@@ -182,15 +182,31 @@ class CoreSchemaIntegrityTest extends TestCase
 
     public function test_region_with_villages_hard_delete_is_prevented_by_constraint(): void
     {
-        $region = Region::create(['name' => 'Littoral']);
+        $region = Region::create([
+            'code' => 'REG-LIT',
+            'name' => 'Littoral',
+        ]);
 
         Village::create([
             'region_id' => $region->id,
             'name' => 'Bonaberi',
         ]);
 
-        $this->expectException(QueryException::class);
+        try {
+            $region->delete();
+            $this->fail('Expected a QueryException caused by a foreign key/integrity constraint.');
+        } catch (QueryException $exception) {
+            $sqlState = (string) ($exception->errorInfo[0] ?? '');
+            $driverCode = (string) ($exception->errorInfo[1] ?? '');
+            $message = strtolower($exception->getMessage());
 
-        $region->delete();
+            $this->assertTrue(
+                $sqlState === '23000'
+                    || $driverCode === '1451'
+                    || str_contains($message, 'foreign key')
+                    || str_contains($message, 'constraint'),
+                'Expected integrity/foreign-key constraint violation details in QueryException.'
+            );
+        }
     }
 }
