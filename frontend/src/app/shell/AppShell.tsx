@@ -1,7 +1,8 @@
 import { Outlet, NavLink, useParams } from 'react-router-dom';
 import { BarChart3, GraduationCap, HandCoins, Home, Inbox, ShieldCheck, UsersRound } from 'lucide-react';
-import { Locale, t } from '../../lib/i18n';
+import { isLocale, Locale, t } from '../../lib/i18n';
 import { cn } from '../../components/ui/cn';
+import { publicNavigation } from '../../content/publicPages';
 
 const navItems = [
   { to: '', label: 'Home', icon: Home },
@@ -14,7 +15,7 @@ const navItems = [
 
 export function AppShell() {
   const { locale = 'en' } = useParams();
-  const activeLocale = locale === 'fr' ? 'fr' : 'en';
+  const activeLocale = isLocale(locale) ? locale : 'en';
 
   return (
     <div className="min-h-dvh bg-ink-50 text-ink-900">
@@ -26,7 +27,7 @@ export function AppShell() {
             </div>
             <div>
               <p className="text-sm font-semibold text-foundation-900">{t(activeLocale as Locale, 'appName')}</p>
-              <p className="text-xs text-ink-500">Education sponsorship operations</p>
+              <p className="text-xs text-ink-500">{t(activeLocale as Locale, 'operationsSubtitle')}</p>
             </div>
           </div>
           <div className="flex min-h-11 items-center rounded-md border border-ink-100 bg-ink-50 p-1 text-sm">
@@ -42,7 +43,32 @@ export function AppShell() {
 
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[240px_1fr] lg:px-8">
         <nav className="lg:sticky lg:top-24 lg:h-fit">
+          <div className="mb-3 rounded-md border border-ink-100 bg-white p-2 shadow-sm">
+            <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-normal text-ink-500">Public</p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1">
+              {publicNavigation.map((item) => (
+                <NavLink
+                  key={item.key}
+                  to={`/${activeLocale}${item.path[activeLocale]}`}
+                  end={item.key === 'home'}
+                  className={({ isActive }) =>
+                    cn(
+                      'focus-ring flex min-h-11 items-center rounded-md px-3 text-sm font-medium transition',
+                      isActive
+                        ? 'bg-foundation-50 text-foundation-900'
+                        : 'text-ink-700 hover:bg-ink-50 hover:text-ink-900',
+                    )
+                  }
+                >
+                  {item.label[activeLocale]}
+                </NavLink>
+              ))}
+            </div>
+          </div>
           <div className="grid grid-cols-2 gap-2 rounded-md border border-ink-100 bg-white p-2 shadow-sm sm:grid-cols-3 lg:grid-cols-1">
+            <p className="col-span-2 px-3 pb-1 pt-1 text-xs font-semibold uppercase tracking-normal text-ink-500 sm:col-span-3 lg:col-span-1">
+              Operations
+            </p>
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
