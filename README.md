@@ -33,8 +33,6 @@ Application
 
 The current repository is a scaffold. Dependencies are intentionally not installed yet.
 
-XAMPP MySQL is expected on port `3309` for local development.
-
 Backend:
 
 ```bash
@@ -45,6 +43,8 @@ php artisan key:generate
 php artisan migrate
 php artisan test
 ```
+
+Use your local `.env` for machine-specific settings such as database host, port, username, and password.
 
 Frontend:
 
