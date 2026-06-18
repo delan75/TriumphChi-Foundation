@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\SetLocale;
+use App\Providers\AuthServiceProvider;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -9,7 +10,9 @@ use Illuminate\Foundation\Configuration\Middleware;
 use NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider;
 use Spatie\Permission\PermissionServiceProvider;
 
-$providers = [];
+$providers = [
+    AuthServiceProvider::class,
+];
 
 if (class_exists(CollisionServiceProvider::class)) {
     $providers[] = CollisionServiceProvider::class;

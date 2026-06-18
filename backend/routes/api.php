@@ -19,6 +19,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('health', fn () => ['status' => 'ok']);
 
     Route::prefix('auth')->name('auth.')->middleware(SetLocale::class)->group(function () {
+        Route::post('register', [AuthController::class, 'register'])
+            ->middleware('throttle:5,1')
+            ->name('register');
+
         Route::post('login', [AuthController::class, 'login'])
             ->middleware('throttle:5,1')
             ->name('login');
