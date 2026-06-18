@@ -62,11 +62,11 @@ export const publicPages: PublicPageDefinition[] = [
     label: { en: 'Home', fr: 'Accueil' },
     eyebrow: { en: 'Education sponsorship in Cameroon', fr: 'Parrainage scolaire au Cameroun' },
     title: {
-      en: 'Transparent education support for vulnerable children.',
+      en: 'Giving from a covenant, not from leftovers.',
       fr: 'Un soutien scolaire transparent pour les enfants vulnérables.',
     },
     description: {
-      en: 'TriumphChi Foundation coordinates applications, sponsorships, school payments, and impact reporting with child privacy at the center.',
+      en: 'TriumphChi Foundation supports orphans and vulnerable children in rural Cameroon through school needs, community care, and dignified assistance.',
       fr: "La Fondation TriumphChi coordonne les demandes, les parrainages, les paiements scolaires et les rapports d'impact avec la protection de l'enfant au centre.",
     },
     cta: { label: { en: 'Sponsor a child', fr: 'Parrainer un enfant' }, page: 'sponsor' },
@@ -87,9 +87,9 @@ export const publicPages: PublicPageDefinition[] = [
         },
       },
       {
-        title: { en: 'Traceable funding', fr: 'Financement traçable' },
+        title: { en: 'Faithful stewardship', fr: 'Financement traçable' },
         body: {
-          en: 'Donations flow into funds, allocations, educational needs, and school payments so support can be audited.',
+          en: 'Giving is handled with care so children, schools, families, and supporters can trust the work.',
           fr: "Les dons passent par les fonds, les allocations, les besoins scolaires et les paiements aux écoles afin de rester auditables.",
         },
       },
@@ -246,7 +246,7 @@ export const publicPages: PublicPageDefinition[] = [
     path: { en: '/donate', fr: '/donner' },
     label: { en: 'Donate', fr: 'Donner' },
     eyebrow: { en: 'Give transparently', fr: 'Donner avec transparence' },
-    title: { en: 'Fund education needs through traceable giving.', fr: 'Financer les besoins scolaires par des dons traçables.' },
+    title: { en: 'Give toward real school needs.', fr: 'Financer les besoins scolaires par des dons traçables.' },
     description: {
       en: 'Donations can support school fees, books, uniforms, emergency needs, mentorship, and general education funds.',
       fr: "Les dons peuvent soutenir les frais scolaires, livres, uniformes, urgences, mentorat et fonds d'éducation.",

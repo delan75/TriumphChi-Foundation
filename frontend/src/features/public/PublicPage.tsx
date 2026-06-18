@@ -4,6 +4,7 @@ import { Seo } from '../../components/seo/Seo';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { isLocale } from '../../lib/i18n';
 import { buildPublicPageSchema, getPageByKey, getPublicPage, publicPages } from '../../content/publicPages';
+import { LandingPage } from './landing/LandingPage';
 
 export function PublicPage() {
   const { locale, pageSlug } = useParams();
@@ -12,6 +13,10 @@ export function PublicPage() {
 
   if (!page) {
     return <Navigate to={`/${activeLocale}`} replace />;
+  }
+
+  if (page.key === 'home') {
+    return <LandingPage locale={activeLocale} page={page} />;
   }
 
   const ctaPage = page.cta ? getPageByKey(page.cta.page) : undefined;
