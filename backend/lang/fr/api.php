@@ -3,6 +3,7 @@
 return [
     'auth' => [
         'failed' => 'Les identifiants fournis sont incorrects.',
+        'registered' => 'Inscription reussie.',
         'logged_in' => 'Connexion reussie.',
         'logged_out' => 'Le jeton d acces actuel a ete revoque.',
         'logged_out_all' => 'Tous les jetons d acces ont ete revoques.',

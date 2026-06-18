@@ -4,14 +4,41 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\AuthUserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function register(RegisterRequest $request)
+    {
+        $data = $request->validated();
+
+        $user = DB::transaction(function () use ($data): User {
+            return User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'preferred_locale' => $data['preferred_locale'] ?? app()->getLocale(),
+            ]);
+        });
+
+        $token = $user->createToken($data['device_name'] ?? 'api-client')->plainTextToken;
+
+        return response()->json([
+            'message' => __('api.auth.registered'),
+            'token' => [
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+            ],
+            'user' => AuthUserResource::make($user),
+        ], 201);
+    }
+
     public function login(LoginRequest $request)
     {
         $data = $request->validated();
