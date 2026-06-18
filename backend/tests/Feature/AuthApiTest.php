@@ -50,6 +50,41 @@ class AuthApiTest extends TestCase
             ->assertSee('identifiants');
     }
 
+    public function test_api_auth_failures_return_json_without_accept_header(): void
+    {
+        $user = User::create([
+            'name' => 'Plain Client User',
+            'email' => 'plain-client@example.org',
+            'password' => 'secret-password',
+            'preferred_locale' => 'en',
+        ]);
+
+        $this->post('/api/v1/auth/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ])->assertUnprocessable()
+            ->assertHeader('content-type', 'application/json')
+            ->assertJsonValidationErrors('email');
+
+        $this->get('/api/v1/auth/me')
+            ->assertUnauthorized()
+            ->assertHeader('content-type', 'application/json');
+    }
+
+    public function test_login_returns_json_without_accept_header(): void
+    {
+        $user = $this->createUserWithPermissions();
+
+        $this->post('/api/v1/auth/login', [
+            'email' => $user->email,
+            'password' => 'secret-password',
+            'device_name' => 'Plain Client',
+        ])->assertOk()
+            ->assertHeader('content-type', 'application/json')
+            ->assertJsonPath('token.token_type', 'Bearer')
+            ->assertJsonPath('user.email', $user->email);
+    }
+
     public function test_bearer_token_can_access_me_and_permission_protected_routes(): void
     {
         $user = $this->createUserWithPermissions();

@@ -1,19 +1,22 @@
 <?php
 
+use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider;
+use Spatie\Permission\PermissionServiceProvider;
 
 $providers = [];
 
-if (class_exists(\NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider::class)) {
-    $providers[] = \NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider::class;
+if (class_exists(CollisionServiceProvider::class)) {
+    $providers[] = CollisionServiceProvider::class;
 }
 
-if (class_exists(\Spatie\Permission\PermissionServiceProvider::class)) {
-    $providers[] = \Spatie\Permission\PermissionServiceProvider::class;
+if (class_exists(PermissionServiceProvider::class)) {
+    $providers[] = PermissionServiceProvider::class;
 }
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -25,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: [
+            ForceJsonResponse::class,
             SetLocale::class,
         ]);
 
