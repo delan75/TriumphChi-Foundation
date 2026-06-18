@@ -2,7 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
+use RuntimeException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -66,7 +69,34 @@ class RolePermissionSeeder extends Seeder
             $role->syncPermissions($permissions->only($rolePermissions)->values());
         }
 
+        $this->seedSuperAdministrator($permissions);
+
         app(PermissionRegistrar::class)->forgetCachedPermissions();
+    }
+
+    private function seedSuperAdministrator(Collection $permissions): void
+    {
+        $password = env('SUPER_ADMIN_PASSWORD');
+
+        if (! $password && app()->environment(['local', 'testing'])) {
+            $password = 'password';
+        }
+
+        if (! $password) {
+            throw new RuntimeException('SUPER_ADMIN_PASSWORD must be set before seeding the super administrator.');
+        }
+
+        $admin = User::firstOrCreate(
+            ['email' => env('SUPER_ADMIN_EMAIL', 'admin@triumphchi.org')],
+            [
+                'name' => env('SUPER_ADMIN_NAME', 'Super Administrator'),
+                'password' => $password,
+                'preferred_locale' => env('SUPER_ADMIN_LOCALE', 'en'),
+            ],
+        );
+
+        $admin->syncRoles(['super_administrator']);
+        $admin->syncPermissions($permissions->values());
     }
 
     private function permissionGroups(): array
@@ -140,4 +170,3 @@ class RolePermissionSeeder extends Seeder
         ];
     }
 }
-

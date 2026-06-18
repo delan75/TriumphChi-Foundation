@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -12,6 +13,84 @@ use Tests\TestCase;
 class AuthApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_user_can_register_and_receive_token_without_elevated_permissions(): void
+    {
+        $response = $this->postJson('/api/v1/auth/register', [
+            'name' => 'New API User',
+            'email' => 'new-api-user@example.org',
+            'password' => 'secure-password',
+            'password_confirmation' => 'secure-password',
+            'preferred_locale' => 'fr',
+            'device_name' => 'Postman',
+        ])->assertCreated()
+            ->assertJsonPath('message', 'Registration successful.')
+            ->assertJsonPath('token.token_type', 'Bearer')
+            ->assertJsonPath('user.email', 'new-api-user@example.org')
+            ->assertJsonPath('user.preferred_locale', 'fr')
+            ->assertJsonPath('user.roles', [])
+            ->assertJsonPath('user.permissions', []);
+
+        $this->assertNotEmpty($response->json('token.access_token'));
+        $this->assertDatabaseHas('users', [
+            'email' => 'new-api-user@example.org',
+            'preferred_locale' => 'fr',
+        ]);
+        $this->assertDatabaseCount('personal_access_tokens', 1);
+
+        $this->withToken($response->json('token.access_token'))
+            ->getJson('/api/v1/beneficiaries')
+            ->assertForbidden();
+    }
+
+    public function test_register_rejects_duplicate_email_addresses(): void
+    {
+        User::create([
+            'name' => 'Existing User',
+            'email' => 'existing-user@example.org',
+            'password' => 'secure-password',
+            'preferred_locale' => 'en',
+        ]);
+
+        $this->postJson('/api/v1/auth/register', [
+            'name' => 'Duplicate User',
+            'email' => 'existing-user@example.org',
+            'password' => 'secure-password',
+            'password_confirmation' => 'secure-password',
+            'preferred_locale' => 'en',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('email');
+    }
+
+    public function test_role_permission_seeder_creates_super_admin_with_all_permissions(): void
+    {
+        $this->seed(RolePermissionSeeder::class);
+
+        $admin = User::where('email', 'admin@triumphchi.org')->firstOrFail();
+
+        $this->assertTrue($admin->hasRole('super_administrator'));
+        $this->assertTrue($admin->can('beneficiaries.delete'));
+        $this->assertTrue($admin->can('permissions.manage'));
+        $this->assertTrue($admin->can('future.permission.added.later'));
+    }
+
+    public function test_seeded_super_admin_can_login_and_access_protected_routes(): void
+    {
+        $this->seed(RolePermissionSeeder::class);
+
+        $token = $this->postJson('/api/v1/auth/login', [
+            'email' => 'admin@triumphchi.org',
+            'password' => 'password',
+            'device_name' => 'API Client',
+        ])->assertOk()
+            ->assertJsonPath('user.roles.0', 'super_administrator')
+            ->assertJsonPath('user.permissions.0', 'allocations.create')
+            ->json('token.access_token');
+
+        $this->withToken($token)
+            ->getJson('/api/v1/beneficiaries')
+            ->assertOk();
+    }
 
     public function test_user_can_login_and_receive_permission_context(): void
     {
