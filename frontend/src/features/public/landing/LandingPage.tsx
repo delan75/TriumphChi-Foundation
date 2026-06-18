@@ -28,6 +28,7 @@ interface LandingPageProps {
 
 const workflowIcons = [FileText, ShieldCheck, LineChart, CheckCircle2, HeartHandshake, HandHeart, GraduationCap];
 const programIcons = [School, BookOpen, Landmark, Sparkles];
+const highPriorityImageProps = { fetchpriority: 'high' } as Record<string, string>;
 
 export function LandingPage({ locale, page }: LandingPageProps) {
   const copy = landingCopy[locale];
@@ -55,7 +56,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
           className="absolute inset-0 -z-20 h-full w-full object-cover"
           width="1800"
           height="1125"
-          fetchPriority="high"
+          {...highPriorityImageProps}
         />
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.95)_0%,rgba(18,55,47,0.82)_42%,rgba(18,55,47,0.24)_100%)]" />
 
