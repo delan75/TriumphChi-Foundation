@@ -16,6 +16,7 @@ class ApplicationResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'source' => $this->source,
             'source_label' => $this->localizedLabel('application_sources', $this->source),
             'status' => $status,

@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPublicUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class School extends Model
 {
+    use HasPublicUuid;
     use SoftDeletes;
 
     protected $fillable = [

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPublicUuid;
 use Illuminate\Database\Eloquent\Model;
 
 class ImpactUpdate extends Model
 {
+    use HasPublicUuid;
+
     protected $fillable = [
         'beneficiary_id',
         'title',
@@ -19,4 +22,3 @@ class ImpactUpdate extends Model
         return ['published_at' => 'datetime'];
     }
 }
-

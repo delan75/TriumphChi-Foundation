@@ -14,6 +14,7 @@ class SchoolResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'code' => $this->code,
             'name' => $this->name,
             'region' => RegionResource::make($this->whenLoaded('region')),

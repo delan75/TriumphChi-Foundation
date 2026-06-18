@@ -11,6 +11,7 @@ class FundResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'code' => $this->code,
             'name' => $this->name,
             'slug' => $this->slug,

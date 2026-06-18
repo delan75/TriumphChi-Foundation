@@ -16,7 +16,7 @@ class StoreApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'application_number' => ['required', 'string', 'max:80', Rule::unique('applications', 'application_number')->ignore($this->route('application'))],
+            'application_number' => ['nullable', 'string', 'max:80', Rule::unique('applications', 'application_number')->ignore($this->route('application'))],
             'source' => ['required', Rule::in(['online', 'school', 'field_officer', 'ngo_staff'])],
             'status' => ['sometimes', Rule::enum(ApplicationStatus::class)],
             'applicant_name' => ['required', 'string', 'max:255'],

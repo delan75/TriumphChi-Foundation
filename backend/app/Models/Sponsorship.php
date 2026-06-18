@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasOpaqueReference;
+use App\Models\Concerns\HasPublicUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Sponsorship extends Model
 {
+    use HasOpaqueReference;
+    use HasPublicUuid;
     use SoftDeletes;
 
     protected $fillable = [
@@ -46,5 +50,20 @@ class Sponsorship extends Model
     public function fund()
     {
         return $this->belongsTo(Fund::class);
+    }
+
+    public function referenceColumn(): string
+    {
+        return 'sponsorship_reference';
+    }
+
+    public function referencePrefix(): string
+    {
+        return 'SPN';
+    }
+
+    public function referenceDateValue(): mixed
+    {
+        return $this->starts_at;
     }
 }

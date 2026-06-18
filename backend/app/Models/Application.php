@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use App\Enums\ApplicationStatus;
+use App\Models\Concerns\HasOpaqueReference;
+use App\Models\Concerns\HasPublicUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Application extends Model
 {
+    use HasOpaqueReference;
+    use HasPublicUuid;
     use SoftDeletes;
 
     protected $fillable = [
@@ -69,5 +73,20 @@ class Application extends Model
     public function statusHistory()
     {
         return $this->hasMany(ApplicationStatusHistory::class);
+    }
+
+    public function referenceColumn(): string
+    {
+        return 'application_number';
+    }
+
+    public function referencePrefix(): string
+    {
+        return 'APP';
+    }
+
+    public function referenceDateValue(): mixed
+    {
+        return $this->submitted_at;
     }
 }
