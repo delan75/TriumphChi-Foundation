@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AllocationController;
 use App\Http\Controllers\Api\V1\ApplicationController;
+use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BeneficiaryController;
 use App\Http\Controllers\Api\V1\DonationController;
 use App\Http\Controllers\Api\V1\DonorController;
@@ -16,6 +17,18 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('health', fn () => ['status' => 'ok']);
+
+    Route::prefix('auth')->name('auth.')->middleware(SetLocale::class)->group(function () {
+        Route::post('login', [AuthController::class, 'login'])
+            ->middleware('throttle:5,1')
+            ->name('login');
+
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::get('me', [AuthController::class, 'me'])->name('me');
+            Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+            Route::post('logout-all', [AuthController::class, 'logoutAll'])->name('logout-all');
+        });
+    });
 
     Route::middleware(['auth:sanctum', SetLocale::class])->group(function () {
         Route::apiResource('applications', ApplicationController::class)

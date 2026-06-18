@@ -1,6 +1,13 @@
 <?php
 
 return [
+    'auth' => [
+        'failed' => 'The provided credentials are incorrect.',
+        'logged_in' => 'Login successful.',
+        'logged_out' => 'Current access token revoked.',
+        'logged_out_all' => 'All access tokens revoked.',
+    ],
+
     'locale' => [
         'unsupported' => 'The selected language is not supported.',
     ],

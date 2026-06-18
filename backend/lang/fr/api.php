@@ -1,6 +1,13 @@
 <?php
 
 return [
+    'auth' => [
+        'failed' => 'Les identifiants fournis sont incorrects.',
+        'logged_in' => 'Connexion reussie.',
+        'logged_out' => 'Le jeton d acces actuel a ete revoque.',
+        'logged_out_all' => 'Tous les jetons d acces ont ete revoques.',
+    ],
+
     'locale' => [
         'unsupported' => 'La langue sélectionnée n\'est pas prise en charge.',
     ],
