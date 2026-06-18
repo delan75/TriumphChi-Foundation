@@ -25,7 +25,9 @@ class FundingTransactionService
                 return $existing;
             }
 
-            $this->assertDonationReferenceIsAvailable($data['reference_number']);
+            if (! empty($data['reference_number'])) {
+                $this->assertDonationReferenceIsAvailable($data['reference_number']);
+            }
 
             Fund::query()
                 ->whereKey($data['fund_id'])
@@ -82,7 +84,9 @@ class FundingTransactionService
                 return $existing->load('allocations');
             }
 
-            $this->assertPaymentReferenceIsAvailable($data['payment_reference']);
+            if (! empty($data['payment_reference'])) {
+                $this->assertPaymentReferenceIsAvailable($data['payment_reference']);
+            }
 
             $allocationLinks = $data['allocations'] ?? [];
             unset($data['allocations']);

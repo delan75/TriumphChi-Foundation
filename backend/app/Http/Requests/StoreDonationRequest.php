@@ -16,7 +16,7 @@ class StoreDonationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'reference_number' => ['required', 'string', 'max:120'],
+            'reference_number' => ['nullable', 'string', 'max:120'],
             'idempotency_key' => ['nullable', 'string', 'max:180'],
             'donor_id' => ['nullable', 'exists:donors,id'],
             'fund_id' => ['required', 'exists:funds,id'],

@@ -16,6 +16,7 @@ class BeneficiaryResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'internal_id' => $this->internal_id,
             'status' => $status,
             'status_label' => $this->localizedLabel('beneficiary_statuses', $status),

@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Enums\NeedStatus;
+use App\Models\Concerns\HasPublicUuid;
 use Illuminate\Database\Eloquent\Model;
 
 class EducationalNeed extends Model
 {
+    use HasPublicUuid;
+
     protected $fillable = [
         'beneficiary_id',
         'type',

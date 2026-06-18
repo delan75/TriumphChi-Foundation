@@ -14,6 +14,7 @@ class SponsorshipResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'sponsorship_reference' => $this->sponsorship_reference,
             'donor_id' => $this->donor_id,
             'beneficiary_id' => $this->beneficiary_id,

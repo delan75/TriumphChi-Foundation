@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasOpaqueReference;
+use App\Models\Concerns\HasPublicUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Allocation extends Model
 {
+    use HasOpaqueReference;
+    use HasPublicUuid;
     use SoftDeletes;
 
     protected $fillable = [
@@ -63,5 +67,20 @@ class Allocation extends Model
         return $this->belongsToMany(Payment::class)
             ->withPivot('amount_applied')
             ->withTimestamps();
+    }
+
+    public function referenceColumn(): string
+    {
+        return 'allocation_reference';
+    }
+
+    public function referencePrefix(): string
+    {
+        return 'ALL';
+    }
+
+    public function referenceDateValue(): mixed
+    {
+        return $this->allocated_at;
     }
 }

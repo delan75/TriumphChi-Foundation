@@ -16,6 +16,7 @@ class EducationalNeedResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'beneficiary_id' => $this->beneficiary_id,
             'type' => $this->type,
             'title' => $this->title,

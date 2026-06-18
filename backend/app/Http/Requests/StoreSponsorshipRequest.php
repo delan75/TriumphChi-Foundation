@@ -16,7 +16,7 @@ class StoreSponsorshipRequest extends FormRequest
     {
         return [
             'sponsorship_reference' => [
-                'required',
+                'nullable',
                 'string',
                 'max:120',
                 Rule::unique('sponsorships', 'sponsorship_reference')->ignore($this->route('sponsorship')),
