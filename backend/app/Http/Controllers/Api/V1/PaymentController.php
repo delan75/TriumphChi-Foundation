@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
+use App\Services\FundingTransactionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
@@ -15,9 +17,9 @@ class PaymentController extends Controller
         return PaymentResource::collection(Payment::query()->latest()->paginate($request->integer('per_page', 15)));
     }
 
-    public function store(StorePaymentRequest $request)
+    public function store(StorePaymentRequest $request, FundingTransactionService $funding)
     {
-        return PaymentResource::make(Payment::create($request->validated()));
+        return PaymentResource::make($funding->createPayment($request->validated(), $request->user()));
     }
 
     public function show(Payment $payment)
@@ -27,16 +29,20 @@ class PaymentController extends Controller
 
     public function update(StorePaymentRequest $request, Payment $payment)
     {
-        $payment->update($request->validated());
+        DB::transaction(function () use ($payment, $request): void {
+            $data = $request->validated();
+            unset($data['allocations']);
+
+            $payment->update($data);
+        });
 
         return PaymentResource::make($payment);
     }
 
     public function destroy(Payment $payment)
     {
-        $payment->delete();
+        DB::transaction(fn () => $payment->delete());
 
         return response()->noContent();
     }
 }
-

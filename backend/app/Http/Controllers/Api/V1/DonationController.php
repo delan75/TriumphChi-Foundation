@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDonationRequest;
 use App\Http\Resources\DonationResource;
 use App\Models\Donation;
+use App\Services\FundingTransactionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DonationController extends Controller
 {
@@ -15,9 +17,9 @@ class DonationController extends Controller
         return DonationResource::collection(Donation::query()->latest()->paginate($request->integer('per_page', 15)));
     }
 
-    public function store(StoreDonationRequest $request)
+    public function store(StoreDonationRequest $request, FundingTransactionService $funding)
     {
-        return DonationResource::make(Donation::create($request->validated()));
+        return DonationResource::make($funding->createDonation($request->validated()));
     }
 
     public function show(Donation $donation)
@@ -27,16 +29,15 @@ class DonationController extends Controller
 
     public function update(StoreDonationRequest $request, Donation $donation)
     {
-        $donation->update($request->validated());
+        DB::transaction(fn () => $donation->update($request->validated()));
 
         return DonationResource::make($donation);
     }
 
     public function destroy(Donation $donation)
     {
-        $donation->delete();
+        DB::transaction(fn () => $donation->delete());
 
         return response()->noContent();
     }
 }
-

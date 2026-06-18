@@ -58,6 +58,12 @@ return [
         'void' => 'Void',
     ],
 
+    'allocation_statuses' => [
+        'proposed' => 'Proposed',
+        'approved' => 'Approved',
+        'cancelled' => 'Cancelled',
+    ],
+
     'payment_methods' => [
         'cash' => 'Cash',
         'bank_transfer' => 'Bank transfer',
