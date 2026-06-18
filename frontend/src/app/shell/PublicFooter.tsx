@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, ShieldCheck } from 'lucide-react';
-import { PaymentMethods } from '../../components/public/PaymentMethods';
+import { GivingChannels } from '../../components/public/GivingChannels';
 import { publicNavigation } from '../../content/publicPages';
 import { Locale, t } from '../../lib/i18n';
 
@@ -24,8 +24,8 @@ export function PublicFooter({ locale }: PublicFooterProps) {
           </div>
           <p className="mt-5 max-w-xl text-sm leading-6 text-foundation-100">
             {locale === 'fr'
-              ? "Mobiliser les donateurs, protéger les enfants et montrer clairement comment le soutien scolaire change une vie."
-              : 'Mobilizing donors, protecting children, and showing clearly how education support can change a life.'}
+              ? "Donner par alliance, protéger les enfants et accompagner leur chemin vers l'école."
+              : 'Giving from a covenant, protecting children, and walking with them toward school.'}
           </p>
         </div>
 
@@ -44,7 +44,7 @@ export function PublicFooter({ locale }: PublicFooterProps) {
       </div>
       <div className="border-t border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <PaymentMethods locale={locale} variant="dark" />
+          <GivingChannels locale={locale} variant="dark" />
         </div>
       </div>
     </footer>
