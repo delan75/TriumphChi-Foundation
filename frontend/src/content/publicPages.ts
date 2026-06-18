@@ -62,11 +62,11 @@ export const publicPages: PublicPageDefinition[] = [
     label: { en: 'Home', fr: 'Accueil' },
     eyebrow: { en: 'Education sponsorship in Cameroon', fr: 'Parrainage scolaire au Cameroun' },
     title: {
-      en: 'Transparent education support for vulnerable children.',
+      en: 'Help orphans in Cameroon stay in school.',
       fr: 'Un soutien scolaire transparent pour les enfants vulnérables.',
     },
     description: {
-      en: 'TriumphChi Foundation coordinates applications, sponsorships, school payments, and impact reporting with child privacy at the center.',
+      en: 'Donate toward verified school fees, books, uniforms, exams, and education support for vulnerable children while keeping child privacy protected.',
       fr: "La Fondation TriumphChi coordonne les demandes, les parrainages, les paiements scolaires et les rapports d'impact avec la protection de l'enfant au centre.",
     },
     cta: { label: { en: 'Sponsor a child', fr: 'Parrainer un enfant' }, page: 'sponsor' },

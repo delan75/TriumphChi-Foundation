@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   BookOpen,
-  Building2,
   CheckCircle2,
   FileText,
   GraduationCap,
@@ -10,11 +9,11 @@ import {
   HeartHandshake,
   Landmark,
   LineChart,
-  LockKeyhole,
   School,
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
+import { PaymentMethods } from '../../../components/public/PaymentMethods';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
@@ -26,7 +25,7 @@ interface LandingPageProps {
   page: PublicPageDefinition;
 }
 
-const workflowIcons = [FileText, ShieldCheck, LineChart, CheckCircle2, HeartHandshake, HandHeart, GraduationCap];
+const workflowIcons = [HandHeart, ShieldCheck, Landmark, CheckCircle2, LineChart, FileText, GraduationCap];
 const programIcons = [School, BookOpen, Landmark, Sparkles];
 const highPriorityImageProps = { fetchpriority: 'high' } as Record<string, string>;
 
@@ -224,6 +223,13 @@ export function LandingPage({ locale, page }: LandingPageProps) {
           </div>
         </div>
       </section>
+
+      <section className="bg-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 pb-12 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8 lg:pb-16">
+          <SectionIntro eyebrow={copy.paymentEyebrow} title={copy.paymentTitle} body={copy.paymentBody} />
+          <PaymentMethods locale={locale} />
+        </div>
+      </section>
     </>
   );
 }
@@ -271,121 +277,130 @@ interface LandingCopy {
   finalTitle: string;
   finalBody: string;
   finalCta: string;
+  paymentEyebrow: string;
+  paymentTitle: string;
+  paymentBody: string;
 }
 
 const landingCopy = {
   en: {
-    eyebrow: 'Education sponsorship in Cameroon',
-    heading: 'TriumphChi Foundation',
-    lead: 'A focused public home for orphan education support: clear applications, traceable giving, school payments, and impact updates that protect every child.',
-    primaryCta: 'Donate with confidence',
+    eyebrow: 'Orphan education support in Cameroon',
+    heading: 'Help an orphan stay in school.',
+    lead: 'Across rural Cameroon, a child can miss class because of school fees, books, uniforms, exam charges, transport, or a family crisis. Your gift helps turn a real education need into verified support, paid responsibly and reported with care.',
+    primaryCta: 'Donate to education',
     secondaryCta: 'Sponsor a child',
     heroImageAlt: 'Illustrated classroom table with books, notebooks, a school bag, and a chalkboard.',
     heroStats: [
-      { value: '7-step', label: 'beneficiary journey from application to completion' },
-      { value: 'EN / FR', label: 'public experience prepared for Cameroon audiences' },
-      { value: 'Traceable', label: 'donation, fund, allocation, payment, and impact trail' },
+      { value: 'Fees', label: 'help keep a child enrolled when school bills become a barrier' },
+      { value: 'Books', label: 'support supplies, uniforms, exams, and daily learning needs' },
+      { value: 'Care', label: 'share impact responsibly without exposing private child records' },
     ],
-    workflowEyebrow: 'Beneficiary care path',
-    workflowTitle: 'Every application moves through a clear support journey.',
-    workflowBody: 'The landing page explains the process donors, schools, field officers, and families will see across the platform.',
+    workflowEyebrow: 'How support reaches a child',
+    workflowTitle: 'Giving should be compassionate, careful, and traceable.',
+    workflowBody: 'A donation is more than a payment. It is a promise that a child will be seen, the need will be checked, and the support will reach the right place.',
     workflow: [
-      { title: 'Application', body: 'Families, schools, or field teams submit education support requests.' },
-      { title: 'Verification', body: 'Staff confirm identity, school context, and the real education need.' },
-      { title: 'Review', body: 'Applications are assessed with privacy, fairness, and documented decisions.' },
-      { title: 'Accepted', body: 'Approved children become eligible for verified education support.' },
-      { title: 'Sponsored', body: 'Donors or program funds are connected to the right needs.' },
-      { title: 'Active Support', body: 'School fees, books, uniforms, and exams can be paid and tracked.' },
-      { title: 'Completed', body: 'Graduation or completion outcomes are preserved for reporting.' },
+      { title: 'A need is shared', body: 'Families, schools, or field teams identify a child at risk of losing access to education.' },
+      { title: 'The situation is verified', body: 'Staff review the school context, family situation, and immediate education need.' },
+      { title: 'Support is matched', body: 'Donations are connected to school fees, books, uniforms, exams, or wider education funds.' },
+      { title: 'Schools are paid responsibly', body: 'Where possible, support moves through documented school-linked payments instead of informal promises.' },
+      { title: 'Progress is followed', body: 'Attendance, promotion, completion, and urgent changes can be captured over time.' },
+      { title: 'Stories are protected', body: 'Public updates use consented, reviewed, and aggregate information to keep children safe.' },
+      { title: 'Impact is remembered', body: 'Donors can receive evidence of what was supported and why it mattered.' },
     ],
-    programEyebrow: 'Support areas',
-    programTitle: 'Give toward practical school needs, not vague promises.',
-    programBody: 'The public site should help donors understand exactly what their support can unlock.',
+    programEyebrow: 'What giving can cover',
+    programTitle: 'Small school needs can decide whether a child continues learning.',
+    programBody: 'For many vulnerable children, education is interrupted by ordinary costs that arrive all at once. Giving should meet those needs clearly.',
     programs: [
-      { title: 'School fees', body: 'Keep children enrolled with payments linked to schools and verified needs.' },
-      { title: 'Books and supplies', body: 'Support learning materials that make daily attendance useful.' },
-      { title: 'Uniforms and exams', body: 'Cover common barriers that interrupt school progress.' },
-      { title: 'Mentorship', body: 'Prepare room for future updates, guidance, and student progress stories.' },
+      { title: 'School fees', body: 'Help a child remain enrolled when unpaid fees threaten attendance or exam access.' },
+      { title: 'Books and supplies', body: 'Provide notebooks, textbooks, pens, bags, and other basics needed for daily learning.' },
+      { title: 'Uniforms and exams', body: 'Remove common barriers that can isolate a child or stop progress at the end of term.' },
+      { title: 'Mentorship and care', body: 'Support follow-up, encouragement, and progress updates that help a child keep going.' },
     ],
     accountabilityEyebrow: 'Donor accountability',
     accountabilityTitle: 'A donation should tell a complete story.',
-    accountabilityBody: 'Corporate partners, churches, foundations, and individual donors need evidence beyond proof of payment. The system is designed around a full audit chain.',
-    evidence: ['Donation receipt and tax certificate readiness', 'Allocation report by need, school, and fund', 'CSR and annual donor statement foundation', 'Impact updates approved for public sharing'],
-    reportLabel: 'Sponsor report preview',
-    reportTitle: 'Education Support Trail',
-    reportStatus: 'Ready',
+    accountabilityBody: 'Companies, churches, foundations, families, and individual donors often need more than a receipt. They need to understand what happened after giving.',
+    evidence: ['Donation receipts and tax certificate readiness', 'Allocation reports by need, school, and fund', 'CSR and annual donor statement foundation', 'Impact updates approved for public sharing'],
+    reportLabel: 'Giving evidence preview',
+    reportTitle: 'From donation to classroom',
+    reportStatus: 'Clear',
     reportRows: [
-      { label: 'Donation', value: 'Recorded' },
-      { label: 'Fund', value: 'Education' },
-      { label: 'Allocation', value: 'Verified' },
-      { label: 'Payment', value: 'School-linked' },
+      { label: 'Gift received', value: 'Recorded' },
+      { label: 'Need supported', value: 'Verified' },
+      { label: 'School payment', value: 'Linked' },
+      { label: 'Child privacy', value: 'Protected' },
       { label: 'Impact update', value: 'Reviewed' },
     ],
     storyEyebrow: 'Privacy-first storytelling',
-    storyTitle: 'Visual memory matters, but child safety matters more.',
-    storyBody: 'The landing page uses hopeful education imagery and aggregate impact language. Personal beneficiary records stay inside authenticated workflows.',
+    storyTitle: 'Tell the story of hope without exposing the child.',
+    storyBody: 'Photos, names, locations, and family details can put children at risk when handled carelessly. Public storytelling should use hopeful education imagery, approved updates, and aggregate impact language while personal records stay private.',
     storyCta: 'View impact structure',
     storyImageAlt: 'Classroom illustration showing books and school materials without identifying a child.',
     finalEyebrow: 'Start with trust',
-    finalTitle: 'Help build a transparent education sponsorship path.',
-    finalBody: 'Every public interaction should make giving easier, reporting clearer, and child data safer.',
+    finalTitle: 'Give toward a school need today.',
+    finalBody: 'Your support can help pay a fee, buy a book, prepare for an exam, or keep a child connected to school when life becomes fragile.',
     finalCta: 'Donate now',
+    paymentEyebrow: 'Ways to give',
+    paymentTitle: 'Simple payment options for local and international donors.',
+    paymentBody: 'Donors should be able to give through familiar channels, with receipts and follow-up reporting prepared around the donation record.',
   },
   fr: {
-    eyebrow: 'Parrainage scolaire au Cameroun',
-    heading: 'Fondation TriumphChi',
-    lead: "Un accueil public pour le soutien scolaire des orphelins : demandes claires, dons traçables, paiements aux écoles et nouvelles d'impact qui protègent chaque enfant.",
-    primaryCta: 'Donner avec confiance',
+    eyebrow: 'Soutien scolaire aux orphelins au Cameroun',
+    heading: 'Aider un orphelin à rester à l’école.',
+    lead: "Dans les zones rurales du Cameroun, un enfant peut manquer l'école à cause des frais scolaires, des livres, de l'uniforme, des frais d'examen, du transport ou d'une crise familiale. Votre don transforme un besoin réel en soutien vérifié, payé avec responsabilité et expliqué avec soin.",
+    primaryCta: 'Donner pour l’éducation',
     secondaryCta: 'Parrainer un enfant',
     heroImageAlt: "Illustration d'une table de classe avec livres, cahiers, sac scolaire et tableau.",
     heroStats: [
-      { value: '7 étapes', label: "parcours du bénéficiaire de la demande à l'achèvement" },
-      { value: 'EN / FR', label: 'expérience publique prévue pour les publics du Cameroun' },
-      { value: 'Traçable', label: 'chaîne don, fonds, allocation, paiement et impact' },
+      { value: 'Frais', label: "aider un enfant à rester inscrit quand les factures deviennent un obstacle" },
+      { value: 'Livres', label: "soutenir les fournitures, uniformes, examens et besoins d'apprentissage" },
+      { value: 'Protection', label: "partager l'impact sans exposer les dossiers privés des enfants" },
     ],
-    workflowEyebrow: 'Parcours du bénéficiaire',
-    workflowTitle: 'Chaque demande suit un parcours de soutien clair.',
-    workflowBody: 'La page explique le processus visible par les donateurs, écoles, agents de terrain et familles.',
+    workflowEyebrow: "Comment l'aide arrive à l'enfant",
+    workflowTitle: 'Donner doit rester humain, prudent et traçable.',
+    workflowBody: "Un don n'est pas seulement un paiement. C'est une promesse qu'un enfant sera vu, que le besoin sera vérifié et que le soutien arrivera au bon endroit.",
     workflow: [
-      { title: 'Demande', body: 'Les familles, écoles ou équipes terrain soumettent les demandes.' },
-      { title: 'Vérification', body: "L'équipe confirme l'identité, le contexte scolaire et le besoin réel." },
-      { title: 'Étude', body: 'Les demandes sont évaluées avec confidentialité, équité et décisions documentées.' },
-      { title: 'Acceptée', body: 'Les enfants approuvés deviennent éligibles au soutien scolaire.' },
-      { title: 'Parrainée', body: 'Les donateurs ou fonds de programme sont liés aux bons besoins.' },
-      { title: 'Soutien actif', body: 'Frais, livres, uniformes et examens peuvent être payés et suivis.' },
-      { title: 'Terminée', body: 'Les résultats de réussite ou fin de parcours sont conservés pour les rapports.' },
+      { title: 'Un besoin est signalé', body: "Les familles, écoles ou équipes de terrain identifient un enfant qui risque de perdre l'accès à l'éducation." },
+      { title: 'La situation est vérifiée', body: "L'équipe examine le contexte scolaire, la situation familiale et le besoin éducatif immédiat." },
+      { title: 'Le soutien est orienté', body: "Les dons sont liés aux frais scolaires, livres, uniformes, examens ou fonds d'éducation." },
+      { title: 'Les écoles sont payées avec soin', body: 'Quand cela est possible, le soutien passe par des paiements documentés liés aux écoles.' },
+      { title: 'Le progrès est suivi', body: "La présence, la promotion, la fin de parcours et les urgences peuvent être suivies dans le temps." },
+      { title: 'Les histoires sont protégées', body: "Les nouvelles publiques utilisent des informations consenties, relues et agrégées pour protéger les enfants." },
+      { title: "L'impact est conservé", body: 'Les donateurs peuvent recevoir des preuves de ce qui a été soutenu et de son importance.' },
     ],
-    programEyebrow: 'Domaines de soutien',
-    programTitle: 'Donner pour des besoins scolaires concrets.',
-    programBody: 'Le site public aide les donateurs à comprendre précisément ce que leur soutien peut rendre possible.',
+    programEyebrow: 'Ce que le don peut couvrir',
+    programTitle: "De petits besoins scolaires peuvent décider si un enfant continue d'apprendre.",
+    programBody: "Pour beaucoup d'enfants vulnérables, l'école est interrompue par des coûts ordinaires qui arrivent au même moment. Le don doit répondre clairement à ces besoins.",
     programs: [
-      { title: 'Frais scolaires', body: "Maintenir les enfants inscrits avec des paiements liés aux écoles et besoins vérifiés." },
-      { title: 'Livres et fournitures', body: "Soutenir le matériel qui rend la présence à l'école utile." },
-      { title: 'Uniformes et examens', body: 'Couvrir les obstacles fréquents qui interrompent le progrès scolaire.' },
-      { title: 'Mentorat', body: 'Préparer les futures nouvelles, conseils et récits de progrès.' },
+      { title: 'Frais scolaires', body: "Aider un enfant à rester inscrit quand les frais impayés menacent la présence ou l'accès aux examens." },
+      { title: 'Livres et fournitures', body: "Fournir cahiers, manuels, stylos, sacs et autres bases nécessaires à l'apprentissage quotidien." },
+      { title: 'Uniformes et examens', body: "Lever des obstacles fréquents qui peuvent isoler l'enfant ou bloquer sa progression en fin de trimestre." },
+      { title: 'Mentorat et suivi', body: "Soutenir l'encouragement, l'accompagnement et les nouvelles de progrès qui aident l'enfant à continuer." },
     ],
-    accountabilityEyebrow: 'Responsabilité donateur',
+    accountabilityEyebrow: 'Responsabilité envers les donateurs',
     accountabilityTitle: 'Un don doit raconter une histoire complète.',
-    accountabilityBody: "Les entreprises, églises, fondations et donateurs individuels ont besoin de preuves au-delà du paiement. Le système suit une chaîne d'audit complète.",
-    evidence: ['Reçu de don et certificat fiscal prêts', 'Rapport d’allocation par besoin, école et fonds', 'Base pour rapports RSE et relevés annuels', 'Nouvelles d’impact validées pour publication'],
-    reportLabel: 'Aperçu du rapport',
-    reportTitle: 'Chaîne du soutien scolaire',
-    reportStatus: 'Prêt',
+    accountabilityBody: "Les entreprises, églises, fondations, familles et donateurs individuels ont souvent besoin de plus qu'un reçu. Ils doivent comprendre ce qui s'est passé après le don.",
+    evidence: ['Reçus de don et certificats fiscaux prêts', "Rapports d'allocation par besoin, école et fonds", 'Base pour rapports RSE et relevés annuels', "Nouvelles d'impact validées pour publication"],
+    reportLabel: 'Aperçu des preuves',
+    reportTitle: 'Du don à la salle de classe',
+    reportStatus: 'Clair',
     reportRows: [
-      { label: 'Don', value: 'Enregistré' },
-      { label: 'Fonds', value: 'Éducation' },
-      { label: 'Allocation', value: 'Vérifiée' },
-      { label: 'Paiement', value: 'Lié à l’école' },
-      { label: 'Impact', value: 'Revu' },
+      { label: 'Don reçu', value: 'Enregistré' },
+      { label: 'Besoin soutenu', value: 'Vérifié' },
+      { label: 'Paiement école', value: 'Lié' },
+      { label: "Vie privée de l'enfant", value: 'Protégée' },
+      { label: 'Nouvelle impact', value: 'Relue' },
     ],
     storyEyebrow: 'Récits avec confidentialité',
-    storyTitle: "La mémoire visuelle compte, la sécurité de l'enfant aussi.",
-    storyBody: "La page utilise une imagerie éducative positive et des données d'impact agrégées. Les dossiers personnels restent dans les espaces authentifiés.",
+    storyTitle: "Raconter l'espérance sans exposer l'enfant.",
+    storyBody: "Les photos, noms, lieux et détails familiaux peuvent mettre les enfants en danger quand ils sont mal gérés. Les récits publics doivent utiliser une imagerie éducative positive, des nouvelles approuvées et des données d'impact agrégées, tandis que les dossiers personnels restent privés.",
     storyCta: "Voir la structure d'impact",
-    storyImageAlt: "Illustration de classe avec livres et matériel scolaire sans identifier un enfant.",
+    storyImageAlt: 'Illustration de classe avec livres et matériel scolaire sans identifier un enfant.',
     finalEyebrow: 'Commencer par la confiance',
-    finalTitle: 'Construire un parrainage scolaire transparent.',
-    finalBody: 'Chaque interaction publique doit rendre le don plus simple, le rapport plus clair et les données des enfants plus sûres.',
+    finalTitle: "Donner aujourd'hui pour un besoin scolaire.",
+    finalBody: "Votre soutien peut aider à payer des frais, acheter un livre, préparer un examen ou garder un enfant connecté à l'école quand la vie devient fragile.",
     finalCta: 'Donner maintenant',
+    paymentEyebrow: 'Façons de donner',
+    paymentTitle: 'Des moyens de paiement simples pour les donateurs locaux et internationaux.',
+    paymentBody: 'Les donateurs doivent pouvoir donner par des canaux familiers, avec des reçus et un suivi préparés autour du dossier de don.',
   },
 } satisfies Record<Locale, LandingCopy>;
