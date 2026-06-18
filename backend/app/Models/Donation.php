@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use App\Enums\DonationStatus;
+use App\Models\Concerns\HasOpaqueReference;
+use App\Models\Concerns\HasPublicUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Donation extends Model
 {
+    use HasOpaqueReference;
+    use HasPublicUuid;
     use SoftDeletes;
 
     protected $fillable = [
@@ -52,5 +56,20 @@ class Donation extends Model
     public function allocations()
     {
         return $this->hasMany(Allocation::class);
+    }
+
+    public function referenceColumn(): string
+    {
+        return 'reference_number';
+    }
+
+    public function referencePrefix(): string
+    {
+        return 'DON';
+    }
+
+    public function referenceDateValue(): mixed
+    {
+        return $this->donated_at;
     }
 }

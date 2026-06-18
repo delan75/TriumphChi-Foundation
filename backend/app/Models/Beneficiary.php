@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use App\Enums\BeneficiaryStatus;
+use App\Models\Concerns\HasOpaqueReference;
+use App\Models\Concerns\HasPublicUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Beneficiary extends Model
 {
+    use HasOpaqueReference;
+    use HasPublicUuid;
     use SoftDeletes;
 
     protected $fillable = [
@@ -78,5 +82,20 @@ class Beneficiary extends Model
     public function sponsorships()
     {
         return $this->hasMany(Sponsorship::class);
+    }
+
+    public function referenceColumn(): string
+    {
+        return 'internal_id';
+    }
+
+    public function referencePrefix(): string
+    {
+        return 'BEN';
+    }
+
+    public function referenceDateValue(): mixed
+    {
+        return $this->admission_date;
     }
 }

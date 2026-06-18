@@ -16,6 +16,7 @@ class DonationResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'reference_number' => $this->reference_number,
             'idempotency_key' => $this->idempotency_key,
             'donor_id' => $this->donor_id,

@@ -15,7 +15,7 @@ class StorePaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'payment_reference' => ['required', 'string', 'max:120'],
+            'payment_reference' => ['nullable', 'string', 'max:120'],
             'idempotency_key' => ['nullable', 'string', 'max:180'],
             'fund_id' => ['nullable', 'exists:funds,id'],
             'school_id' => ['nullable', 'exists:schools,id'],

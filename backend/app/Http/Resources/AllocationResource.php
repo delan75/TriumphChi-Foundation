@@ -14,6 +14,7 @@ class AllocationResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'allocation_reference' => $this->allocation_reference,
             'donation_id' => $this->donation_id,
             'fund_id' => $this->fund_id,

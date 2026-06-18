@@ -14,6 +14,7 @@ class DonorResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'user_id' => $this->user_id,
             'name' => $this->name,
             'email' => $this->email,

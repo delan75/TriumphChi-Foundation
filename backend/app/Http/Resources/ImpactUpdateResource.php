@@ -14,6 +14,7 @@ class ImpactUpdateResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'beneficiary_id' => $this->beneficiary_id,
             'title' => $this->title,
             'body' => $this->body,

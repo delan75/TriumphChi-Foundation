@@ -16,7 +16,7 @@ class StoreBeneficiaryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'internal_id' => ['required', 'string', 'max:80', Rule::unique('beneficiaries', 'internal_id')->ignore($this->route('beneficiary'))],
+            'internal_id' => ['nullable', 'string', 'max:80', Rule::unique('beneficiaries', 'internal_id')->ignore($this->route('beneficiary'))],
             'application_id' => ['nullable', 'exists:applications,id', Rule::unique('beneficiaries', 'application_id')->ignore($this->route('beneficiary'))],
             'school_id' => ['nullable', 'exists:schools,id'],
             'region_id' => ['nullable', 'exists:regions,id'],

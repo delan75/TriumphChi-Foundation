@@ -16,7 +16,7 @@ class StoreAllocationRequest extends FormRequest
     {
         return [
             'allocation_reference' => [
-                'required',
+                'nullable',
                 'string',
                 'max:120',
                 Rule::unique('allocations', 'allocation_reference')->ignore($this->route('allocation')),
