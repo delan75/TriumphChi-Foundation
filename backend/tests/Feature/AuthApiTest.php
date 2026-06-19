@@ -35,6 +35,11 @@ class AuthApiTest extends TestCase
         $this->assertDatabaseHas('users', [
             'email' => 'new-api-user@example.org',
             'preferred_locale' => 'fr',
+            'registered_via' => 'local',
+        ]);
+        $this->assertDatabaseHas('user_auth_providers', [
+            'user_id' => $response->json('user.id'),
+            'provider' => 'local',
         ]);
         $this->assertDatabaseCount('personal_access_tokens', 1);
 
@@ -72,6 +77,10 @@ class AuthApiTest extends TestCase
         $this->assertTrue($admin->can('beneficiaries.delete'));
         $this->assertTrue($admin->can('permissions.manage'));
         $this->assertTrue($admin->can('future.permission.added.later'));
+        $this->assertDatabaseHas('user_auth_providers', [
+            'user_id' => $admin->id,
+            'provider' => 'local',
+        ]);
     }
 
     public function test_seeded_super_admin_can_login_and_access_protected_routes(): void
@@ -108,6 +117,11 @@ class AuthApiTest extends TestCase
 
         $this->assertNotEmpty($response->json('token.access_token'));
         $this->assertDatabaseCount('personal_access_tokens', 1);
+        $this->assertNotNull($user->fresh()->last_login_at);
+        $this->assertDatabaseHas('user_auth_providers', [
+            'user_id' => $user->id,
+            'provider' => 'local',
+        ]);
     }
 
     public function test_invalid_login_returns_localized_validation_error(): void
@@ -219,6 +233,23 @@ class AuthApiTest extends TestCase
         $this->withToken($secondToken)
             ->getJson('/api/v1/auth/me')
             ->assertUnauthorized();
+    }
+
+    public function test_provider_listing_and_unlinking_preserve_one_sign_in_method(): void
+    {
+        $user = $this->createUserWithPermissions();
+        $user->authProviders()->firstOrCreate(['provider' => 'local'], ['linked_at' => now()]);
+        $token = $this->loginToken($user);
+
+        $this->withToken($token)
+            ->getJson('/api/v1/auth/social/providers')
+            ->assertOk()
+            ->assertJsonPath('data.0.provider', 'local');
+
+        $this->withToken($token)
+            ->deleteJson('/api/v1/auth/social/local')
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'At least one sign-in method must remain connected.');
     }
 
     private function createUserWithPermissions(): User

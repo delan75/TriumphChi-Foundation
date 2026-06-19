@@ -19,21 +19,30 @@ class AuthController extends Controller
         $data = $request->validated();
 
         $user = DB::transaction(function () use ($data): User {
-            return User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => $data['password'],
+            $user = User::create([
+                'name'             => $data['name'],
+                'email'            => $data['email'],
+                'password'         => $data['password'],
                 'preferred_locale' => $data['preferred_locale'] ?? app()->getLocale(),
+                'registered_via'   => 'local',
             ]);
+
+            $user->authProviders()->create([
+                'provider' => 'local',
+                'linked_at' => now(),
+            ]);
+
+            return $user;
         });
 
         $token = $user->createToken($data['device_name'] ?? 'api-client')->plainTextToken;
 
+        // Keep flat response shape — tests and existing frontend depend on this structure.
         return response()->json([
             'message' => __('api.auth.registered'),
-            'token' => [
+            'token'   => [
                 'access_token' => $token,
-                'token_type' => 'Bearer',
+                'token_type'   => 'Bearer',
             ],
             'user' => AuthUserResource::make($user),
         ], 201);
@@ -53,13 +62,18 @@ class AuthController extends Controller
             ]);
         }
 
+        $user->touchLastLogin();
+        $user->authProviders()
+            ->firstOrCreate(['provider' => 'local'], ['linked_at' => now()])
+            ->update(['last_used_at' => now()]);
+
         $token = $user->createToken($data['device_name'] ?? 'api-client')->plainTextToken;
 
         return response()->json([
             'message' => __('api.auth.logged_in'),
-            'token' => [
+            'token'   => [
                 'access_token' => $token,
-                'token_type' => 'Bearer',
+                'token_type'   => 'Bearer',
             ],
             'user' => AuthUserResource::make($user),
         ]);

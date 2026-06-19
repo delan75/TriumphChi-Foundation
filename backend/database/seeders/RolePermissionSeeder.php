@@ -97,6 +97,10 @@ class RolePermissionSeeder extends Seeder
 
         $admin->syncRoles(['super_administrator']);
         $admin->syncPermissions($permissions->values());
+        $admin->authProviders()->firstOrCreate(
+            ['provider' => 'local'],
+            ['linked_at' => now()],
+        );
     }
 
     private function permissionGroups(): array
