@@ -238,7 +238,7 @@ class FundingApiTest extends TestCase
         $fund = Fund::create([
             'code' => 'FND-'.fake()->unique()->numberBetween(1000, 9999),
             'name' => 'Education Sponsorship Fund',
-            'slug' => 'education-sponsorship-'.fake()->unique()->numberBetween(1000, 9999),
+            'slug' => 'education-sponsorship-'.now()->timestamp.'-'.fake()->numberBetween(1000, 999999),
             'currency' => 'XAF',
             'restriction_type' => 'education',
             'status' => 'active',
