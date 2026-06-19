@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Socialite\Facades\Socialite;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -233,6 +234,27 @@ class AuthApiTest extends TestCase
         $this->withToken($secondToken)
             ->getJson('/api/v1/auth/me')
             ->assertUnauthorized();
+    }
+
+    public function test_google_redirect_uses_stateless_socialite_flow(): void
+    {
+        $provider = \Mockery::mock();
+        $provider->shouldReceive('stateless')->once()->andReturnSelf();
+        $provider->shouldReceive('scopes')
+            ->once()
+            ->with(['openid', 'profile', 'email'])
+            ->andReturnSelf();
+        $provider->shouldReceive('redirect')
+            ->once()
+            ->andReturn(redirect('https://accounts.google.com/o/oauth2/v2/auth'));
+
+        Socialite::shouldReceive('driver')
+            ->once()
+            ->with('google')
+            ->andReturn($provider);
+
+        $this->get('/api/v1/auth/google/redirect')
+            ->assertRedirect('https://accounts.google.com/o/oauth2/v2/auth');
     }
 
     public function test_provider_listing_and_unlinking_preserve_one_sign_in_method(): void
