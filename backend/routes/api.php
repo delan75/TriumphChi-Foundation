@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\EducationalNeedController;
 use App\Http\Controllers\Api\V1\FundController;
 use App\Http\Controllers\Api\V1\ImpactUpdateController;
 use App\Http\Controllers\Api\V1\PaymentController;
+use App\Http\Controllers\Api\V1\PublicImpactController;
 use App\Http\Controllers\Api\V1\SchoolController;
 use App\Http\Controllers\Api\V1\SponsorshipController;
 use App\Http\Middleware\SetLocale;
@@ -17,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('health', fn () => ['status' => 'ok']);
+    Route::get('public/impact-summary', PublicImpactController::class)
+        ->middleware(SetLocale::class)
+        ->name('public.impact-summary');
 
     Route::prefix('auth')->name('auth.')->middleware(SetLocale::class)->group(function () {
         Route::post('register', [AuthController::class, 'register'])

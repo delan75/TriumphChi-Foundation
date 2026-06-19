@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -13,10 +14,12 @@ import {
   Sparkles,
   UsersRound,
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { GivingChannels } from '../../../components/public/GivingChannels';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
+import { apiGet } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
 import heroImage from '../../../assets/landing/cameroon.jpg';
 import classroomImage from '../../../assets/landing/cameroon-children-educationjpg.jpg';
@@ -35,13 +38,32 @@ const communityIcons = [MapPin, Home, UsersRound, Sparkles];
 const assistanceIcons = [HandHeart, School, ShieldCheck, UsersRound];
 const workIcons = [HeartHandshake, BookOpen, UsersRound, GraduationCap];
 const impactIcons = [School, BookOpen, UsersRound, GraduationCap];
+const supportStepIcons = [HandHeart, ShieldCheck, BookOpen, HeartHandshake];
 const highPriorityImageProps = { fetchpriority: 'high' } as Record<string, string>;
+
+interface PublicImpactSummary {
+  data: {
+    children_supported: number | null;
+    partner_schools: number | null;
+    regions_reached: number | null;
+    school_continuation_rate: number | null;
+  };
+}
 
 export function LandingPage({ locale, page }: LandingPageProps) {
   const copy = landingCopy[locale];
+  const [activeStatement, setActiveStatement] = useState<'mission' | 'vision'>('mission');
+  const impactSummary = useQuery({
+    queryKey: ['public-impact-summary'],
+    queryFn: () => apiGet<PublicImpactSummary>('/public/impact-summary'),
+    staleTime: 1000 * 60 * 10,
+  });
   const donatePage = getPageByKey('donate');
   const applyPage = getPageByKey('apply');
   const impactPage = getPageByKey('impact');
+  const visionPage = getPageByKey('vision');
+  const impactStats = buildImpactStats(copy, locale, impactSummary.data?.data);
+  const activeStatementCopy = copy[activeStatement];
 
   return (
     <>
@@ -106,6 +128,45 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-16">
+          <ImagePanel image={groupClassImage} alt={copy.missionVisionImageAlt} caption={copy.missionVisionCaption} />
+          <div className="self-center">
+            <p className="text-sm font-black uppercase text-foundation-600">{copy.missionVisionEyebrow}</p>
+            <h2 className="mt-2 text-3xl font-black leading-tight text-ink-900 sm:text-4xl">{copy.missionVisionTitle}</h2>
+            <div className="mt-6 inline-flex rounded-md border border-foundation-100 bg-foundation-50 p-1">
+              {(['mission', 'vision'] as const).map((statement) => (
+                <button
+                  key={statement}
+                  type="button"
+                  onClick={() => setActiveStatement(statement)}
+                  className={cn(
+                    'min-h-10 rounded px-4 text-sm font-black transition duration-200',
+                    activeStatement === statement
+                      ? 'bg-foundation-600 text-white shadow-sm'
+                      : 'text-foundation-900 hover:bg-white',
+                  )}
+                >
+                  {copy[statement].tab}
+                </button>
+              ))}
+            </div>
+            <div className="mt-6 rounded-md border border-ink-100 bg-ink-50 p-5">
+              <p className="text-sm font-black uppercase text-foundation-600">{activeStatementCopy.label}</p>
+              <h3 className="mt-2 text-2xl font-black text-ink-900">{activeStatementCopy.title}</h3>
+              <p className="mt-3 text-base leading-7 text-ink-600">{activeStatementCopy.body}</p>
+            </div>
+            <Link
+              to={`/${locale}${visionPage.path[locale]}`}
+              className="focus-ring mt-5 inline-flex min-h-11 items-center gap-2 rounded-md px-1 text-sm font-black text-foundation-700 transition hover:text-foundation-900"
+            >
+              {copy.missionVisionCta}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-16">
           <div>
             <SectionIntro eyebrow={copy.whyEyebrow} title={copy.whyTitle} body={copy.whyBody} />
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
@@ -147,6 +208,57 @@ export function LandingPage({ locale, page }: LandingPageProps) {
         </div>
       </section>
 
+      <section className="bg-foundation-900 text-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8 lg:py-16">
+          <div>
+            <p className="text-sm font-black uppercase text-foundation-100">{copy.workEyebrow}</p>
+            <h2 className="mt-2 max-w-3xl text-3xl font-black leading-tight sm:text-4xl">{copy.workTitle}</h2>
+            <p className="mt-3 max-w-3xl text-base leading-7 text-foundation-50">{copy.workBody}</p>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              {copy.work.map((item, index) => {
+                const Icon = workIcons[index];
+
+                return (
+                  <article key={item.title} className="rounded-md border border-white/10 bg-white/5 p-5">
+                    <Icon className="h-6 w-6 text-foundation-100" aria-hidden="true" />
+                    <h3 className="mt-4 text-lg font-black">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-foundation-50">{item.body}</p>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+          <div className="grid gap-4">
+            <img src={outdoorClassImage} alt={copy.workImageAlt} className="min-h-64 rounded-md object-cover shadow-xl" loading="lazy" />
+            <img src={groupClassImage} alt={copy.workSecondImageAlt} className="hidden rounded-md object-cover shadow-xl sm:block" loading="lazy" />
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+          <SectionIntro eyebrow={copy.supportPathEyebrow} title={copy.supportPathTitle} body={copy.supportPathBody} />
+          <div className="mt-8 grid gap-3 md:grid-cols-4">
+            {copy.supportPath.map((step, index) => {
+              const Icon = supportStepIcons[index];
+
+              return (
+                <article key={step.title} className="rounded-md border border-ink-100 bg-ink-50 p-5 shadow-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="grid h-11 w-11 place-items-center rounded-md bg-foundation-600 text-white">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <span className="text-xs font-black uppercase text-foundation-600">{String(index + 1).padStart(2, '0')}</span>
+                  </div>
+                  <h2 className="mt-4 text-lg font-black text-ink-900">{step.title}</h2>
+                  <p className="mt-2 text-sm leading-6 text-ink-500">{step.body}</p>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8 lg:py-16">
           <SectionIntro eyebrow={copy.assistanceEyebrow} title={copy.assistanceTitle} body={copy.assistanceBody} />
@@ -177,48 +289,23 @@ export function LandingPage({ locale, page }: LandingPageProps) {
         </div>
       </section>
 
-      <section className="bg-foundation-900 text-white">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8 lg:py-16">
-          <div>
-            <p className="text-sm font-black uppercase text-foundation-100">{copy.workEyebrow}</p>
-            <h2 className="mt-2 max-w-3xl text-3xl font-black leading-tight sm:text-4xl">{copy.workTitle}</h2>
-            <p className="mt-3 max-w-3xl text-base leading-7 text-foundation-50">{copy.workBody}</p>
-            <div className="mt-8 grid gap-3 sm:grid-cols-2">
-              {copy.work.map((item, index) => {
-                const Icon = workIcons[index];
-
-                return (
-                  <article key={item.title} className="rounded-md border border-white/10 bg-white/5 p-5">
-                    <Icon className="h-6 w-6 text-foundation-100" aria-hidden="true" />
-                    <h3 className="mt-4 text-lg font-black">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-foundation-50">{item.body}</p>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-          <div className="grid gap-4">
-            <img src={outdoorClassImage} alt={copy.workImageAlt} className="min-h-64 rounded-md object-cover shadow-xl" loading="lazy" />
-            <img src={groupClassImage} alt={copy.workSecondImageAlt} className="hidden rounded-md object-cover shadow-xl sm:block" loading="lazy" />
-          </div>
-        </div>
-      </section>
-
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
           <SectionIntro eyebrow={copy.impactEyebrow} title={copy.impactTitle} body={copy.impactBody} />
           <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {copy.impact.map((item, index) => {
+            {impactStats.items.map((item, index) => {
               const Icon = impactIcons[index];
 
               return (
-                <article key={item} className="rounded-md border border-foundation-100 bg-foundation-50 p-5">
+                <article key={item.label} className="rounded-md border border-foundation-100 bg-foundation-50 p-5">
                   <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
-                  <p className="mt-4 text-lg font-black text-ink-900">{item}</p>
+                  <p className="mt-4 text-3xl font-black text-ink-900">{item.value}</p>
+                  <p className="mt-1 text-sm font-bold leading-6 text-ink-500">{item.label}</p>
                 </article>
               );
             })}
           </div>
+          {impactStats.usesFallback ? <p className="mt-4 text-sm font-bold text-ink-500">{copy.impactFallbackNote}</p> : null}
         </div>
       </section>
 
@@ -308,6 +395,53 @@ function ImagePanel({ image, alt, caption, dark = false }: { image: string; alt:
   );
 }
 
+interface ImpactStatItem {
+  value: string;
+  label: string;
+}
+
+interface ImpactStatsDisplay {
+  items: ImpactStatItem[];
+  usesFallback: boolean;
+}
+
+function buildImpactStats(copy: LandingCopy, locale: Locale, summary?: PublicImpactSummary['data']): ImpactStatsDisplay {
+  const childrenSupported = formatWholeNumber(summary?.children_supported, copy.impactFallbacks.childrenSupported, locale);
+  const partnerSchools = formatWholeNumber(summary?.partner_schools, copy.impactFallbacks.partnerSchools, locale);
+  const regionsReached = formatWholeNumber(summary?.regions_reached, copy.impactFallbacks.regionsReached, locale);
+  const schoolContinuationRate = formatPercentage(summary?.school_continuation_rate, copy.impactFallbacks.schoolContinuationRate);
+
+  return {
+    items: [
+      { value: childrenSupported.value, label: copy.impactLabels.childrenSupported },
+      { value: partnerSchools.value, label: copy.impactLabels.partnerSchools },
+      { value: regionsReached.value, label: copy.impactLabels.regionsReached },
+      { value: schoolContinuationRate.value, label: copy.impactLabels.schoolContinuationRate },
+    ],
+    usesFallback:
+      childrenSupported.usedFallback ||
+      partnerSchools.usedFallback ||
+      regionsReached.usedFallback ||
+      schoolContinuationRate.usedFallback,
+  };
+}
+
+function formatWholeNumber(value: number | null | undefined, fallback: string, locale: Locale) {
+  if (typeof value !== 'number' || value < 1) {
+    return { value: fallback, usedFallback: true };
+  }
+
+  return { value: new Intl.NumberFormat(locale).format(value), usedFallback: false };
+}
+
+function formatPercentage(value: number | null | undefined, fallback: string) {
+  if (typeof value !== 'number' || value < 1) {
+    return { value: fallback, usedFallback: true };
+  }
+
+  return { value: `${Math.round(value)}%`, usedFallback: false };
+}
+
 interface LandingCopy {
   eyebrow: string;
   heading: string;
@@ -316,6 +450,13 @@ interface LandingCopy {
   secondaryCta: string;
   heroImageAlt: string;
   heroNotes: Array<{ title: string; body: string }>;
+  missionVisionEyebrow: string;
+  missionVisionTitle: string;
+  missionVisionImageAlt: string;
+  missionVisionCaption: string;
+  missionVisionCta: string;
+  mission: { tab: string; label: string; title: string; body: string };
+  vision: { tab: string; label: string; title: string; body: string };
   whyEyebrow: string;
   whyTitle: string;
   whyBody: string;
@@ -339,10 +480,26 @@ interface LandingCopy {
   workImageAlt: string;
   workSecondImageAlt: string;
   work: Array<{ title: string; body: string }>;
+  supportPathEyebrow: string;
+  supportPathTitle: string;
+  supportPathBody: string;
+  supportPath: Array<{ title: string; body: string }>;
   impactEyebrow: string;
   impactTitle: string;
   impactBody: string;
-  impact: string[];
+  impactLabels: {
+    childrenSupported: string;
+    partnerSchools: string;
+    regionsReached: string;
+    schoolContinuationRate: string;
+  };
+  impactFallbacks: {
+    childrenSupported: string;
+    partnerSchools: string;
+    regionsReached: string;
+    schoolContinuationRate: string;
+  };
+  impactFallbackNote: string;
   storyEyebrow: string;
   storyTitle: string;
   storyBody: string;
@@ -364,18 +521,35 @@ const landingCopy = {
   en: {
     eyebrow: 'TriumphChi Foundation',
     heading: 'Giving from a covenant, not from leftovers.',
-    lead: 'Every child deserves the opportunity to learn, grow, and dream. In rural communities across Cameroon, we help remove barriers to school through education support, mentorship, and compassionate community care.',
+    lead: 'In rural Cameroon, many children are only one school fee, one uniform, or one exam registration away from leaving school. We exist to help them stay, learn, and move forward with dignity.',
     primaryCta: 'Support a child',
     secondaryCta: 'Apply for assistance',
     heroImageAlt: 'A smiling school child in a classroom in Cameroon.',
     heroNotes: [
-      { title: 'Children', body: 'The work begins with children whose education is at risk.' },
-      { title: 'Hope', body: 'Support is given to protect opportunity, dignity, and future dreams.' },
-      { title: 'Community', body: 'Families, schools, churches, and local leaders help identify real needs.' },
+      { title: 'Children stay in school', body: 'Education barriers are removed before they become reasons to leave.' },
+      { title: 'Practical support', body: 'School fees, learning materials, uniforms, and examination costs.' },
+      { title: 'Community partnership', body: 'Families, schools, churches, and local leaders help identify real needs.' },
     ],
+    missionVisionEyebrow: 'Mission and vision',
+    missionVisionTitle: 'A commitment to children whose education is at risk.',
+    missionVisionImageAlt: 'Children receiving education support from community volunteers.',
+    missionVisionCaption: 'The foundation works through compassion, local relationships, and careful attention to real educational needs.',
+    missionVisionCta: 'Read more about our vision',
+    mission: {
+      tab: 'Mission',
+      label: 'Our mission',
+      title: 'Keep vulnerable children learning with dignity.',
+      body: 'TriumphChi Foundation supports orphaned and vulnerable children in Cameroon by helping remove practical school barriers and surrounding each child with care, encouragement, and community support.',
+    },
+    vision: {
+      tab: 'Vision',
+      label: 'Our vision',
+      title: "A Cameroon where hardship does not end a child's education.",
+      body: 'We envision rural communities where children affected by loss, poverty, or family crisis can remain in school, grow in confidence, and step into adulthood with hope.',
+    },
     whyEyebrow: 'Why this work matters',
-    whyTitle: 'Education changes everything.',
-    whyBody: "For many orphaned and vulnerable children in rural Cameroon, staying in school is not simply a matter of willingness. A missed fee payment, the absence of a school uniform, the cost of examination registration, or the loss of a parent can interrupt a child's education and alter the course of their future.",
+    whyTitle: 'A small barrier can close a classroom door.',
+    whyBody: 'A child may work hard all year, pass every class, and still miss an examination because the registration fee cannot be paid. A missing notebook, a worn uniform, or the loss of a parent should not determine whether a child receives an education. That is where community support becomes meaningful.',
     whyImageAlt: 'Children writing in notebooks in a classroom.',
     whyCaption: 'A school day is built from simple things: a seat in class, a notebook, a uniform, an exam fee, and someone who believes the child should continue.',
     needs: [
@@ -411,10 +585,31 @@ const landingCopy = {
       { title: 'Community outreach', body: 'Working with families, schools, churches, and local leaders.' },
       { title: 'Mentorship and encouragement', body: 'Supporting children with presence, prayerful care, and progress follow-up.' },
     ],
+    supportPathEyebrow: 'How support reaches a child',
+    supportPathTitle: 'Help is handled with care from the first request to continued follow-up.',
+    supportPathBody: 'When a need is raised, the response should be practical, respectful, and connected to the people who know the child best.',
+    supportPath: [
+      { title: 'Need identified', body: 'A child, school, guardian, or community leader reaches out.' },
+      { title: 'Review and verification', body: 'The request is reviewed carefully and respectfully.' },
+      { title: 'Support provided', body: 'Fees, materials, mentorship, or educational assistance is arranged.' },
+      { title: 'Continued follow-up', body: 'We stay connected with schools, families, and the child.' },
+    ],
     impactEyebrow: 'Impact with a human face',
     impactTitle: 'The measure is a child continuing school.',
     impactBody: 'Impact is seen in children supported, schools reached, fees covered, materials provided, and students continuing their education with hope.',
-    impact: ['Children supported', 'School fees covered', 'Schools reached', 'Students continuing their education'],
+    impactLabels: {
+      childrenSupported: 'Children supported',
+      partnerSchools: 'Partner schools',
+      regionsReached: 'Regions reached',
+      schoolContinuationRate: 'School continuation rate',
+    },
+    impactFallbacks: {
+      childrenSupported: '300+',
+      partnerSchools: '12',
+      regionsReached: '4',
+      schoolContinuationRate: '95%',
+    },
+    impactFallbackNote: 'Our impact dashboard is growing as programs expand.',
     storyEyebrow: 'Stories with dignity',
     storyTitle: "The goal is never to display a child's hardship.",
     storyBody: 'The goal is to celebrate growth, courage, learning, and hope while protecting privacy and dignity. Public stories should honor the child, not expose them.',
@@ -426,26 +621,43 @@ const landingCopy = {
     trustBody: 'Transparency belongs here as a support to trust, not as the main story. We work to ensure support reaches educational needs while maintaining responsible records and oversight.',
     trustPoints: ['Donation receipts', 'Impact reporting', 'School support records', 'Responsible governance'],
     finalEyebrow: 'Covenant giving',
-    finalTitle: 'Generosity is more than a transaction.',
-    finalBody: 'It is a commitment to walk alongside children, families, schools, and communities so that education remains possible where it is most at risk.',
+    finalTitle: 'Giving from a covenant, not from leftovers.',
+    finalBody: "We believe generosity begins with responsibility toward one another. When a child's education is threatened by circumstances beyond their control, we respond not out of excess, but out of commitment, compassion, and shared purpose.",
     finalPrimaryCta: 'Support a child',
     finalSecondaryCta: 'Apply for assistance',
   },
   fr: {
     eyebrow: 'Fondation TriumphChi',
     heading: 'Donner par alliance, pas avec les restes.',
-    lead: "Chaque enfant mérite l'occasion d'apprendre, de grandir et de rêver. Dans les communautés rurales du Cameroun, nous aidons à lever les barrières à l'école par le soutien scolaire, le mentorat et l'accompagnement communautaire.",
+    lead: "Dans le Cameroun rural, beaucoup d'enfants ne sont qu'à un frais scolaire, un uniforme ou une inscription à l'examen de quitter l'école. Nous existons pour les aider à rester, apprendre et avancer avec dignité.",
     primaryCta: 'Soutenir un enfant',
     secondaryCta: 'Demander une aide',
     heroImageAlt: 'Une enfant souriante dans une salle de classe au Cameroun.',
     heroNotes: [
-      { title: 'Enfants', body: "Le travail commence avec les enfants dont l'éducation est menacée." },
-      { title: 'Espérance', body: "Le soutien protège l'opportunité, la dignité et les rêves d'avenir." },
-      { title: 'Communauté', body: 'Familles, écoles, églises et leaders locaux aident à identifier les vrais besoins.' },
+      { title: "Les enfants restent à l'école", body: "Les obstacles scolaires sont levés avant qu'ils ne deviennent des raisons d'abandonner." },
+      { title: 'Soutien pratique', body: 'Frais scolaires, fournitures, uniformes et frais d’examen.' },
+      { title: 'Partenariat communautaire', body: 'Familles, écoles, églises et leaders locaux aident à identifier les vrais besoins.' },
     ],
+    missionVisionEyebrow: 'Mission et vision',
+    missionVisionTitle: "Un engagement envers les enfants dont l'éducation est menacée.",
+    missionVisionImageAlt: 'Des enfants recevant un soutien éducatif avec des bénévoles communautaires.',
+    missionVisionCaption: "La fondation agit avec compassion, relations locales et attention aux vrais besoins scolaires.",
+    missionVisionCta: 'Lire davantage sur notre vision',
+    mission: {
+      tab: 'Mission',
+      label: 'Notre mission',
+      title: "Garder les enfants vulnérables à l'école avec dignité.",
+      body: "La Fondation TriumphChi soutient les orphelins et enfants vulnérables au Cameroun en aidant à lever les obstacles scolaires pratiques, tout en entourant chaque enfant de soin, d'encouragement et de soutien communautaire.",
+    },
+    vision: {
+      tab: 'Vision',
+      label: 'Notre vision',
+      title: "Un Cameroun où la difficulté n'arrête pas l'éducation d'un enfant.",
+      body: "Nous imaginons des communautés rurales où les enfants touchés par la perte, la pauvreté ou une crise familiale peuvent rester à l'école, grandir en confiance et entrer dans l'âge adulte avec espérance.",
+    },
     whyEyebrow: 'Pourquoi cette œuvre compte',
-    whyTitle: "L'éducation change tout.",
-    whyBody: "Pour beaucoup d'orphelins et d'enfants vulnérables du Cameroun rural, rester à l'école n'est pas seulement une question de volonté. Un frais non payé, l'absence d'uniforme, le coût d'un examen ou la perte d'un parent peut interrompre la scolarité et changer l'avenir d'un enfant.",
+    whyTitle: 'Un petit obstacle peut fermer la porte de la classe.',
+    whyBody: "Un enfant peut travailler dur toute l'année, réussir chaque classe, puis manquer un examen parce que les frais d'inscription ne peuvent pas être payés. Un cahier manquant, un uniforme usé ou la perte d'un parent ne devrait pas décider si un enfant reçoit une éducation. C'est là que le soutien communautaire devient précieux.",
     whyImageAlt: 'Des enfants écrivent dans leurs cahiers en classe.',
     whyCaption: "Une journée d'école tient parfois à des choses simples : une place en classe, un cahier, un uniforme, un frais d'examen et quelqu'un qui croit que l'enfant doit continuer.",
     needs: [
@@ -481,10 +693,31 @@ const landingCopy = {
       { title: 'Présence communautaire', body: 'Travailler avec les familles, écoles, églises et leaders locaux.' },
       { title: 'Mentorat et encouragement', body: 'Soutenir les enfants par la présence, la prière et le suivi de leurs progrès.' },
     ],
+    supportPathEyebrow: "Comment l'aide atteint un enfant",
+    supportPathTitle: 'Chaque demande est accompagnée avec soin, du premier signalement au suivi.',
+    supportPathBody: "Lorsqu'un besoin est signalé, la réponse doit être pratique, respectueuse et reliée aux personnes qui connaissent le mieux l'enfant.",
+    supportPath: [
+      { title: 'Besoin identifié', body: 'Un enfant, une école, un tuteur ou un leader communautaire prend contact.' },
+      { title: 'Étude et vérification', body: 'La demande est examinée avec soin et respect.' },
+      { title: 'Soutien apporté', body: "Les frais, fournitures, mentorat ou aide éducative sont organisés." },
+      { title: 'Suivi continu', body: "Nous restons en lien avec les écoles, les familles et l'enfant." },
+    ],
     impactEyebrow: 'Impact à visage humain',
     impactTitle: "La mesure, c'est un enfant qui continue l'école.",
     impactBody: "L'impact se voit dans les enfants soutenus, les écoles rejointes, les frais couverts, le matériel donné et les élèves qui continuent avec espérance.",
-    impact: ['Enfants soutenus', 'Frais scolaires couverts', 'Écoles rejointes', 'Élèves qui continuent leur scolarité'],
+    impactLabels: {
+      childrenSupported: 'Enfants soutenus',
+      partnerSchools: 'Écoles partenaires',
+      regionsReached: 'Régions rejointes',
+      schoolContinuationRate: 'Taux de continuité scolaire',
+    },
+    impactFallbacks: {
+      childrenSupported: '300+',
+      partnerSchools: '12',
+      regionsReached: '4',
+      schoolContinuationRate: '95%',
+    },
+    impactFallbackNote: "Notre tableau d'impact grandit avec l'expansion des programmes.",
     storyEyebrow: 'Récits avec dignité',
     storyTitle: "Le but n'est jamais d'exposer la difficulté d'un enfant.",
     storyBody: "Le but est de célébrer la croissance, le courage, l'apprentissage et l'espérance tout en protégeant la vie privée et la dignité. Les récits publics doivent honorer l'enfant, pas l'exposer.",
@@ -496,8 +729,8 @@ const landingCopy = {
     trustBody: "La transparence soutient la confiance, mais elle n'est pas l'histoire principale. Nous veillons à ce que l'aide rejoigne les besoins scolaires avec des dossiers et une surveillance responsables.",
     trustPoints: ['Reçus de don', "Rapports d'impact", 'Suivi du soutien scolaire', 'Gouvernance responsable'],
     finalEyebrow: "Don d'alliance",
-    finalTitle: 'La générosité est plus qu’une transaction.',
-    finalBody: "C'est un engagement à marcher avec les enfants, familles, écoles et communautés afin que l'éducation reste possible là où elle est le plus menacée.",
+    finalTitle: 'Donner par alliance, pas avec les restes.',
+    finalBody: "Nous croyons que la générosité commence par la responsabilité les uns envers les autres. Quand l'éducation d'un enfant est menacée par des circonstances hors de son contrôle, nous répondons non par excès, mais par engagement, compassion et objectif partagé.",
     finalPrimaryCta: 'Soutenir un enfant',
     finalSecondaryCta: 'Demander une aide',
   },
