@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Globe2, HeartHandshake, Menu, ShieldCheck, X } from 'lucide-react';
+import { ChevronDown, Globe2, HeartHandshake, Menu, ShieldCheck, UserRound, X } from 'lucide-react';
 import { cn } from '../../components/ui/cn';
 import { publicNavigation, publicPages } from '../../content/publicPages';
 import { isLocale, Locale, t } from '../../lib/i18n';
@@ -13,6 +13,9 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const donatePath = `/${locale}${publicPages.find((page) => page.key === 'donate')?.path[locale] ?? '/donate'}`;
+  const accountPath = `/${locale}/staff`;
+  const isAuthenticated = readPublicAuthState();
+  const accountLabel = t(locale, isAuthenticated ? 'account' : 'login');
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/20 bg-white/[0.92] shadow-sm backdrop-blur-xl">
@@ -50,6 +53,20 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
         <div className="flex shrink-0 items-center gap-2">
           <LocaleSwitcher locale={locale} currentPath={location.pathname} />
           <NavLink
+            to={accountPath}
+            className={cn(
+              'focus-ring inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md border px-3 text-sm font-bold transition duration-200',
+              isAuthenticated
+                ? 'border-foundation-600 bg-foundation-600 text-white hover:bg-foundation-900'
+                : 'border-ink-100 bg-white text-foundation-700 hover:border-foundation-100 hover:bg-foundation-50 hover:text-foundation-900',
+            )}
+            aria-label={accountLabel}
+            title={accountLabel}
+          >
+            <UserRound className="h-4 w-4" aria-hidden="true" />
+            <span className="hidden xl:inline">{accountLabel}</span>
+          </NavLink>
+          <NavLink
             to={donatePath}
             className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-foundation-600 px-3 text-sm font-bold text-white shadow-sm transition duration-200 hover:bg-foundation-900 sm:px-4"
           >
@@ -75,6 +92,19 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
         )}
       >
         <nav className="grid gap-2" aria-label="Mobile navigation">
+          <NavLink
+            to={accountPath}
+            onClick={() => setIsOpen(false)}
+            className={cn(
+              'focus-ring flex min-h-12 items-center gap-3 rounded-md border px-3 text-base font-bold transition',
+              isAuthenticated
+                ? 'border-foundation-600 bg-foundation-600 text-white hover:bg-foundation-900'
+                : 'border-foundation-100 bg-white text-foundation-900 hover:bg-foundation-50',
+            )}
+          >
+            <UserRound className="h-5 w-5" aria-hidden="true" />
+            {accountLabel}
+          </NavLink>
           {publicNavigation.map((item) => (
             <NavLink
               key={item.key}
@@ -99,21 +129,22 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
 
 function LocaleSwitcher({ locale, currentPath }: { locale: Locale; currentPath: string }) {
   return (
-    <div className="flex min-h-11 items-center rounded-md border border-ink-100 bg-ink-50 p-1 text-xs font-bold" aria-label="Language selector">
-      <Globe2 className="ml-2 hidden h-4 w-4 text-ink-500 sm:block" aria-hidden="true" />
-      {(['en', 'fr'] as Locale[]).map((targetLocale) => (
-        <a key={targetLocale} className={localeLinkClass(locale === targetLocale)} href={localizedHref(currentPath, locale, targetLocale)}>
-          {targetLocale.toUpperCase()}
-        </a>
-      ))}
-    </div>
-  );
-}
-
-function localeLinkClass(active: boolean) {
-  return cn(
-    'focus-ring flex min-h-9 min-w-10 items-center justify-center rounded px-2.5',
-    active ? 'bg-white text-foundation-900 shadow-sm' : 'text-ink-500 hover:text-ink-900',
+    <label className="focus-within:shadow-focus relative flex min-h-11 items-center rounded-md border border-ink-100 bg-white pl-3 pr-8 text-xs font-black text-ink-700 transition hover:border-foundation-100 hover:bg-foundation-50">
+      <span className="sr-only">Language selector</span>
+      <Globe2 className="mr-2 h-4 w-4 text-foundation-600" aria-hidden="true" />
+      <select
+        value={locale}
+        onChange={(event) => {
+          window.location.href = localizedHref(currentPath, locale, event.target.value as Locale);
+        }}
+        className="h-10 appearance-none bg-transparent text-xs font-black uppercase outline-none"
+        aria-label="Language selector"
+      >
+        <option value="en">EN</option>
+        <option value="fr">FR</option>
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-2.5 h-4 w-4 text-ink-500" aria-hidden="true" />
+    </label>
   );
 }
 
@@ -132,4 +163,21 @@ function localizedHref(currentPath: string, currentLocale: Locale, targetLocale:
   }
 
   return `/${targetLocale}/${rest.join('/')}`.replace(/\/$/, '');
+}
+
+function readPublicAuthState() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  try {
+    return [
+      'triumphchi.authenticated',
+      'triumphchi.user',
+      'auth_token',
+      'token',
+    ].some((key) => Boolean(window.localStorage.getItem(key)));
+  } catch {
+    return false;
+  }
 }

@@ -90,7 +90,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
               key={slide.image}
               src={slide.image}
               alt={slide.alt}
-              className={cn('hero-slide absolute inset-0 h-full w-full object-cover', slide.className)}
+              className={cn('hero-slide absolute inset-0 h-full w-full object-cover saturate-[0.78]', slide.className)}
               width={index === 0 ? '2400' : '1200'}
               height={index === 0 ? '1200' : '900'}
               {...(index === 0 ? highPriorityImageProps : { loading: 'lazy' })}
@@ -423,13 +423,13 @@ function ImagePanel({
       )}
     >
       <div className="relative isolate overflow-hidden">
-        <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover saturate-[0.82]" loading="lazy" />
+        <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover opacity-80 saturate-[0.74]" loading="lazy" />
         <div
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(18,55,47,0.74)_0%,rgba(18,55,47,0.46)_46%,rgba(18,55,47,0.72)_100%)] mix-blend-multiply"
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(18,55,47,0.82)_0%,rgba(18,55,47,0.56)_46%,rgba(18,55,47,0.78)_100%)] mix-blend-multiply"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_22%,rgba(255,255,255,0.18),transparent_34%),linear-gradient(90deg,rgba(18,55,47,0.2),rgba(18,55,47,0.58))]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_22%,rgba(255,255,255,0.14),transparent_32%),linear-gradient(90deg,rgba(18,55,47,0.32),rgba(18,55,47,0.68))]"
           aria-hidden="true"
         />
       </div>
@@ -441,9 +441,9 @@ function ImagePanel({
 function OverlayImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
   return (
     <div className={cn('relative isolate overflow-hidden rounded-md bg-foundation-900', className)}>
-      <img src={src} alt={alt} className="h-full w-full rounded-md object-cover saturate-[0.78]" loading="lazy" />
+      <img src={src} alt={alt} className="h-full w-full rounded-md object-cover opacity-80 saturate-[0.72]" loading="lazy" />
       <div
-        className="pointer-events-none absolute inset-0 rounded-md bg-[linear-gradient(135deg,rgba(18,55,47,0.76),rgba(18,55,47,0.42)_44%,rgba(18,55,47,0.82))] mix-blend-multiply"
+        className="pointer-events-none absolute inset-0 rounded-md bg-[linear-gradient(135deg,rgba(18,55,47,0.84),rgba(18,55,47,0.54)_44%,rgba(18,55,47,0.86))] mix-blend-multiply"
         aria-hidden="true"
       />
       <div
@@ -579,8 +579,8 @@ interface LandingCopy {
 
 const landingCopy = {
   en: {
-    eyebrow: 'TriumphChi Foundation',
-    heading: 'Giving from a covenant, not from leftovers.',
+    eyebrow: 'Giving from a covenant, not from leftovers.',
+    heading: 'TriumphChi Foundation',
     lead: 'In rural Cameroon, many children are only one school fee, one uniform, or one exam registration away from leaving school. We exist to help them stay, learn, and move forward with dignity.',
     primaryCta: 'Support a child',
     secondaryCta: 'Apply for assistance',
@@ -621,7 +621,7 @@ const landingCopy = {
     ],
     ruralEyebrow: 'Where we serve',
     ruralTitle: 'Many rural communities carry struggles that are rarely seen beyond their villages.',
-    ruralBody: 'Long distances to school, limited educational resources, economic hardship, and children growing up without parental support can make learning fragile. Yet these communities are rich in resilience, faith, family, and determination.',
+    ruralBody: 'Across villages and communities in Cameroon, children travel long distances to school, learn with limited resources, and face challenges that are often invisible beyond their local communities. Yet these same communities are marked by resilience, faith, family, and determination.',
     ruralImageAlt: 'Children gathered along a rural red-earth road in Cameroon.',
     ruralCaption: 'Rural Cameroon is not only a place of need. It is a place of resilience, community memory, and children who still want to learn.',
     ruralPoints: ['Long distances to school', 'Limited learning resources', 'Economic hardship', 'Resilient families and communities'],
@@ -641,10 +641,10 @@ const landingCopy = {
     workImageAlt: 'Children learning outdoors under a tree.',
     workSecondImageAlt: 'A classroom of children smiling and raising their hands.',
     work: [
-      { title: 'Educational sponsorship', body: 'Helping children remain in school through direct education support.' },
-      { title: 'Books and learning materials', body: 'Providing supplies that make school participation possible.' },
-      { title: 'Community outreach', body: 'Working with families, schools, churches, and local leaders.' },
-      { title: 'Mentorship and encouragement', body: 'Supporting children with presence, prayerful care, and progress follow-up.' },
+      { title: 'Keeping Children in School', body: 'Removing practical barriers before they become reasons a child leaves the classroom.' },
+      { title: 'Providing Learning Essentials', body: 'Helping with books, notebooks, uniforms, exam fees, and the simple tools that make learning possible.' },
+      { title: 'Walking Alongside Families', body: 'Listening with families, schools, churches, and local leaders so support meets real needs.' },
+      { title: 'Building Hope Through Mentorship', body: 'Encouraging children with presence, guidance, prayerful care, and continued follow-up.' },
     ],
     supportPathEyebrow: 'How support reaches a child',
     supportPathTitle: 'Help is handled with care from the first request to continued follow-up.',
@@ -688,8 +688,8 @@ const landingCopy = {
     finalSecondaryCta: 'Apply for assistance',
   },
   fr: {
-    eyebrow: 'Fondation TriumphChi',
-    heading: 'Donner par alliance, pas avec les restes.',
+    eyebrow: 'Donner par alliance, pas avec les restes.',
+    heading: 'Fondation TriumphChi',
     lead: "Dans le Cameroun rural, beaucoup d'enfants ne sont qu'à un frais scolaire, un uniforme ou une inscription à l'examen de quitter l'école. Nous existons pour les aider à rester, apprendre et avancer avec dignité.",
     primaryCta: 'Soutenir un enfant',
     secondaryCta: 'Demander une aide',
@@ -730,7 +730,7 @@ const landingCopy = {
     ],
     ruralEyebrow: 'Où nous servons',
     ruralTitle: 'Beaucoup de communautés rurales portent des luttes rarement visibles au-delà du village.',
-    ruralBody: "La longue distance vers l'école, les ressources limitées, la difficulté économique et l'absence de soutien parental peuvent rendre l'apprentissage fragile. Pourtant ces communautés sont riches en résilience, foi, famille et détermination.",
+    ruralBody: "Dans les villages et communautés du Cameroun, des enfants parcourent de longues distances pour aller à l'école, apprennent avec des ressources limitées et affrontent des difficultés souvent invisibles au-delà de leur communauté locale. Pourtant ces mêmes communautés sont marquées par la résilience, la foi, la famille et la détermination.",
     ruralImageAlt: "Des enfants rassemblés sur une route rouge d'un village au Cameroun.",
     ruralCaption: "Le Cameroun rural n'est pas seulement un lieu de besoin. C'est un lieu de résilience, de mémoire communautaire et d'enfants qui veulent encore apprendre.",
     ruralPoints: ["Longues distances vers l'école", "Ressources d'apprentissage limitées", 'Difficultés économiques', 'Familles et communautés résilientes'],
@@ -750,10 +750,10 @@ const landingCopy = {
     workImageAlt: 'Des enfants apprennent dehors sous un arbre.',
     workSecondImageAlt: 'Une classe d’enfants souriants levant les mains.',
     work: [
-      { title: 'Parrainage éducatif', body: "Aider les enfants à rester à l'école grâce à un soutien scolaire direct." },
-      { title: "Livres et matériel d'apprentissage", body: 'Fournir les outils qui rendent la participation scolaire possible.' },
-      { title: 'Présence communautaire', body: 'Travailler avec les familles, écoles, églises et leaders locaux.' },
-      { title: 'Mentorat et encouragement', body: 'Soutenir les enfants par la présence, la prière et le suivi de leurs progrès.' },
+      { title: "Garder les enfants à l'école", body: "Lever les obstacles pratiques avant qu'ils ne deviennent des raisons de quitter la classe." },
+      { title: "Fournir l'essentiel pour apprendre", body: "Aider avec les livres, cahiers, uniformes, frais d'examen et outils simples qui rendent l'apprentissage possible." },
+      { title: 'Marcher avec les familles', body: 'Écouter avec les familles, écoles, églises et leaders locaux afin que le soutien réponde aux vrais besoins.' },
+      { title: "Bâtir l'espérance par le mentorat", body: 'Encourager les enfants par la présence, le conseil, le soin dans la prière et le suivi continu.' },
     ],
     supportPathEyebrow: "Comment l'aide atteint un enfant",
     supportPathTitle: 'Chaque demande est accompagnée avec soin, du premier signalement au suivi.',

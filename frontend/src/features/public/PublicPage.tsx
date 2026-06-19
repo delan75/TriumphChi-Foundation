@@ -1,10 +1,12 @@
 import { ArrowRight } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
+import { PublicPageTitle } from '../../components/public/PublicPageTitle';
 import { Seo } from '../../components/seo/Seo';
-import { PageHeader } from '../../components/ui/PageHeader';
 import { isLocale } from '../../lib/i18n';
 import { buildPublicPageSchema, getPageByKey, getPublicPage, publicPages } from '../../content/publicPages';
 import { LandingPage } from './landing/LandingPage';
+import { AboutPage } from './about/AboutPage';
+import defaultPageHeroImage from '../../assets/landing/rural_kids.jpg';
 
 export function PublicPage() {
   const { locale, pageSlug } = useParams();
@@ -19,49 +21,68 @@ export function PublicPage() {
     return <LandingPage locale={activeLocale} page={page} />;
   }
 
+  if (page.key === 'about') {
+    return <AboutPage locale={activeLocale} page={page} />;
+  }
+
   const ctaPage = page.cta ? getPageByKey(page.cta.page) : undefined;
   const Icon = page.icon;
+  const homePage = getPageByKey('home');
 
   return (
-    <section>
+    <>
       <Seo
         meta={{
-          title: page.title[activeLocale],
-          description: page.description[activeLocale],
+          title: page.seoTitle?.[activeLocale] ?? page.title[activeLocale],
+          description: page.seoDescription?.[activeLocale] ?? page.description[activeLocale],
           path: page.path,
           locale: activeLocale,
+          image: defaultPageHeroImage,
         }}
         structuredData={buildPublicPageSchema(page, activeLocale)}
       />
 
-      <PageHeader
-        eyebrow={page.eyebrow[activeLocale]}
+      <PublicPageTitle
+        locale={activeLocale}
         title={page.title[activeLocale]}
         description={page.description[activeLocale]}
-        action={
-          ctaPage ? (
+        backgroundImage={defaultPageHeroImage}
+        backgroundAlt={
+          activeLocale === 'fr'
+            ? 'Des enfants dans une communauté rurale du Cameroun.'
+            : 'Children in a rural community in Cameroon.'
+        }
+        breadcrumbs={[
+          { label: homePage.label[activeLocale], to: `/${activeLocale}${homePage.path[activeLocale]}` },
+          { label: page.label[activeLocale] },
+        ]}
+      />
+
+      <section className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+          <div className="mb-6 rounded-md border border-foundation-100 bg-foundation-50 p-5">
+            <Icon className="mb-4 h-7 w-7 text-foundation-600" aria-hidden="true" />
+            <p className="max-w-3xl text-sm leading-6 text-ink-600">
+              {activeLocale === 'fr'
+                ? 'Cette page est en préparation avec le même modèle public, bilingue et respectueux de la vie privée.'
+                : 'This page is being prepared with the same public, bilingual, privacy-conscious page model.'}
+            </p>
+          </div>
+
+          <PublicSectionGrid pageKey={page.key} />
+
+          {ctaPage ? (
             <Link
               to={`/${activeLocale}${ctaPage.path[activeLocale]}`}
-              className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-foundation-600 px-4 text-sm font-semibold text-white transition hover:bg-foundation-900"
+              className="focus-ring mt-8 inline-flex min-h-12 items-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white transition hover:bg-foundation-900"
             >
               {page.cta?.label[activeLocale]}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
-          ) : null
-        }
-      />
-
-      <div className="mb-6 rounded-md border border-foundation-100 bg-white p-5 shadow-sm">
-        <Icon className="mb-4 h-7 w-7 text-foundation-600" aria-hidden="true" />
-        <p className="max-w-3xl text-sm leading-6 text-ink-500">
-          {activeLocale === 'fr'
-            ? 'Cette page utilise des métadonnées localisées, des liens alternatifs et des données structurées réutilisables.'
-            : 'This page uses localized metadata, alternate language links, and reusable structured data from a shared page definition.'}
-        </p>
-      </div>
-
-      <PublicSectionGrid pageKey={page.key} />
-    </section>
+          ) : null}
+        </div>
+      </section>
+    </>
   );
 }
 
