@@ -16,26 +16,32 @@ class ApplicationController extends Controller
     {
         $this->authorize('viewAny', Application::class);
 
-        return ApplicationResource::collection(
-            Application::query()
-                ->with(['region', 'village', 'school.region', 'school.village'])
-                ->latest()
-                ->paginate($request->integer('per_page', 15))
-        );
+        $applications = Application::query()
+            ->with(['region', 'village', 'school.region', 'school.village'])
+            ->latest()
+            ->paginate($request->integer('per_page', 15));
+
+        return $this->paginated($applications, 'Applications retrieved successfully', ApplicationResource::class);
     }
 
     public function store(StoreApplicationRequest $request)
     {
         $application = Application::create($request->validated());
 
-        return ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village']));
+        return $this->created(
+            ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village'])),
+            'Application created successfully'
+        );
     }
 
     public function show(Application $application)
     {
         $this->authorize('view', $application);
 
-        return ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village']));
+        return $this->success(
+            ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village'])),
+            'Application retrieved successfully'
+        );
     }
 
     public function update(StoreApplicationRequest $request, Application $application)
@@ -44,7 +50,10 @@ class ApplicationController extends Controller
 
         $application->update($request->validated());
 
-        return ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village']));
+        return $this->updated(
+            ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village'])),
+            'Application updated successfully'
+        );
     }
 
     public function destroy(Application $application)
@@ -53,7 +62,7 @@ class ApplicationController extends Controller
 
         $application->delete();
 
-        return response()->noContent();
+        return $this->deleted('Application deleted successfully');
     }
 
     public function transition(TransitionApplicationStatusRequest $request, Application $application)
@@ -83,6 +92,9 @@ class ApplicationController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
-        return ApplicationResource::make($application->fresh(['region', 'village', 'school.region', 'school.village']));
+        return $this->success(
+            ApplicationResource::make($application->fresh(['region', 'village', 'school.region', 'school.village'])),
+            'Application status updated successfully'
+        );
     }
 }
