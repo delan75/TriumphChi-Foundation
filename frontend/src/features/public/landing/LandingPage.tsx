@@ -19,7 +19,7 @@ import { GivingChannels } from '../../../components/public/GivingChannels';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
-import { apiGet } from '../../../lib/api';
+import { apiPublicGet } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
 import heroImage from '../../../assets/landing/cameroon.jpg';
 import ruralHomeHeroImage from '../../../assets/landing/rural-home-cameroon.jpg';
@@ -56,7 +56,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
   const [activeStatement, setActiveStatement] = useState<'mission' | 'vision'>('mission');
   const impactSummary = useQuery({
     queryKey: ['public-impact-summary'],
-    queryFn: () => apiGet<PublicImpactSummary>('/public/impact-summary'),
+    queryFn: () => apiPublicGet<PublicImpactSummary>('/public/impact-summary'),
     staleTime: 1000 * 60 * 10,
   });
   const donatePage = getPageByKey('donate');
