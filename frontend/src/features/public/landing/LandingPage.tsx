@@ -22,6 +22,7 @@ import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../..
 import { apiGet } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
 import heroImage from '../../../assets/landing/cameroon.jpg';
+import ruralHomeHeroImage from '../../../assets/landing/rural-home-cameroon.jpg';
 import classroomImage from '../../../assets/landing/cameroon-children-educationjpg.jpg';
 import ruralImage from '../../../assets/landing/rural_kids.jpg';
 import outdoorClassImage from '../../../assets/landing/kids_studying_tree.webp';
@@ -64,6 +65,10 @@ export function LandingPage({ locale, page }: LandingPageProps) {
   const visionPage = getPageByKey('vision');
   const impactStats = buildImpactStats(copy, locale, impactSummary.data?.data);
   const activeStatementCopy = copy[activeStatement];
+  const heroSlides = [
+    { image: heroImage, alt: copy.heroImageAlt, className: 'hero-slide-one object-center' },
+    { image: ruralHomeHeroImage, alt: copy.heroSecondImageAlt, className: 'hero-slide-two object-[center_54%]' },
+  ];
 
   return (
     <>
@@ -79,26 +84,32 @@ export function LandingPage({ locale, page }: LandingPageProps) {
       />
 
       <section className="hero-visual relative isolate overflow-hidden bg-foundation-900 text-white">
-        <img
-          src={heroImage}
-          alt={copy.heroImageAlt}
-          className="absolute inset-0 -z-20 h-full w-full object-cover"
-          width="2400"
-          height="1200"
-          {...highPriorityImageProps}
-        />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.96)_0%,rgba(18,55,47,0.8)_45%,rgba(18,55,47,0.2)_100%)]" />
+        <div className="absolute inset-0 -z-20">
+          {heroSlides.map((slide, index) => (
+            <img
+              key={slide.image}
+              src={slide.image}
+              alt={slide.alt}
+              className={cn('hero-slide absolute inset-0 h-full w-full object-cover', slide.className)}
+              width={index === 0 ? '2400' : '1200'}
+              height={index === 0 ? '1200' : '900'}
+              {...(index === 0 ? highPriorityImageProps : { loading: 'lazy' })}
+            />
+          ))}
+        </div>
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.98)_0%,rgba(18,55,47,0.88)_42%,rgba(18,55,47,0.5)_72%,rgba(18,55,47,0.74)_100%)]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_18%,rgba(215,243,234,0.2),transparent_24%),linear-gradient(0deg,rgba(18,55,47,0.84),transparent_46%)]" />
 
         <div className="mx-auto flex min-h-[84dvh] max-w-7xl flex-col justify-end px-4 pb-10 pt-20 sm:px-6 lg:px-8">
-          <div className="max-w-3xl animate-rise">
-            <p className="mb-4 inline-flex min-h-8 items-center rounded-md border border-white/20 bg-white/10 px-3 text-sm font-bold text-foundation-50 backdrop-blur">
+          <div className="max-w-3xl">
+            <p className="hero-copy hero-copy-kicker mb-4 inline-flex min-h-8 items-center rounded-md border border-white/20 bg-white/10 px-3 text-sm font-bold text-foundation-50 backdrop-blur">
               {copy.eyebrow}
             </p>
-            <h1 className="max-w-4xl text-balance text-5xl font-black leading-[0.95] tracking-normal sm:text-6xl lg:text-7xl">
+            <h1 className="hero-copy hero-copy-title max-w-4xl text-balance text-5xl font-black leading-[0.95] tracking-normal sm:text-6xl lg:text-7xl">
               {copy.heading}
             </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-foundation-50 sm:text-xl">{copy.lead}</p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <p className="hero-copy hero-copy-lead mt-5 max-w-2xl text-lg leading-8 text-foundation-50 sm:text-xl">{copy.lead}</p>
+            <div className="hero-copy hero-copy-actions mt-7 flex flex-col gap-3 sm:flex-row">
               <Link
                 to={`/${locale}${donatePage.path[locale]}`}
                 className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-white px-5 text-sm font-black text-foundation-900 shadow-lg transition duration-200 hover:-translate-y-0.5 hover:bg-foundation-50"
@@ -117,19 +128,23 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
           <div className="mt-10 grid gap-3 sm:grid-cols-3">
             {copy.heroNotes.map((item) => (
-              <div key={item.title} className="rounded-md border border-white/15 bg-white/10 p-4 backdrop-blur-md">
+              <div key={item.title} className="hero-note-card rounded-md border border-white/15 bg-white/10 p-4 backdrop-blur-md">
                 <p className="text-base font-black">{item.title}</p>
                 <p className="mt-1 text-sm leading-5 text-foundation-50">{item.body}</p>
               </div>
             ))}
+          </div>
+          <div className="mt-7 flex items-center gap-2" aria-hidden="true">
+            <span className="hero-slide-indicator hero-slide-indicator-one" />
+            <span className="hero-slide-indicator hero-slide-indicator-two" />
           </div>
         </div>
       </section>
 
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-16">
-          <ImagePanel image={groupClassImage} alt={copy.missionVisionImageAlt} caption={copy.missionVisionCaption} />
-          <div className="self-center">
+          <ImagePanel image={groupClassImage} alt={copy.missionVisionImageAlt} caption={copy.missionVisionCaption} className="lg:pr-8" />
+          <div className="relative z-10 self-center lg:-ml-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-white/[0.92] lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur">
             <p className="text-sm font-black uppercase text-foundation-600">{copy.missionVisionEyebrow}</p>
             <h2 className="mt-2 text-3xl font-black leading-tight text-ink-900 sm:text-4xl">{copy.missionVisionTitle}</h2>
             <div className="mt-6 inline-flex rounded-md border border-foundation-100 bg-foundation-50 p-1">
@@ -167,7 +182,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-16">
-          <div>
+          <div className="relative z-10 lg:-mr-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-white/[0.93] lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur">
             <SectionIntro eyebrow={copy.whyEyebrow} title={copy.whyTitle} body={copy.whyBody} />
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {copy.needs.map((need, index) => {
@@ -183,14 +198,14 @@ export function LandingPage({ locale, page }: LandingPageProps) {
               })}
             </div>
           </div>
-          <ImagePanel image={classroomImage} alt={copy.whyImageAlt} caption={copy.whyCaption} />
+          <ImagePanel image={classroomImage} alt={copy.whyImageAlt} caption={copy.whyCaption} className="lg:pl-8" />
         </div>
       </section>
 
       <section className="bg-foundation-50">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-16">
-          <ImagePanel image={ruralImage} alt={copy.ruralImageAlt} caption={copy.ruralCaption} />
-          <div className="self-center">
+          <ImagePanel image={ruralImage} alt={copy.ruralImageAlt} caption={copy.ruralCaption} className="lg:pr-8" />
+          <div className="relative z-10 self-center lg:-ml-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-foundation-50/[0.94] lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur">
             <SectionIntro eyebrow={copy.ruralEyebrow} title={copy.ruralTitle} body={copy.ruralBody} />
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {copy.ruralPoints.map((point, index) => {
@@ -229,8 +244,8 @@ export function LandingPage({ locale, page }: LandingPageProps) {
             </div>
           </div>
           <div className="grid gap-4">
-            <img src={outdoorClassImage} alt={copy.workImageAlt} className="min-h-64 rounded-md object-cover shadow-xl" loading="lazy" />
-            <img src={groupClassImage} alt={copy.workSecondImageAlt} className="hidden rounded-md object-cover shadow-xl sm:block" loading="lazy" />
+            <OverlayImage src={outdoorClassImage} alt={copy.workImageAlt} className="min-h-64 shadow-xl" />
+            <OverlayImage src={groupClassImage} alt={copy.workSecondImageAlt} className="hidden shadow-xl sm:block" />
           </div>
         </div>
       </section>
@@ -311,8 +326,8 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
       <section className="bg-ink-900 text-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-16">
-          <ImagePanel image={studyImage} alt={copy.storyImageAlt} caption={copy.storyCaption} dark />
-          <div className="self-center">
+          <ImagePanel image={studyImage} alt={copy.storyImageAlt} caption={copy.storyCaption} dark className="md:pr-8" />
+          <div className="relative z-10 self-center md:-ml-14 md:rounded-md md:border md:border-white/10 md:bg-ink-900/[0.86] md:p-6 md:shadow-xl md:shadow-black/20 md:backdrop-blur">
             <p className="text-sm font-black uppercase text-foundation-100">{copy.storyEyebrow}</p>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">{copy.storyTitle}</h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-ink-100">{copy.storyBody}</p>
@@ -386,12 +401,56 @@ function SectionIntro({ eyebrow, title, body, className }: { eyebrow: string; ti
   );
 }
 
-function ImagePanel({ image, alt, caption, dark = false }: { image: string; alt: string; caption: string; dark?: boolean }) {
+function ImagePanel({
+  image,
+  alt,
+  caption,
+  dark = false,
+  className,
+}: {
+  image: string;
+  alt: string;
+  caption: string;
+  dark?: boolean;
+  className?: string;
+}) {
   return (
-    <figure className={cn('overflow-hidden rounded-md border shadow-sm', dark ? 'border-white/10 bg-white/5' : 'border-ink-100 bg-white')}>
-      <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover" loading="lazy" />
+    <figure
+      className={cn(
+        'overflow-hidden rounded-md border shadow-sm',
+        dark ? 'border-white/10 bg-white/5' : 'border-ink-100 bg-white',
+        className,
+      )}
+    >
+      <div className="relative isolate overflow-hidden">
+        <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover saturate-[0.82]" loading="lazy" />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(18,55,47,0.74)_0%,rgba(18,55,47,0.46)_46%,rgba(18,55,47,0.72)_100%)] mix-blend-multiply"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_22%,rgba(255,255,255,0.18),transparent_34%),linear-gradient(90deg,rgba(18,55,47,0.2),rgba(18,55,47,0.58))]"
+          aria-hidden="true"
+        />
+      </div>
       <figcaption className={cn('px-4 py-3 text-sm leading-6', dark ? 'text-ink-100' : 'text-ink-500')}>{caption}</figcaption>
     </figure>
+  );
+}
+
+function OverlayImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  return (
+    <div className={cn('relative isolate overflow-hidden rounded-md bg-foundation-900', className)}>
+      <img src={src} alt={alt} className="h-full w-full rounded-md object-cover saturate-[0.78]" loading="lazy" />
+      <div
+        className="pointer-events-none absolute inset-0 rounded-md bg-[linear-gradient(135deg,rgba(18,55,47,0.76),rgba(18,55,47,0.42)_44%,rgba(18,55,47,0.82))] mix-blend-multiply"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute inset-0 rounded-md bg-[radial-gradient(circle_at_78%_16%,rgba(255,255,255,0.2),transparent_28%),linear-gradient(0deg,rgba(18,55,47,0.46),transparent_48%)]"
+        aria-hidden="true"
+      />
+    </div>
   );
 }
 
@@ -449,6 +508,7 @@ interface LandingCopy {
   primaryCta: string;
   secondaryCta: string;
   heroImageAlt: string;
+  heroSecondImageAlt: string;
   heroNotes: Array<{ title: string; body: string }>;
   missionVisionEyebrow: string;
   missionVisionTitle: string;
@@ -525,6 +585,7 @@ const landingCopy = {
     primaryCta: 'Support a child',
     secondaryCta: 'Apply for assistance',
     heroImageAlt: 'A smiling school child in a classroom in Cameroon.',
+    heroSecondImageAlt: 'Children and family members outside a rural home in Cameroon.',
     heroNotes: [
       { title: 'Children stay in school', body: 'Education barriers are removed before they become reasons to leave.' },
       { title: 'Practical support', body: 'School fees, learning materials, uniforms, and examination costs.' },
@@ -633,6 +694,7 @@ const landingCopy = {
     primaryCta: 'Soutenir un enfant',
     secondaryCta: 'Demander une aide',
     heroImageAlt: 'Une enfant souriante dans une salle de classe au Cameroun.',
+    heroSecondImageAlt: 'Des enfants et membres de famille devant une maison rurale au Cameroun.',
     heroNotes: [
       { title: "Les enfants restent à l'école", body: "Les obstacles scolaires sont levés avant qu'ils ne deviennent des raisons d'abandonner." },
       { title: 'Soutien pratique', body: 'Frais scolaires, fournitures, uniformes et frais d’examen.' },
