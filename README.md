@@ -1,12 +1,16 @@
 # TriumphChi Foundation
 
-TriumphChi Foundation is an education sponsorship and beneficiary management platform for orphan-focused support programs in Cameroon.
+TriumphChi Foundation supports orphaned and vulnerable children in rural Cameroon through education support, community partnership, and covenant-driven generosity.
 
-The system manages the full beneficiary lifecycle, from application intake and verification through sponsorship, school payments, active support, reporting, and completion.
+The public website tells the foundation story, protects child dignity, explains the mission, and helps supporters, schools, churches, families, and communities connect with the work.
+
+The internal system manages the full beneficiary lifecycle, from application intake and verification through sponsorship, school payments, active support, reporting, and completion.
 
 ## Product Direction
 
-This is a beneficiary management and education sponsorship system. Donation handling is part of the platform, but the product is centered on accountable support for children, schools, donors, field teams, and NGO staff.
+The public website is not a software product page and not an ecommerce experience. It exists to communicate the mission before fundraising and to keep the child before the technology.
+
+The authenticated app is the beneficiary management and education sponsorship system. Donation handling is part of the internal platform, but the product is centered on accountable support for children, schools, donors, field teams, and NGO staff.
 
 The lifecycle model is:
 

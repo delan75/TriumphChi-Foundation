@@ -2,13 +2,17 @@
 
 ## Product Character
 
-TriumphChi is an operational NGO platform, so the UI should feel calm, trustworthy, dense enough for repeated work, and careful around private child information.
+TriumphChi has two public-facing design modes:
 
-Avoid marketing-heavy composition inside the authenticated app. The staff surfaces should prioritize scanning, filtering, review queues, and clear lifecycle state.
+- The public website should feel human, hopeful, warm, trustworthy, and community-centered. It tells the story of orphan education support in rural Cameroon without presenting the work as software.
+- The authenticated operations app should feel calm, trustworthy, dense enough for repeated work, and careful around private child information.
+
+Avoid product or SaaS language on the public website. Avoid marketing-heavy composition inside the authenticated app. Staff surfaces should prioritize scanning, filtering, review queues, and clear lifecycle state.
 
 ## Visual System
 
-- Style: restrained operational dashboard
+- Public style: mission-led storytelling, restrained imagery, forest-green overlays, readable page heroes
+- App style: restrained operational dashboard
 - Radius: `6px` to `8px`
 - Primary color: foundation green
 - Supporting colors: blue for informational states, amber for review/warning states, red for destructive states
@@ -19,6 +23,9 @@ Avoid marketing-heavy composition inside the authenticated app. The staff surfac
 ## UX Rules
 
 - Public routes must not expose private beneficiary data.
+- Public pages use a reusable page title with breadcrumbs, localized metadata, image overlay, and clear H1 structure.
+- Public images must always use a forest-green overlay or scrim. Images should support the story without exposing children or communities in a plainly visible, documentary style.
+- Public layouts must be deliberately responsive across x-small mobile screens, tablets, 12/13 inch displays, desktop, and extra-large screens. Responsiveness is a core project requirement, not a finishing pass.
 - Beneficiary screens should label private data zones clearly.
 - Touch targets should be at least `44px` tall.
 - Forms must use visible labels, not placeholder-only labels.

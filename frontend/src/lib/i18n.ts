@@ -10,7 +10,7 @@ export function isLocale(value: string | undefined): value is Locale {
 export const messages = {
   en: {
     appName: 'TriumphChi Foundation',
-    operationsSubtitle: 'Orphan education support',
+    operationsSubtitle: 'Giving from a covenant, not from leftovers',
     home: 'Home',
     about: 'About',
     programs: 'Programs',
@@ -19,6 +19,8 @@ export const messages = {
     apply: 'Apply',
     sponsorChild: 'Sponsor a Child',
     contact: 'Contact',
+    login: 'Login',
+    account: 'Account',
     dashboard: 'Dashboard',
     applications: 'Applications',
     beneficiaries: 'Beneficiaries',
@@ -27,7 +29,7 @@ export const messages = {
   },
   fr: {
     appName: 'Fondation TriumphChi',
-    operationsSubtitle: 'Soutien scolaire aux orphelins',
+    operationsSubtitle: 'Donner par alliance, pas avec les restes',
     home: 'Accueil',
     about: 'À propos',
     programs: 'Programmes',
@@ -36,6 +38,8 @@ export const messages = {
     apply: 'Postuler',
     sponsorChild: 'Parrainer un enfant',
     contact: 'Contact',
+    login: 'Connexion',
+    account: 'Compte',
     dashboard: 'Tableau de bord',
     applications: 'Demandes',
     beneficiaries: 'Bénéficiaires',
