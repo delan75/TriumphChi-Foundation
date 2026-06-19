@@ -73,8 +73,9 @@ export function AboutPage({ locale, page }: AboutPageProps) {
       </section>
 
       <section className="relative isolate overflow-hidden bg-foundation-900 text-white">
-        <img src={covenantImage} alt={copy.covenantImageAlt} className="absolute inset-0 -z-20 h-full w-full object-cover saturate-[0.75]" loading="lazy" />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.98),rgba(18,55,47,0.88)_48%,rgba(18,55,47,0.72))]" aria-hidden="true" />
+        <img src={covenantImage} alt={copy.covenantImageAlt} className="absolute inset-0 -z-20 h-full w-full object-cover opacity-70 saturate-[0.7]" loading="lazy" />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.99),rgba(18,55,47,0.92)_48%,rgba(18,55,47,0.78))]" aria-hidden="true" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_18%,rgba(215,243,234,0.18),transparent_26%),linear-gradient(0deg,rgba(18,55,47,0.74),transparent_42%)]" aria-hidden="true" />
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
           <div className="max-w-3xl">
             <p className="text-sm font-black uppercase text-foundation-100">{copy.covenantEyebrow}</p>
@@ -153,15 +154,20 @@ export function AboutPage({ locale, page }: AboutPageProps) {
       </section>
 
       <section className="bg-white">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-16">
-          <div className="rounded-md border border-foundation-100 bg-foundation-50 p-6">
-            <ShieldCheck className="h-8 w-8 text-foundation-600" aria-hidden="true" />
-            <h2 className="mt-4 text-3xl font-black leading-tight text-ink-900">{copy.protectionTitle}</h2>
-            <p className="mt-4 text-base leading-7 text-ink-600">{copy.protectionBody}</p>
-          </div>
-          <div>
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+          {/*
+            Review note: the "Children Are Not Fundraising Objects" section is intentionally not rendered publicly.
+            The framing needs further review before it appears on the public website.
+
+            <div className="rounded-md border border-foundation-100 bg-foundation-50 p-6">
+              <ShieldCheck className="h-8 w-8 text-foundation-600" aria-hidden="true" />
+              <h2 className="mt-4 text-3xl font-black leading-tight text-ink-900">{copy.protectionTitle}</h2>
+              <p className="mt-4 text-base leading-7 text-ink-600">{copy.protectionBody}</p>
+            </div>
+          */}
+          <div className="max-w-4xl">
             <SectionIntro eyebrow={copy.stewardshipEyebrow} title={copy.stewardshipTitle} body={copy.stewardshipBody} />
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {copy.stewardship.map((item, index) => {
                 const Icon = stewardshipIcons[index];
 
@@ -213,8 +219,9 @@ function ImageStory({ image, alt, caption }: { image: string; alt: string; capti
   return (
     <figure className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-sm">
       <div className="relative isolate overflow-hidden">
-        <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover saturate-[0.82]" loading="lazy" />
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(18,55,47,0.58),rgba(18,55,47,0.2)_48%,rgba(18,55,47,0.7))] mix-blend-multiply" aria-hidden="true" />
+        <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover opacity-80 saturate-[0.74]" loading="lazy" />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(18,55,47,0.76),rgba(18,55,47,0.42)_48%,rgba(18,55,47,0.78))] mix-blend-multiply" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_26%_18%,rgba(255,255,255,0.14),transparent_32%),linear-gradient(90deg,rgba(18,55,47,0.22),rgba(18,55,47,0.56))]" aria-hidden="true" />
       </div>
       <figcaption className="px-4 py-3 text-sm leading-6 text-ink-500">{caption}</figcaption>
     </figure>

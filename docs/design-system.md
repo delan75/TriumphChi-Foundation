@@ -24,6 +24,8 @@ Avoid product or SaaS language on the public website. Avoid marketing-heavy comp
 
 - Public routes must not expose private beneficiary data.
 - Public pages use a reusable page title with breadcrumbs, localized metadata, image overlay, and clear H1 structure.
+- Public images must always use a forest-green overlay or scrim. Images should support the story without exposing children or communities in a plainly visible, documentary style.
+- Public layouts must be deliberately responsive across x-small mobile screens, tablets, 12/13 inch displays, desktop, and extra-large screens. Responsiveness is a core project requirement, not a finishing pass.
 - Beneficiary screens should label private data zones clearly.
 - Touch targets should be at least `44px` tall.
 - Forms must use visible labels, not placeholder-only labels.

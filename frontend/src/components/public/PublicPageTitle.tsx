@@ -34,15 +34,15 @@ export function PublicPageTitle({
       <img
         src={backgroundImage}
         alt={backgroundAlt}
-        className="absolute inset-0 -z-20 h-full w-full object-cover saturate-[0.82]"
+        className="absolute inset-0 -z-20 h-full w-full object-cover opacity-70 saturate-[0.72]"
         loading="eager"
       />
       <div
-        className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.96)_0%,rgba(18,55,47,0.86)_45%,rgba(18,55,47,0.5)_100%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.98)_0%,rgba(18,55,47,0.9)_45%,rgba(18,55,47,0.68)_100%)]"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_82%_16%,rgba(215,243,234,0.2),transparent_26%),linear-gradient(0deg,rgba(18,55,47,0.82),transparent_44%)]"
+        className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_82%_16%,rgba(215,243,234,0.18),transparent_24%),linear-gradient(0deg,rgba(18,55,47,0.9),rgba(18,55,47,0.24)_44%)]"
         aria-hidden="true"
       />
 
