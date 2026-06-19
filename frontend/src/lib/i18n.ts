@@ -10,7 +10,7 @@ export function isLocale(value: string | undefined): value is Locale {
 export const messages = {
   en: {
     appName: 'TriumphChi Foundation',
-    operationsSubtitle: 'Education sponsorship operations',
+    operationsSubtitle: 'Orphan education support',
     home: 'Home',
     about: 'About',
     programs: 'Programs',
@@ -27,7 +27,7 @@ export const messages = {
   },
   fr: {
     appName: 'Fondation TriumphChi',
-    operationsSubtitle: "Opérations de parrainage scolaire",
+    operationsSubtitle: 'Soutien scolaire aux orphelins',
     home: 'Accueil',
     about: 'À propos',
     programs: 'Programmes',

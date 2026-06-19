@@ -1,8 +1,10 @@
-import { Outlet, NavLink, useParams } from 'react-router-dom';
+import { Outlet, NavLink, useLocation, useParams } from 'react-router-dom';
 import { BarChart3, GraduationCap, HandCoins, Home, Inbox, ShieldCheck, UsersRound } from 'lucide-react';
 import { isLocale, Locale, t } from '../../lib/i18n';
 import { cn } from '../../components/ui/cn';
 import { publicNavigation } from '../../content/publicPages';
+import { PublicHeader } from './PublicHeader';
+import { PublicFooter } from './PublicFooter';
 
 const navItems = [
   { to: '', label: 'Home', icon: Home },
@@ -16,6 +18,20 @@ const navItems = [
 export function AppShell() {
   const { locale = 'en' } = useParams();
   const activeLocale = isLocale(locale) ? locale : 'en';
+  const location = useLocation();
+  const isStaffRoute = location.pathname.startsWith(`/${activeLocale}/staff`);
+
+  if (!isStaffRoute) {
+    return (
+      <div className="min-h-dvh bg-ink-50 text-ink-900">
+        <PublicHeader locale={activeLocale as Locale} />
+        <main id="main-content" className="min-w-0">
+          <Outlet />
+        </main>
+        <PublicFooter locale={activeLocale as Locale} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh bg-ink-50 text-ink-900">
