@@ -7,7 +7,7 @@ import { apiLogin } from '../../lib/api';
 import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { PasswordField } from '../../components/ui/PasswordField';
-import { GoogleAuthButton } from '../../components/ui/GoogleAuthButton';
+import { GoogleAuthButton, SocialAuthButton } from '../../components/ui/GoogleAuthButton';
 import classroomImage from '../../assets/landing/classroom-support.png';
 import kidsImage from '../../assets/landing/kids_studying_tree.webp';
 
@@ -90,6 +90,9 @@ export function LoginPage({ locale }: LoginPageProps) {
               <GoogleAuthButton onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/google/redirect`}>
                 {copy.continueWithGoogle}
               </GoogleAuthButton>
+              <SocialAuthButton provider="facebook" className="mt-3" onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/facebook/redirect`}>
+                {copy.continueWithFacebook}
+              </SocialAuthButton>
 
               <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center" aria-hidden="true">
@@ -234,6 +237,7 @@ const loginCopy = {
     noAccount: "Don't have an account?",
     createAccount: 'Create Account',
     continueWithGoogle: 'Continue with Google',
+    continueWithFacebook: 'Continue with Facebook',
     orContinueWith: 'Or continue with email',
     backHome: 'Back to home',
     signingIn: 'Signing in...',
@@ -255,6 +259,7 @@ const loginCopy = {
     noAccount: "Vous n'avez pas de compte ?",
     createAccount: 'Créer un compte',
     continueWithGoogle: 'Continuer avec Google',
+    continueWithFacebook: 'Continuer avec Facebook',
     orContinueWith: 'Ou continuer avec votre email',
     backHome: "Retour à l'accueil",
     signingIn: 'Connexion...',

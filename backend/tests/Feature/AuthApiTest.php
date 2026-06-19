@@ -257,6 +257,65 @@ class AuthApiTest extends TestCase
             ->assertRedirect('https://accounts.google.com/o/oauth2/v2/auth');
     }
 
+    public function test_facebook_redirect_uses_stateless_socialite_flow(): void
+    {
+        $provider = \Mockery::mock();
+        $provider->shouldReceive('stateless')->once()->andReturnSelf();
+        $provider->shouldReceive('scopes')
+            ->once()
+            ->with(['email'])
+            ->andReturnSelf();
+        $provider->shouldReceive('redirect')
+            ->once()
+            ->andReturn(redirect('https://www.facebook.com/v23.0/dialog/oauth'));
+
+        Socialite::shouldReceive('driver')
+            ->once()
+            ->with('facebook')
+            ->andReturn($provider);
+
+        $this->get('/api/v1/auth/facebook/redirect')
+            ->assertRedirect('https://www.facebook.com/v23.0/dialog/oauth');
+    }
+
+    public function test_facebook_callback_can_create_user_and_provider(): void
+    {
+        $provider = \Mockery::mock();
+        $provider->shouldReceive('stateless')->once()->andReturnSelf();
+        $provider->shouldReceive('user')
+            ->once()
+            ->andReturn(\Laravel\Socialite\Two\User::fake([
+                'id' => 'facebook-user-123',
+                'name' => 'Facebook User',
+                'email' => 'facebook-user@example.org',
+                'avatar' => 'https://example.org/facebook-avatar.jpg',
+                'verified' => true,
+            ]));
+
+        Socialite::shouldReceive('driver')
+            ->once()
+            ->with('facebook')
+            ->andReturn($provider);
+
+        $response = $this->get('/api/v1/auth/facebook/callback');
+
+        $response->assertRedirect();
+        $this->assertStringStartsWith(
+            'http://localhost:5173/en/complete-profile?token=',
+            $response->headers->get('Location')
+        );
+        $this->assertDatabaseHas('users', [
+            'email' => 'facebook-user@example.org',
+            'registered_via' => 'facebook',
+        ]);
+        $this->assertDatabaseHas('user_auth_providers', [
+            'provider' => 'facebook',
+            'provider_user_id' => 'facebook-user-123',
+            'provider_email' => 'facebook-user@example.org',
+        ]);
+        $this->assertDatabaseCount('personal_access_tokens', 1);
+    }
+
     public function test_provider_listing_and_unlinking_preserve_one_sign_in_method(): void
     {
         $user = $this->createUserWithPermissions();

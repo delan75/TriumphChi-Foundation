@@ -40,17 +40,19 @@ return [
     | Social Authentication (Laravel Socialite)
     |--------------------------------------------------------------------------
     |
-    | Credentials for Google OAuth. Obtain from Google Cloud Console:
-    | https://console.cloud.google.com/apis/credentials
-    |
-    | Authorised redirect URI to register in Google Console:
-    |   {APP_URL}/api/v1/auth/google/callback
+    | Credentials for supported OAuth providers.
     |
     */
     'google' => [
         'client_id'     => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect'      => env('APP_URL') . '/api/v1/auth/google/callback',
+    ],
+
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => env('APP_URL') . '/api/v1/auth/facebook/callback',
     ],
 
 ];
