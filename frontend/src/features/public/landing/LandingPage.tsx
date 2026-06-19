@@ -22,6 +22,7 @@ import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../..
 import { apiGet } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
 import heroImage from '../../../assets/landing/cameroon.jpg';
+import ruralHomeHeroImage from '../../../assets/landing/rural-home-cameroon.jpg';
 import classroomImage from '../../../assets/landing/cameroon-children-educationjpg.jpg';
 import ruralImage from '../../../assets/landing/rural_kids.jpg';
 import outdoorClassImage from '../../../assets/landing/kids_studying_tree.webp';
@@ -64,6 +65,10 @@ export function LandingPage({ locale, page }: LandingPageProps) {
   const visionPage = getPageByKey('vision');
   const impactStats = buildImpactStats(copy, locale, impactSummary.data?.data);
   const activeStatementCopy = copy[activeStatement];
+  const heroSlides = [
+    { image: heroImage, alt: copy.heroImageAlt, className: 'hero-slide-one object-center' },
+    { image: ruralHomeHeroImage, alt: copy.heroSecondImageAlt, className: 'hero-slide-two object-[center_54%]' },
+  ];
 
   return (
     <>
@@ -79,26 +84,32 @@ export function LandingPage({ locale, page }: LandingPageProps) {
       />
 
       <section className="hero-visual relative isolate overflow-hidden bg-foundation-900 text-white">
-        <img
-          src={heroImage}
-          alt={copy.heroImageAlt}
-          className="absolute inset-0 -z-20 h-full w-full object-cover"
-          width="2400"
-          height="1200"
-          {...highPriorityImageProps}
-        />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.96)_0%,rgba(18,55,47,0.8)_45%,rgba(18,55,47,0.2)_100%)]" />
+        <div className="absolute inset-0 -z-20">
+          {heroSlides.map((slide, index) => (
+            <img
+              key={slide.image}
+              src={slide.image}
+              alt={slide.alt}
+              className={cn('hero-slide absolute inset-0 h-full w-full object-cover', slide.className)}
+              width={index === 0 ? '2400' : '1200'}
+              height={index === 0 ? '1200' : '900'}
+              {...(index === 0 ? highPriorityImageProps : { loading: 'lazy' })}
+            />
+          ))}
+        </div>
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.98)_0%,rgba(18,55,47,0.88)_42%,rgba(18,55,47,0.5)_72%,rgba(18,55,47,0.74)_100%)]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_18%,rgba(215,243,234,0.2),transparent_24%),linear-gradient(0deg,rgba(18,55,47,0.84),transparent_46%)]" />
 
         <div className="mx-auto flex min-h-[84dvh] max-w-7xl flex-col justify-end px-4 pb-10 pt-20 sm:px-6 lg:px-8">
-          <div className="max-w-3xl animate-rise">
-            <p className="mb-4 inline-flex min-h-8 items-center rounded-md border border-white/20 bg-white/10 px-3 text-sm font-bold text-foundation-50 backdrop-blur">
+          <div className="max-w-3xl">
+            <p className="hero-copy hero-copy-kicker mb-4 inline-flex min-h-8 items-center rounded-md border border-white/20 bg-white/10 px-3 text-sm font-bold text-foundation-50 backdrop-blur">
               {copy.eyebrow}
             </p>
-            <h1 className="max-w-4xl text-balance text-5xl font-black leading-[0.95] tracking-normal sm:text-6xl lg:text-7xl">
+            <h1 className="hero-copy hero-copy-title max-w-4xl text-balance text-5xl font-black leading-[0.95] tracking-normal sm:text-6xl lg:text-7xl">
               {copy.heading}
             </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-foundation-50 sm:text-xl">{copy.lead}</p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <p className="hero-copy hero-copy-lead mt-5 max-w-2xl text-lg leading-8 text-foundation-50 sm:text-xl">{copy.lead}</p>
+            <div className="hero-copy hero-copy-actions mt-7 flex flex-col gap-3 sm:flex-row">
               <Link
                 to={`/${locale}${donatePage.path[locale]}`}
                 className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-white px-5 text-sm font-black text-foundation-900 shadow-lg transition duration-200 hover:-translate-y-0.5 hover:bg-foundation-50"
@@ -117,11 +128,15 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
           <div className="mt-10 grid gap-3 sm:grid-cols-3">
             {copy.heroNotes.map((item) => (
-              <div key={item.title} className="rounded-md border border-white/15 bg-white/10 p-4 backdrop-blur-md">
+              <div key={item.title} className="hero-note-card rounded-md border border-white/15 bg-white/10 p-4 backdrop-blur-md">
                 <p className="text-base font-black">{item.title}</p>
                 <p className="mt-1 text-sm leading-5 text-foundation-50">{item.body}</p>
               </div>
             ))}
+          </div>
+          <div className="mt-7 flex items-center gap-2" aria-hidden="true">
+            <span className="hero-slide-indicator hero-slide-indicator-one" />
+            <span className="hero-slide-indicator hero-slide-indicator-two" />
           </div>
         </div>
       </section>
@@ -493,6 +508,7 @@ interface LandingCopy {
   primaryCta: string;
   secondaryCta: string;
   heroImageAlt: string;
+  heroSecondImageAlt: string;
   heroNotes: Array<{ title: string; body: string }>;
   missionVisionEyebrow: string;
   missionVisionTitle: string;
@@ -569,6 +585,7 @@ const landingCopy = {
     primaryCta: 'Support a child',
     secondaryCta: 'Apply for assistance',
     heroImageAlt: 'A smiling school child in a classroom in Cameroon.',
+    heroSecondImageAlt: 'Children and family members outside a rural home in Cameroon.',
     heroNotes: [
       { title: 'Children stay in school', body: 'Education barriers are removed before they become reasons to leave.' },
       { title: 'Practical support', body: 'School fees, learning materials, uniforms, and examination costs.' },
@@ -677,6 +694,7 @@ const landingCopy = {
     primaryCta: 'Soutenir un enfant',
     secondaryCta: 'Demander une aide',
     heroImageAlt: 'Une enfant souriante dans une salle de classe au Cameroun.',
+    heroSecondImageAlt: 'Des enfants et membres de famille devant une maison rurale au Cameroun.',
     heroNotes: [
       { title: "Les enfants restent à l'école", body: "Les obstacles scolaires sont levés avant qu'ils ne deviennent des raisons d'abandonner." },
       { title: 'Soutien pratique', body: 'Frais scolaires, fournitures, uniformes et frais d’examen.' },
