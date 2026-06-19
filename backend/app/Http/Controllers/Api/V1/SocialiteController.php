@@ -16,44 +16,72 @@ use Throwable;
 
 class SocialiteController extends Controller
 {
+    private const SUPPORTED_PROVIDERS = ['google', 'facebook'];
+
     public function redirectToGoogle(): RedirectResponse
     {
-        return Socialite::driver('google')
+        return $this->redirectToProvider('google');
+    }
+
+    public function redirectToFacebook(): RedirectResponse
+    {
+        return $this->redirectToProvider('facebook');
+    }
+
+    private function redirectToProvider(string $provider): RedirectResponse
+    {
+        return Socialite::driver($provider)
             ->stateless()
-            ->scopes(['openid', 'profile', 'email'])
+            ->scopes($this->scopesFor($provider))
             ->redirect();
     }
 
     public function handleGoogleCallback(Request $request): RedirectResponse
     {
+        return $this->handleProviderCallback($request, 'google');
+    }
+
+    public function handleFacebookCallback(Request $request): RedirectResponse
+    {
+        return $this->handleProviderCallback($request, 'facebook');
+    }
+
+    private function handleProviderCallback(Request $request, string $provider): RedirectResponse
+    {
         $frontendUrl = rtrim(config('app.frontend_url', 'http://localhost:5173'), '/');
 
         try {
-            $socialUser = Socialite::driver('google')->stateless()->user();
+            $socialUser = Socialite::driver($provider)->stateless()->user();
         } catch (Throwable $exception) {
-            Log::warning('Google OAuth callback failed.', [
+            Log::warning('OAuth callback failed.', [
+                'provider' => $provider,
                 'error' => $exception->getMessage(),
             ]);
 
             return redirect("{$frontendUrl}/login?error=oauth_failed");
         }
 
-        if (! ($socialUser->user['email_verified'] ?? false)) {
+        if (! $socialUser->getEmail()) {
+            return redirect("{$frontendUrl}/login?error=email_required");
+        }
+
+        if (! $this->hasVerifiedEmail($provider, $socialUser)) {
             return redirect("{$frontendUrl}/login?error=email_not_verified");
         }
 
         try {
             [$user, $isNew] = DB::transaction(
-                fn () => $this->findOrCreateUserFromGoogle($socialUser)
+                fn () => $this->findOrCreateUserFromProvider($provider, $socialUser)
             );
 
-            $token = $user->createToken('google-oauth')->plainTextToken;
+            $token = $user->createToken("{$provider}-oauth")->plainTextToken;
             $redirectPath = $isNew ? '/complete-profile' : '/dashboard';
             $locale = $user->preferred_locale ?? 'en';
 
             return redirect("{$frontendUrl}/{$locale}{$redirectPath}?token=" . urlencode($token));
         } catch (Throwable $exception) {
-            Log::error('Google OAuth user resolution failed.', [
+            Log::error('OAuth user resolution failed.', [
+                'provider' => $provider,
                 'error' => $exception->getMessage(),
             ]);
 
@@ -64,16 +92,16 @@ class SocialiteController extends Controller
     /**
      * @return array{0: User, 1: bool}
      */
-    private function findOrCreateUserFromGoogle(SocialiteUser $socialUser): array
+    private function findOrCreateUserFromProvider(string $provider, SocialiteUser $socialUser): array
     {
-        $googleSub = $socialUser->getId();
-        $googleEmail = $socialUser->getEmail();
-        $googleName = $socialUser->getName() ?: $googleEmail;
-        $googleAvatar = $socialUser->getAvatar();
+        $providerUserId = $socialUser->getId();
+        $providerEmail = $socialUser->getEmail();
+        $providerName = $socialUser->getName() ?: $providerEmail;
+        $providerAvatar = $socialUser->getAvatar();
 
         $existingProvider = UserAuthProvider::query()
-            ->where('provider', 'google')
-            ->where('provider_user_id', $googleSub)
+            ->where('provider', $provider)
+            ->where('provider_user_id', $providerUserId)
             ->first();
 
         if ($existingProvider) {
@@ -81,7 +109,7 @@ class SocialiteController extends Controller
 
             $existingProvider->update([
                 'last_used_at' => now(),
-                'provider_avatar' => $googleAvatar,
+                'provider_avatar' => $providerAvatar,
             ]);
             $user->touchLastLogin();
 
@@ -89,15 +117,15 @@ class SocialiteController extends Controller
         }
 
         $existingUser = User::query()
-            ->where('email', $googleEmail)
+            ->where('email', $providerEmail)
             ->first();
 
         if ($existingUser) {
             $existingUser->authProviders()->create([
-                'provider' => 'google',
-                'provider_user_id' => $googleSub,
-                'provider_email' => $googleEmail,
-                'provider_avatar' => $googleAvatar,
+                'provider' => $provider,
+                'provider_user_id' => $providerUserId,
+                'provider_email' => $providerEmail,
+                'provider_avatar' => $providerAvatar,
                 'linked_at' => now(),
                 'last_used_at' => now(),
             ]);
@@ -107,18 +135,18 @@ class SocialiteController extends Controller
         }
 
         $newUser = User::create([
-            'name' => $googleName,
-            'email' => $googleEmail,
+            'name' => $providerName,
+            'email' => $providerEmail,
             'password' => null,
             'preferred_locale' => app()->getLocale(),
-            'registered_via' => 'google',
+            'registered_via' => $provider,
         ]);
 
         $newUser->authProviders()->create([
-            'provider' => 'google',
-            'provider_user_id' => $googleSub,
-            'provider_email' => $googleEmail,
-            'provider_avatar' => $googleAvatar,
+            'provider' => $provider,
+            'provider_user_id' => $providerUserId,
+            'provider_email' => $providerEmail,
+            'provider_avatar' => $providerAvatar,
             'linked_at' => now(),
             'last_used_at' => now(),
         ]);
@@ -130,7 +158,7 @@ class SocialiteController extends Controller
     public function linkProvider(Request $request): JsonResponse
     {
         $request->validate([
-            'provider' => ['required', 'string', 'in:google,apple,microsoft,github'],
+            'provider' => ['required', 'string', 'in:' . implode(',', self::SUPPORTED_PROVIDERS)],
         ]);
 
         return $this->error('Provider linking via API redirect is not implemented yet.', 501);
@@ -161,5 +189,21 @@ class SocialiteController extends Controller
             ->get();
 
         return $this->success($providers, 'Providers retrieved.');
+    }
+
+    private function scopesFor(string $provider): array
+    {
+        return match ($provider) {
+            'google' => ['openid', 'profile', 'email'],
+            'facebook' => ['email'],
+        };
+    }
+
+    private function hasVerifiedEmail(string $provider, SocialiteUser $socialUser): bool
+    {
+        return match ($provider) {
+            'google' => (bool) ($socialUser->user['email_verified'] ?? false),
+            'facebook' => (bool) ($socialUser->user['verified'] ?? false),
+        };
     }
 }

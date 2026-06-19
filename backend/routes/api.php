@@ -48,7 +48,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         });
 
         // ── Google OAuth ──────────────────────────────────────────────────────
-        // Redirect the browser to Google's consent screen
+        // OAuth identity providers.
         Route::get('google/redirect', [SocialiteController::class, 'redirectToGoogle'])
             ->middleware('throttle:10,1')
             ->name('google.redirect');
@@ -56,6 +56,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         // Google's callback — do NOT throttle here (Google controls the timing)
         Route::get('google/callback', [SocialiteController::class, 'handleGoogleCallback'])
             ->name('google.callback');
+
+        Route::get('facebook/redirect', [SocialiteController::class, 'redirectToFacebook'])
+            ->middleware('throttle:10,1')
+            ->name('facebook.redirect');
+
+        Route::get('facebook/callback', [SocialiteController::class, 'handleFacebookCallback'])
+            ->name('facebook.callback');
 
         // ── Provider management (authenticated) ───────────────────────────────
         Route::middleware('auth:sanctum')->group(function () {
