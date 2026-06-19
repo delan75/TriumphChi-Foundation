@@ -203,7 +203,7 @@ class FundingApiTest extends TestCase
     {
         $user = User::create([
             'name' => 'Permitted User',
-            'email' => fake()->unique()->safeEmail(),
+            'email' => 'permitted-user-'.uniqid('', true).'@example.test',
             'password' => 'password',
         ]);
 
