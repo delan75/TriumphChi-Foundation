@@ -13,8 +13,10 @@
 The public site uses:
 
 - `frontend/src/content/publicPages.ts` for localized page definitions
+- `frontend/src/components/public/PublicPageTitle.tsx` for shared non-home public page heroes with breadcrumbs, H1, description, image overlays, and accessible image text
 - `frontend/src/components/seo/Seo.tsx` for document metadata, canonical links, alternate language links, Open Graph tags, Twitter card tags, robots tags, and JSON-LD
 - `frontend/src/features/public/PublicPage.tsx` as the shared page renderer
+- `frontend/src/features/public/about/AboutPage.tsx` for the custom About page content structure
 - `frontend/src/lib/seo.ts` for schema and URL helpers
 - `frontend/src/lib/i18n.ts` for supported locales and UI messages
 
@@ -45,6 +47,12 @@ Examples:
 - Apply
 - Sponsor a Child
 - Corporate Partnerships
+
+## Public Content Tone
+
+The public website is mission-led. It should explain orphan education support, rural Cameroon, dignity, community partnership, and covenant-driven generosity. It should not read like a software product, platform feature list, or ecommerce donation page.
+
+The Home page has a custom landing layout. Other public pages use the shared public page title component before their page-specific content.
 
 ## Future Improvements
 

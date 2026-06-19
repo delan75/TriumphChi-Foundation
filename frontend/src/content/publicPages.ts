@@ -45,6 +45,8 @@ export interface PublicPageDefinition {
   eyebrow: Record<Locale, string>;
   title: Record<Locale, string>;
   description: Record<Locale, string>;
+  seoTitle?: Record<Locale, string>;
+  seoDescription?: Record<Locale, string>;
   cta?: {
     label: Record<Locale, string>;
     page: PublicPageKey;
@@ -62,21 +64,21 @@ export const publicPages: PublicPageDefinition[] = [
     label: { en: 'Home', fr: 'Accueil' },
     eyebrow: { en: 'Education sponsorship in Cameroon', fr: 'Parrainage scolaire au Cameroun' },
     title: {
-      en: 'Giving from a covenant, not from leftovers.',
-      fr: 'Un soutien scolaire transparent pour les enfants vulnérables.',
+      en: 'TriumphChi Foundation',
+      fr: 'Fondation TriumphChi',
     },
     description: {
       en: 'TriumphChi Foundation supports orphans and vulnerable children in rural Cameroon through school needs, community care, and dignified assistance.',
-      fr: "La Fondation TriumphChi coordonne les demandes, les parrainages, les paiements scolaires et les rapports d'impact avec la protection de l'enfant au centre.",
+      fr: 'La Fondation TriumphChi soutient les orphelins et enfants vulnérables du Cameroun rural par les besoins scolaires, le soin communautaire et une aide digne.',
     },
     cta: { label: { en: 'Sponsor a child', fr: 'Parrainer un enfant' }, page: 'sponsor' },
     schemaType: 'WebPage',
     sections: [
       {
-        title: { en: 'Application to graduation', fr: "De la demande à la réussite" },
+        title: { en: 'Children stay in school', fr: "Les enfants restent à l'école" },
         body: {
-          en: 'The platform follows each child from application, verification, review, acceptance, sponsorship, active support, and completion.',
-          fr: "La plateforme suit chaque enfant depuis la demande, la vérification, l'étude, l'acceptation, le parrainage, le soutien actif et l'achèvement.",
+          en: 'Education barriers are removed before they become reasons to leave.',
+          fr: "Les obstacles scolaires sont levés avant qu'ils ne deviennent des raisons d'abandonner.",
         },
       },
       {
@@ -90,7 +92,7 @@ export const publicPages: PublicPageDefinition[] = [
         title: { en: 'Faithful stewardship', fr: 'Financement traçable' },
         body: {
           en: 'Giving is handled with care so children, schools, families, and supporters can trust the work.',
-          fr: "Les dons passent par les fonds, les allocations, les besoins scolaires et les paiements aux écoles afin de rester auditables.",
+          fr: "Les dons sont traités avec soin afin que les enfants, écoles, familles et soutiens puissent faire confiance à l'œuvre.",
         },
       },
     ],
@@ -102,21 +104,21 @@ export const publicPages: PublicPageDefinition[] = [
     path: { en: '/about', fr: '/a-propos' },
     label: { en: 'About', fr: 'À propos' },
     eyebrow: { en: 'Who we are', fr: 'Qui nous sommes' },
-    title: { en: 'An NGO focused on orphan education support.', fr: "Une ONG dédiée à l'éducation des orphelins." },
+    title: { en: 'About TriumphChi Foundation', fr: 'À propos de la Fondation TriumphChi' },
     description: {
-      en: 'TriumphChi Foundation supports education pathways through school partnerships, sponsorship coordination, and responsible reporting.',
-      fr: "La Fondation TriumphChi soutient les parcours scolaires grâce aux partenariats avec les écoles, au parrainage et aux rapports responsables.",
+      en: 'Walking alongside orphaned and vulnerable children in rural Cameroon through education support, community partnership, and covenant-driven generosity.',
+      fr: 'Marcher avec les orphelins et enfants vulnérables du Cameroun rural par le soutien scolaire, le partenariat communautaire et la générosité d’alliance.',
+    },
+    seoTitle: {
+      en: 'About TriumphChi Foundation | Orphan Education Support in Cameroon',
+      fr: 'À propos de la Fondation TriumphChi | Soutien scolaire aux orphelins au Cameroun',
+    },
+    seoDescription: {
+      en: 'Learn about TriumphChi Foundation, our mission, values, and commitment to supporting orphaned and vulnerable children through education in rural Cameroon.',
+      fr: 'Découvrez la Fondation TriumphChi, sa mission, ses valeurs et son engagement envers les orphelins et enfants vulnérables par l’éducation au Cameroun rural.',
     },
     schemaType: 'AboutPage',
-    sections: [
-      {
-        title: { en: 'Built for accountability', fr: 'Conçu pour la responsabilité' },
-        body: {
-          en: 'The system is designed to help staff document decisions, payments, needs, and outcomes with clear audit trails.',
-          fr: "Le système aide l'équipe à documenter les décisions, les paiements, les besoins et les résultats avec des traces claires.",
-        },
-      },
-    ],
+    sections: [],
   },
   {
     key: 'mission',
@@ -140,10 +142,10 @@ export const publicPages: PublicPageDefinition[] = [
     path: { en: '/vision', fr: '/vision' },
     label: { en: 'Vision', fr: 'Vision' },
     eyebrow: { en: 'Our vision', fr: 'Notre vision' },
-    title: { en: 'A future where education support is transparent and scalable.', fr: 'Un avenir où le soutien scolaire est transparent et durable.' },
+    title: { en: "A future where hardship does not end a child's education.", fr: "Un avenir où la difficulté n'arrête pas l'éducation d'un enfant." },
     description: {
-      en: 'The long-term platform is designed to grow from hundreds of beneficiaries to national-scale education support.',
-      fr: "La plateforme est conçue pour passer de quelques centaines de bénéficiaires à un soutien scolaire à grande échelle.",
+      en: 'We envision rural communities where orphaned and vulnerable children remain in school, grow in confidence, and move toward adulthood with hope.',
+      fr: "Nous imaginons des communautés rurales où les orphelins et enfants vulnérables restent à l'école, grandissent en confiance et avancent vers l'âge adulte avec espérance.",
     },
     schemaType: 'WebPage',
     sections: [],

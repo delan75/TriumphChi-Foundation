@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Globe2, HeartHandshake, Menu, ShieldCheck, X } from 'lucide-react';
+import { Globe2, HeartHandshake, Menu, ShieldCheck, UserRound, X } from 'lucide-react';
 import { cn } from '../../components/ui/cn';
 import { publicNavigation, publicPages } from '../../content/publicPages';
 import { isLocale, Locale, t } from '../../lib/i18n';
@@ -13,6 +13,9 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const donatePath = `/${locale}${publicPages.find((page) => page.key === 'donate')?.path[locale] ?? '/donate'}`;
+  const accountPath = `/${locale}/staff`;
+  const isAuthenticated = false;
+  const accountLabel = t(locale, isAuthenticated ? 'account' : 'login');
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/20 bg-white/[0.92] shadow-sm backdrop-blur-xl">
@@ -50,6 +53,15 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
         <div className="flex shrink-0 items-center gap-2">
           <LocaleSwitcher locale={locale} currentPath={location.pathname} />
           <NavLink
+            to={accountPath}
+            className="focus-ring inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md border border-ink-100 bg-white px-3 text-sm font-bold text-ink-700 transition duration-200 hover:border-foundation-100 hover:bg-foundation-50 hover:text-foundation-900"
+            aria-label={accountLabel}
+            title={accountLabel}
+          >
+            <UserRound className="h-4 w-4" aria-hidden="true" />
+            <span className="hidden xl:inline">{accountLabel}</span>
+          </NavLink>
+          <NavLink
             to={donatePath}
             className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-foundation-600 px-3 text-sm font-bold text-white shadow-sm transition duration-200 hover:bg-foundation-900 sm:px-4"
           >
@@ -75,6 +87,14 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
         )}
       >
         <nav className="grid gap-2" aria-label="Mobile navigation">
+          <NavLink
+            to={accountPath}
+            onClick={() => setIsOpen(false)}
+            className="focus-ring flex min-h-12 items-center gap-3 rounded-md border border-foundation-100 bg-foundation-50 px-3 text-base font-bold text-foundation-900 transition hover:bg-foundation-100"
+          >
+            <UserRound className="h-5 w-5" aria-hidden="true" />
+            {accountLabel}
+          </NavLink>
           {publicNavigation.map((item) => (
             <NavLink
               key={item.key}
