@@ -1,0 +1,318 @@
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { UserRound } from 'lucide-react';
+import { cn } from '../../components/ui/cn';
+import { Locale } from '../../lib/i18n';
+import { Seo } from '../../components/seo/Seo';
+import { apiRegister } from '../../lib/api';
+import { AuthLayout } from '../../components/auth/AuthLayout';
+import { InputField } from '../../components/ui/InputField';
+import { PasswordField } from '../../components/ui/PasswordField';
+import { GoogleAuthButton } from '../../components/ui/GoogleAuthButton';
+import communityImage from '../../assets/landing/education_aid_project.jpg';
+import ruralImage from '../../assets/landing/rural-home-cameroon.jpg';
+
+interface RegisterPageProps {
+  locale: Locale;
+}
+
+export function RegisterPage({ locale }: RegisterPageProps) {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const copy = registerCopy[locale];
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const validationErrors = validateRegister(formData, copy);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await apiRegister(
+        formData.name,
+        formData.email,
+        formData.password,
+        formData.confirmPassword,
+        locale,
+        'web-client',
+      );
+
+      localStorage.setItem('triumphchi.authenticated', 'true');
+      localStorage.setItem('triumphchi.user', JSON.stringify(response.user));
+      localStorage.setItem('auth_token', response.token.access_token);
+
+      navigate(`/${locale}/staff`);
+    } catch (error) {
+      setErrors({ submit: error instanceof Error ? error.message : copy.registrationFailed });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData((current) => ({ ...current, [name]: value }));
+
+    if (errors[name]) {
+      setErrors((current) => ({ ...current, [name]: '' }));
+    }
+  };
+
+  return (
+    <>
+      <Seo
+        meta={{
+          title: `${copy.title} - ${copy.leftPanel.title}`,
+          description: copy.subtitle,
+          path: { en: '/register', fr: '/register' },
+          locale,
+          image: communityImage,
+        }}
+      />
+
+      <AuthLayout
+        locale={locale}
+        leftPanelContent={copy.leftPanel}
+        backgroundImages={{
+          primary: communityImage,
+          secondary: ruralImage,
+        }}
+      >
+        <div className="flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 lg:py-0">
+          <div className="w-full max-w-md">
+            <div className="rounded-xl border border-ink-100 bg-white p-8 shadow-lg">
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-ink-900">{copy.title}</h2>
+                <p className="mt-2 text-sm text-ink-500">{copy.subtitle}</p>
+              </div>
+
+              <GoogleAuthButton onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/google/redirect`}>
+                {copy.continueWithGoogle}
+              </GoogleAuthButton>
+
+              <div className="relative my-8">
+                <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                  <div className="w-full border-t border-ink-100" />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-white px-3 text-xs uppercase tracking-wider text-ink-400">{copy.orContinueWith}</span>
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+                <InputField
+                  label={copy.nameLabel}
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  value={formData.name}
+                  onChange={handleChange}
+                  error={errors.name}
+                  placeholder={copy.namePlaceholder}
+                  icon={<UserRound className="h-4 w-4 text-ink-400" aria-hidden="true" />}
+                />
+
+                <InputField
+                  label={copy.emailLabel}
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  error={errors.email}
+                  placeholder="you@example.com"
+                />
+
+                <PasswordField
+                  label={copy.passwordLabel}
+                  name="password"
+                  autoComplete="new-password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  error={errors.password}
+                  placeholder="********"
+                  helpText={copy.passwordHelp}
+                />
+
+                <PasswordField
+                  label={copy.confirmPasswordLabel}
+                  name="confirmPassword"
+                  autoComplete="new-password"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  error={errors.confirmPassword}
+                  placeholder="********"
+                />
+
+                {errors.submit && (
+                  <div className="rounded-md border border-support-red/20 bg-support-red/5 p-3">
+                    <p className="text-sm text-support-red">{errors.submit}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={cn(
+                    'focus-ring flex w-full justify-center rounded-md border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-700 shadow-sm transition duration-200 hover:border-foundation-200 hover:bg-foundation-50',
+                    isLoading && 'cursor-not-allowed opacity-50',
+                  )}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink-400 border-t-transparent" />
+                      {copy.creating}
+                    </span>
+                  ) : copy.createAccount}
+                </button>
+              </form>
+
+              <div className="mt-8 border-t border-ink-100 pt-6 text-center">
+                <p className="text-sm text-ink-500">
+                  {copy.haveAccount}{' '}
+                  <Link to={`/${locale}/login`} className="font-semibold text-foundation-600 hover:text-foundation-900">
+                    {copy.signIn}
+                  </Link>
+                </p>
+              </div>
+
+              <div className="mt-6 text-center">
+                <Link to={`/${locale}`} className="text-sm text-ink-400 hover:text-ink-600">
+                  ← {copy.backHome}
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-8 text-center lg:hidden">
+              <p className="text-xs text-ink-400">{copy.support}</p>
+            </div>
+          </div>
+        </div>
+      </AuthLayout>
+    </>
+  );
+}
+
+function validateRegister(
+  formData: { name: string; email: string; password: string; confirmPassword: string },
+  copy: typeof registerCopy.en,
+) {
+  const errors: Record<string, string> = {};
+
+  if (!formData.name.trim()) {
+    errors.name = copy.nameRequired;
+  } else if (formData.name.trim().length < 2) {
+    errors.name = copy.nameMinLength;
+  }
+
+  if (!formData.email) {
+    errors.email = copy.emailRequired;
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    errors.email = copy.emailInvalid;
+  }
+
+  if (!formData.password) {
+    errors.password = copy.passwordRequired;
+  } else if (formData.password.length < 8) {
+    errors.password = copy.passwordMinLength;
+  }
+
+  if (!formData.confirmPassword) {
+    errors.confirmPassword = copy.confirmRequired;
+  } else if (formData.password !== formData.confirmPassword) {
+    errors.confirmPassword = copy.passwordMismatch;
+  }
+
+  return errors;
+}
+
+const sharedLeftPanel = {
+  en: {
+    title: 'TriumphChi Foundation',
+    tagline: 'Giving from a covenant, not from leftovers.',
+    description: 'Helping orphaned and vulnerable children in rural Cameroon continue learning through education support, mentorship, and community partnership.',
+    highlights: ['Education Support', 'Community Partnership', 'Mentorship', 'Dignity and Opportunity'],
+  },
+  fr: {
+    title: 'Fondation TriumphChi',
+    tagline: 'Donner par alliance, pas avec les restes.',
+    description: "Aider les orphelins et enfants vulnérables du Cameroun rural à continuer d'apprendre grâce au soutien éducatif, au mentorat et au partenariat communautaire.",
+    highlights: ['Soutien éducatif', 'Partenariat communautaire', 'Mentorat', 'Dignité et opportunité'],
+  },
+};
+
+const registerCopy = {
+  en: {
+    title: 'Create Your Account',
+    subtitle: 'Join a community committed to helping children stay in school and thrive.',
+    nameLabel: 'Full Name',
+    namePlaceholder: 'John Doe',
+    emailLabel: 'Email Address',
+    passwordLabel: 'Password',
+    confirmPasswordLabel: 'Confirm Password',
+    createAccount: 'Create Account',
+    haveAccount: 'Already have an account?',
+    signIn: 'Sign in',
+    continueWithGoogle: 'Continue with Google',
+    orContinueWith: 'Or continue with email',
+    backHome: 'Back to home',
+    creating: 'Creating account...',
+    support: 'Need help? Contact support@triumphchi.org',
+    passwordHelp: 'Must be at least 8 characters.',
+    registrationFailed: 'Registration failed. Please try again.',
+    nameRequired: 'Full name is required',
+    nameMinLength: 'Name must be at least 2 characters',
+    emailRequired: 'Email address is required',
+    emailInvalid: 'Please enter a valid email address',
+    passwordRequired: 'Password is required',
+    passwordMinLength: 'Password must be at least 8 characters',
+    confirmRequired: 'Please confirm your password',
+    passwordMismatch: 'Passwords do not match',
+    leftPanel: sharedLeftPanel.en,
+  },
+  fr: {
+    title: 'Créer votre compte',
+    subtitle: "Rejoignez une communauté engagée à aider les enfants à rester à l'école et à s'épanouir.",
+    nameLabel: 'Nom complet',
+    namePlaceholder: 'Jean Dupont',
+    emailLabel: 'Adresse email',
+    passwordLabel: 'Mot de passe',
+    confirmPasswordLabel: 'Confirmer le mot de passe',
+    createAccount: 'Créer le compte',
+    haveAccount: 'Vous avez déjà un compte ?',
+    signIn: 'Se connecter',
+    continueWithGoogle: 'Continuer avec Google',
+    orContinueWith: 'Ou continuer avec votre email',
+    backHome: "Retour à l'accueil",
+    creating: 'Création du compte...',
+    support: 'Besoin d’aide ? Contactez support@triumphchi.org',
+    passwordHelp: 'Doit contenir au moins 8 caractères.',
+    registrationFailed: 'La création du compte a échoué. Veuillez réessayer.',
+    nameRequired: 'Nom complet requis',
+    nameMinLength: 'Le nom doit comporter au moins 2 caractères',
+    emailRequired: 'Adresse email requise',
+    emailInvalid: 'Veuillez entrer une adresse email valide',
+    passwordRequired: 'Mot de passe requis',
+    passwordMinLength: 'Le mot de passe doit contenir au moins 8 caractères',
+    confirmRequired: 'Veuillez confirmer votre mot de passe',
+    passwordMismatch: 'Les mots de passe ne correspondent pas',
+    leftPanel: sharedLeftPanel.fr,
+  },
+};
