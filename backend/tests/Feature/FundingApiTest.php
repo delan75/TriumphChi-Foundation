@@ -114,7 +114,7 @@ class FundingApiTest extends TestCase
             ->assertJsonPath('data.created_by', $user->id)
             ->assertJsonPath('data.approved_by', $user->id);
 
-        $this->withHeader('Accept-Language', 'fr')
+        $frenchResponse = $this->withHeader('Accept-Language', 'fr')
             ->postJson('/api/v1/allocations', [
                 'allocation_reference' => 'ALL-API-002',
                 'donation_id' => $donation->id,
@@ -124,8 +124,11 @@ class FundingApiTest extends TestCase
                 'currency' => 'XAF',
                 'status' => 'approved',
                 'allocated_at' => now()->toISOString(),
-            ])->assertUnprocessable()
-            ->assertJsonValidationErrors('amount');
+            ]);
+
+        $frenchResponse->assertUnprocessable()
+            ->assertJsonValidationErrors('amount')
+            ->assertJsonPath('errors.amount.0', fn ($message) => str_contains($message, 'L allocation') || str_contains($message, 'dépasserait'));
 
         $this->assertDatabaseHas('allocations', [
             'allocation_reference' => 'ALL-API-001',
