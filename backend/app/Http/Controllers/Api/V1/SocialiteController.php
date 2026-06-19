@@ -19,6 +19,7 @@ class SocialiteController extends Controller
     public function redirectToGoogle(): RedirectResponse
     {
         return Socialite::driver('google')
+            ->stateless()
             ->scopes(['openid', 'profile', 'email'])
             ->redirect();
     }
