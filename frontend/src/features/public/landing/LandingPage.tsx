@@ -3,29 +3,38 @@ import {
   ArrowRight,
   BookOpen,
   CheckCircle2,
-  FileText,
   GraduationCap,
   HandHeart,
   HeartHandshake,
+  Home,
+  MapPin,
   School,
   ShieldCheck,
   Sparkles,
+  UsersRound,
 } from 'lucide-react';
 import { GivingChannels } from '../../../components/public/GivingChannels';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
 import { Locale } from '../../../lib/i18n';
-import heroImage from '../../../assets/landing/classroom-support.png';
+import heroImage from '../../../assets/landing/cameroon.jpg';
+import classroomImage from '../../../assets/landing/cameroon-children-educationjpg.jpg';
+import ruralImage from '../../../assets/landing/rural_kids.jpg';
+import outdoorClassImage from '../../../assets/landing/kids_studying_tree.webp';
+import groupClassImage from '../../../assets/landing/education_aid_project.jpg';
+import studyImage from '../../../assets/landing/education_system_cameroon.jpg';
 
 interface LandingPageProps {
   locale: Locale;
   page: PublicPageDefinition;
 }
 
-const needIcons = [School, BookOpen, GraduationCap, HandHeart];
-const activityIcons = [HeartHandshake, ShieldCheck, FileText, Sparkles];
-const assistanceIcons = [HandHeart, School, ShieldCheck];
+const needIcons = [School, BookOpen, GraduationCap, HeartHandshake];
+const communityIcons = [MapPin, Home, UsersRound, Sparkles];
+const assistanceIcons = [HandHeart, School, ShieldCheck, UsersRound];
+const workIcons = [HeartHandshake, BookOpen, UsersRound, GraduationCap];
+const impactIcons = [School, BookOpen, UsersRound, GraduationCap];
 const highPriorityImageProps = { fetchpriority: 'high' } as Record<string, string>;
 
 export function LandingPage({ locale, page }: LandingPageProps) {
@@ -52,13 +61,13 @@ export function LandingPage({ locale, page }: LandingPageProps) {
           src={heroImage}
           alt={copy.heroImageAlt}
           className="absolute inset-0 -z-20 h-full w-full object-cover"
-          width="1800"
-          height="1125"
+          width="2400"
+          height="1200"
           {...highPriorityImageProps}
         />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.96)_0%,rgba(18,55,47,0.82)_44%,rgba(18,55,47,0.26)_100%)]" />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.96)_0%,rgba(18,55,47,0.8)_45%,rgba(18,55,47,0.2)_100%)]" />
 
-        <div className="mx-auto flex min-h-[82dvh] max-w-7xl flex-col justify-end px-4 pb-10 pt-16 sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-[84dvh] max-w-7xl flex-col justify-end px-4 pb-10 pt-20 sm:px-6 lg:px-8">
           <div className="max-w-3xl animate-rise">
             <p className="mb-4 inline-flex min-h-8 items-center rounded-md border border-white/20 bg-white/10 px-3 text-sm font-bold text-foundation-50 backdrop-blur">
               {copy.eyebrow}
@@ -85,10 +94,10 @@ export function LandingPage({ locale, page }: LandingPageProps) {
           </div>
 
           <div className="mt-10 grid gap-3 sm:grid-cols-3">
-            {copy.heroStats.map((item) => (
-              <div key={item.label} className="rounded-md border border-white/15 bg-white/10 p-4 backdrop-blur-md">
-                <p className="text-2xl font-black">{item.value}</p>
-                <p className="mt-1 text-sm leading-5 text-foundation-50">{item.label}</p>
+            {copy.heroNotes.map((item) => (
+              <div key={item.title} className="rounded-md border border-white/15 bg-white/10 p-4 backdrop-blur-md">
+                <p className="text-base font-black">{item.title}</p>
+                <p className="mt-1 text-sm leading-5 text-foundation-50">{item.body}</p>
               </div>
             ))}
           </div>
@@ -96,25 +105,49 @@ export function LandingPage({ locale, page }: LandingPageProps) {
       </section>
 
       <section className="bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-          <SectionIntro eyebrow={copy.needsEyebrow} title={copy.needsTitle} body={copy.needsBody} />
-          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {copy.needs.map((need, index) => {
-              const Icon = needIcons[index];
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-16">
+          <div>
+            <SectionIntro eyebrow={copy.whyEyebrow} title={copy.whyTitle} body={copy.whyBody} />
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              {copy.needs.map((need, index) => {
+                const Icon = needIcons[index];
 
-              return (
-                <article key={need.title} className="rounded-md border border-ink-100 bg-ink-50 p-5 shadow-sm">
-                  <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
-                  <h2 className="mt-4 text-lg font-black text-ink-900">{need.title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-ink-500">{need.body}</p>
-                </article>
-              );
-            })}
+                return (
+                  <article key={need.title} className="rounded-md border border-ink-100 bg-ink-50 p-5 shadow-sm">
+                    <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
+                    <h2 className="mt-4 text-lg font-black text-ink-900">{need.title}</h2>
+                    <p className="mt-2 text-sm leading-6 text-ink-500">{need.body}</p>
+                  </article>
+                );
+              })}
+            </div>
           </div>
+          <ImagePanel image={classroomImage} alt={copy.whyImageAlt} caption={copy.whyCaption} />
         </div>
       </section>
 
       <section className="bg-foundation-50">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-16">
+          <ImagePanel image={ruralImage} alt={copy.ruralImageAlt} caption={copy.ruralCaption} />
+          <div className="self-center">
+            <SectionIntro eyebrow={copy.ruralEyebrow} title={copy.ruralTitle} body={copy.ruralBody} />
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              {copy.ruralPoints.map((point, index) => {
+                const Icon = communityIcons[index];
+
+                return (
+                  <div key={point} className="flex min-h-12 items-center gap-3 rounded-md border border-foundation-100 bg-white px-4 py-3 text-sm font-bold text-ink-700 shadow-sm">
+                    <Icon className="h-5 w-5 shrink-0 text-foundation-600" aria-hidden="true" />
+                    {point}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8 lg:py-16">
           <SectionIntro eyebrow={copy.assistanceEyebrow} title={copy.assistanceTitle} body={copy.assistanceBody} />
           <div className="grid gap-3">
@@ -122,7 +155,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
               const Icon = assistanceIcons[index];
 
               return (
-                <article key={item.title} className="grid gap-3 rounded-md border border-foundation-100 bg-white p-4 shadow-sm sm:grid-cols-[3rem_1fr]">
+                <article key={item.title} className="grid gap-3 rounded-md border border-ink-100 bg-ink-50 p-4 shadow-sm sm:grid-cols-[3rem_1fr]">
                   <div className="grid h-12 w-12 place-items-center rounded-md bg-foundation-600 text-white">
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </div>
@@ -144,18 +177,44 @@ export function LandingPage({ locale, page }: LandingPageProps) {
         </div>
       </section>
 
+      <section className="bg-foundation-900 text-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8 lg:py-16">
+          <div>
+            <p className="text-sm font-black uppercase text-foundation-100">{copy.workEyebrow}</p>
+            <h2 className="mt-2 max-w-3xl text-3xl font-black leading-tight sm:text-4xl">{copy.workTitle}</h2>
+            <p className="mt-3 max-w-3xl text-base leading-7 text-foundation-50">{copy.workBody}</p>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              {copy.work.map((item, index) => {
+                const Icon = workIcons[index];
+
+                return (
+                  <article key={item.title} className="rounded-md border border-white/10 bg-white/5 p-5">
+                    <Icon className="h-6 w-6 text-foundation-100" aria-hidden="true" />
+                    <h3 className="mt-4 text-lg font-black">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-foundation-50">{item.body}</p>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+          <div className="grid gap-4">
+            <img src={outdoorClassImage} alt={copy.workImageAlt} className="min-h-64 rounded-md object-cover shadow-xl" loading="lazy" />
+            <img src={groupClassImage} alt={copy.workSecondImageAlt} className="hidden rounded-md object-cover shadow-xl sm:block" loading="lazy" />
+          </div>
+        </div>
+      </section>
+
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-          <SectionIntro eyebrow={copy.activitiesEyebrow} title={copy.activitiesTitle} body={copy.activitiesBody} />
-          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {copy.activities.map((activity, index) => {
-              const Icon = activityIcons[index];
+          <SectionIntro eyebrow={copy.impactEyebrow} title={copy.impactTitle} body={copy.impactBody} />
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {copy.impact.map((item, index) => {
+              const Icon = impactIcons[index];
 
               return (
-                <article key={activity.title} className="rounded-md border border-foundation-100 bg-white p-5 shadow-sm">
+                <article key={item} className="rounded-md border border-foundation-100 bg-foundation-50 p-5">
                   <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
-                  <h2 className="mt-4 text-lg font-black text-ink-900">{activity.title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-ink-500">{activity.body}</p>
+                  <p className="mt-4 text-lg font-black text-ink-900">{item}</p>
                 </article>
               );
             })}
@@ -165,9 +224,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
       <section className="bg-ink-900 text-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-16">
-          <div className="overflow-hidden rounded-md border border-white/10 bg-white/5">
-            <img src={heroImage} alt={copy.storyImageAlt} className="h-full min-h-80 w-full object-cover" loading="lazy" />
-          </div>
+          <ImagePanel image={studyImage} alt={copy.storyImageAlt} caption={copy.storyCaption} dark />
           <div className="self-center">
             <p className="text-sm font-black uppercase text-foundation-100">{copy.storyEyebrow}</p>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">{copy.storyTitle}</h2>
@@ -184,6 +241,24 @@ export function LandingPage({ locale, page }: LandingPageProps) {
       </section>
 
       <section className="bg-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8 lg:py-16">
+          <div>
+            <p className="text-sm font-black uppercase text-foundation-600">{copy.trustEyebrow}</p>
+            <h2 className="mt-2 text-3xl font-black leading-tight text-ink-900 sm:text-4xl">{copy.trustTitle}</h2>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-ink-500">{copy.trustBody}</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {copy.trustPoints.map((point) => (
+              <div key={point} className="flex min-h-12 items-center gap-3 rounded-md border border-ink-100 bg-ink-50 px-4 py-3 text-sm font-bold text-ink-700">
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-foundation-600" aria-hidden="true" />
+                {point}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-foundation-50">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8 lg:py-16">
           <div>
             <p className="text-sm font-black uppercase text-foundation-600">{copy.finalEyebrow}</p>
@@ -191,13 +266,21 @@ export function LandingPage({ locale, page }: LandingPageProps) {
             <p className="mt-3 max-w-2xl text-base leading-7 text-ink-600">{copy.finalBody}</p>
           </div>
           <div className="grid gap-5">
-            <Link
-              to={`/${locale}${donatePage.path[locale]}`}
-              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-sm transition duration-200 hover:bg-foundation-900"
-            >
-              {copy.finalCta}
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                to={`/${locale}${donatePage.path[locale]}`}
+                className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-sm transition duration-200 hover:bg-foundation-900"
+              >
+                {copy.finalPrimaryCta}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <Link
+                to={`/${locale}${applyPage.path[locale]}`}
+                className="focus-ring inline-flex min-h-12 items-center justify-center rounded-md border border-foundation-200 bg-white px-5 text-sm font-black text-foundation-900 transition duration-200 hover:bg-foundation-100"
+              >
+                {copy.finalSecondaryCta}
+              </Link>
+            </div>
             <GivingChannels locale={locale} />
           </div>
         </div>
@@ -216,6 +299,15 @@ function SectionIntro({ eyebrow, title, body, className }: { eyebrow: string; ti
   );
 }
 
+function ImagePanel({ image, alt, caption, dark = false }: { image: string; alt: string; caption: string; dark?: boolean }) {
+  return (
+    <figure className={cn('overflow-hidden rounded-md border shadow-sm', dark ? 'border-white/10 bg-white/5' : 'border-ink-100 bg-white')}>
+      <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover" loading="lazy" />
+      <figcaption className={cn('px-4 py-3 text-sm leading-6', dark ? 'text-ink-100' : 'text-ink-500')}>{caption}</figcaption>
+    </figure>
+  );
+}
+
 interface LandingCopy {
   eyebrow: string;
   heading: string;
@@ -223,128 +315,190 @@ interface LandingCopy {
   primaryCta: string;
   secondaryCta: string;
   heroImageAlt: string;
-  heroStats: Array<{ value: string; label: string }>;
-  needsEyebrow: string;
-  needsTitle: string;
-  needsBody: string;
+  heroNotes: Array<{ title: string; body: string }>;
+  whyEyebrow: string;
+  whyTitle: string;
+  whyBody: string;
+  whyImageAlt: string;
+  whyCaption: string;
   needs: Array<{ title: string; body: string }>;
+  ruralEyebrow: string;
+  ruralTitle: string;
+  ruralBody: string;
+  ruralImageAlt: string;
+  ruralCaption: string;
+  ruralPoints: string[];
   assistanceEyebrow: string;
   assistanceTitle: string;
   assistanceBody: string;
   assistance: Array<{ title: string; body: string }>;
   assistanceCta: string;
-  activitiesEyebrow: string;
-  activitiesTitle: string;
-  activitiesBody: string;
-  activities: Array<{ title: string; body: string }>;
+  workEyebrow: string;
+  workTitle: string;
+  workBody: string;
+  workImageAlt: string;
+  workSecondImageAlt: string;
+  work: Array<{ title: string; body: string }>;
+  impactEyebrow: string;
+  impactTitle: string;
+  impactBody: string;
+  impact: string[];
   storyEyebrow: string;
   storyTitle: string;
   storyBody: string;
   storyCta: string;
   storyImageAlt: string;
+  storyCaption: string;
+  trustEyebrow: string;
+  trustTitle: string;
+  trustBody: string;
+  trustPoints: string[];
   finalEyebrow: string;
   finalTitle: string;
   finalBody: string;
-  finalCta: string;
+  finalPrimaryCta: string;
+  finalSecondaryCta: string;
 }
 
 const landingCopy = {
   en: {
     eyebrow: 'TriumphChi Foundation',
     heading: 'Giving from a covenant, not from leftovers.',
-    lead: 'We stand with orphans and vulnerable children in rural Cameroon whose schooling is threatened by fees, books, uniforms, exam costs, distance, and family hardship.',
-    primaryCta: 'Give with purpose',
+    lead: 'Every child deserves the opportunity to learn, grow, and dream. In rural communities across Cameroon, we help remove barriers to school through education support, mentorship, and compassionate community care.',
+    primaryCta: 'Support a child',
     secondaryCta: 'Apply for assistance',
-    heroImageAlt: 'Illustrated classroom table with books, notebooks, a school bag, and a chalkboard.',
-    heroStats: [
-      { value: 'School fees', label: 'help keep children enrolled when families cannot carry the cost alone' },
-      { value: 'Supplies', label: 'books, uniforms, bags, pens, and practical classroom needs' },
-      { value: 'Dignity', label: 'support that protects children while honoring their stories' },
+    heroImageAlt: 'A smiling school child in a classroom in Cameroon.',
+    heroNotes: [
+      { title: 'Children', body: 'The work begins with children whose education is at risk.' },
+      { title: 'Hope', body: 'Support is given to protect opportunity, dignity, and future dreams.' },
+      { title: 'Community', body: 'Families, schools, churches, and local leaders help identify real needs.' },
     ],
-    needsEyebrow: 'The need around us',
-    needsTitle: 'In rural communities, education can be lost through ordinary costs.',
-    needsBody: 'Many children want to learn but face barriers that quietly push them out of school. The work begins by seeing those needs clearly.',
+    whyEyebrow: 'Why this work matters',
+    whyTitle: 'Education changes everything.',
+    whyBody: "For many orphaned and vulnerable children in rural Cameroon, staying in school is not simply a matter of willingness. A missed fee payment, the absence of a school uniform, the cost of examination registration, or the loss of a parent can interrupt a child's education and alter the course of their future.",
+    whyImageAlt: 'Children writing in notebooks in a classroom.',
+    whyCaption: 'A school day is built from simple things: a seat in class, a notebook, a uniform, an exam fee, and someone who believes the child should continue.',
     needs: [
-      { title: 'Unpaid fees', body: 'A child may be sent home, miss exams, or lose a place in class when fees remain unpaid.' },
-      { title: 'No learning materials', body: 'Books, notebooks, pens, and bags can decide whether attending school is useful or frustrating.' },
-      { title: 'Uniforms and exams', body: 'Uniforms, registration, and exam charges often arrive at the hardest moment for a family.' },
-      { title: 'Distance and hardship', body: 'Rural children may also face transport difficulty, food insecurity, grief, or unstable care at home.' },
+      { title: 'School fees', body: 'A child may be sent home or miss exams when fees remain unpaid.' },
+      { title: 'Learning materials', body: 'Books, notebooks, pens, and bags make attendance meaningful.' },
+      { title: 'Examination costs', body: 'Registration and exam charges often arrive when families are already stretched.' },
+      { title: 'Mentorship and encouragement', body: 'Children need adults who notice, listen, and keep walking with them.' },
     ],
-    assistanceEyebrow: 'Children can reach out',
-    assistanceTitle: 'A child, guardian, school, or community leader can ask for help.',
-    assistanceBody: 'The assistance path is for real education needs. It should be clear, respectful, and safe for children who need support.',
+    ruralEyebrow: 'Where we serve',
+    ruralTitle: 'Many rural communities carry struggles that are rarely seen beyond their villages.',
+    ruralBody: 'Long distances to school, limited educational resources, economic hardship, and children growing up without parental support can make learning fragile. Yet these communities are rich in resilience, faith, family, and determination.',
+    ruralImageAlt: 'Children gathered along a rural red-earth road in Cameroon.',
+    ruralCaption: 'Rural Cameroon is not only a place of need. It is a place of resilience, community memory, and children who still want to learn.',
+    ruralPoints: ['Long distances to school', 'Limited learning resources', 'Economic hardship', 'Resilient families and communities'],
+    assistanceEyebrow: 'Need educational assistance?',
+    assistanceTitle: 'No child should feel invisible.',
+    assistanceBody: 'The foundation receives education support requests from children and from trusted people around them. Every request should be handled carefully, respectfully, and without public shame.',
     assistance: [
-      { title: 'A child needs school support', body: 'The request may involve school fees, books, uniforms, exam fees, or a situation affecting attendance.' },
-      { title: 'A trusted adult can speak for them', body: 'Guardians, relatives, teachers, pastors, and community leaders can help explain the need.' },
-      { title: 'The child is treated with dignity', body: 'Assistance requests should never turn a child into a public display of poverty.' },
+      { title: 'Children seeking support', body: 'A child may need help with fees, supplies, exams, or returning to school after hardship.' },
+      { title: 'Guardians, relatives, and schools', body: 'Adults close to the child can help explain the situation and begin the request.' },
+      { title: 'Churches and local organizations', body: 'Community groups can identify needs and help connect children to assistance.' },
+      { title: 'Careful review', body: 'Requests are reviewed with dignity so support can meet real educational needs.' },
     ],
-    assistanceCta: 'Start an assistance request',
-    activitiesEyebrow: 'What the foundation does',
-    activitiesTitle: 'We support education through care, presence, and practical help.',
-    activitiesBody: 'The work is not only receiving gifts. It is finding children, listening to families, working with schools, and staying close enough to know what changed.',
-    activities: [
-      { title: 'School support', body: 'Helping with fees, materials, uniforms, exams, and other education barriers.' },
-      { title: 'Community visits', body: 'Learning from families, schools, churches, and local leaders before assistance is shared publicly.' },
-      { title: 'Application care', body: 'Receiving requests for help and guiding children or guardians through the next step.' },
-      { title: 'Progress stories', body: 'Sharing updates about classes, attendance, promotion, graduation, and encouragement with care.' },
+    assistanceCta: 'Request assistance',
+    workEyebrow: 'Our work',
+    workTitle: 'We walk with children, families, schools, and communities.',
+    workBody: 'The work is not only receiving gifts. It is showing up, listening, providing practical school support, and following the child with care.',
+    workImageAlt: 'Children learning outdoors under a tree.',
+    workSecondImageAlt: 'A classroom of children smiling and raising their hands.',
+    work: [
+      { title: 'Educational sponsorship', body: 'Helping children remain in school through direct education support.' },
+      { title: 'Books and learning materials', body: 'Providing supplies that make school participation possible.' },
+      { title: 'Community outreach', body: 'Working with families, schools, churches, and local leaders.' },
+      { title: 'Mentorship and encouragement', body: 'Supporting children with presence, prayerful care, and progress follow-up.' },
     ],
+    impactEyebrow: 'Impact with a human face',
+    impactTitle: 'The measure is a child continuing school.',
+    impactBody: 'Impact is seen in children supported, schools reached, fees covered, materials provided, and students continuing their education with hope.',
+    impact: ['Children supported', 'School fees covered', 'Schools reached', 'Students continuing their education'],
     storyEyebrow: 'Stories with dignity',
-    storyTitle: 'Hope can be shown without exposing a child.',
-    storyBody: 'Children are not fundraising objects. Public stories should focus on education, courage, community, and progress while private details stay protected.',
-    storyCta: 'View our impact',
-    storyImageAlt: 'Classroom illustration showing books and school materials without identifying a child.',
+    storyTitle: "The goal is never to display a child's hardship.",
+    storyBody: 'The goal is to celebrate growth, courage, learning, and hope while protecting privacy and dignity. Public stories should honor the child, not expose them.',
+    storyCta: 'View impact stories',
+    storyImageAlt: 'Children studying in a classroom in Cameroon.',
+    storyCaption: 'A story should point to hope, courage, learning, and community, not to spectacle.',
+    trustEyebrow: 'Stewardship matters',
+    trustTitle: 'Every gift entrusted to the foundation is handled with care.',
+    trustBody: 'Transparency belongs here as a support to trust, not as the main story. We work to ensure support reaches educational needs while maintaining responsible records and oversight.',
+    trustPoints: ['Donation receipts', 'Impact reporting', 'School support records', 'Responsible governance'],
     finalEyebrow: 'Covenant giving',
-    finalTitle: 'Give because education is part of the promise we carry together.',
-    finalBody: 'Your support can help a child stay in class, return to school, sit for an exam, or continue learning with dignity.',
-    finalCta: 'Give now',
+    finalTitle: 'Generosity is more than a transaction.',
+    finalBody: 'It is a commitment to walk alongside children, families, schools, and communities so that education remains possible where it is most at risk.',
+    finalPrimaryCta: 'Support a child',
+    finalSecondaryCta: 'Apply for assistance',
   },
   fr: {
     eyebrow: 'Fondation TriumphChi',
     heading: 'Donner par alliance, pas avec les restes.',
-    lead: "Nous marchons avec les orphelins et enfants vulnérables des zones rurales du Cameroun dont la scolarité est menacée par les frais, les livres, l'uniforme, les examens, la distance et les difficultés familiales.",
-    primaryCta: 'Donner avec intention',
+    lead: "Chaque enfant mérite l'occasion d'apprendre, de grandir et de rêver. Dans les communautés rurales du Cameroun, nous aidons à lever les barrières à l'école par le soutien scolaire, le mentorat et l'accompagnement communautaire.",
+    primaryCta: 'Soutenir un enfant',
     secondaryCta: 'Demander une aide',
-    heroImageAlt: "Illustration d'une table de classe avec livres, cahiers, sac scolaire et tableau.",
-    heroStats: [
-      { value: 'Frais scolaires', label: 'aider les enfants à rester inscrits quand la famille ne peut pas porter seule le coût' },
-      { value: 'Fournitures', label: 'livres, uniformes, sacs, stylos et besoins pratiques pour la classe' },
-      { value: 'Dignité', label: 'un soutien qui protège les enfants tout en honorant leur histoire' },
+    heroImageAlt: 'Une enfant souriante dans une salle de classe au Cameroun.',
+    heroNotes: [
+      { title: 'Enfants', body: "Le travail commence avec les enfants dont l'éducation est menacée." },
+      { title: 'Espérance', body: "Le soutien protège l'opportunité, la dignité et les rêves d'avenir." },
+      { title: 'Communauté', body: 'Familles, écoles, églises et leaders locaux aident à identifier les vrais besoins.' },
     ],
-    needsEyebrow: 'Le besoin autour de nous',
-    needsTitle: "Dans les villages, l'école peut se perdre à cause de coûts ordinaires.",
-    needsBody: "Beaucoup d'enfants veulent apprendre, mais rencontrent des obstacles qui les éloignent silencieusement de l'école. Le travail commence par voir ces besoins clairement.",
+    whyEyebrow: 'Pourquoi cette œuvre compte',
+    whyTitle: "L'éducation change tout.",
+    whyBody: "Pour beaucoup d'orphelins et d'enfants vulnérables du Cameroun rural, rester à l'école n'est pas seulement une question de volonté. Un frais non payé, l'absence d'uniforme, le coût d'un examen ou la perte d'un parent peut interrompre la scolarité et changer l'avenir d'un enfant.",
+    whyImageAlt: 'Des enfants écrivent dans leurs cahiers en classe.',
+    whyCaption: "Une journée d'école tient parfois à des choses simples : une place en classe, un cahier, un uniforme, un frais d'examen et quelqu'un qui croit que l'enfant doit continuer.",
     needs: [
-      { title: 'Frais impayés', body: "Un enfant peut être renvoyé, manquer les examens ou perdre sa place quand les frais ne sont pas payés." },
-      { title: 'Manque de matériel', body: "Livres, cahiers, stylos et sacs peuvent décider si la présence à l'école aide vraiment l'enfant." },
-      { title: 'Uniformes et examens', body: "L'uniforme, l'inscription et les frais d'examen arrivent souvent au moment le plus difficile." },
-      { title: 'Distance et difficultés', body: "Les enfants ruraux peuvent aussi faire face au transport, à la faim, au deuil ou à une prise en charge instable." },
+      { title: 'Frais scolaires', body: "Un enfant peut être renvoyé ou manquer les examens quand les frais ne sont pas payés." },
+      { title: "Matériel d'apprentissage", body: 'Livres, cahiers, stylos et sacs rendent la présence en classe utile.' },
+      { title: "Frais d'examen", body: "Les inscriptions et examens arrivent souvent quand les familles sont déjà sous pression." },
+      { title: 'Mentorat et encouragement', body: 'Les enfants ont besoin d’adultes qui remarquent, écoutent et continuent avec eux.' },
     ],
-    assistanceEyebrow: 'Les enfants peuvent demander de l’aide',
-    assistanceTitle: 'Un enfant, un tuteur, une école ou un leader local peut demander de l’aide.',
-    assistanceBody: "Le parcours d'assistance est destiné aux vrais besoins scolaires. Il doit rester clair, respectueux et sûr pour les enfants qui ont besoin de soutien.",
+    ruralEyebrow: 'Où nous servons',
+    ruralTitle: 'Beaucoup de communautés rurales portent des luttes rarement visibles au-delà du village.',
+    ruralBody: "La longue distance vers l'école, les ressources limitées, la difficulté économique et l'absence de soutien parental peuvent rendre l'apprentissage fragile. Pourtant ces communautés sont riches en résilience, foi, famille et détermination.",
+    ruralImageAlt: "Des enfants rassemblés sur une route rouge d'un village au Cameroun.",
+    ruralCaption: "Le Cameroun rural n'est pas seulement un lieu de besoin. C'est un lieu de résilience, de mémoire communautaire et d'enfants qui veulent encore apprendre.",
+    ruralPoints: ["Longues distances vers l'école", "Ressources d'apprentissage limitées", 'Difficultés économiques', 'Familles et communautés résilientes'],
+    assistanceEyebrow: "Besoin d'une aide scolaire ?",
+    assistanceTitle: 'Aucun enfant ne devrait se sentir invisible.',
+    assistanceBody: "La fondation reçoit des demandes de soutien scolaire venant des enfants et des personnes de confiance autour d'eux. Chaque demande doit être traitée avec soin, respect et sans honte publique.",
     assistance: [
-      { title: 'Un enfant a besoin de soutien scolaire', body: "La demande peut concerner les frais, livres, uniformes, examens ou une situation qui affecte la présence à l'école." },
-      { title: 'Un adulte de confiance peut parler pour lui', body: "Tuteurs, proches, enseignants, pasteurs et leaders communautaires peuvent aider à expliquer le besoin." },
-      { title: "L'enfant est traité avec dignité", body: "Une demande d'aide ne doit jamais transformer un enfant en exposition publique de la pauvreté." },
+      { title: 'Enfants cherchant du soutien', body: "Un enfant peut avoir besoin d'aide pour les frais, fournitures, examens ou le retour à l'école après une difficulté." },
+      { title: 'Tuteurs, proches et écoles', body: "Les adultes proches de l'enfant peuvent expliquer la situation et commencer la demande." },
+      { title: 'Églises et organisations locales', body: 'Les communautés peuvent identifier les besoins et aider les enfants à trouver une assistance.' },
+      { title: 'Étude respectueuse', body: 'Les demandes sont examinées avec dignité afin de répondre aux vrais besoins scolaires.' },
     ],
-    assistanceCta: 'Commencer une demande d’aide',
-    activitiesEyebrow: 'Ce que fait la fondation',
-    activitiesTitle: "Nous soutenons l'éducation par la présence, l'écoute et l'aide pratique.",
-    activitiesBody: "Le travail ne consiste pas seulement à recevoir des dons. Il faut trouver les enfants, écouter les familles, travailler avec les écoles et rester assez proche pour savoir ce qui a changé.",
-    activities: [
-      { title: 'Soutien scolaire', body: "Aider avec les frais, fournitures, uniformes, examens et autres barrières à l'éducation." },
-      { title: 'Visites communautaires', body: "Apprendre auprès des familles, écoles, églises et leaders locaux avant de partager l'assistance publiquement." },
-      { title: 'Accueil des demandes', body: "Recevoir les demandes d'aide et guider les enfants ou tuteurs vers la prochaine étape." },
-      { title: 'Récits de progrès', body: "Partager avec soin les nouvelles sur les classes, la présence, la promotion, la réussite et l'encouragement." },
+    assistanceCta: 'Demander une aide',
+    workEyebrow: 'Notre œuvre',
+    workTitle: 'Nous marchons avec les enfants, familles, écoles et communautés.',
+    workBody: "Le travail ne consiste pas seulement à recevoir des dons. Il faut être présent, écouter, apporter une aide scolaire pratique et suivre l'enfant avec soin.",
+    workImageAlt: 'Des enfants apprennent dehors sous un arbre.',
+    workSecondImageAlt: 'Une classe d’enfants souriants levant les mains.',
+    work: [
+      { title: 'Parrainage éducatif', body: "Aider les enfants à rester à l'école grâce à un soutien scolaire direct." },
+      { title: "Livres et matériel d'apprentissage", body: 'Fournir les outils qui rendent la participation scolaire possible.' },
+      { title: 'Présence communautaire', body: 'Travailler avec les familles, écoles, églises et leaders locaux.' },
+      { title: 'Mentorat et encouragement', body: 'Soutenir les enfants par la présence, la prière et le suivi de leurs progrès.' },
     ],
+    impactEyebrow: 'Impact à visage humain',
+    impactTitle: "La mesure, c'est un enfant qui continue l'école.",
+    impactBody: "L'impact se voit dans les enfants soutenus, les écoles rejointes, les frais couverts, le matériel donné et les élèves qui continuent avec espérance.",
+    impact: ['Enfants soutenus', 'Frais scolaires couverts', 'Écoles rejointes', 'Élèves qui continuent leur scolarité'],
     storyEyebrow: 'Récits avec dignité',
-    storyTitle: "Montrer l'espérance sans exposer l'enfant.",
-    storyBody: "Les enfants ne sont pas des objets de collecte. Les récits publics doivent parler d'éducation, de courage, de communauté et de progrès, pendant que les détails privés restent protégés.",
-    storyCta: 'Voir notre impact',
-    storyImageAlt: 'Illustration de classe avec livres et matériel scolaire sans identifier un enfant.',
+    storyTitle: "Le but n'est jamais d'exposer la difficulté d'un enfant.",
+    storyBody: "Le but est de célébrer la croissance, le courage, l'apprentissage et l'espérance tout en protégeant la vie privée et la dignité. Les récits publics doivent honorer l'enfant, pas l'exposer.",
+    storyCta: "Voir les récits d'impact",
+    storyImageAlt: 'Des enfants étudient dans une classe au Cameroun.',
+    storyCaption: "Un récit doit parler d'espérance, de courage, d'apprentissage et de communauté, jamais de spectacle.",
+    trustEyebrow: 'La gestion compte',
+    trustTitle: 'Chaque don confié à la fondation est traité avec soin.',
+    trustBody: "La transparence soutient la confiance, mais elle n'est pas l'histoire principale. Nous veillons à ce que l'aide rejoigne les besoins scolaires avec des dossiers et une surveillance responsables.",
+    trustPoints: ['Reçus de don', "Rapports d'impact", 'Suivi du soutien scolaire', 'Gouvernance responsable'],
     finalEyebrow: "Don d'alliance",
-    finalTitle: "Donner parce que l'éducation fait partie de la promesse que nous portons ensemble.",
-    finalBody: "Votre soutien peut aider un enfant à rester en classe, retourner à l'école, passer un examen ou continuer à apprendre avec dignité.",
-    finalCta: 'Donner maintenant',
+    finalTitle: 'La générosité est plus qu’une transaction.',
+    finalBody: "C'est un engagement à marcher avec les enfants, familles, écoles et communautés afin que l'éducation reste possible là où elle est le plus menacée.",
+    finalPrimaryCta: 'Soutenir un enfant',
+    finalSecondaryCta: 'Demander une aide',
   },
 } satisfies Record<Locale, LandingCopy>;
