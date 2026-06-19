@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import { apiForgotPassword } from '../../lib/api';
 import { cn } from '../../components/ui/cn';
@@ -7,19 +7,24 @@ import { Locale } from '../../lib/i18n';
 import { Seo } from '../../components/seo/Seo';
 import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
+import { buildAuthPath } from '../../lib/auth';
 import classroomImage from '../../assets/landing/classroom-support.png';
 import kidsImage from '../../assets/landing/kids_studying_tree.webp';
 
 interface ForgotPasswordPageProps {
   locale: Locale;
+  redirectTo?: string | null;
 }
 
-export function ForgotPasswordPage({ locale }: ForgotPasswordPageProps) {
+export function ForgotPasswordPage({ locale, redirectTo }: ForgotPasswordPageProps) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [searchParams] = useSearchParams();
   const copy = forgotPasswordCopy[locale];
+  const redirectTarget = redirectTo ?? searchParams.get('redirectTo');
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -38,7 +43,8 @@ export function ForgotPasswordPage({ locale }: ForgotPasswordPageProps) {
     setError('');
 
     try {
-      await apiForgotPassword(email);
+      const response = await apiForgotPassword(email);
+      setSuccessMessage(response.message);
       setIsSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : copy.failed);
@@ -76,11 +82,12 @@ export function ForgotPasswordPage({ locale }: ForgotPasswordPageProps) {
                     <Mail className="h-6 w-6 text-foundation-600" aria-hidden="true" />
                   </div>
                   <h2 className="text-2xl font-bold text-ink-900">{copy.successTitle}</h2>
+                  <p className="mt-2 text-sm text-ink-500">{successMessage}</p>
                   <p className="mt-2 text-sm text-ink-500">
-                    {copy.successMessage} <span className="font-medium text-ink-900">{email}</span>
+                    <span className="font-medium text-ink-900">{email}</span>
                   </p>
                   <Link
-                    to={`/${locale}/login`}
+                    to={buildAuthPath(locale, 'login', redirectTarget)}
                     className="focus-ring mt-8 flex w-full justify-center rounded-md bg-foundation-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-foundation-900"
                   >
                     {copy.successAction}
@@ -122,13 +129,18 @@ export function ForgotPasswordPage({ locale }: ForgotPasswordPageProps) {
                           <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                           {copy.sending}
                         </span>
-                      ) : copy.submit}
+                      ) : (
+                        copy.submit
+                      )}
                     </button>
                   </form>
 
                   <div className="mt-8 border-t border-ink-100 pt-6 text-center">
-                    <Link to={`/${locale}/login`} className="text-sm font-medium text-foundation-600 hover:text-foundation-900">
-                      ← {copy.backToLogin}
+                    <Link
+                      to={buildAuthPath(locale, 'login', redirectTarget)}
+                      className="text-sm font-medium text-foundation-600 hover:text-foundation-900"
+                    >
+                      {'←'} {copy.backToLogin}
                     </Link>
                   </div>
                 </>

@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
+import { createBrowserRouter, Navigate, useLocation, useParams } from 'react-router-dom';
 import { AppShell } from './shell/AppShell';
 import { PublicPage } from '../features/public/PublicPage';
 import { StaffDashboardPage } from '../features/staff/StaffDashboardPage';
@@ -10,6 +10,7 @@ import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '../features/auth/ResetPasswordPage';
+import { isAuthenticated, resolvePostAuthPath } from '../lib/auth';
 import { isLocale } from '../lib/i18n';
 
 export const router = createBrowserRouter([
@@ -50,25 +51,56 @@ export const router = createBrowserRouter([
 
 function LoginPageWrapper() {
   const { locale = 'en' } = useParams();
+  const location = useLocation();
   const activeLocale = isLocale(locale) ? locale : 'en';
-  return <LoginPage locale={activeLocale} />;
+  const redirectTo = new URLSearchParams(location.search).get('redirectTo');
+
+  if (isAuthenticated()) {
+    return <Navigate to={resolvePostAuthPath(activeLocale, redirectTo)} replace />;
+  }
+
+  return <LoginPage locale={activeLocale} redirectTo={redirectTo} />;
 }
 
 function RegisterPageWrapper() {
   const { locale = 'en' } = useParams();
+  const location = useLocation();
   const activeLocale = isLocale(locale) ? locale : 'en';
-  return <RegisterPage locale={activeLocale} />;
+  const redirectTo = new URLSearchParams(location.search).get('redirectTo');
+
+  if (isAuthenticated()) {
+    return <Navigate to={resolvePostAuthPath(activeLocale, redirectTo)} replace />;
+  }
+
+  return <RegisterPage locale={activeLocale} redirectTo={redirectTo} />;
 }
 
 function ForgotPasswordPageWrapper() {
   const { locale = 'en' } = useParams();
+  const location = useLocation();
   const activeLocale = isLocale(locale) ? locale : 'en';
-  return <ForgotPasswordPage locale={activeLocale} />;
+  const redirectTo = new URLSearchParams(location.search).get('redirectTo');
+
+  if (isAuthenticated()) {
+    return <Navigate to={resolvePostAuthPath(activeLocale, redirectTo)} replace />;
+  }
+
+  return <ForgotPasswordPage locale={activeLocale} redirectTo={redirectTo} />;
 }
 
 function ResetPasswordPageWrapper() {
   const { locale = 'en' } = useParams();
+  const location = useLocation();
   const activeLocale = isLocale(locale) ? locale : 'en';
-  return <ResetPasswordPage locale={activeLocale} />;
+  const redirectTo = new URLSearchParams(location.search).get('redirectTo');
+  const token = new URLSearchParams(location.search).get('token');
+  const email = new URLSearchParams(location.search).get('email');
+  const hasResetContext = Boolean(token && email);
+
+  if (isAuthenticated() && !hasResetContext) {
+    return <Navigate to={resolvePostAuthPath(activeLocale, redirectTo)} replace />;
+  }
+
+  return <ResetPasswordPage locale={activeLocale} redirectTo={redirectTo} />;
 }
 

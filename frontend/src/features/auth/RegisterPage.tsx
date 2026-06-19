@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserRound } from 'lucide-react';
 import { cn } from '../../components/ui/cn';
 import { Locale } from '../../lib/i18n';
@@ -9,14 +9,16 @@ import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { PasswordField } from '../../components/ui/PasswordField';
 import { GoogleAuthButton, SocialAuthButton } from '../../components/ui/GoogleAuthButton';
+import { buildAuthPath, resolvePostAuthPath } from '../../lib/auth';
 import communityImage from '../../assets/landing/education_aid_project.jpg';
 import ruralImage from '../../assets/landing/rural-home-cameroon.jpg';
 
 interface RegisterPageProps {
   locale: Locale;
+  redirectTo?: string | null;
 }
 
-export function RegisterPage({ locale }: RegisterPageProps) {
+export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -26,7 +28,9 @@ export function RegisterPage({ locale }: RegisterPageProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const copy = registerCopy[locale];
+  const redirectTarget = redirectTo ?? searchParams.get('redirectTo');
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -54,7 +58,7 @@ export function RegisterPage({ locale }: RegisterPageProps) {
       localStorage.setItem('triumphchi.user', JSON.stringify(response.user));
       localStorage.setItem('auth_token', response.token.access_token);
 
-      navigate(`/${locale}/staff`);
+      navigate(resolvePostAuthPath(locale, redirectTarget), { replace: true });
     } catch (error) {
       setErrors({ submit: error instanceof Error ? error.message : copy.registrationFailed });
     } finally {
@@ -99,10 +103,16 @@ export function RegisterPage({ locale }: RegisterPageProps) {
                 <p className="mt-2 text-sm text-ink-500">{copy.subtitle}</p>
               </div>
 
-              <GoogleAuthButton onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/google/redirect`}>
+              <GoogleAuthButton
+                onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/google/redirect`)}
+              >
                 {copy.continueWithGoogle}
               </GoogleAuthButton>
-              <SocialAuthButton provider="facebook" className="mt-3" onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/facebook/redirect`}>
+              <SocialAuthButton
+                provider="facebook"
+                className="mt-3"
+                onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/facebook/redirect`)}
+              >
                 {copy.continueWithFacebook}
               </SocialAuthButton>
 
@@ -183,14 +193,19 @@ export function RegisterPage({ locale }: RegisterPageProps) {
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink-400 border-t-transparent" />
                       {copy.creating}
                     </span>
-                  ) : copy.createAccount}
+                  ) : (
+                    copy.createAccount
+                  )}
                 </button>
               </form>
 
               <div className="mt-8 border-t border-ink-100 pt-6 text-center">
                 <p className="text-sm text-ink-500">
                   {copy.haveAccount}{' '}
-                  <Link to={`/${locale}/login`} className="font-semibold text-foundation-600 hover:text-foundation-900">
+                  <Link
+                    to={buildAuthPath(locale, 'login', redirectTarget)}
+                    className="font-semibold text-foundation-600 hover:text-foundation-900"
+                  >
                     {copy.signIn}
                   </Link>
                 </p>
@@ -198,7 +213,7 @@ export function RegisterPage({ locale }: RegisterPageProps) {
 
               <div className="mt-6 text-center">
                 <Link to={`/${locale}`} className="text-sm text-ink-400 hover:text-ink-600">
-                  ← {copy.backHome}
+                  {'←'} {copy.backHome}
                 </Link>
               </div>
             </div>
@@ -307,7 +322,7 @@ const registerCopy = {
     orContinueWith: 'Ou continuer avec votre email',
     backHome: "Retour à l'accueil",
     creating: 'Création du compte...',
-    support: 'Besoin d’aide ? Contactez support@triumphchi.org',
+    support: "Besoin d’aide ? Contactez support@triumphchi.org",
     passwordHelp: 'Doit contenir au moins 8 caractères.',
     registrationFailed: 'La création du compte a échoué. Veuillez réessayer.',
     nameRequired: 'Nom complet requis',

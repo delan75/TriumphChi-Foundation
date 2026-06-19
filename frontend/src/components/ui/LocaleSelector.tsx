@@ -156,7 +156,7 @@ export function LocaleSelector({ locale, currentPath, theme = 'light' }: LocaleS
                 isDark ? "bg-white/20 text-white" : "bg-foundation-600 text-white"
               )}>FR</div>
               <div className="flex flex-col">
-                <span className={cn("text-sm font-black uppercase", isDark ? "text-white" : "text-ink-900")}>FranÃ§ais</span>
+                <span className={cn("text-sm font-black uppercase", isDark ? "text-white" : "text-ink-900")}>Français</span>
                 <span className={cn("text-xs font-normal", isDark ? "text-white/70" : "text-ink-500")}>French</span>
               </div>
             </div>
