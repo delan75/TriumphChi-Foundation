@@ -579,8 +579,8 @@ interface LandingCopy {
 
 const landingCopy = {
   en: {
-    eyebrow: 'TriumphChi Foundation',
-    heading: 'Giving from a covenant, not from leftovers.',
+    eyebrow: 'Giving from a covenant, not from leftovers.',
+    heading: 'TriumphChi Foundation',
     lead: 'In rural Cameroon, many children are only one school fee, one uniform, or one exam registration away from leaving school. We exist to help them stay, learn, and move forward with dignity.',
     primaryCta: 'Support a child',
     secondaryCta: 'Apply for assistance',
@@ -688,8 +688,8 @@ const landingCopy = {
     finalSecondaryCta: 'Apply for assistance',
   },
   fr: {
-    eyebrow: 'Fondation TriumphChi',
-    heading: 'Donner par alliance, pas avec les restes.',
+    eyebrow: 'Donner par alliance, pas avec les restes.',
+    heading: 'Fondation TriumphChi',
     lead: "Dans le Cameroun rural, beaucoup d'enfants ne sont qu'à un frais scolaire, un uniforme ou une inscription à l'examen de quitter l'école. Nous existons pour les aider à rester, apprendre et avancer avec dignité.",
     primaryCta: 'Soutenir un enfant',
     secondaryCta: 'Demander une aide',
