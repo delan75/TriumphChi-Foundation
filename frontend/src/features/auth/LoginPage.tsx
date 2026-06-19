@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { cn } from '../../components/ui/cn';
 import { Locale } from '../../lib/i18n';
 import { Seo } from '../../components/seo/Seo';
@@ -8,20 +8,24 @@ import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { PasswordField } from '../../components/ui/PasswordField';
 import { GoogleAuthButton, SocialAuthButton } from '../../components/ui/GoogleAuthButton';
+import { buildAuthPath, resolvePostAuthPath } from '../../lib/auth';
 import classroomImage from '../../assets/landing/classroom-support.png';
 import kidsImage from '../../assets/landing/kids_studying_tree.webp';
 
 interface LoginPageProps {
   locale: Locale;
+  redirectTo?: string | null;
 }
 
-export function LoginPage({ locale }: LoginPageProps) {
+export function LoginPage({ locale, redirectTo }: LoginPageProps) {
   const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const copy = loginCopy[locale];
+  const redirectTarget = redirectTo ?? searchParams.get('redirectTo');
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -42,7 +46,7 @@ export function LoginPage({ locale }: LoginPageProps) {
       localStorage.setItem('triumphchi.user', JSON.stringify(response.user));
       localStorage.setItem('auth_token', response.token.access_token);
 
-      navigate(`/${locale}/staff`);
+      navigate(resolvePostAuthPath(locale, redirectTarget), { replace: true });
     } catch (error) {
       setErrors({ submit: error instanceof Error ? error.message : copy.invalidLogin });
     } finally {
@@ -87,10 +91,16 @@ export function LoginPage({ locale }: LoginPageProps) {
                 <p className="mt-2 text-sm text-ink-500">{copy.subtitle}</p>
               </div>
 
-              <GoogleAuthButton onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/google/redirect`}>
+              <GoogleAuthButton
+                onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/google/redirect`)}
+              >
                 {copy.continueWithGoogle}
               </GoogleAuthButton>
-              <SocialAuthButton provider="facebook" className="mt-3" onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/facebook/redirect`}>
+              <SocialAuthButton
+                provider="facebook"
+                className="mt-3"
+                onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/facebook/redirect`)}
+              >
                 {copy.continueWithFacebook}
               </SocialAuthButton>
 
@@ -140,7 +150,10 @@ export function LoginPage({ locale }: LoginPageProps) {
                     <span className="ml-2">{copy.rememberMe}</span>
                   </label>
 
-                  <Link to={`/${locale}/forgot-password`} className="text-sm font-medium text-foundation-600 hover:text-foundation-900">
+                  <Link
+                    to={buildAuthPath(locale, 'forgot-password', redirectTarget)}
+                    className="text-sm font-medium text-foundation-600 hover:text-foundation-900"
+                  >
                     {copy.forgotPassword}
                   </Link>
                 </div>
@@ -164,14 +177,19 @@ export function LoginPage({ locale }: LoginPageProps) {
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink-400 border-t-transparent" />
                       {copy.signingIn}
                     </span>
-                  ) : copy.signIn}
+                  ) : (
+                    copy.signIn
+                  )}
                 </button>
               </form>
 
               <div className="mt-8 border-t border-ink-100 pt-6 text-center">
                 <p className="text-sm text-ink-500">
                   {copy.noAccount}{' '}
-                  <Link to={`/${locale}/register`} className="font-semibold text-foundation-600 hover:text-foundation-900">
+                  <Link
+                    to={buildAuthPath(locale, 'register', redirectTarget)}
+                    className="font-semibold text-foundation-600 hover:text-foundation-900"
+                  >
                     {copy.createAccount}
                   </Link>
                 </p>
@@ -179,7 +197,7 @@ export function LoginPage({ locale }: LoginPageProps) {
 
               <div className="mt-6 text-center">
                 <Link to={`/${locale}`} className="text-sm text-ink-400 hover:text-ink-600">
-                  ← {copy.backHome}
+                  {'←'} {copy.backHome}
                 </Link>
               </div>
             </div>
@@ -263,7 +281,7 @@ const loginCopy = {
     orContinueWith: 'Ou continuer avec votre email',
     backHome: "Retour à l'accueil",
     signingIn: 'Connexion...',
-    support: 'Besoin d’aide ? Contactez support@triumphchi.org',
+    support: "Besoin d’aide ? Contactez support@triumphchi.org",
     invalidLogin: 'Email ou mot de passe invalide. Veuillez réessayer.',
     emailRequired: 'Adresse email requise',
     emailInvalid: 'Veuillez entrer une adresse email valide',
