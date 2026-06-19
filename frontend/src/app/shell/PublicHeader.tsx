@@ -5,6 +5,7 @@ import { cn } from '../../components/ui/cn';
 import { publicNavigation, publicPages } from '../../content/publicPages';
 import { Locale, t } from '../../lib/i18n';
 import { LocaleSelector } from '../../components/ui/LocaleSelector';
+import { buildAuthPath, isAuthenticated } from '../../lib/auth';
 
 interface PublicHeaderProps {
   locale: Locale;
@@ -14,9 +15,10 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const donatePath = `/${locale}${publicPages.find((page) => page.key === 'donate')?.path[locale] ?? '/donate'}`;
-  const isAuthenticated = readPublicAuthState();
-  const accountPath = isAuthenticated ? `/${locale}/staff` : `/${locale}/login`;
-  const accountLabel = t(locale, isAuthenticated ? 'account' : 'login');
+  const authState = isAuthenticated() || readPublicAuthState();
+  const requestedPath = `${location.pathname}${location.search}`;
+  const accountPath = authState ? `/${locale}/staff` : buildAuthPath(locale, 'login', requestedPath);
+  const accountLabel = t(locale, authState ? 'account' : 'login');
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/20 bg-white/[0.92] shadow-sm backdrop-blur-xl">
@@ -57,7 +59,7 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
             to={accountPath}
             className={cn(
               'focus-ring inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md border px-3 text-sm font-bold transition duration-200',
-              isAuthenticated
+              authState
                 ? 'border-foundation-600 bg-foundation-600 text-white hover:bg-foundation-900'
                 : 'border-ink-100 bg-white text-foundation-700 hover:border-foundation-100 hover:bg-foundation-50 hover:text-foundation-900',
             )}
@@ -98,7 +100,7 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
             onClick={() => setIsOpen(false)}
             className={cn(
               'focus-ring flex min-h-12 items-center gap-3 rounded-md border px-3 text-base font-bold transition',
-              isAuthenticated
+              authState
                 ? 'border-foundation-600 bg-foundation-600 text-white hover:bg-foundation-900'
                 : 'border-foundation-100 bg-white text-foundation-900 hover:bg-foundation-50',
             )}

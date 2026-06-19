@@ -7,14 +7,16 @@ import { Locale } from '../../lib/i18n';
 import { Seo } from '../../components/seo/Seo';
 import { AuthLayout } from '../../components/auth/AuthLayout';
 import { PasswordField } from '../../components/ui/PasswordField';
+import { buildAuthPath } from '../../lib/auth';
 import classroomImage from '../../assets/landing/classroom-support.png';
 import kidsImage from '../../assets/landing/kids_studying_tree.webp';
 
 interface ResetPasswordPageProps {
   locale: Locale;
+  redirectTo?: string | null;
 }
 
-export function ResetPasswordPage({ locale }: ResetPasswordPageProps) {
+export function ResetPasswordPage({ locale, redirectTo }: ResetPasswordPageProps) {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const email = searchParams.get('email');
@@ -22,8 +24,10 @@ export function ResetPasswordPage({ locale }: ResetPasswordPageProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
   const copy = resetPasswordCopy[locale];
+  const redirectTarget = redirectTo ?? searchParams.get('redirectTo');
 
   useEffect(() => {
     if (!token || !email) {
@@ -48,7 +52,8 @@ export function ResetPasswordPage({ locale }: ResetPasswordPageProps) {
     setIsLoading(true);
 
     try {
-      await apiResetPassword(token, email, formData.password, formData.confirmPassword);
+      const response = await apiResetPassword(token, email, formData.password, formData.confirmPassword);
+      setSuccessMessage(response.message);
       setIsSuccess(true);
     } catch (error) {
       setErrors({ submit: error instanceof Error ? error.message : copy.failed });
@@ -95,10 +100,10 @@ export function ResetPasswordPage({ locale }: ResetPasswordPageProps) {
                     <CheckCircle2 className="h-6 w-6 text-foundation-600" aria-hidden="true" />
                   </div>
                   <h2 className="text-2xl font-bold text-ink-900">{copy.successTitle}</h2>
-                  <p className="mt-2 text-sm text-ink-500">{copy.successMessage}</p>
+                  <p className="mt-2 text-sm text-ink-500">{successMessage}</p>
                   <button
                     type="button"
-                    onClick={() => navigate(`/${locale}/login`)}
+                    onClick={() => navigate(buildAuthPath(locale, 'login', redirectTarget), { replace: true })}
                     className="focus-ring mt-8 flex w-full justify-center rounded-md bg-foundation-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-foundation-900"
                   >
                     {copy.successAction}
@@ -146,7 +151,7 @@ export function ResetPasswordPage({ locale }: ResetPasswordPageProps) {
                       disabled={isLoading || !token || !email}
                       className={cn(
                         'focus-ring flex w-full justify-center rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200',
-                        (isLoading || !token || !email) ? 'cursor-not-allowed bg-foundation-400' : 'bg-foundation-600 hover:bg-foundation-900',
+                        isLoading || !token || !email ? 'cursor-not-allowed bg-foundation-400' : 'bg-foundation-600 hover:bg-foundation-900',
                       )}
                     >
                       {isLoading ? (
@@ -154,13 +159,18 @@ export function ResetPasswordPage({ locale }: ResetPasswordPageProps) {
                           <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                           {copy.resetting}
                         </span>
-                      ) : copy.submit}
+                      ) : (
+                        copy.submit
+                      )}
                     </button>
                   </form>
 
                   <div className="mt-8 border-t border-ink-100 pt-6 text-center">
-                    <Link to={`/${locale}/login`} className="text-sm font-medium text-foundation-600 hover:text-foundation-900">
-                      ← {copy.backToLogin}
+                    <Link
+                      to={buildAuthPath(locale, 'login', redirectTarget)}
+                      className="text-sm font-medium text-foundation-600 hover:text-foundation-900"
+                    >
+                      {'←'} {copy.backToLogin}
                     </Link>
                   </div>
                 </>
