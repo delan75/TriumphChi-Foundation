@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
+import { ReactNode } from 'react';
 import { Locale } from '../../lib/i18n';
 import { cn } from '../ui/cn';
 
@@ -18,6 +19,7 @@ interface PublicPageTitleProps {
   seoTitle?: string;
   seoDescription?: string;
   className?: string;
+  actions?: ReactNode;
 }
 
 export function PublicPageTitle({
@@ -28,6 +30,7 @@ export function PublicPageTitle({
   backgroundAlt,
   breadcrumbs,
   className,
+  actions,
 }: PublicPageTitleProps) {
   return (
     <section className={cn('relative isolate overflow-hidden bg-foundation-900 text-white', className)}>
@@ -72,6 +75,7 @@ export function PublicPageTitle({
           </p>
           <h1 className="text-balance text-4xl font-black leading-tight tracking-normal sm:text-5xl lg:text-6xl">{title}</h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-foundation-50">{description}</p>
+          {actions ? <div className="mt-7 flex flex-col gap-3 sm:flex-row">{actions}</div> : null}
         </div>
       </div>
     </section>

@@ -17,6 +17,7 @@ The public site uses:
 - `frontend/src/components/seo/Seo.tsx` for document metadata, canonical links, alternate language links, Open Graph tags, Twitter card tags, robots tags, and JSON-LD
 - `frontend/src/features/public/PublicPage.tsx` as the shared page renderer
 - `frontend/src/features/public/about/AboutPage.tsx` for the custom About page content structure
+- `frontend/src/features/public/sponsor/SponsorPage.tsx` for the custom Sponsor a Child page, including ethical shared sponsorship messaging and privacy-first accountability copy
 - `frontend/src/lib/seo.ts` for schema and URL helpers
 - `frontend/src/lib/i18n.ts` for supported locales and UI messages
 
@@ -52,7 +53,9 @@ Examples:
 
 The public website is mission-led. It should explain orphan education support, rural Cameroon, dignity, community partnership, and covenant-driven generosity. It should not read like a software product, platform feature list, or ecommerce donation page.
 
-The Home page has a custom landing layout. Other public pages use the shared public page title component before their page-specific content.
+The Home, About, and Sponsor a Child pages have custom public layouts. Other public pages use the shared public page title component before their page-specific content.
+
+The Sponsor a Child page should explain sponsorship as covenant-driven education support, not child ownership. It should clearly communicate that children may be supported through full sponsorship, shared sponsorship, educational needs sponsorship, and a general education fund so support can be allocated fairly across beneficiaries.
 
 ## Future Improvements
 
