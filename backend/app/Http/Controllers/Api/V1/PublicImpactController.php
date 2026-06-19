@@ -6,11 +6,13 @@ use App\Enums\BeneficiaryStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Beneficiary;
 use App\Models\School;
-use Illuminate\Http\JsonResponse;
+use App\Support\ApiResponseTrait;
 
 class PublicImpactController extends Controller
 {
-    public function __invoke(): JsonResponse
+    use ApiResponseTrait;
+
+    public function __invoke()
     {
         $childrenSupported = Beneficiary::query()->count();
         $partnerSchools = School::query()->count();
@@ -31,15 +33,15 @@ class PublicImpactController extends Controller
             ->whereIn('status', $continuingStatuses)
             ->count();
 
-        return response()->json([
-            'data' => [
-                'children_supported' => $childrenSupported,
-                'partner_schools' => $partnerSchools,
-                'regions_reached' => $regionsReached,
-                'school_continuation_rate' => $childrenSupported > 0
-                    ? (int) round(($continuingChildren / $childrenSupported) * 100)
-                    : null,
-            ],
-        ]);
+        $data = [
+            'children_supported' => $childrenSupported,
+            'partner_schools' => $partnerSchools,
+            'regions_reached' => $regionsReached,
+            'school_continuation_rate' => $childrenSupported > 0
+                ? (int) round(($continuingChildren / $childrenSupported) * 100)
+                : null,
+        ];
+
+        return $this->success($data, 'Impact summary retrieved successfully');
     }
 }
