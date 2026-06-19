@@ -278,10 +278,18 @@ export const publicPages: PublicPageDefinition[] = [
     path: { en: '/sponsor-a-child', fr: '/parrainer-un-enfant' },
     label: { en: 'Sponsor a Child', fr: 'Parrainer un enfant' },
     eyebrow: { en: 'Child sponsorship', fr: "Parrainage d'enfant" },
-    title: { en: 'Support one or more education journeys.', fr: 'Soutenir un ou plusieurs parcours scolaires.' },
+    title: { en: 'Sponsor a Child', fr: 'Parrainer un enfant' },
     description: {
-      en: 'Sponsorship supports partial and full funding models while protecting beneficiary privacy.',
-      fr: 'Le parrainage soutient des modèles partiels ou complets tout en protégeant la vie privée des bénéficiaires.',
+      en: "Help a child remain in school through education support, mentorship, and community care. Your sponsorship becomes part of a larger commitment to helping children in rural Cameroon continue learning with dignity.",
+      fr: "Aider un enfant à rester à l'école grâce au soutien scolaire, au mentorat et au soin communautaire. Votre parrainage rejoint un engagement plus large pour aider les enfants du Cameroun rural à continuer d'apprendre avec dignité.",
+    },
+    seoTitle: {
+      en: 'Sponsor a Child | Education Support in Rural Cameroon',
+      fr: 'Parrainer un enfant | Soutien scolaire au Cameroun rural',
+    },
+    seoDescription: {
+      en: 'Sponsor a child through TriumphChi Foundation and help provide school fees, learning materials, exam support, mentorship, and community care in rural Cameroon.',
+      fr: "Parrainez un enfant avec la Fondation TriumphChi et aidez à fournir frais scolaires, fournitures, soutien aux examens, mentorat et soin communautaire au Cameroun rural.",
     },
     schemaType: 'WebPage',
     sections: [],
