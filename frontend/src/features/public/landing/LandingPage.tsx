@@ -128,8 +128,8 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-16">
-          <ImagePanel image={groupClassImage} alt={copy.missionVisionImageAlt} caption={copy.missionVisionCaption} />
-          <div className="self-center">
+          <ImagePanel image={groupClassImage} alt={copy.missionVisionImageAlt} caption={copy.missionVisionCaption} className="lg:pr-8" />
+          <div className="relative z-10 self-center lg:-ml-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-white/[0.92] lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur">
             <p className="text-sm font-black uppercase text-foundation-600">{copy.missionVisionEyebrow}</p>
             <h2 className="mt-2 text-3xl font-black leading-tight text-ink-900 sm:text-4xl">{copy.missionVisionTitle}</h2>
             <div className="mt-6 inline-flex rounded-md border border-foundation-100 bg-foundation-50 p-1">
@@ -167,7 +167,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-16">
-          <div>
+          <div className="relative z-10 lg:-mr-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-white/[0.93] lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur">
             <SectionIntro eyebrow={copy.whyEyebrow} title={copy.whyTitle} body={copy.whyBody} />
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {copy.needs.map((need, index) => {
@@ -183,14 +183,14 @@ export function LandingPage({ locale, page }: LandingPageProps) {
               })}
             </div>
           </div>
-          <ImagePanel image={classroomImage} alt={copy.whyImageAlt} caption={copy.whyCaption} />
+          <ImagePanel image={classroomImage} alt={copy.whyImageAlt} caption={copy.whyCaption} className="lg:pl-8" />
         </div>
       </section>
 
       <section className="bg-foundation-50">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-16">
-          <ImagePanel image={ruralImage} alt={copy.ruralImageAlt} caption={copy.ruralCaption} />
-          <div className="self-center">
+          <ImagePanel image={ruralImage} alt={copy.ruralImageAlt} caption={copy.ruralCaption} className="lg:pr-8" />
+          <div className="relative z-10 self-center lg:-ml-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-foundation-50/[0.94] lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur">
             <SectionIntro eyebrow={copy.ruralEyebrow} title={copy.ruralTitle} body={copy.ruralBody} />
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {copy.ruralPoints.map((point, index) => {
@@ -229,8 +229,8 @@ export function LandingPage({ locale, page }: LandingPageProps) {
             </div>
           </div>
           <div className="grid gap-4">
-            <img src={outdoorClassImage} alt={copy.workImageAlt} className="min-h-64 rounded-md object-cover shadow-xl" loading="lazy" />
-            <img src={groupClassImage} alt={copy.workSecondImageAlt} className="hidden rounded-md object-cover shadow-xl sm:block" loading="lazy" />
+            <OverlayImage src={outdoorClassImage} alt={copy.workImageAlt} className="min-h-64 shadow-xl" />
+            <OverlayImage src={groupClassImage} alt={copy.workSecondImageAlt} className="hidden shadow-xl sm:block" />
           </div>
         </div>
       </section>
@@ -311,8 +311,8 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
       <section className="bg-ink-900 text-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-16">
-          <ImagePanel image={studyImage} alt={copy.storyImageAlt} caption={copy.storyCaption} dark />
-          <div className="self-center">
+          <ImagePanel image={studyImage} alt={copy.storyImageAlt} caption={copy.storyCaption} dark className="md:pr-8" />
+          <div className="relative z-10 self-center md:-ml-14 md:rounded-md md:border md:border-white/10 md:bg-ink-900/[0.86] md:p-6 md:shadow-xl md:shadow-black/20 md:backdrop-blur">
             <p className="text-sm font-black uppercase text-foundation-100">{copy.storyEyebrow}</p>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">{copy.storyTitle}</h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-ink-100">{copy.storyBody}</p>
@@ -386,12 +386,56 @@ function SectionIntro({ eyebrow, title, body, className }: { eyebrow: string; ti
   );
 }
 
-function ImagePanel({ image, alt, caption, dark = false }: { image: string; alt: string; caption: string; dark?: boolean }) {
+function ImagePanel({
+  image,
+  alt,
+  caption,
+  dark = false,
+  className,
+}: {
+  image: string;
+  alt: string;
+  caption: string;
+  dark?: boolean;
+  className?: string;
+}) {
   return (
-    <figure className={cn('overflow-hidden rounded-md border shadow-sm', dark ? 'border-white/10 bg-white/5' : 'border-ink-100 bg-white')}>
-      <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover" loading="lazy" />
+    <figure
+      className={cn(
+        'overflow-hidden rounded-md border shadow-sm',
+        dark ? 'border-white/10 bg-white/5' : 'border-ink-100 bg-white',
+        className,
+      )}
+    >
+      <div className="relative isolate overflow-hidden">
+        <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover saturate-[0.82]" loading="lazy" />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(18,55,47,0.74)_0%,rgba(18,55,47,0.46)_46%,rgba(18,55,47,0.72)_100%)] mix-blend-multiply"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_22%,rgba(255,255,255,0.18),transparent_34%),linear-gradient(90deg,rgba(18,55,47,0.2),rgba(18,55,47,0.58))]"
+          aria-hidden="true"
+        />
+      </div>
       <figcaption className={cn('px-4 py-3 text-sm leading-6', dark ? 'text-ink-100' : 'text-ink-500')}>{caption}</figcaption>
     </figure>
+  );
+}
+
+function OverlayImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  return (
+    <div className={cn('relative isolate overflow-hidden rounded-md bg-foundation-900', className)}>
+      <img src={src} alt={alt} className="h-full w-full rounded-md object-cover saturate-[0.78]" loading="lazy" />
+      <div
+        className="pointer-events-none absolute inset-0 rounded-md bg-[linear-gradient(135deg,rgba(18,55,47,0.76),rgba(18,55,47,0.42)_44%,rgba(18,55,47,0.82))] mix-blend-multiply"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute inset-0 rounded-md bg-[radial-gradient(circle_at_78%_16%,rgba(255,255,255,0.2),transparent_28%),linear-gradient(0deg,rgba(18,55,47,0.46),transparent_48%)]"
+        aria-hidden="true"
+      />
+    </div>
   );
 }
 
