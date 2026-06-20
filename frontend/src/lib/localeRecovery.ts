@@ -80,13 +80,20 @@ function getUserProfileLocale(): Locale | null {
     const userStr = localStorage.getItem(USER_STORAGE_KEY);
     if (!userStr) return null;
 
-    const user = JSON.parse(userStr);
-    if (user?.preferred_locale && isLocale(user.preferred_locale)) {
-      return user.preferred_locale;
+    const parsed: unknown = JSON.parse(userStr);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return null;
     }
 
-    if (user?.locale && isLocale(user.locale)) {
-      return user.locale;
+    const user = parsed as Record<string, unknown>;
+    const preferredLocale = user['preferred_locale'];
+    if (typeof preferredLocale === 'string' && isLocale(preferredLocale)) {
+      return preferredLocale;
+    }
+
+    const locale = user['locale'];
+    if (typeof locale === 'string' && isLocale(locale)) {
+      return locale;
     }
   } catch {
     // Silent fail
