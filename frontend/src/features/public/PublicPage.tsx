@@ -1,5 +1,5 @@
 import { ArrowRight } from 'lucide-react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { PublicPageTitle } from '../../components/public/PublicPageTitle';
 import { Seo } from '../../components/seo/Seo';
 import { isLocale } from '../../lib/i18n';
@@ -8,6 +8,7 @@ import { LandingPage } from './landing/LandingPage';
 import { AboutPage } from './about/AboutPage';
 import { SponsorPage } from './sponsor/SponsorPage';
 import { ContactPage } from './contact/ContactPage';
+import { NotFoundPage } from '../errors/NotFoundPage';
 import defaultPageHeroImage from '../../assets/landing/rural_kids.jpg';
 
 export function PublicPage() {
@@ -16,7 +17,7 @@ export function PublicPage() {
   const page = getPublicPage(activeLocale, pageSlug);
 
   if (!page) {
-    return <Navigate to={`/${activeLocale}`} replace />;
+    return <NotFoundPage locale={activeLocale} />;
   }
 
   if (page.key === 'home') {

@@ -26,6 +26,8 @@ export const messages = {
     beneficiaries: 'Beneficiaries',
     funding: 'Funding',
     reports: 'Reports',
+    notFound: 'Page Not Found',
+    goBack: 'Go Back',
   },
   fr: {
     appName: 'Fondation TriumphChi',
@@ -45,6 +47,8 @@ export const messages = {
     beneficiaries: 'Bénéficiaires',
     funding: 'Financement',
     reports: 'Rapports',
+    notFound: 'Page introuvable',
+    goBack: 'Retour',
   },
 } satisfies Record<Locale, Record<string, string>>;
 

@@ -35,6 +35,29 @@ Examples:
 - English contact page: `/en/contact`
 - French contact page: `/fr/contact`
 
+## Locale Recovery and 404 Handling
+
+Routes are locale-aware at the application boundary. If a visitor enters a known route without a locale prefix, the router resolves the best locale and redirects before rendering the page.
+
+Examples:
+
+- `/contact` redirects to `/en/contact` or `/fr/contact`
+- `/about?ref=church` preserves the query string during recovery
+- `/nonexistent-page` redirects to the resolved localized URL, then renders the shared 404 page if no localized route exists
+
+Locale recovery uses this order:
+
+1. Authenticated user preference from the stored user profile
+2. Stored application locale preference
+3. Locale cookie
+4. Session locale preference
+5. Browser language
+6. Application fallback locale
+
+Unknown routes with a valid locale prefix render the shared 404 experience instead of redirecting to the home page. The 404 page is localized, marked `noindex`, and uses contextual navigation for public visitors and authenticated users.
+
+This is currently a client-rendered Vite app. The frontend sets noindex metadata for missing pages, but a true HTTP 404 status for direct URL requests requires server, CDN, or future SSR/static-prerender handling.
+
 ## Public Page Inventory
 
 - Home
