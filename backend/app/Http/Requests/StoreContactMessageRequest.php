@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Support\FileSecurityScanner;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Validator;
 
 class StoreContactMessageRequest extends FormRequest
@@ -26,7 +27,6 @@ class StoreContactMessageRequest extends FormRequest
             'attachments.*' => [
                 'file',
                 'max:5120',
-                'mimes:pdf,txt,doc,docx,xls,xlsx,png,jpg,jpeg',
             ],
             'consent' => ['accepted'],
         ];
@@ -38,10 +38,30 @@ class StoreContactMessageRequest extends FormRequest
             $scanner = app(FileSecurityScanner::class);
 
             foreach ($this->file('attachments', []) as $index => $file) {
-                if (! $file || ! $scanner->passes($file)) {
+                if (! $file) {
                     $validator->errors()->add(
                         "attachments.{$index}",
-                        __('api.contact.unsafe_attachment'),
+                        __('api.contact.unreadable_attachment'),
+                    );
+
+                    continue;
+                }
+
+                $scan = $scanner->scan($file);
+
+                if (! $scan->passed) {
+                    Log::warning('Rejected public contact attachment.', [
+                        'original_name' => $file->getClientOriginalName(),
+                        'client_mime_type' => $file->getClientMimeType(),
+                        'detected_mime_type' => $file->getMimeType(),
+                        'extension' => $file->getClientOriginalExtension(),
+                        'size_bytes' => $file->getSize(),
+                        'reason' => $scan->reason,
+                    ]);
+
+                    $validator->errors()->add(
+                        "attachments.{$index}",
+                        __($scan->messageKey ?? 'api.contact.unsafe_attachment'),
                     );
                 }
             }
@@ -52,8 +72,8 @@ class StoreContactMessageRequest extends FormRequest
     {
         return [
             'attachments.max' => __('api.contact.too_many_attachments'),
+            'attachments.*.file' => __('api.contact.unreadable_attachment'),
             'attachments.*.max' => __('api.contact.attachment_too_large'),
-            'attachments.*.mimes' => __('api.contact.unsupported_attachment'),
             'consent.accepted' => __('api.contact.consent_required'),
         ];
     }
