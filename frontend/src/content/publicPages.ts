@@ -233,10 +233,18 @@ export const publicPages: PublicPageDefinition[] = [
     path: { en: '/contact', fr: '/contact' },
     label: { en: 'Contact', fr: 'Contact' },
     eyebrow: { en: 'Contact us', fr: 'Nous contacter' },
-    title: { en: 'Connect with the foundation team.', fr: "Contacter l'équipe de la fondation." },
+    title: { en: 'Contact TriumphChi Foundation', fr: 'Contacter la Fondation TriumphChi' },
     description: {
-      en: 'Contact workflows will support donors, schools, volunteers, corporate partners, and families seeking application guidance.',
-      fr: 'Les formulaires de contact soutiendront les donateurs, écoles, bénévoles, partenaires et familles.',
+      en: 'Reach out about sponsorship, education assistance, school coordination, volunteering, church partnerships, corporate support, or general questions about the foundation.',
+      fr: "Contactez-nous pour le parrainage, l'aide scolaire, la coordination avec les écoles, le bénévolat, les partenariats d'église, le soutien d'entreprise ou les questions générales.",
+    },
+    seoTitle: {
+      en: 'Contact TriumphChi Foundation | Education Support in Cameroon',
+      fr: 'Contacter la Fondation TriumphChi | Soutien scolaire au Cameroun',
+    },
+    seoDescription: {
+      en: 'Contact TriumphChi Foundation about sponsoring a child, requesting education support, school coordination, volunteering, partnerships, or giving toward school needs in rural Cameroon.',
+      fr: "Contactez la Fondation TriumphChi pour parrainer un enfant, demander une aide scolaire, coordonner avec une école, faire du bénévolat, créer un partenariat ou soutenir les besoins scolaires au Cameroun rural.",
     },
     schemaType: 'ContactPage',
     sections: [],
