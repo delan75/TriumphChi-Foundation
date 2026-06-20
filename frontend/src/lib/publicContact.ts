@@ -35,6 +35,11 @@ export const publicContact = {
   responseTime: Record<Locale, string>;
 };
 
+const supportText: Record<Locale, string> = {
+  en: `Need help? Contact ${publicContact.email}`,
+  fr: `Besoin d’aide ? Contactez ${publicContact.email}`,
+};
+
 export function getPublicContactSupportText(locale: Locale): string {
-  return locale === 'fr' ? `Besoin d’aide ? Contactez ${publicContact.email}` : `Need help? Contact ${publicContact.email}`;
+  return supportText[locale];
 }
