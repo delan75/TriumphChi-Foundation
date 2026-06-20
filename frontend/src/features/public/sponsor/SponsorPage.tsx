@@ -306,20 +306,21 @@ interface SponsorCopy {
   options: Array<{ title: string; body: string }>;
   communityEyebrow: string;
   communityTitle: string;
-  communityBody: string[];
+  /** Each entry represents one paragraph in the community section body copy. */
+  communityBody: readonly string[];
   communityImageAlt: string;
   communityCaption: string;
   accountabilityEyebrow: string;
   accountabilityTitle: string;
   accountabilityBody: string;
-  accountability: string[];
+  accountability: readonly string[];
   accountabilityImageAlt: string;
   accountabilityCaption: string;
   privacyNote: string;
   impactEyebrow: string;
   impactTitle: string;
   impactBody: string;
-  impact: string[];
+  impact: readonly string[];
   covenantEyebrow: string;
   covenantTitle: string;
   covenantBody: string;
