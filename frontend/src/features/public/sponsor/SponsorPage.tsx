@@ -135,7 +135,7 @@ export function SponsorPage({ locale, page }: SponsorPageProps) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {copy.options.map((item, index) => {
-              const Icon = optionIcons[index];
+              const Icon = optionIcons[index] ?? BookOpen;
 
               return <InfoCard key={item.title} icon={Icon} title={item.title} body={item.body} />;
             })}
