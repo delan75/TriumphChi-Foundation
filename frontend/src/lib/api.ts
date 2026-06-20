@@ -1,3 +1,5 @@
+import { resolveLocale } from './localeRecovery';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1';
 
 export interface TokenResponse {
@@ -14,6 +16,40 @@ export interface AuthUser {
   preferred_locale: string;
   status?: string;
   email_verified_at?: string | null;
+  roles?: string[];
+  permissions?: string[];
+}
+
+export interface GlobalSearchResult {
+  id: string;
+  reference?: string | null;
+  title: string;
+  subtitle?: string | null;
+  status?: string | null;
+  status_label?: string | null;
+  resource: string;
+  resource_label: string;
+  module: string;
+  module_path: string;
+}
+
+export interface GlobalSearchGroup {
+  key: string;
+  label: string;
+  count: number;
+  module: string;
+  module_path: string;
+}
+
+export interface GlobalSearchResponse {
+  query: string;
+  results: GlobalSearchResult[];
+  groups: GlobalSearchGroup[];
+  meta: {
+    returned: number;
+    group_count: number;
+    limit: number;
+  };
 }
 
 export interface AuthResponse {
@@ -192,6 +228,15 @@ export async function apiGetCurrentUser(): Promise<AuthUser> {
   return apiGet('/auth/me');
 }
 
+export async function apiGlobalSearch(query: string, limit = 8): Promise<GlobalSearchResponse> {
+  const params = new URLSearchParams({
+    q: query,
+    limit: String(limit),
+  });
+
+  return apiGet(`/global-search?${params.toString()}`);
+}
+
 export async function apiForgotPassword(email: string): Promise<{ message: string }> {
   const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
     method: 'POST',
@@ -295,6 +340,13 @@ function buildHeaders(extraHeaders: Record<string, string> = {}, includeToken = 
     ...extraHeaders,
   };
 
+  const locale = readRequestLocale();
+
+  if (locale) {
+    headers['Accept-Language'] = locale;
+    headers['X-Locale'] = locale;
+  }
+
   const token = includeToken ? readAuthToken() : null;
 
   if (token) {
@@ -311,6 +363,18 @@ function readAuthToken(): string | null {
 
   try {
     return window.localStorage.getItem('auth_token');
+  } catch {
+    return null;
+  }
+}
+
+function readRequestLocale(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    return resolveLocale(window.location.pathname).locale;
   } catch {
     return null;
   }

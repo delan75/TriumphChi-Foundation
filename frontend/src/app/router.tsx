@@ -15,7 +15,7 @@ import { OAuthCallbackPage } from '../features/auth/OAuthCallbackPage';
 import { VerifyAccountPage } from '../features/auth/VerifyAccountPage';
 import { NotFoundPage } from '../features/errors/NotFoundPage';
 import { LocaleRecoveryWrapper } from '../features/errors/LocaleRecoveryWrapper';
-import { isAuthenticated, resolvePostAuthPath } from '../lib/auth';
+import { buildAuthPath, isAuthenticated, resolvePostAuthPath } from '../lib/auth';
 import { isLocale } from '../lib/i18n';
 import { buildLocalizedPath, resolveLocale, storeLocalePreference } from '../lib/localeRecovery';
 
@@ -32,11 +32,17 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           { index: true, element: <PublicPage /> },
-          { path: 'staff', element: <StaffDashboardPage /> },
-          { path: 'staff/applications', element: <ApplicationsPage /> },
-          { path: 'staff/beneficiaries', element: <BeneficiariesPage /> },
-          { path: 'staff/funding', element: <FundingPage /> },
-          { path: 'staff/reports', element: <ReportsPage /> },
+          {
+            path: 'staff',
+            element: <ProtectedStaffOutlet />,
+            children: [
+              { index: true, element: <StaffDashboardPage /> },
+              { path: 'applications', element: <ApplicationsPage /> },
+              { path: 'beneficiaries', element: <BeneficiariesPage /> },
+              { path: 'funding', element: <FundingPage /> },
+              { path: 'reports', element: <ReportsPage /> },
+            ],
+          },
           { path: ':pageSlug', element: <PublicPage /> },
           { path: '*', element: <NotFoundPageWrapper /> },
         ],
@@ -116,6 +122,20 @@ function LoginPageWrapper() {
   }
 
   return <LoginPage locale={activeLocale} redirectTo={redirectTo} />;
+}
+
+function ProtectedStaffOutlet() {
+  const { locale = 'en' } = useParams();
+  const activeLocale = isLocale(locale) ? locale : 'en';
+  const location = useLocation();
+
+  if (!isAuthenticated()) {
+    const requestedPath = `${location.pathname}${location.search}${location.hash}`;
+
+    return <Navigate to={buildAuthPath(activeLocale, 'login', requestedPath)} replace />;
+  }
+
+  return <Outlet />;
 }
 
 function RegisterPageWrapper() {

@@ -38,6 +38,23 @@ return [
         'consent_required' => 'Please confirm that we may respond to your message.',
     ],
 
+    'search' => [
+        'retrieved' => 'Search results retrieved successfully.',
+        'fallbacks' => [
+            'donation' => 'Donation record',
+        ],
+        'groups' => [
+            'applications' => 'Applications',
+            'beneficiaries' => 'Beneficiaries',
+            'schools' => 'Schools',
+            'donors' => 'Donors',
+            'donations' => 'Donations',
+            'funds' => 'Funds',
+            'payments' => 'Payments',
+            'sponsorships' => 'Sponsorships',
+        ],
+    ],
+
     'errors' => [
         'allocation_currency_mismatch' => 'The allocation currency must match the donation currency.',
         'allocation_fund_mismatch' => 'The allocation fund must match the donation fund.',

@@ -1,5 +1,5 @@
 import { Locale } from './i18n';
-import type { AuthResponse } from './api';
+import type { AuthResponse, AuthUser } from './api';
 
 const AUTH_TOKEN_KEYS = ['auth_token', 'token'] as const;
 const AUTH_EXPIRES_AT_KEY = 'auth_token_expires_at';
@@ -61,6 +61,30 @@ export function clearAuthSession(): void {
   window.localStorage.removeItem('auth_token');
   window.localStorage.removeItem('token');
   window.localStorage.removeItem(AUTH_EXPIRES_AT_KEY);
+}
+
+export function readStoredAuthUser(): AuthUser | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const payload = window.localStorage.getItem('triumphchi.user');
+
+    if (!payload) {
+      return null;
+    }
+
+    const parsed = JSON.parse(payload) as AuthUser | null;
+
+    if (!parsed || typeof parsed !== 'object') {
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 export function buildAuthPath(locale: Locale, page: 'login' | 'register' | 'forgot-password' | 'reset-password' | 'verify-account', redirectTo?: string | null): string {

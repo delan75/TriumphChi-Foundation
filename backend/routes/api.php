@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\DonationController;
 use App\Http\Controllers\Api\V1\DonorController;
 use App\Http\Controllers\Api\V1\EducationalNeedController;
 use App\Http\Controllers\Api\V1\FundController;
+use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\ImpactUpdateController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\PublicImpactController;
@@ -101,6 +102,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
     Route::middleware(['auth:sanctum', 'account.active', SetLocale::class])->group(function () {
+        Route::get('global-search', GlobalSearchController::class)
+            ->name('global-search');
+
         Route::apiResource('applications', ApplicationController::class)
             ->middlewareFor(['index', 'show'], 'can:applications.view')
             ->middlewareFor('store', 'can:applications.create')
