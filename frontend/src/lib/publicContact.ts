@@ -12,8 +12,23 @@ interface PublicContact {
 }
 
 const normalizePhoneTel = (value: string): string => {
-  const digitsOnly = value.replace(/\D/g, '');
-  if (!digitsOnly) return '';
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+
+  const hasLeadingPlus = trimmed.startsWith('+');
+  const digitsOnly = trimmed.replace(/\D/g, '');
+
+  // Basic E.164-style guardrails: international numbers are up to 15 digits.
+  if (digitsOnly.length < 8 || digitsOnly.length > 15) return '';
+
+  if (hasLeadingPlus) {
+    return `+${digitsOnly}`;
+  }
+
+  // If no '+' was provided, only accept already international-looking digits.
+  // Reject likely local/trunk-prefixed values (for example, leading zero).
+  if (digitsOnly.startsWith('0')) return '';
+
   return `+${digitsOnly}`;
 };
 
@@ -42,5 +57,5 @@ const supportText: Record<Locale, string> = {
 };
 
 export function getPublicContactSupportText(locale: Locale): string {
-  return supportText[locale];
+  return supportText[locale] ?? supportText.en;
 }
