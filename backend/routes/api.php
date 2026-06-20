@@ -45,8 +45,18 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->middleware('throttle:5,1')
             ->name('password.reset');
 
+        Route::get('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
+            ->middleware(['signed', 'throttle:6,1'])
+            ->name('email.verify');
+
+        Route::post('oauth/exchange', [AuthController::class, 'exchangeOAuthCode'])
+            ->middleware('throttle:10,1')
+            ->name('oauth.exchange');
+
         Route::middleware('auth:sanctum')->group(function () {
-            Route::get('me', [AuthController::class, 'me'])->name('me');
+            Route::get('me', [AuthController::class, 'me'])
+                ->middleware('account.active')
+                ->name('me');
             Route::post('logout', [AuthController::class, 'logout'])->name('logout');
             Route::post('logout-all', [AuthController::class, 'logoutAll'])->name('logout-all');
         });
@@ -69,7 +79,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->name('facebook.callback');
 
         // ── Provider management (authenticated) ───────────────────────────────
-        Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::get('social/providers', [SocialiteController::class, 'listProviders'])
                 ->name('social.providers');
             Route::delete('social/{provider}', [SocialiteController::class, 'unlinkProvider'])
@@ -78,7 +88,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         });
     });
 
-    Route::middleware(['auth:sanctum', SetLocale::class])->group(function () {
+    Route::middleware(['auth:sanctum', 'account.active', SetLocale::class])->group(function () {
         Route::apiResource('applications', ApplicationController::class)
             ->middlewareFor(['index', 'show'], 'can:applications.view')
             ->middlewareFor('store', 'can:applications.create')

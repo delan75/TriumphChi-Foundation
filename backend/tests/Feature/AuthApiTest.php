@@ -2,10 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\OAuthLoginCode;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\User as SocialiteUser;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -15,38 +19,69 @@ class AuthApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_user_can_register_and_receive_token_without_elevated_permissions(): void
+    public function test_user_can_register_pending_account_without_token_or_elevated_permissions(): void
     {
+        Notification::fake();
+
         $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'New API User',
             'email' => 'new-api-user@example.org',
+            'phone' => '+237600000000',
             'password' => 'secure-password',
             'password_confirmation' => 'secure-password',
             'preferred_locale' => 'fr',
             'device_name' => 'Postman',
         ])->assertCreated()
-            ->assertJsonPath('message', 'Registration successful.')
-            ->assertJsonPath('token.token_type', 'Bearer')
+            ->assertJsonPath('message', 'Registration successful. Please verify your email address before signing in.')
+            ->assertJsonPath('token', null)
             ->assertJsonPath('user.email', 'new-api-user@example.org')
+            ->assertJsonPath('user.phone', '+237600000000')
             ->assertJsonPath('user.preferred_locale', 'fr')
+            ->assertJsonPath('user.status', User::STATUS_PENDING)
             ->assertJsonPath('user.roles', [])
             ->assertJsonPath('user.permissions', []);
 
-        $this->assertNotEmpty($response->json('token.access_token'));
         $this->assertDatabaseHas('users', [
             'email' => 'new-api-user@example.org',
             'preferred_locale' => 'fr',
             'registered_via' => 'local',
+            'status' => User::STATUS_PENDING,
+            'email_verified_at' => null,
         ]);
         $this->assertDatabaseHas('user_auth_providers', [
             'user_id' => $response->json('user.id'),
             'provider' => 'local',
         ]);
-        $this->assertDatabaseCount('personal_access_tokens', 1);
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $response->json('user.id'),
+            'action' => 'registered',
+        ]);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+        Notification::assertSentTo(User::firstWhere('email', 'new-api-user@example.org'), VerifyEmail::class);
+    }
 
-        $this->withToken($response->json('token.access_token'))
-            ->getJson('/api/v1/beneficiaries')
-            ->assertForbidden();
+    public function test_pending_user_cannot_login_until_email_is_verified(): void
+    {
+        $user = User::create([
+            'name' => 'Pending User',
+            'email' => 'pending-user@example.org',
+            'password' => 'secret-password',
+            'preferred_locale' => 'en',
+            'status' => User::STATUS_PENDING,
+        ]);
+
+        $this->postJson('/api/v1/auth/login', [
+            'email' => $user->email,
+            'password' => 'secret-password',
+            'device_name' => 'API Client',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('email')
+            ->assertSee('verify your email');
+
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $user->id,
+            'action' => 'failed_login',
+        ]);
     }
 
     public function test_register_rejects_duplicate_email_addresses(): void
@@ -56,6 +91,8 @@ class AuthApiTest extends TestCase
             'email' => 'existing-user@example.org',
             'password' => 'secure-password',
             'preferred_locale' => 'en',
+            'status' => User::STATUS_ACTIVE,
+            'email_verified_at' => now(),
         ]);
 
         $this->postJson('/api/v1/auth/register', [
@@ -68,7 +105,7 @@ class AuthApiTest extends TestCase
             ->assertJsonValidationErrors('email');
     }
 
-    public function test_role_permission_seeder_creates_super_admin_with_all_permissions(): void
+    public function test_role_permission_seeder_creates_verified_super_admin_with_all_permissions(): void
     {
         $this->seed(RolePermissionSeeder::class);
 
@@ -78,6 +115,8 @@ class AuthApiTest extends TestCase
         $this->assertTrue($admin->can('beneficiaries.delete'));
         $this->assertTrue($admin->can('permissions.manage'));
         $this->assertTrue($admin->can('future.permission.added.later'));
+        $this->assertTrue($admin->isActive());
+        $this->assertNotNull($admin->email_verified_at);
         $this->assertDatabaseHas('user_auth_providers', [
             'user_id' => $admin->id,
             'provider' => 'local',
@@ -95,6 +134,8 @@ class AuthApiTest extends TestCase
         ])->assertOk()
             ->assertJsonPath('user.roles.0', 'super_administrator')
             ->assertJsonPath('user.permissions.0', 'allocations.create')
+            ->assertJsonPath('token.token_type', 'Bearer')
+            ->assertJsonStructure(['token' => ['access_token', 'expires_at']])
             ->json('token.access_token');
 
         $this->withToken($token)
@@ -102,11 +143,11 @@ class AuthApiTest extends TestCase
             ->assertOk();
     }
 
-    public function test_user_can_login_and_receive_permission_context(): void
+    public function test_user_can_login_receive_permission_context_and_rotate_same_device_token(): void
     {
         $user = $this->createUserWithPermissions();
 
-        $response = $this->postJson('/api/v1/auth/login', [
+        $firstResponse = $this->postJson('/api/v1/auth/login', [
             'email' => $user->email,
             'password' => 'secret-password',
             'device_name' => 'Thunder Client',
@@ -114,11 +155,22 @@ class AuthApiTest extends TestCase
             ->assertJsonPath('token.token_type', 'Bearer')
             ->assertJsonPath('user.email', $user->email)
             ->assertJsonPath('user.roles.0', 'ngo_staff')
-            ->assertJsonPath('user.permissions.0', 'beneficiaries.view');
+            ->assertJsonPath('user.permissions.0', 'beneficiaries.view')
+            ->assertJsonStructure(['token' => ['access_token', 'expires_at']]);
 
-        $this->assertNotEmpty($response->json('token.access_token'));
+        $this->assertNotEmpty($firstResponse->json('token.access_token'));
         $this->assertDatabaseCount('personal_access_tokens', 1);
         $this->assertNotNull($user->fresh()->last_login_at);
+
+        $secondToken = $this->postJson('/api/v1/auth/login', [
+            'email' => $user->email,
+            'password' => 'secret-password',
+            'device_name' => 'Thunder Client',
+        ])->assertOk()
+            ->json('token.access_token');
+
+        $this->assertNotSame($firstResponse->json('token.access_token'), $secondToken);
+        $this->assertDatabaseCount('personal_access_tokens', 1);
         $this->assertDatabaseHas('user_auth_providers', [
             'user_id' => $user->id,
             'provider' => 'local',
@@ -132,6 +184,8 @@ class AuthApiTest extends TestCase
             'email' => 'invalid-login@example.org',
             'password' => 'secret-password',
             'preferred_locale' => 'fr',
+            'status' => User::STATUS_ACTIVE,
+            'email_verified_at' => now(),
         ]);
 
         $this->withHeader('Accept-Language', 'fr')
@@ -151,6 +205,8 @@ class AuthApiTest extends TestCase
             'email' => 'plain-client@example.org',
             'password' => 'secret-password',
             'preferred_locale' => 'en',
+            'status' => User::STATUS_ACTIVE,
+            'email_verified_at' => now(),
         ]);
 
         $this->post('/api/v1/auth/login', [
@@ -195,6 +251,29 @@ class AuthApiTest extends TestCase
             ->assertOk();
     }
 
+    public function test_suspended_account_is_rejected_from_protected_routes(): void
+    {
+        $user = $this->createUserWithPermissions();
+        $token = $this->loginToken($user);
+
+        $user->forceFill(['status' => User::STATUS_SUSPENDED])->save();
+
+        $this->withToken($token)
+            ->getJson('/api/v1/auth/me')
+            ->assertForbidden()
+            ->assertJsonPath('message', 'This account is not active. Please contact support if you believe this is a mistake.');
+    }
+
+    public function test_expired_token_is_rejected(): void
+    {
+        $user = $this->createUserWithPermissions();
+        $expiredToken = $user->createToken('expired-client', ['*'], now()->subMinute())->plainTextToken;
+
+        $this->withToken($expiredToken)
+            ->getJson('/api/v1/auth/me')
+            ->assertUnauthorized();
+    }
+
     public function test_logout_revokes_current_token(): void
     {
         $user = $this->createUserWithPermissions();
@@ -206,6 +285,10 @@ class AuthApiTest extends TestCase
             ->assertJsonPath('message', 'Current access token revoked.');
 
         $this->assertDatabaseCount('personal_access_tokens', 0);
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $user->id,
+            'action' => 'logout',
+        ]);
 
         auth()->forgetGuards();
 
@@ -228,6 +311,10 @@ class AuthApiTest extends TestCase
             ->assertJsonPath('message', 'All access tokens revoked.');
 
         $this->assertDatabaseCount('personal_access_tokens', 0);
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $user->id,
+            'action' => 'logout_all_devices',
+        ]);
 
         auth()->forgetGuards();
 
@@ -278,13 +365,13 @@ class AuthApiTest extends TestCase
             ->assertRedirect('https://www.facebook.com/v23.0/dialog/oauth');
     }
 
-    public function test_facebook_callback_can_create_user_and_provider(): void
+    public function test_facebook_callback_creates_oauth_code_without_exposing_sanctum_token(): void
     {
         $provider = \Mockery::mock();
         $provider->shouldReceive('stateless')->once()->andReturnSelf();
         $provider->shouldReceive('user')
             ->once()
-            ->andReturn(\Laravel\Socialite\Two\User::fake([
+            ->andReturn(SocialiteUser::fake([
                 'id' => 'facebook-user-123',
                 'name' => 'Facebook User',
                 'email' => 'facebook-user@example.org',
@@ -300,20 +387,57 @@ class AuthApiTest extends TestCase
         $response = $this->get('/api/v1/auth/facebook/callback');
 
         $response->assertRedirect();
-        $this->assertStringStartsWith(
-            'http://localhost:5173/en/complete-profile?token=',
-            $response->headers->get('Location')
-        );
+        $location = $response->headers->get('Location');
+        $this->assertStringStartsWith('http://localhost:5173/en/oauth/callback?code=', $location);
+        $this->assertStringNotContainsString('token=', $location);
         $this->assertDatabaseHas('users', [
             'email' => 'facebook-user@example.org',
             'registered_via' => 'facebook',
+            'status' => User::STATUS_ACTIVE,
         ]);
         $this->assertDatabaseHas('user_auth_providers', [
             'provider' => 'facebook',
             'provider_user_id' => 'facebook-user-123',
             'provider_email' => 'facebook-user@example.org',
         ]);
+        $this->assertDatabaseCount('oauth_login_codes', 1);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    public function test_oauth_code_can_be_exchanged_once_for_expiring_access_token(): void
+    {
+        $user = User::create([
+            'name' => 'OAuth User',
+            'email' => 'oauth-user@example.org',
+            'preferred_locale' => 'en',
+            'status' => User::STATUS_ACTIVE,
+            'registered_via' => 'facebook',
+            'email_verified_at' => now(),
+        ]);
+
+        $code = app(\App\Services\OAuthLoginCodeService::class)->create(
+            $user,
+            'facebook',
+            request(),
+        );
+
+        $response = $this->postJson('/api/v1/auth/oauth/exchange', [
+            'code' => $code,
+            'device_name' => 'Web Client',
+        ])->assertOk()
+            ->assertJsonPath('token.token_type', 'Bearer')
+            ->assertJsonPath('user.email', $user->email)
+            ->assertJsonStructure(['token' => ['access_token', 'expires_at']]);
+
+        $this->assertNotEmpty($response->json('token.access_token'));
         $this->assertDatabaseCount('personal_access_tokens', 1);
+        $this->assertNotNull(OAuthLoginCode::first()->consumed_at);
+
+        $this->postJson('/api/v1/auth/oauth/exchange', [
+            'code' => $code,
+            'device_name' => 'Web Client',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('code');
     }
 
     public function test_provider_listing_and_unlinking_preserve_one_sign_in_method(): void
@@ -352,6 +476,8 @@ class AuthApiTest extends TestCase
             'email' => fake()->unique()->safeEmail(),
             'password' => 'secret-password',
             'preferred_locale' => 'en',
+            'status' => User::STATUS_ACTIVE,
+            'email_verified_at' => now(),
         ]);
 
         $user->assignRole($role);

@@ -9,7 +9,7 @@ import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { PasswordField } from '../../components/ui/PasswordField';
 import { GoogleAuthButton, SocialAuthButton } from '../../components/ui/GoogleAuthButton';
-import { buildAuthPath, resolvePostAuthPath } from '../../lib/auth';
+import { buildAuthPath, resolvePostAuthPath, sanitizeRedirectTo, storeAuthSession } from '../../lib/auth';
 import { getPublicContactSupportText } from '../../lib/publicContact';
 import communityImage from '../../assets/landing/education_aid_project.jpg';
 import ruralImage from '../../assets/landing/rural-home-cameroon.jpg';
@@ -27,6 +27,7 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
     confirmPassword: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -55,9 +56,17 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
         'web-client',
       );
 
-      localStorage.setItem('triumphchi.authenticated', 'true');
-      localStorage.setItem('triumphchi.user', JSON.stringify(response.user));
-      localStorage.setItem('auth_token', response.token.access_token);
+      if (!storeAuthSession(response)) {
+        setSuccessMessage(response.message ?? copy.verifyEmailNotice);
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+        });
+
+        return;
+      }
 
       navigate(resolvePostAuthPath(locale, redirectTarget), { replace: true });
     } catch (error) {
@@ -74,6 +83,22 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
     if (errors[name]) {
       setErrors((current) => ({ ...current, [name]: '' }));
     }
+
+    if (successMessage) {
+      setSuccessMessage(null);
+    }
+  };
+
+  const beginSocialAuth = (provider: 'google' | 'facebook') => {
+    const sanitizedRedirect = sanitizeRedirectTo(redirectTarget);
+
+    if (sanitizedRedirect) {
+      window.localStorage.setItem('triumphchi.oauth.redirectTo', sanitizedRedirect);
+    } else {
+      window.localStorage.removeItem('triumphchi.oauth.redirectTo');
+    }
+
+    window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/${provider}/redirect`;
   };
 
   return (
@@ -104,15 +129,21 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
                 <p className="mt-2 text-sm text-ink-500">{copy.subtitle}</p>
               </div>
 
+              {successMessage && (
+                <div className="mb-6 rounded-md border border-foundation-200 bg-foundation-50 p-3">
+                  <p className="text-sm text-foundation-900">{successMessage}</p>
+                </div>
+              )}
+
               <GoogleAuthButton
-                onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/google/redirect`)}
+                onClick={() => beginSocialAuth('google')}
               >
                 {copy.continueWithGoogle}
               </GoogleAuthButton>
               <SocialAuthButton
                 provider="facebook"
                 className="mt-3"
-                onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/facebook/redirect`)}
+                onClick={() => beginSocialAuth('facebook')}
               >
                 {copy.continueWithFacebook}
               </SocialAuthButton>
@@ -296,6 +327,7 @@ const registerCopy = {
     creating: 'Creating account...',
     passwordHelp: 'Must be at least 8 characters.',
     registrationFailed: 'Registration failed. Please try again.',
+    verifyEmailNotice: 'Account created. Please verify your email before signing in.',
     nameRequired: 'Full name is required',
     nameMinLength: 'Name must be at least 2 characters',
     emailRequired: 'Email address is required',
@@ -324,6 +356,7 @@ const registerCopy = {
     creating: 'Création du compte...',
     passwordHelp: 'Doit contenir au moins 8 caractères.',
     registrationFailed: 'La création du compte a échoué. Veuillez réessayer.',
+    verifyEmailNotice: 'Compte cree. Veuillez verifier votre email avant de vous connecter.',
     nameRequired: 'Nom complet requis',
     nameMinLength: 'Le nom doit comporter au moins 2 caractères',
     emailRequired: 'Adresse email requise',

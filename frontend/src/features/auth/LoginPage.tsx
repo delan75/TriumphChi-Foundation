@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { cn } from '../../components/ui/cn';
 import { Locale } from '../../lib/i18n';
@@ -8,7 +8,7 @@ import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { PasswordField } from '../../components/ui/PasswordField';
 import { GoogleAuthButton, SocialAuthButton } from '../../components/ui/GoogleAuthButton';
-import { buildAuthPath, resolvePostAuthPath } from '../../lib/auth';
+import { buildAuthPath, resolvePostAuthPath, sanitizeRedirectTo, storeAuthSession } from '../../lib/auth';
 import { getPublicContactSupportText } from '../../lib/publicContact';
 import classroomImage from '../../assets/landing/classroom-support.png';
 import kidsImage from '../../assets/landing/kids_studying_tree.webp';
@@ -22,11 +22,23 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
   const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [notice, setNotice] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const copy = loginCopy[locale];
   const redirectTarget = redirectTo ?? searchParams.get('redirectTo');
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    const verified = searchParams.get('verified');
+
+    if (verified) {
+      setNotice(copy.verifiedNotice);
+    } else if (error) {
+      setNotice(oauthErrorMessage(error, copy));
+    }
+  }, [copy, searchParams]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -43,9 +55,9 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
     try {
       const response = await apiLogin(formData.email, formData.password);
 
-      localStorage.setItem('triumphchi.authenticated', 'true');
-      localStorage.setItem('triumphchi.user', JSON.stringify(response.user));
-      localStorage.setItem('auth_token', response.token.access_token);
+      if (!storeAuthSession(response)) {
+        throw new Error(copy.invalidLogin);
+      }
 
       navigate(resolvePostAuthPath(locale, redirectTarget), { replace: true });
     } catch (error) {
@@ -62,6 +74,22 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
     if (errors[name]) {
       setErrors((current) => ({ ...current, [name]: '' }));
     }
+
+    if (notice) {
+      setNotice(null);
+    }
+  };
+
+  const beginSocialAuth = (provider: 'google' | 'facebook') => {
+    const sanitizedRedirect = sanitizeRedirectTo(redirectTarget);
+
+    if (sanitizedRedirect) {
+      window.localStorage.setItem('triumphchi.oauth.redirectTo', sanitizedRedirect);
+    } else {
+      window.localStorage.removeItem('triumphchi.oauth.redirectTo');
+    }
+
+    window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/${provider}/redirect`;
   };
 
   return (
@@ -92,15 +120,21 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
                 <p className="mt-2 text-sm text-ink-500">{copy.subtitle}</p>
               </div>
 
+              {notice && (
+                <div className="mb-6 rounded-md border border-foundation-200 bg-foundation-50 p-3">
+                  <p className="text-sm text-foundation-900">{notice}</p>
+                </div>
+              )}
+
               <GoogleAuthButton
-                onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/google/redirect`)}
+                onClick={() => beginSocialAuth('google')}
               >
                 {copy.continueWithGoogle}
               </GoogleAuthButton>
               <SocialAuthButton
                 provider="facebook"
                 className="mt-3"
-                onClick={() => (window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/auth/facebook/redirect`)}
+                onClick={() => beginSocialAuth('facebook')}
               >
                 {copy.continueWithFacebook}
               </SocialAuthButton>
@@ -213,6 +247,10 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
   );
 }
 
+function oauthErrorMessage(error: string, copy: typeof loginCopy.en): string {
+  return copy.oauthErrors[error as keyof typeof copy.oauthErrors] ?? copy.oauthErrors.oauth_failed;
+}
+
 function validateLogin(formData: { email: string; password: string }, copy: typeof loginCopy.en) {
   const errors: Record<string, string> = {};
 
@@ -261,6 +299,14 @@ const loginCopy = {
     backHome: 'Back to home',
     signingIn: 'Signing in...',
     invalidLogin: 'Invalid email or password. Please try again.',
+    verifiedNotice: 'Your email has been verified. You can now sign in.',
+    oauthErrors: {
+      oauth_failed: 'Social sign-in could not be completed. Please try again.',
+      email_required: 'Your social account did not share an email address.',
+      email_not_verified: 'Please verify your social account email before signing in.',
+      account_inactive: 'This account is not active. Please contact support.',
+      server_error: 'We could not complete sign-in. Please try again shortly.',
+    },
     emailRequired: 'Email address is required',
     emailInvalid: 'Please enter a valid email address',
     passwordRequired: 'Password is required',
@@ -282,6 +328,14 @@ const loginCopy = {
     backHome: "Retour à l'accueil",
     signingIn: 'Connexion...',
     invalidLogin: 'Email ou mot de passe invalide. Veuillez réessayer.',
+    verifiedNotice: 'Votre email a ete verifie. Vous pouvez maintenant vous connecter.',
+    oauthErrors: {
+      oauth_failed: 'La connexion sociale n a pas pu aboutir. Veuillez reessayer.',
+      email_required: 'Votre compte social n a pas partage d adresse email.',
+      email_not_verified: 'Veuillez verifier l email de votre compte social avant de vous connecter.',
+      account_inactive: 'Ce compte n est pas actif. Veuillez contacter le support.',
+      server_error: 'Connexion impossible pour le moment. Veuillez reessayer.',
+    },
     emailRequired: 'Adresse email requise',
     emailInvalid: 'Veuillez entrer une adresse email valide',
     passwordRequired: 'Mot de passe requis',

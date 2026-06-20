@@ -13,7 +13,10 @@ class AuthUserResource extends JsonResource
             'id'               => $this->id,
             'name'             => $this->name,
             'email'            => $this->email,
+            'phone'            => $this->phone,
             'preferred_locale' => $this->preferred_locale,
+            'status'           => $this->status,
+            'email_verified_at' => $this->email_verified_at?->toISOString(),
             'registered_via'   => $this->registered_via,
             'last_login_at'    => $this->last_login_at?->toISOString(),
             // Which providers this user can sign in with

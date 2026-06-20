@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserAuthProvider;
+use App\Services\AuthAuditLogger;
+use App\Services\OAuthLoginCodeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,6 +19,12 @@ use Throwable;
 class SocialiteController extends Controller
 {
     private const SUPPORTED_PROVIDERS = ['google', 'facebook'];
+
+    public function __construct(
+        private readonly AuthAuditLogger $auditLogger,
+        private readonly OAuthLoginCodeService $oauthLoginCodes,
+    ) {
+    }
 
     public function redirectToGoogle(): RedirectResponse
     {
@@ -71,14 +79,23 @@ class SocialiteController extends Controller
 
         try {
             [$user, $isNew] = DB::transaction(
-                fn () => $this->findOrCreateUserFromProvider($provider, $socialUser)
+                fn () => $this->findOrCreateUserFromProvider($request, $provider, $socialUser)
             );
 
-            $token = $user->createToken("{$provider}-oauth")->plainTextToken;
-            $redirectPath = $isNew ? '/complete-profile' : '/dashboard';
-            $locale = $user->preferred_locale ?? 'en';
+            if (! $user->isActive()) {
+                $this->auditLogger->log($user, 'oauth_login_denied', $request, metadata: [
+                    'provider' => $provider,
+                    'status' => $user->status,
+                ]);
 
-            return redirect("{$frontendUrl}/{$locale}{$redirectPath}?token=" . urlencode($token));
+                return redirect("{$frontendUrl}/login?error=account_inactive");
+            }
+
+            $code = $this->oauthLoginCodes->create($user, $provider, $request);
+            $locale = $user->preferred_locale ?? 'en';
+            $newUserFlag = $isNew ? '&new=1' : '';
+
+            return redirect("{$frontendUrl}/{$locale}/oauth/callback?code=" . urlencode($code) . $newUserFlag);
         } catch (Throwable $exception) {
             Log::error('OAuth user resolution failed.', [
                 'provider' => $provider,
@@ -92,7 +109,7 @@ class SocialiteController extends Controller
     /**
      * @return array{0: User, 1: bool}
      */
-    private function findOrCreateUserFromProvider(string $provider, SocialiteUser $socialUser): array
+    private function findOrCreateUserFromProvider(Request $request, string $provider, SocialiteUser $socialUser): array
     {
         $providerUserId = $socialUser->getId();
         $providerEmail = $socialUser->getEmail();
@@ -111,7 +128,6 @@ class SocialiteController extends Controller
                 'last_used_at' => now(),
                 'provider_avatar' => $providerAvatar,
             ]);
-            $user->touchLastLogin();
 
             return [$user, false];
         }
@@ -121,6 +137,27 @@ class SocialiteController extends Controller
             ->first();
 
         if ($existingUser) {
+            if (! $existingUser->isActive() && ! $existingUser->isPending()) {
+                return [$existingUser, false];
+            }
+
+            $linkedProvider = $existingUser->authProviders()
+                ->where('provider', $provider)
+                ->first();
+
+            if ($linkedProvider) {
+                if (! hash_equals((string) $linkedProvider->provider_user_id, (string) $providerUserId)) {
+                    throw new \RuntimeException('OAuth provider conflict for existing account.');
+                }
+
+                $linkedProvider->update([
+                    'last_used_at' => now(),
+                    'provider_avatar' => $providerAvatar,
+                ]);
+
+                return [$existingUser, false];
+            }
+
             $existingUser->authProviders()->create([
                 'provider' => $provider,
                 'provider_user_id' => $providerUserId,
@@ -129,7 +166,18 @@ class SocialiteController extends Controller
                 'linked_at' => now(),
                 'last_used_at' => now(),
             ]);
-            $existingUser->touchLastLogin();
+
+            if (! $existingUser->hasVerifiedEmail()) {
+                $existingUser->forceFill(['email_verified_at' => now()])->save();
+            }
+
+            if ($existingUser->isPending()) {
+                $existingUser->activate();
+            }
+
+            $this->auditLogger->log($existingUser, 'oauth_provider_linked', $request, metadata: [
+                'provider' => $provider,
+            ]);
 
             return [$existingUser, false];
         }
@@ -139,7 +187,9 @@ class SocialiteController extends Controller
             'email' => $providerEmail,
             'password' => null,
             'preferred_locale' => app()->getLocale(),
+            'status' => User::STATUS_ACTIVE,
             'registered_via' => $provider,
+            'email_verified_at' => now(),
         ]);
 
         $newUser->authProviders()->create([
@@ -150,7 +200,10 @@ class SocialiteController extends Controller
             'linked_at' => now(),
             'last_used_at' => now(),
         ]);
-        $newUser->touchLastLogin();
+
+        $this->auditLogger->log($newUser, 'oauth_registered', $request, metadata: [
+            'provider' => $provider,
+        ]);
 
         return [$newUser, true];
     }
@@ -178,6 +231,9 @@ class SocialiteController extends Controller
         }
 
         $authProvider->delete();
+        $this->auditLogger->log($user, 'oauth_provider_removed', $request, metadata: [
+            'provider' => $provider,
+        ]);
 
         return $this->success(null, ucfirst($provider) . ' account disconnected successfully.');
     }
