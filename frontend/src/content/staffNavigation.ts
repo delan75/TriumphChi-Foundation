@@ -1,0 +1,59 @@
+import type { LucideIcon } from 'lucide-react';
+import { BarChart3, ClipboardCheck, HandCoins, Settings2, ShieldCheck, UserRound, UsersRound } from 'lucide-react';
+
+export interface StaffNavigationItem {
+  key: 'dashboard' | 'applications' | 'beneficiaries' | 'funding' | 'reports' | 'profile' | 'settings';
+  icon: LucideIcon;
+  path: string;
+  permission?: string;
+  group: 'overview' | 'operations' | 'account';
+}
+
+export const staffNavigation: StaffNavigationItem[] = [
+  {
+    key: 'dashboard',
+    icon: BarChart3,
+    path: '/staff',
+    group: 'overview',
+  },
+  {
+    key: 'applications',
+    icon: ClipboardCheck,
+    path: '/staff/applications',
+    permission: 'applications.view',
+    group: 'operations',
+  },
+  {
+    key: 'beneficiaries',
+    icon: UsersRound,
+    path: '/staff/beneficiaries',
+    permission: 'beneficiaries.view',
+    group: 'operations',
+  },
+  {
+    key: 'funding',
+    icon: HandCoins,
+    path: '/staff/funding',
+    permission: 'funds.view',
+    group: 'operations',
+  },
+  {
+    key: 'reports',
+    icon: ShieldCheck,
+    path: '/staff/reports',
+    permission: 'impact_updates.view',
+    group: 'operations',
+  },
+  {
+    key: 'profile',
+    icon: UserRound,
+    path: '/staff/profile',
+    group: 'account',
+  },
+  {
+    key: 'settings',
+    icon: Settings2,
+    path: '/staff/settings',
+    group: 'account',
+  },
+];
