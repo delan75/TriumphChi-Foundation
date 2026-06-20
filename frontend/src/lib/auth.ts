@@ -49,10 +49,24 @@ export function sanitizeRedirectTo(redirectTo?: string | null): string | null {
     return null;
   }
 
-  if (/^https?:\/\//i.test(redirectTo)) {
+  const trimmed = redirectTo.trim();
+  if (!trimmed) {
     return null;
   }
 
-  const normalized = redirectTo.startsWith('/') ? redirectTo : `/${redirectTo}`;
-  return normalized.replace(/\/{2,}/g, '/');
+  if (/^https?:\/\//i.test(trimmed)) {
+    return null;
+  }
+
+  // Reject scheme-relative and backslash-based external/network-path redirects.
+  if (/^(\/\/|\\\\)/.test(trimmed)) {
+    return null;
+  }
+
+  const normalized = (trimmed.startsWith('/') ? trimmed : `/${trimmed}`).replace(/\/{2,}/g, '/');
+  if (!normalized.startsWith('/') || normalized.startsWith('//')) {
+    return null;
+  }
+
+  return normalized;
 }
