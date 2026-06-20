@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\AuthAuditLogger;
 use App\Services\AuthTokenService;
 use App\Services\OAuthLoginCodeService;
+use App\Services\VerificationOtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -22,6 +23,7 @@ class AuthController extends Controller
         private readonly AuthAuditLogger $auditLogger,
         private readonly AuthTokenService $tokenService,
         private readonly OAuthLoginCodeService $oauthLoginCodes,
+        private readonly VerificationOtpService $verificationOtps,
     ) {
     }
 
@@ -54,6 +56,7 @@ class AuthController extends Controller
         });
 
         $user->sendEmailVerificationNotification();
+        $this->verificationOtps->send($user, 'email', $request);
 
         return response()->json([
             'message' => __('api.auth.registered_verify_email'),
@@ -201,5 +204,53 @@ class AuthController extends Controller
         $locale = $user->preferred_locale ?? 'en';
 
         return redirect("{$frontendUrl}/{$locale}/login?verified=1");
+    }
+
+    public function resendVerificationOtp(Request $request)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+            'channel' => ['nullable', 'string', 'in:email,sms,whatsapp'],
+        ]);
+
+        $user = User::query()
+            ->where('email', $data['email'])
+            ->first();
+
+        if (! $user || $user->hasVerifiedEmail()) {
+            return $this->success(null, __('api.auth.otp_sent'));
+        }
+
+        $channel = $data['channel'] ?? 'email';
+        $this->verificationOtps->send($user, $channel, $request);
+
+        return $this->success([
+            'channel' => $this->verificationOtps->normalizeChannel($channel),
+            'expires_in_minutes' => (int) config('auth_security.verification_otp_expiration_minutes', 10),
+        ], __('api.auth.otp_sent'));
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+            'code' => ['required', 'digits:6'],
+            'device_name' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $user = $this->verificationOtps->verify($data['email'], $data['code'], $request);
+
+        $token = $this->tokenService->issueForLogin(
+            $user,
+            $data['device_name'] ?? 'api-client',
+            $request,
+            'verification_otp_login',
+        );
+
+        return response()->json([
+            'message' => __('api.auth.email_verified'),
+            'token' => $token,
+            'user' => AuthUserResource::make($user),
+        ]);
     }
 }

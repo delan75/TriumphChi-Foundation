@@ -71,6 +71,7 @@ export async function apiLogin(email: string, password: string, deviceName?: str
 export async function apiRegister(
   name: string,
   email: string,
+  phone: string | undefined,
   password: string,
   passwordConfirmation: string,
   preferredLocale?: string,
@@ -83,6 +84,7 @@ export async function apiRegister(
     body: JSON.stringify({
       name,
       email,
+      phone: phone || undefined,
       password,
       password_confirmation: passwordConfirmation,
       preferred_locale: preferredLocale || 'en',
@@ -91,6 +93,44 @@ export async function apiRegister(
   });
 
   return parseJsonResponse<AuthResponse>(response, `Registration failed with ${response.status}`);
+}
+
+export async function apiResendVerificationOtp(
+  email: string,
+  channel: 'email' | 'sms' | 'whatsapp' = 'email',
+): Promise<{ message: string; data?: { channel: string; expires_in_minutes: number } }> {
+  const response = await fetch(`${API_BASE_URL}/auth/email/otp/resend`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }, false),
+    credentials: 'omit',
+    body: JSON.stringify({ email, channel }),
+  });
+
+  const data = await parseJsonEnvelope(response, 'Failed to send verification code.');
+
+  return {
+    message: String(data.message ?? 'Verification code sent.'),
+    data: data.data as { channel: string; expires_in_minutes: number } | undefined,
+  };
+}
+
+export async function apiVerifyEmailOtp(
+  email: string,
+  code: string,
+  deviceName?: string,
+): Promise<AuthResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/email/otp/verify`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }, false),
+    credentials: 'omit',
+    body: JSON.stringify({
+      email,
+      code,
+      device_name: deviceName || 'web-client',
+    }),
+  });
+
+  return parseJsonResponse<AuthResponse>(response, 'Failed to verify account.');
 }
 
 export async function apiExchangeOAuthCode(code: string, deviceName?: string): Promise<AuthResponse> {
