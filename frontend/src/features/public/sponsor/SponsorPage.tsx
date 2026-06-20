@@ -109,7 +109,7 @@ export function SponsorPage({ locale, page }: SponsorPageProps) {
           </div>
           <div className="mt-8 grid gap-3 md:grid-cols-4">
             {copy.process.map((step, index) => {
-              const Icon = stepIcons[index];
+              const Icon = stepIcons[index] ?? CheckCircle2;
 
               return (
                 <article key={step.title} className="rounded-md border border-white/10 bg-white/5 p-5 transition duration-200 hover:-translate-y-1 hover:bg-white/10">
