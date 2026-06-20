@@ -113,11 +113,9 @@ export function sanitizeRedirectTo(redirectTo?: string | null): string | null {
     }
 
     try {
-      // Absolute URL with a scheme (http:, https:, etc.) should be rejected.
-      const parsed = new URL(candidate);
-      if (parsed.protocol) {
-        return null;
-      }
+      // If parsing succeeds without a base URL, it's an absolute URL; reject it.
+      new URL(candidate);
+      return null;
     } catch {
       // Relative URLs throw here; they are handled by normalization below.
     }
