@@ -622,7 +622,7 @@ const contactCopy = {
     send: 'Send message',
     sending: 'Sending...',
     successTitle: 'Thank you for reaching out.',
-    successBody: 'Thank you for sharing your message. The foundation team will respond as soon as possible.',
+    successBody: 'Thanks for reaching out your message. We will be touch as soon as possible.',
     validation: {
       name: 'Please enter your name.',
       email: 'Please enter your email address.',
@@ -713,7 +713,7 @@ const contactCopy = {
     send: 'Envoyer le message',
     sending: 'Envoi...',
     successTitle: 'Merci de nous avoir contactés.',
-    successBody: "Merci pour votre message. L'équipe de la fondation vous répondra aussi rapidement que possible.",
+    successBody: "Merci de nous avoir contactés. Nous vous répondrons dans les plus brefs délais.",
     validation: {
       name: 'Veuillez entrer votre nom.',
       email: 'Veuillez entrer votre adresse email.',
