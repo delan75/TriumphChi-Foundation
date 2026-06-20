@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   UsersRound,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { PublicPageTitle } from '../../../components/public/PublicPageTitle';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
@@ -28,16 +29,12 @@ interface SponsorPageProps {
   page: PublicPageDefinition;
 }
 
-const matterIcons = [School, BookOpen, GraduationCap, HeartHandshake];
-const stepIcons = [UsersRound, ShieldCheck, HandHeart, CheckCircle2];
-const optionIcons = [GraduationCap, UsersRound, BookOpen, HandHeart];
-const accountabilityIcons = [FileText, GraduationCap, School, BookOpen, CheckCircle2];
-const impactIcons = [School, BookOpen, GraduationCap, UsersRound, HeartHandshake, Home, CheckCircle2, HandHeart];
+const matterIcons: LucideIcon[] = [School, BookOpen, GraduationCap, HeartHandshake];
+const stepIcons: LucideIcon[] = [UsersRound, ShieldCheck, HandHeart, CheckCircle2];
+const optionIcons: LucideIcon[] = [GraduationCap, UsersRound, BookOpen, HandHeart];
+const accountabilityIcons: LucideIcon[] = [FileText, GraduationCap, School, BookOpen, CheckCircle2];
+const impactIcons: LucideIcon[] = [School, BookOpen, GraduationCap, UsersRound, HeartHandshake, Home, CheckCircle2, HandHeart];
 const fallbackIcon = School;
-
-function getIcon<T>(icons: T[], index: number): T {
-  return icons[index] ?? fallbackIcon;
-}
 
 export function SponsorPage({ locale, page }: SponsorPageProps) {
   const copy = sponsorCopy[locale];

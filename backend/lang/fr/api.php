@@ -13,6 +13,15 @@ return [
         'unsupported' => 'La langue sélectionnée n\'est pas prise en charge.',
     ],
 
+    'contact' => [
+        'received' => 'Merci de nous avoir contactés. Nous vous répondrons dans les plus brefs délais.',
+        'unsafe_attachment' => 'Le fichier joint ne peut pas être accepté. Veuillez le retirer et réessayer.',
+        'unsupported_attachment' => 'Le fichier joint ne peut pas être accepté. Veuillez le retirer et réessayer.',
+        'attachment_too_large' => 'Le fichier joint est trop volumineux. Veuillez joindre un fichier plus léger.',
+        'too_many_attachments' => 'Veuillez joindre moins de fichiers.',
+        'consent_required' => 'Veuillez confirmer que nous pouvons répondre à votre message.',
+    ],
+
     'errors' => [
         'allocation_currency_mismatch' => 'La devise de l allocation doit correspondre a celle du don.',
         'allocation_fund_mismatch' => 'Le fonds de l allocation doit correspondre au fonds du don.',
