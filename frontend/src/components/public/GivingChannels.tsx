@@ -9,7 +9,7 @@ interface GivingChannelsProps {
 const givingChannels = [
   { key: 'momo', label: 'MoMo', className: 'bg-[#ffcc00] text-[#1f2937]' },
   { key: 'paypal', label: 'PayPal', className: 'bg-[#003087] text-white' },
-  { key: 'bank', label: 'EFT', className: 'bg-foundation-700 text-white' },
+  { key: 'bank', label: 'EFT', className: 'bg-foundation-900 text-white' },
   { key: 'cards', label: 'Cards', className: 'bg-ink-900 text-white' },
 ];
 

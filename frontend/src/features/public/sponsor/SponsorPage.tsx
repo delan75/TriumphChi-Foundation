@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   UsersRound,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { PublicPageTitle } from '../../../components/public/PublicPageTitle';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
@@ -28,11 +29,16 @@ interface SponsorPageProps {
   page: PublicPageDefinition;
 }
 
-const matterIcons = [School, BookOpen, GraduationCap, HeartHandshake];
-const stepIcons = [UsersRound, ShieldCheck, HandHeart, CheckCircle2];
-const optionIcons = [GraduationCap, UsersRound, BookOpen, HandHeart];
-const accountabilityIcons = [FileText, GraduationCap, School, BookOpen, CheckCircle2];
-const impactIcons = [School, BookOpen, GraduationCap, UsersRound, HeartHandshake, Home, CheckCircle2, HandHeart];
+const matterIcons: LucideIcon[] = [School, BookOpen, GraduationCap, HeartHandshake];
+const stepIcons: LucideIcon[] = [UsersRound, ShieldCheck, HandHeart, CheckCircle2];
+const optionIcons: LucideIcon[] = [GraduationCap, UsersRound, BookOpen, HandHeart];
+const accountabilityIcons: LucideIcon[] = [FileText, GraduationCap, School, BookOpen, CheckCircle2];
+const impactIcons: LucideIcon[] = [School, BookOpen, GraduationCap, UsersRound, HeartHandshake, Home, CheckCircle2, HandHeart];
+const fallbackIcon = School;
+
+function getIcon(icons: LucideIcon[], index: number): LucideIcon {
+  return icons[index] ?? fallbackIcon;
+}
 
 export function SponsorPage({ locale, page }: SponsorPageProps) {
   const copy = sponsorCopy[locale];
@@ -92,7 +98,7 @@ export function SponsorPage({ locale, page }: SponsorPageProps) {
           <SectionIntro eyebrow={copy.mattersEyebrow} title={copy.mattersTitle} body={copy.mattersBody} />
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {copy.matters.map((item, index) => {
-              const Icon = matterIcons[index];
+              const Icon = matterIcons[index] ?? School;
 
               return <InfoCard key={item.title} icon={Icon} title={item.title} body={item.body} />;
             })}
@@ -109,7 +115,7 @@ export function SponsorPage({ locale, page }: SponsorPageProps) {
           </div>
           <div className="mt-8 grid gap-3 md:grid-cols-4">
             {copy.process.map((step, index) => {
-              const Icon = stepIcons[index];
+              const Icon = stepIcons[index] ?? CheckCircle2;
 
               return (
                 <article key={step.title} className="rounded-md border border-white/10 bg-white/5 p-5 transition duration-200 hover:-translate-y-1 hover:bg-white/10">
@@ -135,7 +141,7 @@ export function SponsorPage({ locale, page }: SponsorPageProps) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {copy.options.map((item, index) => {
-              const Icon = optionIcons[index];
+              const Icon = optionIcons[index] ?? BookOpen;
 
               return <InfoCard key={item.title} icon={Icon} title={item.title} body={item.body} />;
             })}
@@ -165,7 +171,7 @@ export function SponsorPage({ locale, page }: SponsorPageProps) {
             <SectionIntro eyebrow={copy.accountabilityEyebrow} title={copy.accountabilityTitle} body={copy.accountabilityBody} />
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {copy.accountability.map((item, index) => {
-                const Icon = accountabilityIcons[index];
+                const Icon = accountabilityIcons[index] ?? CheckCircle2;
 
                 return (
                   <div key={item} className="flex min-h-12 items-center gap-3 rounded-md border border-ink-100 bg-ink-50 px-4 py-3 text-sm font-bold text-ink-700">
@@ -306,20 +312,21 @@ interface SponsorCopy {
   options: Array<{ title: string; body: string }>;
   communityEyebrow: string;
   communityTitle: string;
-  communityBody: string[];
+  /** Each entry represents one paragraph in the community section body copy. */
+  communityBody: readonly string[];
   communityImageAlt: string;
   communityCaption: string;
   accountabilityEyebrow: string;
   accountabilityTitle: string;
   accountabilityBody: string;
-  accountability: string[];
+  accountability: readonly string[];
   accountabilityImageAlt: string;
   accountabilityCaption: string;
   privacyNote: string;
   impactEyebrow: string;
   impactTitle: string;
   impactBody: string;
-  impact: string[];
+  impact: readonly string[];
   covenantEyebrow: string;
   covenantTitle: string;
   covenantBody: string;

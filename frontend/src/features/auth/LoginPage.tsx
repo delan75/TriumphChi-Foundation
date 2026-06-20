@@ -9,6 +9,7 @@ import { InputField } from '../../components/ui/InputField';
 import { PasswordField } from '../../components/ui/PasswordField';
 import { GoogleAuthButton, SocialAuthButton } from '../../components/ui/GoogleAuthButton';
 import { buildAuthPath, resolvePostAuthPath } from '../../lib/auth';
+import { getPublicContactSupportText } from '../../lib/publicContact';
 import classroomImage from '../../assets/landing/classroom-support.png';
 import kidsImage from '../../assets/landing/kids_studying_tree.webp';
 
@@ -203,7 +204,7 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
             </div>
 
             <div className="mt-8 text-center lg:hidden">
-              <p className="text-xs text-ink-400">{copy.support}</p>
+              <p className="text-xs text-ink-400">{getPublicContactSupportText(locale)}</p>
             </div>
           </div>
         </div>
@@ -259,7 +260,6 @@ const loginCopy = {
     orContinueWith: 'Or continue with email',
     backHome: 'Back to home',
     signingIn: 'Signing in...',
-    support: 'Need help? Contact support@triumphchi.org',
     invalidLogin: 'Invalid email or password. Please try again.',
     emailRequired: 'Email address is required',
     emailInvalid: 'Please enter a valid email address',
@@ -281,7 +281,6 @@ const loginCopy = {
     orContinueWith: 'Ou continuer avec votre email',
     backHome: "Retour à l'accueil",
     signingIn: 'Connexion...',
-    support: "Besoin d’aide ? Contactez support@triumphchi.org",
     invalidLogin: 'Email ou mot de passe invalide. Veuillez réessayer.',
     emailRequired: 'Adresse email requise',
     emailInvalid: 'Veuillez entrer une adresse email valide',

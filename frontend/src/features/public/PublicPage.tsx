@@ -7,6 +7,7 @@ import { buildPublicPageSchema, getPageByKey, getPublicPage, publicPages } from 
 import { LandingPage } from './landing/LandingPage';
 import { AboutPage } from './about/AboutPage';
 import { SponsorPage } from './sponsor/SponsorPage';
+import { ContactPage } from './contact/ContactPage';
 import defaultPageHeroImage from '../../assets/landing/rural_kids.jpg';
 
 export function PublicPage() {
@@ -28,6 +29,10 @@ export function PublicPage() {
 
   if (page.key === 'sponsor') {
     return <SponsorPage locale={activeLocale} page={page} />;
+  }
+
+  if (page.key === 'contact') {
+    return <ContactPage locale={activeLocale} page={page} />;
   }
 
   const ctaPage = page.cta ? getPageByKey(page.cta.page) : undefined;
