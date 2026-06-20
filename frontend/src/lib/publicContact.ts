@@ -1,6 +1,8 @@
 import { Locale } from './i18n';
 
 const env = import.meta.env;
+const MIN_PHONE_DIGITS = 8;
+const MAX_PHONE_DIGITS = 15;
 
 interface PublicContact {
   email: string;
@@ -19,7 +21,7 @@ const normalizePhoneTel = (value: string): string => {
   const digitsOnly = trimmed.replace(/\D/g, '');
 
   // Basic E.164-style guardrails: international numbers are up to 15 digits.
-  if (digitsOnly.length < 8 || digitsOnly.length > 15) return '';
+  if (digitsOnly.length < MIN_PHONE_DIGITS || digitsOnly.length > MAX_PHONE_DIGITS) return '';
 
   if (hasLeadingPlus) {
     return `+${digitsOnly}`;
