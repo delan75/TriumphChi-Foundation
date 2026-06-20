@@ -92,8 +92,16 @@ class RolePermissionSeeder extends Seeder
                 'name' => env('SUPER_ADMIN_NAME', 'Super Administrator'),
                 'password' => $password,
                 'preferred_locale' => env('SUPER_ADMIN_LOCALE', 'en'),
+                'status' => User::STATUS_ACTIVE,
+                'registered_via' => 'local',
+                'email_verified_at' => now(),
             ],
         );
+
+        $admin->forceFill([
+            'status' => User::STATUS_ACTIVE,
+            'email_verified_at' => $admin->email_verified_at ?? now(),
+        ])->save();
 
         $admin->syncRoles(['super_administrator']);
         $admin->syncPermissions($permissions->values());

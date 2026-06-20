@@ -4,9 +4,14 @@ return [
     'auth' => [
         'failed' => 'The provided credentials are incorrect.',
         'registered' => 'Registration successful.',
+        'registered_verify_email' => 'Registration successful. Please verify your email address before signing in.',
         'logged_in' => 'Login successful.',
         'logged_out' => 'Current access token revoked.',
         'logged_out_all' => 'All access tokens revoked.',
+        'email_not_verified' => 'Please verify your email address before signing in.',
+        'email_verified' => 'Email address verified successfully.',
+        'account_inactive' => 'This account is not active. Please contact support if you believe this is a mistake.',
+        'oauth_code_invalid' => 'This sign-in session has expired. Please try signing in again.',
     ],
 
     'locale' => [

@@ -16,6 +16,7 @@ class AuditLog extends Model
         'before_values',
         'after_values',
         'ip_address',
+        'user_agent',
         'created_at',
     ];
 

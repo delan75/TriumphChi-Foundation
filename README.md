@@ -55,13 +55,15 @@ The platform supports:
 - Email/password authentication via Laravel Sanctum
 - Google OAuth via Laravel Socialite
 - Facebook OAuth via Laravel Socialite
+- Permission-based API authorization with active-account checks
 
 OAuth endpoints:
 
 - `GET /api/v1/auth/{provider}/redirect` - Initiate OAuth flow
 - `GET /api/v1/auth/{provider}/callback` - Handle OAuth callback
+- `POST /api/v1/auth/oauth/exchange` - Exchange a short-lived OAuth callback code for a Sanctum token
 
-Socialite runs in stateless mode. Users are created or retrieved by email and linked to social providers.
+Email/password registration creates a pending account until email verification. Login returns a 30-day Sanctum token with an expiry timestamp and rotates existing tokens for the same device. Socialite runs in stateless mode and never returns Sanctum tokens through browser query strings.
 
 ## Public Contact Messages
 
@@ -153,8 +155,9 @@ Machine-specific settings such as database host, port, username, and password be
 Copy `backend/.env.example` and configure:
 
 - Database connection
-- Google OAuth credentials (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URL`)
-- Facebook OAuth credentials (`FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`, `FACEBOOK_REDIRECT_URL`)
+- Google OAuth credentials (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`)
+- Facebook OAuth credentials (`FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`)
+- Mail delivery settings for email verification and password reset
 - Private upload disk (`PRIVATE_UPLOAD_DISK`)
 - Public contact details
 

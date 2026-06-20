@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Services\AuthAuditLogger;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +14,10 @@ use Illuminate\Support\Str;
 
 class PasswordResetController extends Controller
 {
+    public function __construct(private readonly AuthAuditLogger $auditLogger)
+    {
+    }
+
     /**
      * Send a password reset link to the given user.
      * Prevents email enumeration by always returning a generic success message.
@@ -22,12 +28,16 @@ class PasswordResetController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        // Attempt to send the reset link
+        $user = User::query()->where('email', $request->input('email'))->first();
+
         Password::broker()->sendResetLink(
             $request->only('email')
         );
 
-        // Always return success to prevent email enumeration
+        $this->auditLogger->log($user, 'password_reset_requested', $request, metadata: [
+            'email' => $request->input('email'),
+        ]);
+
         return $this->success(null, __('If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes.'));
     }
 
@@ -44,16 +54,19 @@ class PasswordResetController extends Controller
 
         $status = Password::broker()->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
+            function ($user, $password) use ($request) {
                 $user->forceFill([
                     'password' => Hash::make($password)
                 ])->setRememberToken(Str::random(60));
 
                 $user->save();
+                $user->tokens()->delete();
                 $user->authProviders()->firstOrCreate(
                     ['provider' => 'local'],
                     ['linked_at' => now()],
                 )->update(['last_used_at' => now()]);
+
+                $this->auditLogger->log($user, 'password_reset_completed', $request);
 
                 event(new PasswordReset($user));
             }

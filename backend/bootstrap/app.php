@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\SetLocale;
 use App\Providers\AuthServiceProvider;
 use Illuminate\Auth\Middleware\Authenticate;
@@ -33,6 +34,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             ForceJsonResponse::class,
             SetLocale::class,
+        ]);
+
+        $middleware->alias([
+            'account.active' => EnsureAccountIsActive::class,
         ]);
 
         $middleware->appendToPriorityList(Authenticate::class, SetLocale::class);
