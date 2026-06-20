@@ -4,6 +4,7 @@ import {
   ArrowRight,
   BookOpen,
   Building2,
+  Clock,
   CheckCircle2,
   GraduationCap,
   HandHeart,
@@ -23,6 +24,7 @@ import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
 import { Locale } from '../../../lib/i18n';
+import { publicContact } from '../../../lib/publicContact';
 import heroImage from '../../../assets/landing/rural-home-cameroon.jpg';
 import contactImage from '../../../assets/landing/education_aid_project.jpg';
 import communityImage from '../../../assets/landing/rural_kids.jpg';
@@ -69,6 +71,12 @@ export function ContactPage({ locale, page }: ContactPageProps) {
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormState, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const contactMethods = [
+    { icon: Mail, label: copy.contactMethodLabels.email, value: publicContact.email, href: publicContact.emailHref },
+    { icon: Phone, label: copy.contactMethodLabels.phone, value: publicContact.phoneDisplay, href: publicContact.phoneHref },
+    { icon: MapPin, label: copy.contactMethodLabels.location, value: publicContact.location[locale], href: `/${locale}${page.path[locale]}` },
+    { icon: Clock, label: copy.contactMethodLabels.responseTime, value: publicContact.responseTime[locale], href: `/${locale}${page.path[locale]}` },
+  ];
 
   const publicLinks = useMemo(
     () => [
@@ -159,8 +167,8 @@ export function ContactPage({ locale, page }: ContactPageProps) {
           <ImageStory image={contactImage} alt={copy.introImageAlt} caption={copy.introCaption} />
           <div className="self-center">
             <SectionIntro eyebrow={copy.introEyebrow} title={copy.introTitle} body={copy.introBody} />
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {copy.contactMethods.map((method) => {
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {contactMethods.map((method) => {
                 const Icon = method.icon;
 
                 return (
@@ -359,12 +367,29 @@ export function ContactPage({ locale, page }: ContactPageProps) {
         </div>
       </section>
 
+      <section className="bg-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 pb-12 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:px-8 lg:pb-16">
+          <SectionIntro eyebrow={copy.storiesEyebrow} title={copy.storiesTitle} body={copy.storiesBody} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            {copy.stories.map((story) => (
+              <div key={story} className="rounded-md border border-ink-100 bg-ink-50 p-4 text-sm leading-6 text-ink-600">
+                {story}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="bg-ink-900 text-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
           <div className="max-w-3xl">
             <p className="text-sm font-black uppercase text-foundation-100">{copy.linksEyebrow}</p>
             <h2 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">{copy.linksTitle}</h2>
-            <p className="mt-3 text-base leading-7 text-ink-100">{copy.linksBody}</p>
+            <div className="mt-3 grid max-w-3xl gap-4 text-base leading-7 text-ink-100">
+              {copy.linksBody.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
           </div>
           <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {publicLinks.map((item, index) => {
@@ -402,13 +427,9 @@ function validateContactForm(form: ContactFormState, copy: ContactCopy) {
     errors.email = copy.validation.emailInvalid;
   }
 
-  if (!form.subject.trim()) {
-    errors.subject = copy.validation.subject;
-  }
-
   if (!form.message.trim()) {
     errors.message = copy.validation.message;
-  } else if (form.message.trim().length < 20) {
+  } else if (form.message.trim().length < 10) {
     errors.message = copy.validation.messageLength;
   }
 
@@ -493,7 +514,12 @@ interface ContactCopy {
   introBody: string;
   introImageAlt: string;
   introCaption: string;
-  contactMethods: Array<{ icon: LucideIcon; label: string; value: string; href: string }>;
+  contactMethodLabels: {
+    email: string;
+    phone: string;
+    location: string;
+    responseTime: string;
+  };
   reasonsEyebrow: string;
   reasonsTitle: string;
   reasonsBody: string;
@@ -520,7 +546,6 @@ interface ContactCopy {
     name: string;
     email: string;
     emailInvalid: string;
-    subject: string;
     message: string;
     messageLength: string;
     consent: string;
@@ -529,9 +554,13 @@ interface ContactCopy {
   safeguardingBody: string;
   sideImageAlt: string;
   sideCaption: string;
+  storiesEyebrow: string;
+  storiesTitle: string;
+  storiesBody: string;
+  stories: string[];
   linksEyebrow: string;
   linksTitle: string;
-  linksBody: string;
+  linksBody: string[];
   relatedLinks: {
     sponsor: string;
     apply: string;
@@ -546,31 +575,32 @@ const contactCopy = {
     heroImageAlt: 'A rural home and community setting in Cameroon.',
     primaryCta: 'Send a Message',
     secondaryCta: 'Request Assistance',
-    introEyebrow: 'We would be glad to hear from you',
-    introTitle: 'Reach out with care, partnership, or a school support need.',
+    introEyebrow: 'Every conversation matters',
+    introTitle: 'Meaningful support often begins with a simple conversation.',
     introBody:
-      'TriumphChi Foundation welcomes messages from donors, families, schools, churches, volunteers, community leaders, and partners who want to support education for orphaned and vulnerable children in rural Cameroon.',
+      'Families seeking help, schools supporting students, churches serving their communities, donors looking to make a difference, and volunteers wanting to contribute all start in the same place, by reaching out. No matter your reason for contacting us, we would be happy to hear from you.',
     introImageAlt: 'Children receiving education support from community volunteers.',
-    introCaption: 'Contact begins with listening. The right response depends on understanding the real need with dignity.',
-    contactMethods: [
-      { icon: Mail, label: 'Email', value: 'support@triumphchi.org', href: 'mailto:support@triumphchi.org' },
-      { icon: Phone, label: 'Phone', value: '+237 000 000 000', href: 'tel:+237000000000' },
-      { icon: MapPin, label: 'Focus', value: 'Rural Cameroon', href: '/en/contact' },
-    ],
+    introCaption: 'A warm conversation can become the first step toward practical education support.',
+    contactMethodLabels: {
+      email: 'Email',
+      phone: 'Phone',
+      location: 'Location',
+      responseTime: 'Response time',
+    },
     reasonsEyebrow: 'How can we help?',
-    reasonsTitle: 'Different people reach out for different reasons.',
-    reasonsBody: 'The contact page should guide the right conversation without making visitors search through the whole site first.',
+    reasonsTitle: "We're here to listen.",
+    reasonsBody: 'Whether you want to support a child, ask for guidance, or explore a partnership, your message is welcome.',
     reasons: [
-      { title: 'Sponsor a child', body: 'Ask about helping a child remain in school through shared or direct education support.' },
-      { title: 'Request assistance', body: 'Families, guardians, schools, churches, or local leaders can ask how to begin a support request.' },
-      { title: 'School coordination', body: 'Schools can reach out about fees, documents, participation updates, and verified needs.' },
-      { title: 'Volunteer or mentor', body: 'Share your interest in walking alongside children through encouragement and practical service.' },
-      { title: 'Church or partner inquiry', body: 'Discuss community partnership, outreach, corporate giving, or program support.' },
-      { title: 'General question', body: 'Ask about the foundation, the mission, public updates, or how to get involved.' },
+      { title: "Support a Child's Education", body: 'Learn more about helping children remain in school through education support and sponsorship.' },
+      { title: 'Request Educational Assistance', body: 'Families, guardians, schools, churches, and community leaders can reach out regarding educational needs.' },
+      { title: 'School Partnerships', body: 'Schools can connect with us about students, educational support, and collaboration opportunities.' },
+      { title: 'Volunteer or Mentor', body: 'Explore opportunities to encourage, support, and walk alongside children and communities.' },
+      { title: 'Churches and Community Groups', body: 'Discuss outreach opportunities, partnerships, and ways to support education together.' },
+      { title: 'Corporate and Organizational Partnerships', body: 'Learn how your organization can contribute to educational opportunity and community impact.' },
     ],
     formEyebrow: 'Contact form',
-    formTitle: 'Tell us how we can respond.',
-    formBody: 'Share enough context for the team to understand your message. Please avoid sending sensitive child information through the public form.',
+    formTitle: 'Send us a message.',
+    formBody: 'We welcome your questions, ideas, and inquiries. Please provide enough information for us to understand how we can help or respond appropriately.',
     fields: {
       name: 'Full name',
       email: 'Email address',
@@ -578,7 +608,7 @@ const contactCopy = {
       reason: 'Reason for contact',
       subject: 'Subject',
       message: 'Message',
-      consent: 'I understand this public form should not include sensitive child information, medical details, or private documents.',
+      consent: 'I confirm that this message is genuine and that the foundation may respond using the contact details provided.',
     },
     reasonOptions: [
       { value: 'general', label: 'General question' },
@@ -588,33 +618,47 @@ const contactCopy = {
       { value: 'volunteer', label: 'Volunteer or mentor' },
       { value: 'partnership', label: 'Church, company, or partner inquiry' },
     ],
-    messageHelp: 'Minimum 20 characters. Keep private child details out of this public form.',
+    messageHelp: 'Please share enough context for us to understand how we can help.',
     send: 'Send message',
     sending: 'Sending...',
-    successTitle: 'Your message is ready for the foundation team.',
-    successBody: 'This frontend form is prepared for the contact workflow. Delivery will be connected when the backend contact endpoint is added.',
+    successTitle: 'Thank you for reaching out.',
+    successBody: 'Thank you for sharing your message. The foundation team will respond as soon as possible.',
     validation: {
       name: 'Please enter your name.',
       email: 'Please enter your email address.',
       emailInvalid: 'Please enter a valid email address.',
-      subject: 'Please add a subject.',
       message: 'Please write a message.',
-      messageLength: 'Please write at least 20 characters.',
-      consent: 'Please confirm the privacy note before sending.',
+      messageLength: 'Please write at least 10 characters.',
+      consent: 'Please confirm that we may respond to your message.',
     },
-    safeguardingTitle: 'Child privacy comes first',
+    safeguardingTitle: 'We respond with care',
     safeguardingBody:
-      'This public form is for first contact only. Sensitive beneficiary information, documents, and private updates should be handled through protected workflows after the team responds.',
+      'Every message represents a person, a family, a school, a church, or a community. We take that seriously and aim to respond with care.',
     sideImageAlt: 'Children gathered in a rural community in Cameroon.',
-    sideCaption: 'The safest first step is a respectful conversation, followed by the right protected process.',
-    linksEyebrow: 'Continue exploring',
-    linksTitle: 'Find the right next step.',
-    linksBody: 'Public pages should guide visitors naturally. These links connect common contact reasons to the right page.',
+    sideCaption: 'Every meaningful journey begins with a conversation.',
+    storiesEyebrow: 'Why people reach out',
+    storiesTitle: 'Every inquiry has a story.',
+    storiesBody: 'Some people come ready to give. Others come carrying a need, a question, or a hope for a child they know.',
+    stories: [
+      'Some people contact us because they want to support a child.',
+      'Others are looking for educational assistance.',
+      'Schools reach out on behalf of students.',
+      'Churches seek partnership opportunities.',
+      'Volunteers offer their time and encouragement.',
+      'Community leaders share local needs.',
+    ],
+    linksEyebrow: 'A shared commitment',
+    linksTitle: 'Working together for educational opportunity.',
+    linksBody: [
+      'Education is strongest when communities work together.',
+      'Families, schools, churches, volunteers, donors, and local leaders each play an important role in helping children continue learning and preparing for the future.',
+      'We believe meaningful change happens through relationships, trust, and a shared commitment to children.',
+    ],
     relatedLinks: {
       sponsor: 'Learn how sponsorship helps children stay in school.',
-      apply: 'Start with guidance for educational assistance.',
+      apply: 'Reach out about educational assistance.',
       donate: 'Give toward school needs and education support.',
-      impact: 'See how support is reported without exposing private records.',
+      impact: 'See how education support is making a difference.',
       about: 'Understand the foundation story, values, and mission.',
     },
   },
@@ -622,31 +666,32 @@ const contactCopy = {
     heroImageAlt: 'Une maison rurale et un cadre communautaire au Cameroun.',
     primaryCta: 'Envoyer un message',
     secondaryCta: 'Demander une aide',
-    introEyebrow: 'Nous serons heureux de vous lire',
-    introTitle: 'Contactez-nous pour le soutien, le partenariat ou un besoin scolaire.',
+    introEyebrow: 'Chaque conversation compte',
+    introTitle: 'Un soutien commence souvent par une simple conversation.',
     introBody:
-      "La Fondation TriumphChi accueille les messages des donateurs, familles, écoles, églises, bénévoles, leaders communautaires et partenaires qui veulent soutenir l'éducation des orphelins et enfants vulnérables au Cameroun rural.",
+      "Familles en recherche d'aide, écoles qui accompagnent leurs élèves, églises au service de leurs communautés, donateurs qui veulent faire une différence et bénévoles prêts à contribuer commencent tous au même endroit : en nous contactant. Quelle que soit votre raison, nous serons heureux de vous lire.",
     introImageAlt: 'Des enfants reçoivent un soutien éducatif avec des bénévoles communautaires.',
-    introCaption: "Le contact commence par l'écoute. La bonne réponse dépend d'une compréhension digne du vrai besoin.",
-    contactMethods: [
-      { icon: Mail, label: 'Email', value: 'support@triumphchi.org', href: 'mailto:support@triumphchi.org' },
-      { icon: Phone, label: 'Téléphone', value: '+237 000 000 000', href: 'tel:+237000000000' },
-      { icon: MapPin, label: 'Lieu de service', value: 'Cameroun rural', href: '/fr/contact' },
-    ],
+    introCaption: 'Une conversation chaleureuse peut devenir le premier pas vers un soutien scolaire concret.',
+    contactMethodLabels: {
+      email: 'Email',
+      phone: 'Téléphone',
+      location: 'Lieu',
+      responseTime: 'Délai de réponse',
+    },
     reasonsEyebrow: 'Comment pouvons-nous aider ?',
-    reasonsTitle: 'Chaque personne contacte la fondation pour une raison différente.',
-    reasonsBody: 'La page contact doit orienter la bonne conversation sans obliger les visiteurs à chercher partout dans le site.',
+    reasonsTitle: 'Nous sommes là pour écouter.',
+    reasonsBody: 'Que vous souhaitiez soutenir un enfant, demander une orientation ou explorer un partenariat, votre message est le bienvenu.',
     reasons: [
-      { title: 'Parrainer un enfant', body: "Demander comment aider un enfant à rester à l'école par un soutien scolaire partagé ou direct." },
-      { title: 'Demander une aide', body: 'Familles, tuteurs, écoles, églises ou leaders locaux peuvent demander comment commencer une demande.' },
-      { title: 'Coordination avec une école', body: 'Les écoles peuvent contacter la fondation pour les frais, documents, nouvelles de participation et besoins vérifiés.' },
-      { title: 'Bénévolat ou mentorat', body: 'Partager votre intérêt à accompagner les enfants par encouragement et service pratique.' },
-      { title: 'Église ou partenaire', body: "Discuter partenariat communautaire, action locale, soutien d'entreprise ou appui aux programmes." },
-      { title: 'Question générale', body: "Demander des informations sur la fondation, la mission, les nouvelles publiques ou comment participer." },
+      { title: "Soutenir l'éducation d'un enfant", body: "Découvrez comment aider des enfants à rester à l'école par le soutien scolaire et le parrainage." },
+      { title: 'Demander une aide scolaire', body: 'Familles, tuteurs, écoles, églises et leaders communautaires peuvent nous parler des besoins scolaires.' },
+      { title: 'Partenariats scolaires', body: 'Les écoles peuvent nous contacter concernant les élèves, le soutien scolaire et les collaborations possibles.' },
+      { title: 'Bénévolat ou mentorat', body: "Explorez des manières d'encourager, de soutenir et de marcher avec les enfants et les communautés." },
+      { title: 'Églises et groupes communautaires', body: "Échangeons sur les actions locales, les partenariats et les façons de soutenir l'éducation ensemble." },
+      { title: "Partenariats d'entreprises et d'organisations", body: "Découvrez comment votre organisation peut contribuer à l'opportunité scolaire et à l'impact communautaire." },
     ],
     formEyebrow: 'Formulaire de contact',
-    formTitle: 'Dites-nous comment répondre.',
-    formBody: "Partagez assez de contexte pour que l'équipe comprenne votre message. Veuillez éviter d'envoyer des informations sensibles sur un enfant par ce formulaire public.",
+    formTitle: 'Envoyez-nous un message.',
+    formBody: 'Nous accueillons vos questions, idées et demandes. Merci de partager assez d’informations pour que nous comprenions comment aider ou répondre correctement.',
     fields: {
       name: 'Nom complet',
       email: 'Adresse email',
@@ -654,7 +699,7 @@ const contactCopy = {
       reason: 'Raison du contact',
       subject: 'Sujet',
       message: 'Message',
-      consent: "Je comprends que ce formulaire public ne doit pas contenir d'informations sensibles sur un enfant, de détails médicaux ou de documents privés.",
+      consent: 'Je confirme que ce message est sincère et que la fondation peut me répondre avec les coordonnées fournies.',
     },
     reasonOptions: [
       { value: 'general', label: 'Question générale' },
@@ -664,33 +709,47 @@ const contactCopy = {
       { value: 'volunteer', label: 'Bénévolat ou mentorat' },
       { value: 'partnership', label: 'Église, entreprise ou partenaire' },
     ],
-    messageHelp: "Minimum 20 caractères. Gardez les détails privés d'un enfant hors de ce formulaire public.",
+    messageHelp: 'Partagez assez de contexte pour que nous comprenions comment vous aider.',
     send: 'Envoyer le message',
     sending: 'Envoi...',
-    successTitle: "Votre message est prêt pour l'équipe de la fondation.",
-    successBody: "Ce formulaire frontend est préparé pour le parcours contact. L'envoi sera connecté lorsque l'endpoint backend sera ajouté.",
+    successTitle: 'Merci de nous avoir contactés.',
+    successBody: "Merci pour votre message. L'équipe de la fondation vous répondra aussi rapidement que possible.",
     validation: {
       name: 'Veuillez entrer votre nom.',
       email: 'Veuillez entrer votre adresse email.',
       emailInvalid: 'Veuillez entrer une adresse email valide.',
-      subject: 'Veuillez ajouter un sujet.',
       message: 'Veuillez écrire un message.',
-      messageLength: 'Veuillez écrire au moins 20 caractères.',
-      consent: "Veuillez confirmer la note de confidentialité avant l'envoi.",
+      messageLength: 'Veuillez écrire au moins 10 caractères.',
+      consent: 'Veuillez confirmer que nous pouvons répondre à votre message.',
     },
-    safeguardingTitle: "La confidentialité de l'enfant passe d'abord",
+    safeguardingTitle: 'Nous répondons avec soin',
     safeguardingBody:
-      "Ce formulaire public sert au premier contact uniquement. Les informations sensibles, documents et nouvelles privées doivent passer par des workflows protégés après la réponse de l'équipe.",
+      'Chaque message représente une personne, une famille, une école, une église ou une communauté. Nous le prenons au sérieux et cherchons à répondre avec attention.',
     sideImageAlt: 'Des enfants réunis dans une communauté rurale au Cameroun.',
-    sideCaption: 'La première étape la plus sûre est une conversation respectueuse, suivie du bon processus protégé.',
-    linksEyebrow: 'Continuer la visite',
-    linksTitle: 'Trouver la bonne prochaine étape.',
-    linksBody: 'Les pages publiques doivent orienter les visiteurs naturellement. Ces liens relient les raisons fréquentes de contact aux bonnes pages.',
+    sideCaption: 'Chaque parcours significatif commence par une conversation.',
+    storiesEyebrow: 'Pourquoi les personnes nous contactent',
+    storiesTitle: 'Chaque demande a une histoire.',
+    storiesBody: "Certaines personnes viennent prêtes à donner. D'autres portent un besoin, une question ou une espérance pour un enfant qu'elles connaissent.",
+    stories: [
+      'Certaines personnes nous contactent parce qu’elles veulent soutenir un enfant.',
+      'D’autres cherchent une aide scolaire.',
+      'Des écoles nous écrivent au nom de leurs élèves.',
+      'Des églises cherchent des possibilités de partenariat.',
+      'Des bénévoles offrent leur temps et leurs encouragements.',
+      'Des leaders communautaires partagent des besoins locaux.',
+    ],
+    linksEyebrow: 'Un engagement partagé',
+    linksTitle: "Travailler ensemble pour l'opportunité scolaire.",
+    linksBody: [
+      "L'éducation est plus forte lorsque les communautés travaillent ensemble.",
+      "Familles, écoles, églises, bénévoles, donateurs et leaders locaux jouent chacun un rôle important pour aider les enfants à continuer d'apprendre et à préparer l'avenir.",
+      'Nous croyons que le changement significatif naît des relations, de la confiance et d’un engagement partagé envers les enfants.',
+    ],
     relatedLinks: {
       sponsor: "Comprendre comment le parrainage aide les enfants à rester à l'école.",
       apply: 'Commencer avec les informations pour une aide scolaire.',
       donate: 'Donner pour les besoins scolaires et le soutien éducatif.',
-      impact: "Voir comment le soutien est présenté sans exposer les dossiers privés.",
+      impact: 'Voir comment le soutien scolaire change des vies.',
       about: "Comprendre l'histoire, les valeurs et la mission de la fondation.",
     },
   },

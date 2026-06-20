@@ -10,6 +10,7 @@ import { InputField } from '../../components/ui/InputField';
 import { PasswordField } from '../../components/ui/PasswordField';
 import { GoogleAuthButton, SocialAuthButton } from '../../components/ui/GoogleAuthButton';
 import { buildAuthPath, resolvePostAuthPath } from '../../lib/auth';
+import { getPublicContactSupportText } from '../../lib/publicContact';
 import communityImage from '../../assets/landing/education_aid_project.jpg';
 import ruralImage from '../../assets/landing/rural-home-cameroon.jpg';
 
@@ -219,7 +220,7 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
             </div>
 
             <div className="mt-8 text-center lg:hidden">
-              <p className="text-xs text-ink-400">{copy.support}</p>
+              <p className="text-xs text-ink-400">{getPublicContactSupportText(locale)}</p>
             </div>
           </div>
         </div>
@@ -293,7 +294,6 @@ const registerCopy = {
     orContinueWith: 'Or continue with email',
     backHome: 'Back to home',
     creating: 'Creating account...',
-    support: 'Need help? Contact support@triumphchi.org',
     passwordHelp: 'Must be at least 8 characters.',
     registrationFailed: 'Registration failed. Please try again.',
     nameRequired: 'Full name is required',
@@ -322,7 +322,6 @@ const registerCopy = {
     orContinueWith: 'Ou continuer avec votre email',
     backHome: "Retour à l'accueil",
     creating: 'Création du compte...',
-    support: "Besoin d’aide ? Contactez support@triumphchi.org",
     passwordHelp: 'Doit contenir au moins 8 caractères.',
     registrationFailed: 'La création du compte a échoué. Veuillez réessayer.',
     nameRequired: 'Nom complet requis',
