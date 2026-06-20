@@ -55,11 +55,11 @@ export const publicContact = {
   },
 } satisfies PublicContact;
 
-const supportText: Record<Locale, string> = {
-  en: `Need help? Contact ${publicContact.email}`,
-  fr: `Besoin d’aide ? Contactez ${publicContact.email}`,
-};
-
 export function getPublicContactSupportText(locale: Locale): string {
+  const supportText: Record<Locale, string> = {
+    en: `Need help? Contact ${publicContact.email}`,
+    fr: `Besoin d’aide ? Contactez ${publicContact.email}`,
+  };
+
   return supportText[locale] ?? supportText.en;
 }
