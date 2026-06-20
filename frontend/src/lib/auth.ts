@@ -65,9 +65,6 @@ export function sanitizeRedirectTo(redirectTo?: string | null): string | null {
 
   const slashNormalized = trimmed.replace(/\\/g, '/');
   const normalized = (slashNormalized.startsWith('/') ? slashNormalized : `/${slashNormalized}`).replace(/\/{2,}/g, '/');
-  if (!normalized.startsWith('/')) {
-    return null;
-  }
 
   return normalized;
 }
