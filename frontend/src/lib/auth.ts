@@ -58,12 +58,13 @@ export function sanitizeRedirectTo(redirectTo?: string | null): string | null {
     return null;
   }
 
-  // Reject scheme-relative and backslash-based external/network-path redirects.
-  if (/^(\/\/|\\\\)/.test(trimmed)) {
+  const slashNormalized = trimmed.replace(/\\/g, '/');
+
+  // Reject scheme-relative external/network-path redirects after normalization.
+  if (/^\/\//.test(slashNormalized)) {
     return null;
   }
 
-  const slashNormalized = trimmed.replace(/\\/g, '/');
   const normalized = (slashNormalized.startsWith('/') ? slashNormalized : `/${slashNormalized}`).replace(/\/{2,}/g, '/');
 
   return normalized;
