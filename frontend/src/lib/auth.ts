@@ -1,6 +1,5 @@
 import { Locale } from './i18n';
 
-const AUTH_STORAGE_KEYS = ['triumphchi.authenticated', 'triumphchi.user', 'auth_token', 'token'] as const;
 const AUTH_TOKEN_KEYS = ['auth_token', 'token'] as const;
 
 function base64UrlDecode(input: string): string | null {
@@ -95,15 +94,33 @@ export function sanitizeRedirectTo(redirectTo?: string | null): string | null {
     return null;
   }
 
-  if (/^https?:\/\//i.test(trimmed)) {
-    return null;
-  }
-
   const slashNormalized = trimmed.replace(/\\/g, '/');
 
-  // Reject scheme-relative external/network-path redirects after normalization.
-  if (/^\/\//.test(slashNormalized)) {
-    return null;
+  // Reject absolute/protocol-relative URLs (including encoded forms) using URL parsing.
+  const candidates = [slashNormalized];
+  try {
+    const decoded = decodeURIComponent(slashNormalized);
+    if (decoded !== slashNormalized) {
+      candidates.push(decoded.replace(/\\/g, '/'));
+    }
+  } catch {
+    // Ignore malformed percent-encoding; continue with original input.
+  }
+
+  for (const candidate of candidates) {
+    if (candidate.startsWith('//')) {
+      return null;
+    }
+
+    try {
+      // Absolute URL with a scheme (http:, https:, etc.) should be rejected.
+      const parsed = new URL(candidate);
+      if (parsed.protocol) {
+        return null;
+      }
+    } catch {
+      // Relative URLs throw here; they are handled by normalization below.
+    }
   }
 
   const normalized = (slashNormalized.startsWith('/') ? slashNormalized : `/${slashNormalized}`).replace(/\/{2,}/g, '/');
