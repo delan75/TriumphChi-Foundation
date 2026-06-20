@@ -42,5 +42,5 @@ const supportText: Record<Locale, string> = {
 };
 
 export function getPublicContactSupportText(locale: Locale): string {
-  return supportText[locale];
+  return supportText[locale] ?? supportText.en;
 }
