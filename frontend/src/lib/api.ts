@@ -17,6 +17,17 @@ interface AuthResponse {
   user: AuthUser;
 }
 
+export interface ContactMessagePayload {
+  name: string;
+  email: string;
+  phone?: string;
+  reason: string;
+  subject?: string;
+  message: string;
+  consent: boolean;
+  attachments?: File[];
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: buildHeaders(),
@@ -118,6 +129,47 @@ export async function apiResetPassword(
 
   return {
     message: String(data.message ?? 'Password reset successfully.'),
+  };
+}
+
+export async function apiSubmitContactMessage(
+  payload: ContactMessagePayload,
+  locale: string,
+): Promise<{ message: string }> {
+  const body = new FormData();
+
+  body.append('name', payload.name);
+  body.append('email', payload.email);
+  body.append('reason', payload.reason);
+  body.append('message', payload.message);
+  body.append('consent', payload.consent ? '1' : '0');
+
+  if (payload.phone) {
+    body.append('phone', payload.phone);
+  }
+
+  if (payload.subject) {
+    body.append('subject', payload.subject);
+  }
+
+  payload.attachments?.forEach((file) => {
+    body.append('attachments[]', file);
+  });
+
+  const response = await fetch(`${API_BASE_URL}/public/contact-messages`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Accept-Language': locale,
+    },
+    credentials: 'omit',
+    body,
+  });
+
+  const data = await parseJsonEnvelope(response, 'We could not send your message. Please try again.');
+
+  return {
+    message: String(data.message ?? 'Thank you for contacting us. We will respond as soon as possible.'),
   };
 }
 

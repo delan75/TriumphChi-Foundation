@@ -1,4 +1,4 @@
-import { FormEvent, ReactNode, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, ReactNode, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -23,6 +23,7 @@ import { PublicPageTitle } from '../../../components/public/PublicPageTitle';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
+import { apiSubmitContactMessage } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
 import { publicContact } from '../../../lib/publicContact';
 import heroImage from '../../../assets/landing/rural-home-cameroon.jpg';
@@ -70,7 +71,9 @@ export function ContactPage({ locale, page }: ContactPageProps) {
   const [form, setForm] = useState<ContactFormState>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormState, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [attachmentInputKey, setAttachmentInputKey] = useState(0);
+  const [submissionMessage, setSubmissionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const contactMethods = [
     { icon: Mail, label: copy.contactMethodLabels.email, value: publicContact.email, href: publicContact.emailHref },
     { icon: Phone, label: copy.contactMethodLabels.phone, value: publicContact.phoneDisplay, href: publicContact.phoneHref },
@@ -96,27 +99,59 @@ export function ContactPage({ locale, page }: ContactPageProps) {
       setErrors((current) => ({ ...current, [field]: undefined }));
     }
 
-    if (isSuccess) {
-      setIsSuccess(false);
+    if (submissionMessage) {
+      setSubmissionMessage(null);
     }
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const validationErrors = validateContactForm(form, copy);
     setErrors(validationErrors);
+    setSubmissionMessage(null);
 
     if (Object.keys(validationErrors).length > 0) {
+      setSubmissionMessage({ type: 'error', text: copy.validation.review });
       return;
     }
 
     setIsSubmitting(true);
 
-    window.setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
+    try {
+      const response = await apiSubmitContactMessage(
+        {
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim() || undefined,
+          reason: form.reason,
+          subject: form.subject.trim() || undefined,
+          message: form.message.trim(),
+          consent: form.consent,
+          attachments,
+        },
+        locale,
+      );
+
+      setSubmissionMessage({ type: 'success', text: response.message });
       setForm(initialForm);
-    }, 450);
+      setAttachments([]);
+      setAttachmentInputKey((current) => current + 1);
+    } catch (error) {
+      setSubmissionMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : copy.validation.failed,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAttachmentsChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setAttachments(Array.from(event.target.files ?? []));
+
+    if (submissionMessage) {
+      setSubmissionMessage(null);
+    }
   };
 
   return (
@@ -216,18 +251,6 @@ export function ContactPage({ locale, page }: ContactPageProps) {
               <p className="mt-3 text-base leading-7 text-ink-500">{copy.formBody}</p>
             </div>
 
-            {isSuccess ? (
-              <div className="mb-6 rounded-md border border-foundation-100 bg-foundation-50 p-4" role="status" aria-live="polite">
-                <div className="flex gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-foundation-600" aria-hidden="true" />
-                  <div>
-                    <p className="text-sm font-black text-foundation-900">{copy.successTitle}</p>
-                    <p className="mt-1 text-sm leading-6 text-ink-600">{copy.successBody}</p>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
             <form onSubmit={handleSubmit} className="grid gap-5" noValidate>
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label={copy.fields.name} id="contact-name" error={errors.name}>
@@ -319,6 +342,18 @@ export function ContactPage({ locale, page }: ContactPageProps) {
                 />
               </Field>
 
+              <Field label={copy.fields.attachments} id="contact-attachments" helpText={attachments.length > 0 ? copy.attachmentsSelected(attachments.length) : undefined}>
+                <input
+                  id="contact-attachments"
+                  key={attachmentInputKey}
+                  name="attachments"
+                  type="file"
+                  multiple
+                  onChange={handleAttachmentsChange}
+                  className="block min-h-12 w-full rounded-md border border-ink-200 bg-white px-3 py-2.5 text-base text-ink-900 shadow-sm transition duration-200 file:mr-4 file:rounded-md file:border-0 file:bg-foundation-50 file:px-3 file:py-2 file:text-sm file:font-bold file:text-foundation-700 hover:file:bg-foundation-100 focus:border-foundation-500 focus:outline-none focus:ring-2 focus:ring-foundation-500/20 sm:text-sm"
+                />
+              </Field>
+
               <label className="flex items-start gap-3 rounded-md border border-ink-100 bg-ink-50 p-4 text-sm leading-6 text-ink-600">
                 <input
                   type="checkbox"
@@ -338,21 +373,43 @@ export function ContactPage({ locale, page }: ContactPageProps) {
                 </span>
               </label>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={cn(
-                  'focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-foundation-900 sm:justify-self-start',
-                  isSubmitting && 'cursor-not-allowed opacity-60 hover:translate-y-0',
-                )}
-              >
-                {isSubmitting ? (
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" aria-hidden="true" />
-                ) : (
-                  <Send className="h-4 w-4" aria-hidden="true" />
-                )}
-                {isSubmitting ? copy.sending : copy.send}
-              </button>
+              <div className="grid gap-3 sm:grid-cols-[auto_1fr] sm:items-center">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={cn(
+                    'focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-foundation-900 sm:justify-self-start',
+                    isSubmitting && 'cursor-not-allowed opacity-60 hover:translate-y-0',
+                  )}
+                >
+                  {isSubmitting ? (
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" aria-hidden="true" />
+                  ) : (
+                    <Send className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  {isSubmitting ? copy.sending : copy.send}
+                </button>
+
+                {submissionMessage ? (
+                  <div
+                    className={cn(
+                      'rounded-md border px-4 py-3 text-sm leading-6',
+                      submissionMessage.type === 'success'
+                        ? 'border-foundation-100 bg-foundation-50 text-foundation-900'
+                        : 'border-support-red/20 bg-support-red/5 text-support-red',
+                    )}
+                    role={submissionMessage.type === 'success' ? 'status' : 'alert'}
+                    aria-live="polite"
+                  >
+                    <div className="flex gap-2">
+                      {submissionMessage.type === 'success' ? (
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                      ) : null}
+                      <span>{submissionMessage.text}</span>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </form>
           </div>
 
@@ -534,14 +591,14 @@ interface ContactCopy {
     reason: string;
     subject: string;
     message: string;
+    attachments: string;
     consent: string;
   };
   reasonOptions: Array<{ value: ContactReason; label: string }>;
   messageHelp: string;
+  attachmentsSelected: (count: number) => string;
   send: string;
   sending: string;
-  successTitle: string;
-  successBody: string;
   validation: {
     name: string;
     email: string;
@@ -549,6 +606,8 @@ interface ContactCopy {
     message: string;
     messageLength: string;
     consent: string;
+    review: string;
+    failed: string;
   };
   safeguardingTitle: string;
   safeguardingBody: string;
@@ -608,6 +667,7 @@ const contactCopy = {
       reason: 'Reason for contact',
       subject: 'Subject',
       message: 'Message',
+      attachments: 'Supporting file',
       consent: 'I confirm that this message is genuine and that the foundation may respond using the contact details provided.',
     },
     reasonOptions: [
@@ -619,10 +679,9 @@ const contactCopy = {
       { value: 'partnership', label: 'Church, company, or partner inquiry' },
     ],
     messageHelp: 'Please share enough context for us to understand how we can help.',
+    attachmentsSelected: (count) => `${count} file${count === 1 ? '' : 's'} selected.`,
     send: 'Send message',
     sending: 'Sending...',
-    successTitle: 'Thank you for reaching out.',
-    successBody: 'Thanks for reaching out your message. We will be touch as soon as possible.',
     validation: {
       name: 'Please enter your name.',
       email: 'Please enter your email address.',
@@ -630,6 +689,8 @@ const contactCopy = {
       message: 'Please write a message.',
       messageLength: 'Please write at least 10 characters.',
       consent: 'Please confirm that we may respond to your message.',
+      review: 'Please review the highlighted fields and try again.',
+      failed: 'We could not send your message. Please try again.',
     },
     safeguardingTitle: 'We respond with care',
     safeguardingBody:
@@ -699,6 +760,7 @@ const contactCopy = {
       reason: 'Raison du contact',
       subject: 'Sujet',
       message: 'Message',
+      attachments: 'Fichier de soutien',
       consent: 'Je confirme que ce message est sincère et que la fondation peut me répondre avec les coordonnées fournies.',
     },
     reasonOptions: [
@@ -710,10 +772,9 @@ const contactCopy = {
       { value: 'partnership', label: 'Église, entreprise ou partenaire' },
     ],
     messageHelp: 'Partagez assez de contexte pour que nous comprenions comment vous aider.',
+    attachmentsSelected: (count) => `${count} fichier${count === 1 ? '' : 's'} sélectionné${count === 1 ? '' : 's'}.`,
     send: 'Envoyer le message',
     sending: 'Envoi...',
-    successTitle: 'Merci de nous avoir contactés.',
-    successBody: "Merci de nous avoir contactés. Nous vous répondrons dans les plus brefs délais.",
     validation: {
       name: 'Veuillez entrer votre nom.',
       email: 'Veuillez entrer votre adresse email.',
@@ -721,6 +782,8 @@ const contactCopy = {
       message: 'Veuillez écrire un message.',
       messageLength: 'Veuillez écrire au moins 10 caractères.',
       consent: 'Veuillez confirmer que nous pouvons répondre à votre message.',
+      review: 'Veuillez vérifier les champs indiqués et réessayer.',
+      failed: "Votre message n'a pas pu être envoyé. Veuillez réessayer.",
     },
     safeguardingTitle: 'Nous répondons avec soin',
     safeguardingBody:
