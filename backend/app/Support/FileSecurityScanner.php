@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use finfo;
 use Illuminate\Http\UploadedFile;
 
 class FileSecurityScanner
@@ -46,34 +47,67 @@ class FileSecurityScanner
         'vbs',
     ];
 
-    public function passes(UploadedFile $file): bool
+    public function scan(UploadedFile $file): FileScanResult
     {
         $extension = strtolower($file->getClientOriginalExtension());
-        $mimeType = (string) $file->getMimeType();
+        $path = $file->getRealPath();
 
         if (in_array($extension, self::BLOCKED_EXTENSIONS, true)) {
-            return false;
+            return FileScanResult::failed('blocked_extension', 'api.contact.blocked_attachment');
         }
 
         if (! in_array($extension, self::ALLOWED_EXTENSIONS, true)) {
-            return false;
+            return FileScanResult::failed('unsupported_extension', 'api.contact.unsupported_attachment');
         }
 
-        if (! in_array($mimeType, self::ALLOWED_MIME_TYPES, true)) {
-            return false;
+        if ($this->hasSuspiciousDoubleExtension($file, $extension)) {
+            return FileScanResult::failed('double_extension', 'api.contact.suspicious_attachment');
         }
-
-        return ! $this->hasUnsafeSignature($file, $extension);
-    }
-
-    private function hasUnsafeSignature(UploadedFile $file, string $extension): bool
-    {
-        $path = $file->getRealPath();
 
         if (! $path || ! is_readable($path)) {
+            return FileScanResult::failed('unreadable', 'api.contact.unreadable_attachment');
+        }
+
+        $realMime = (string) (new finfo(FILEINFO_MIME_TYPE))->file($path);
+
+        if (! in_array($realMime, self::ALLOWED_MIME_TYPES, true)) {
+            return FileScanResult::failed('unsupported_mime', 'api.contact.unsupported_attachment');
+        }
+
+        if ($this->hasUnsafeSignature($path)) {
+            return FileScanResult::failed('unsafe_signature', 'api.contact.unsafe_attachment');
+        }
+
+        if ($this->isImage($extension) && @getimagesize($path) === false) {
+            return FileScanResult::failed('invalid_image', 'api.contact.invalid_image_attachment');
+        }
+
+        return FileScanResult::passed();
+    }
+
+    private function hasSuspiciousDoubleExtension(UploadedFile $file, string $extension): bool
+    {
+        $parts = array_values(array_filter(
+            explode('.', strtolower($file->getClientOriginalName())),
+            fn (string $part): bool => $part !== '',
+        ));
+
+        if (count($parts) < 3) {
+            return false;
+        }
+
+        $intermediateExtensions = array_slice($parts, 1, -1);
+
+        if (array_intersect($intermediateExtensions, self::BLOCKED_EXTENSIONS)) {
             return true;
         }
 
+        return in_array($extension, self::ALLOWED_EXTENSIONS, true)
+            && count(array_intersect($intermediateExtensions, self::ALLOWED_EXTENSIONS)) > 0;
+    }
+
+    private function hasUnsafeSignature(string $path): bool
+    {
         $handle = fopen($path, 'rb');
 
         if (! $handle) {
@@ -91,18 +125,11 @@ class FileSecurityScanner
             return true;
         }
 
-        if ($extension === 'sql') {
-            return true;
-        }
-
-        if ($extension === 'txt') {
-            $lowerSample = strtolower($sample);
-
-            return str_contains($lowerSample, '-- mysql dump')
-                || str_contains($lowerSample, 'drop database')
-                || str_contains($lowerSample, 'create table');
-        }
-
         return false;
+    }
+
+    private function isImage(string $extension): bool
+    {
+        return in_array($extension, ['png', 'jpg', 'jpeg'], true);
     }
 }

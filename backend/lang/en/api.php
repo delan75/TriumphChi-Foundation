@@ -15,8 +15,12 @@ return [
 
     'contact' => [
         'received' => 'Thank you for contacting us. We will respond as soon as possible.',
-        'unsafe_attachment' => 'The attached file could not be accepted. Please remove it and try again.',
-        'unsupported_attachment' => 'The attached file could not be accepted. Please remove it and try again.',
+        'blocked_attachment' => 'The attached file cannot be accepted for safety reasons. Please remove it and send your message again.',
+        'invalid_image_attachment' => 'The attached image could not be read. Please attach a valid image or send your message without it.',
+        'suspicious_attachment' => 'The attached file name looks unsafe. Please rename or remove the file and try again.',
+        'unsafe_attachment' => 'The attached file looks unsafe. Please remove it and send your message again.',
+        'unreadable_attachment' => 'The attached file could not be read. Please remove it and try again.',
+        'unsupported_attachment' => 'The attached file type is not supported. Please remove it and send your message again.',
         'attachment_too_large' => 'The attached file is too large. Please attach a smaller file.',
         'too_many_attachments' => 'Please attach fewer files.',
         'consent_required' => 'Please confirm that we may respond to your message.',
