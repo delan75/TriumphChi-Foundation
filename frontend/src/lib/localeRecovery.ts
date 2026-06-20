@@ -143,7 +143,7 @@ function getBrowserLocale(): Locale | null {
     }
 
     // Check for French variants
-    if (langCode === 'fr' || browserLang.toLowerCase().startsWith('fr')) {
+    if (browserLang.toLowerCase().startsWith('fr')) {
       return 'fr';
     }
   } catch {
