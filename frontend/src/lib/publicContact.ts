@@ -2,9 +2,16 @@ import { Locale } from './i18n';
 
 const env = import.meta.env;
 
+const normalizePhoneTel = (value: string): string => {
+  const cleaned = value.replace(/[^\d+]/g, '');
+  const withoutExtraPlus = cleaned.replace(/\+/g, '');
+  if (!withoutExtraPlus) return '';
+  return cleaned.startsWith('+') ? `+${withoutExtraPlus}` : `+${withoutExtraPlus}`;
+};
+
 const email = env.VITE_PUBLIC_CONTACT_EMAIL ?? 'support@triumphchi.org';
 const phoneDisplay = env.VITE_PUBLIC_CONTACT_PHONE_DISPLAY ?? '+237 000 000 000';
-const phoneTel = env.VITE_PUBLIC_CONTACT_PHONE_TEL ?? phoneDisplay.replace(/[^\d+]/g, '');
+const phoneTel = normalizePhoneTel(env.VITE_PUBLIC_CONTACT_PHONE_TEL ?? phoneDisplay);
 
 export const publicContact = {
   email,
