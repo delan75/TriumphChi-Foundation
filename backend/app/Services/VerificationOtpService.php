@@ -135,6 +135,16 @@ class VerificationOtpService
             : UserVerificationOtp::CHANNEL_EMAIL;
     }
 
+    public function maskedEmail(User $user): string
+    {
+        return $this->maskDestination($user->email);
+    }
+
+    public function maskedPhone(User $user): ?string
+    {
+        return $user->phone ? $this->maskDestination($user->phone) : null;
+    }
+
     private function destinationFor(User $user, string $channel): string
     {
         return match ($channel) {

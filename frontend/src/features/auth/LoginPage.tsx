@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { cn } from '../../components/ui/cn';
 import { Locale } from '../../lib/i18n';
 import { Seo } from '../../components/seo/Seo';
-import { apiLogin } from '../../lib/api';
+import { ApiRequestError, VerificationContext, apiLogin } from '../../lib/api';
 import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { PasswordField } from '../../components/ui/PasswordField';
@@ -61,6 +61,12 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
 
       navigate(resolvePostAuthPath(locale, redirectTarget), { replace: true });
     } catch (error) {
+      if (error instanceof ApiRequestError && error.code === 'email_not_verified') {
+        persistVerificationContext(error.data, formData.email);
+        navigate(`/${locale}/verify-account?email=${encodeURIComponent(formData.email)}`, { replace: true });
+        return;
+      }
+
       setErrors({ submit: error instanceof Error ? error.message : copy.invalidLogin });
     } finally {
       setIsLoading(false);
@@ -245,6 +251,40 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
       </AuthLayout>
     </>
   );
+}
+
+function persistVerificationContext(data: unknown, fallbackEmail: string): void {
+  const context = isVerificationContext(data)
+    ? data
+    : {
+        email: fallbackEmail,
+        masked_email: maskEmail(fallbackEmail),
+        masked_phone: null,
+        has_phone: false,
+      };
+
+  window.sessionStorage.setItem('triumphchi.verification', JSON.stringify(context));
+}
+
+function isVerificationContext(data: unknown): data is VerificationContext {
+  return Boolean(
+    data
+      && typeof data === 'object'
+      && 'email' in data
+      && typeof (data as VerificationContext).email === 'string'
+      && 'masked_email' in data
+      && typeof (data as VerificationContext).masked_email === 'string',
+  );
+}
+
+function maskEmail(email: string): string {
+  const [name, domain] = email.split('@');
+
+  if (!name || !domain) {
+    return email;
+  }
+
+  return `${name.slice(0, 2)}***@${domain}`;
 }
 
 function oauthErrorMessage(error: string, copy: typeof loginCopy.en): string {

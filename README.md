@@ -63,7 +63,7 @@ OAuth endpoints:
 - `GET /api/v1/auth/{provider}/callback` - Handle OAuth callback
 - `POST /api/v1/auth/oauth/exchange` - Exchange a short-lived OAuth callback code for a Sanctum token
 
-Email/password registration creates a pending account until email verification. Verification supports signed email links and OTP codes. Email OTP is available by default; SMS and WhatsApp OTP channels can be enabled through configured provider webhooks. Login returns a 30-day Sanctum token with an expiry timestamp and rotates existing tokens for the same device. Socialite runs in stateless mode and never returns Sanctum tokens through browser query strings.
+Email/password registration creates a pending account until email verification. Verification supports signed email links and OTP codes. Email OTP is available by default; SMS and WhatsApp OTP channels can be enabled through configured provider webhooks. Pending users can correct a mistyped email or phone number before verification without creating a duplicate account. Login returns a 30-day Sanctum token with an expiry timestamp and rotates existing tokens for the same device. Socialite runs in stateless mode and never returns Sanctum tokens through browser query strings.
 
 ## Public Contact Messages
 

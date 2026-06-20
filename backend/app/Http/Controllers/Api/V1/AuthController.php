@@ -90,9 +90,12 @@ class AuthController extends Controller
                 'reason' => 'email_not_verified',
             ]);
 
-            throw ValidationException::withMessages([
-                'email' => __('api.auth.email_not_verified'),
-            ]);
+            return response()->json([
+                'success' => false,
+                'message' => __('api.auth.email_not_verified'),
+                'code' => 'email_not_verified',
+                'data' => $this->verificationContext($user),
+            ], Response::HTTP_CONFLICT);
         }
 
         if (! $user->isActive()) {
@@ -227,6 +230,7 @@ class AuthController extends Controller
         return $this->success([
             'channel' => $this->verificationOtps->normalizeChannel($channel),
             'expires_in_minutes' => (int) config('auth_security.verification_otp_expiration_minutes', 10),
+            'verification' => $this->verificationContext($user),
         ], __('api.auth.otp_sent'));
     }
 
@@ -252,5 +256,92 @@ class AuthController extends Controller
             'token' => $token,
             'user' => AuthUserResource::make($user),
         ]);
+    }
+
+    public function updateVerificationContact(Request $request)
+    {
+        $data = $request->validate([
+            'current_email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'channel' => ['nullable', 'string', 'in:email,sms,whatsapp'],
+        ]);
+
+        $user = User::query()
+            ->where('email', $data['current_email'])
+            ->first();
+
+        if (! $user || ! $user->password || ! Hash::check($data['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'current_email' => __('api.auth.failed'),
+            ]);
+        }
+
+        if ($user->hasVerifiedEmail() || ! $user->isPending()) {
+            return $this->error(__('api.auth.contact_update_not_allowed'), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $updates = [];
+
+        if (! empty($data['email']) && $data['email'] !== $user->email) {
+            if (User::query()->where('email', $data['email'])->exists()) {
+                throw ValidationException::withMessages([
+                    'email' => __('validation.unique', ['attribute' => 'email']),
+                ]);
+            }
+
+            $updates['email'] = $data['email'];
+        }
+
+        if (array_key_exists('phone', $data)) {
+            $phone = filled($data['phone'] ?? null) ? $data['phone'] : null;
+
+            if ($phone === $user->phone) {
+                $phone = $user->phone;
+            } elseif ($phone && User::query()->where('phone', $phone)->exists()) {
+                throw ValidationException::withMessages([
+                    'phone' => __('validation.unique', ['attribute' => 'phone']),
+                ]);
+            }
+
+            if ($phone !== $user->phone) {
+                $updates['phone'] = $phone;
+            }
+        }
+
+        if ($updates) {
+            $before = [
+                'email_masked' => $this->verificationOtps->maskedEmail($user),
+                'phone_masked' => $this->verificationOtps->maskedPhone($user),
+            ];
+
+            $user->forceFill($updates)->save();
+            $user->verificationOtps()->whereNull('consumed_at')->delete();
+
+            $this->auditLogger->log($user, 'verification_contact_updated', $request, metadata: [
+                'before' => $before,
+                'after' => $this->verificationContext($user),
+            ]);
+        }
+
+        $channel = $data['channel'] ?? 'email';
+        $this->verificationOtps->send($user->fresh(), $channel, $request);
+
+        return $this->success([
+            'channel' => $this->verificationOtps->normalizeChannel($channel),
+            'expires_in_minutes' => (int) config('auth_security.verification_otp_expiration_minutes', 10),
+            'verification' => $this->verificationContext($user->fresh()),
+        ], __('api.auth.contact_updated'));
+    }
+
+    private function verificationContext(User $user): array
+    {
+        return [
+            'email' => $user->email,
+            'masked_email' => $this->verificationOtps->maskedEmail($user),
+            'masked_phone' => $this->verificationOtps->maskedPhone($user),
+            'has_phone' => (bool) $user->phone,
+        ];
     }
 }

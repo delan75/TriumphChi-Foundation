@@ -63,7 +63,7 @@ export function clearAuthSession(): void {
   window.localStorage.removeItem(AUTH_EXPIRES_AT_KEY);
 }
 
-export function buildAuthPath(locale: Locale, page: 'login' | 'register' | 'forgot-password' | 'reset-password', redirectTo?: string | null): string {
+export function buildAuthPath(locale: Locale, page: 'login' | 'register' | 'forgot-password' | 'reset-password' | 'verify-account', redirectTo?: string | null): string {
   const query = sanitizeRedirectTo(redirectTo);
   return query ? `/${locale}/${page}?redirectTo=${encodeURIComponent(query)}` : `/${locale}/${page}`;
 }
@@ -132,5 +132,9 @@ export function sanitizeRedirectTo(redirectTo?: string | null): string | null {
 
   const normalized = (slashNormalized.startsWith('/') ? slashNormalized : `/${slashNormalized}`).replace(/\/{2,}/g, '/');
 
-  return normalized;
+  return isProtectedRedirectPath(normalized) ? normalized : null;
+}
+
+function isProtectedRedirectPath(path: string): boolean {
+  return /^\/(en|fr)\/staff(\/|$)/.test(path) || /^\/staff(\/|$)/.test(path);
 }
