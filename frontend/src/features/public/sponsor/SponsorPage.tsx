@@ -92,7 +92,7 @@ export function SponsorPage({ locale, page }: SponsorPageProps) {
           <SectionIntro eyebrow={copy.mattersEyebrow} title={copy.mattersTitle} body={copy.mattersBody} />
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {copy.matters.map((item, index) => {
-              const Icon = matterIcons[index];
+              const Icon = matterIcons[index] ?? School;
 
               return <InfoCard key={item.title} icon={Icon} title={item.title} body={item.body} />;
             })}
