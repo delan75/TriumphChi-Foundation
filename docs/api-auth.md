@@ -17,6 +17,7 @@ Base path:
 - Protected APIs require `auth:sanctum`, an active account, route permissions, and resource policies where applicable.
 - Local email/password accounts are created as `pending` until email verification is completed.
 - OAuth redirects never expose Sanctum tokens in URLs.
+- Email verification supports signed-link verification and OTP verification.
 
 Token settings:
 
@@ -26,6 +27,10 @@ AUTH_TOKEN_EXPIRATION_DAYS=30
 AUTH_ROTATE_TOKENS_ON_LOGIN=true
 OAUTH_LOGIN_CODE_EXPIRATION_MINUTES=5
 AUTH_EMAIL_VERIFICATION_EXPIRE_MINUTES=60
+AUTH_VERIFICATION_OTP_EXPIRATION_MINUTES=10
+AUTH_VERIFICATION_OTP_MAX_ATTEMPTS=5
+AUTH_OTP_SMS_WEBHOOK_URL=
+AUTH_OTP_WHATSAPP_WEBHOOK_URL=
 ```
 
 Email verification and password reset delivery use Laravel mail configuration. The default local mailer is `log`; production should configure SMTP or another approved mail transport.
@@ -70,6 +75,97 @@ Successful local registrations return the created user and no token. The account
   }
 }
 ```
+
+Registration sends the signed verification email and an email OTP by default.
+
+## Email Verification
+
+Two verification methods are supported.
+
+Signed link verification:
+
+```http
+GET /api/v1/auth/email/verify/{id}/{hash}?expires=...&signature=...
+```
+
+OTP verification:
+
+```http
+POST /api/v1/auth/email/otp/verify
+Accept: application/json
+Content-Type: application/json
+```
+
+```json
+{
+  "email": "new.user@example.org",
+  "code": "123456",
+  "device_name": "web-client"
+}
+```
+
+Successful OTP verification activates the account and returns a Sanctum token:
+
+```json
+{
+  "message": "Email address verified successfully.",
+  "token": {
+    "access_token": "1|...",
+    "token_type": "Bearer",
+    "expires_at": "2026-07-20T10:00:00.000000Z"
+  },
+  "user": {
+    "email": "new.user@example.org",
+    "status": "active",
+    "email_verified_at": "2026-06-20T10:00:00.000000Z"
+  }
+}
+```
+
+Request a new verification code:
+
+```http
+POST /api/v1/auth/email/otp/resend
+Accept: application/json
+Content-Type: application/json
+```
+
+```json
+{
+  "email": "new.user@example.org",
+  "channel": "email"
+}
+```
+
+Supported OTP channels:
+
+- `email`: available by default through Laravel notifications
+- `sms`: requires `AUTH_OTP_SMS_WEBHOOK_URL`
+- `whatsapp`: requires `AUTH_OTP_WHATSAPP_WEBHOOK_URL`
+
+SMS and WhatsApp verification require a phone number on the user account. If a channel is not configured, the API returns a clear unavailable-channel response and the user can continue with email.
+
+Pending users can correct a mistyped email address or phone number before verification without creating another account:
+
+```http
+POST /api/v1/auth/verification/contact
+Accept: application/json
+Content-Type: application/json
+```
+
+```json
+{
+  "current_email": "mistyped@example.org",
+  "password": "secure-password",
+  "email": "corrected@example.org",
+  "phone": "+237600000000",
+  "channel": "email"
+}
+```
+
+The endpoint requires the account password, only works before verification, enforces unique email and phone values, removes pending OTPs, updates the same user record, and sends a fresh code.
+
+For safety, unverified login responses include only masked contact context for display. They do not expose full phone numbers.
 
 ## Login
 
@@ -117,6 +213,8 @@ Authorization: Bearer 1|...
 Accept: application/json
 Accept-Language: en
 ```
+
+Frontend `redirectTo` values are accepted only for protected staff routes such as `/en/staff` and `/en/staff/applications`. Public-page redirects are ignored after authentication.
 
 ## OAuth
 
@@ -205,6 +303,7 @@ The authentication layer writes audit records for:
 - successful login
 - OAuth registration and provider linking
 - OAuth login code creation
+- verification OTP sent, failed, and verified
 - password reset request and completion
 - logout and logout all devices
 - email verification

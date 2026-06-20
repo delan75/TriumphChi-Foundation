@@ -12,6 +12,13 @@ return [
         'email_verified' => 'Email address verified successfully.',
         'account_inactive' => 'This account is not active. Please contact support if you believe this is a mistake.',
         'oauth_code_invalid' => 'This sign-in session has expired. Please try signing in again.',
+        'otp_sent' => 'Verification code sent.',
+        'otp_invalid' => 'The verification code is invalid or has expired.',
+        'otp_too_many_attempts' => 'Too many verification attempts. Please request a new code.',
+        'otp_phone_required' => 'A phone number is required for SMS or WhatsApp verification.',
+        'otp_channel_unavailable' => 'This verification channel is not available at the moment. Please use email verification.',
+        'contact_updated' => 'Your verification details have been updated. A new code has been sent.',
+        'contact_update_not_allowed' => 'These verification details can no longer be changed.',
     ],
 
     'locale' => [

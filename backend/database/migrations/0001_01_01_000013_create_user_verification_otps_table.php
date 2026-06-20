@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('user_verification_otps', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('channel', 20);
+            $table->string('destination');
+            $table->string('code_hash', 128)->unique();
+            $table->timestamp('expires_at')->index();
+            $table->timestamp('consumed_at')->nullable()->index();
+            $table->unsignedTinyInteger('attempts')->default(0);
+            $table->timestamp('last_sent_at')->nullable();
+            $table->ipAddress('ip_address')->nullable();
+            $table->text('user_agent')->nullable();
+            $table->timestamps();
+
+            $table->index(['user_id', 'channel', 'consumed_at']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('user_verification_otps');
+    }
+};

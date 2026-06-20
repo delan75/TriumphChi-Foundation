@@ -12,6 +12,7 @@ import { RegisterPage } from '../features/auth/RegisterPage';
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '../features/auth/ResetPasswordPage';
 import { OAuthCallbackPage } from '../features/auth/OAuthCallbackPage';
+import { VerifyAccountPage } from '../features/auth/VerifyAccountPage';
 import { NotFoundPage } from '../features/errors/NotFoundPage';
 import { LocaleRecoveryWrapper } from '../features/errors/LocaleRecoveryWrapper';
 import { isAuthenticated, resolvePostAuthPath } from '../lib/auth';
@@ -55,6 +56,10 @@ export const router = createBrowserRouter([
       {
         path: 'reset-password',
         element: <ResetPasswordPageWrapper />,
+      },
+      {
+        path: 'verify-account',
+        element: <VerifyAccountPageWrapper />,
       },
       {
         path: 'oauth/callback',
@@ -153,6 +158,19 @@ function ResetPasswordPageWrapper() {
   }
 
   return <ResetPasswordPage locale={activeLocale} redirectTo={redirectTo} />;
+}
+
+function VerifyAccountPageWrapper() {
+  const { locale = 'en' } = useParams();
+  const location = useLocation();
+  const activeLocale = isLocale(locale) ? locale : 'en';
+  const redirectTo = new URLSearchParams(location.search).get('redirectTo');
+
+  if (isAuthenticated()) {
+    return <Navigate to={resolvePostAuthPath(activeLocale, redirectTo)} replace />;
+  }
+
+  return <VerifyAccountPage locale={activeLocale} redirectTo={redirectTo} />;
 }
 
 function OAuthCallbackPageWrapper() {
