@@ -1,6 +1,7 @@
 import { defaultLocale, isLocale, Locale } from './i18n';
 
 const LOCALE_STORAGE_KEY = 'triumphchi.locale';
+const USER_STORAGE_KEY = 'triumphchi.user';
 const LOCALE_COOKIE_NAME = 'locale';
 
 export interface LocaleRecoveryResult {
@@ -76,7 +77,7 @@ export function storeLocalePreference(locale: Locale): void {
 
 function getUserProfileLocale(): Locale | null {
   try {
-    const userStr = localStorage.getItem('triumphchi.user');
+    const userStr = localStorage.getItem(USER_STORAGE_KEY);
     if (!userStr) return null;
 
     const user = JSON.parse(userStr);
@@ -137,14 +138,11 @@ function getBrowserLocale(): Locale | null {
     const browserLang = navigator.language;
     if (!browserLang) return null;
 
-    const langCode = browserLang.split('-')[0].toLowerCase();
+    const langCode = browserLang.split('-')[0].trim().toLowerCase();
+    if (!langCode) return null;
+
     if (isLocale(langCode)) {
       return langCode;
-    }
-
-    // Check for French variants
-    if (browserLang.toLowerCase().startsWith('fr')) {
-      return 'fr';
     }
   } catch {
     // Silent fail
