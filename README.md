@@ -158,7 +158,7 @@ Copy `backend/.env.example` and configure:
 - Google OAuth credentials (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`)
 - Facebook OAuth credentials (`FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`)
 - Mail delivery settings for email verification and password reset
-- OTP channel settings for SMS or WhatsApp providers when those channels are enabled
+- OTP channel settings for SMS or WhatsApp providers
 - Private upload disk (`PRIVATE_UPLOAD_DISK`)
 - Public contact details
 
