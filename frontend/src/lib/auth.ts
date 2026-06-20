@@ -1,6 +1,5 @@
 import { Locale } from './i18n';
 
-const AUTH_STORAGE_KEYS = ['triumphchi.authenticated', 'triumphchi.user', 'auth_token', 'token'] as const;
 const AUTH_TOKEN_KEYS = ['auth_token', 'token'] as const;
 
 function base64UrlDecode(input: string): string | null {
