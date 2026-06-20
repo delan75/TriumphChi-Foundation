@@ -6,7 +6,7 @@ const normalizePhoneTel = (value: string): string => {
   const cleaned = value.replace(/[^\d+]/g, '');
   const withoutExtraPlus = cleaned.replace(/\+/g, '');
   if (!withoutExtraPlus) return '';
-  return cleaned.startsWith('+') ? `+${withoutExtraPlus}` : `+${withoutExtraPlus}`;
+  return `+${withoutExtraPlus}`;
 };
 
 const email = env.VITE_PUBLIC_CONTACT_EMAIL ?? 'support@triumphchi.org';
