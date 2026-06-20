@@ -312,7 +312,7 @@ interface SponsorCopy {
   accountabilityEyebrow: string;
   accountabilityTitle: string;
   accountabilityBody: string;
-  accountability: string[];
+  accountability: readonly string[];
   accountabilityImageAlt: string;
   accountabilityCaption: string;
   privacyNote: string;
