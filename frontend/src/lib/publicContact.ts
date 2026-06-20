@@ -3,10 +3,9 @@ import { Locale } from './i18n';
 const env = import.meta.env;
 
 const normalizePhoneTel = (value: string): string => {
-  const cleaned = value.replace(/[^\d+]/g, '');
-  const withoutExtraPlus = cleaned.replace(/\+/g, '');
-  if (!withoutExtraPlus) return '';
-  return `+${withoutExtraPlus}`;
+  const digitsOnly = value.replace(/\D/g, '');
+  if (!digitsOnly) return '';
+  return `+${digitsOnly}`;
 };
 
 const email = env.VITE_PUBLIC_CONTACT_EMAIL ?? 'support@triumphchi.org';
