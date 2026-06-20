@@ -12,6 +12,11 @@ return [
         'email_verified' => 'Adresse email vérifiée avec succès.',
         'account_inactive' => 'Ce compte n est pas actif. Veuillez contacter le support si vous pensez qu il s agit d une erreur.',
         'oauth_code_invalid' => 'Cette session de connexion a expiré. Veuillez recommencer.',
+        'otp_sent' => 'Code de vérification envoyé.',
+        'otp_invalid' => 'Le code de vérification est invalide ou a expiré.',
+        'otp_too_many_attempts' => 'Trop de tentatives de vérification. Veuillez demander un nouveau code.',
+        'otp_phone_required' => 'Un numéro de téléphone est requis pour la vérification par SMS ou WhatsApp.',
+        'otp_channel_unavailable' => 'Ce canal de vérification n est pas disponible pour le moment. Veuillez utiliser la vérification par email.',
     ],
 
     'locale' => [

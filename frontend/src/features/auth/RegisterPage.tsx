@@ -23,6 +23,7 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
   });
@@ -50,6 +51,7 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
       const response = await apiRegister(
         formData.name,
         formData.email,
+        formData.phone,
         formData.password,
         formData.confirmPassword,
         locale,
@@ -58,9 +60,11 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
 
       if (!storeAuthSession(response)) {
         setSuccessMessage(response.message ?? copy.verifyEmailNotice);
+        navigate(`/${locale}/verify-account?email=${encodeURIComponent(formData.email)}`, { replace: true });
         setFormData({
           name: '',
           email: '',
+          phone: '',
           password: '',
           confirmPassword: '',
         });
@@ -183,6 +187,18 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
                   placeholder="you@example.com"
                 />
 
+                <InputField
+                  label={copy.phoneLabel}
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  error={errors.phone}
+                  placeholder="+237600000000"
+                />
+                <p className="-mt-4 text-xs text-ink-400">{copy.phoneHelp}</p>
+
                 <PasswordField
                   label={copy.passwordLabel}
                   name="password"
@@ -261,7 +277,7 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
 }
 
 function validateRegister(
-  formData: { name: string; email: string; password: string; confirmPassword: string },
+  formData: { name: string; email: string; phone: string; password: string; confirmPassword: string },
   copy: typeof registerCopy.en,
 ) {
   const errors: Record<string, string> = {};
@@ -315,6 +331,8 @@ const registerCopy = {
     nameLabel: 'Full Name',
     namePlaceholder: 'John Doe',
     emailLabel: 'Email Address',
+    phoneLabel: 'Phone Number',
+    phoneHelp: 'Needed only if you want SMS or WhatsApp verification later.',
     passwordLabel: 'Password',
     confirmPasswordLabel: 'Confirm Password',
     createAccount: 'Create Account',
@@ -344,6 +362,8 @@ const registerCopy = {
     nameLabel: 'Nom complet',
     namePlaceholder: 'Jean Dupont',
     emailLabel: 'Adresse email',
+    phoneLabel: 'Numero de telephone',
+    phoneHelp: 'Necessaire seulement pour la verification par SMS ou WhatsApp.',
     passwordLabel: 'Mot de passe',
     confirmPasswordLabel: 'Confirmer le mot de passe',
     createAccount: 'Créer le compte',

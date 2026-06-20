@@ -60,6 +60,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(OAuthLoginCode::class);
     }
 
+    public function verificationOtps(): HasMany
+    {
+        return $this->hasMany(UserVerificationOtp::class);
+    }
+
     public function isActive(): bool
     {
         return ($this->status ?? self::STATUS_ACTIVE) === self::STATUS_ACTIVE;

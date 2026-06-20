@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\OAuthLoginCode;
 use App\Models\User;
+use App\Models\UserVerificationOtp;
+use App\Notifications\VerificationOtpNotification;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -58,6 +60,104 @@ class AuthApiTest extends TestCase
         ]);
         $this->assertDatabaseCount('personal_access_tokens', 0);
         Notification::assertSentTo(User::firstWhere('email', 'new-api-user@example.org'), VerifyEmail::class);
+        Notification::assertSentTo(User::firstWhere('email', 'new-api-user@example.org'), VerificationOtpNotification::class);
+        $this->assertDatabaseHas('user_verification_otps', [
+            'user_id' => $response->json('user.id'),
+            'channel' => 'email',
+            'destination' => 'new-api-user@example.org',
+            'consumed_at' => null,
+        ]);
+    }
+
+    public function test_pending_user_can_verify_account_with_email_otp_and_receive_token(): void
+    {
+        $user = User::create([
+            'name' => 'OTP User',
+            'email' => 'otp-user@example.org',
+            'password' => 'secret-password',
+            'preferred_locale' => 'en',
+            'status' => User::STATUS_PENDING,
+        ]);
+
+        UserVerificationOtp::create([
+            'user_id' => $user->id,
+            'channel' => 'email',
+            'destination' => $user->email,
+            'code_hash' => hash('sha256', '123456'),
+            'expires_at' => now()->addMinutes(10),
+            'last_sent_at' => now(),
+        ]);
+
+        $response = $this->postJson('/api/v1/auth/email/otp/verify', [
+            'email' => $user->email,
+            'code' => '123456',
+            'device_name' => 'Web Client',
+        ])->assertOk()
+            ->assertJsonPath('message', 'Email address verified successfully.')
+            ->assertJsonPath('user.status', User::STATUS_ACTIVE)
+            ->assertJsonStructure(['token' => ['access_token', 'expires_at']]);
+
+        $this->assertNotEmpty($response->json('token.access_token'));
+        $this->assertTrue($user->fresh()->hasVerifiedEmail());
+        $this->assertTrue($user->fresh()->isActive());
+        $this->assertNotNull(UserVerificationOtp::first()->consumed_at);
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $user->id,
+            'action' => 'verification_otp_verified',
+        ]);
+    }
+
+    public function test_pending_user_can_request_new_email_otp(): void
+    {
+        Notification::fake();
+
+        $user = User::create([
+            'name' => 'Resend User',
+            'email' => 'resend-user@example.org',
+            'password' => 'secret-password',
+            'preferred_locale' => 'en',
+            'status' => User::STATUS_PENDING,
+        ]);
+
+        $this->postJson('/api/v1/auth/email/otp/resend', [
+            'email' => $user->email,
+            'channel' => 'email',
+        ])->assertOk()
+            ->assertJsonPath('message', 'Verification code sent.')
+            ->assertJsonPath('data.channel', 'email')
+            ->assertJsonPath('data.expires_in_minutes', 10);
+
+        Notification::assertSentTo($user, VerificationOtpNotification::class);
+        $this->assertDatabaseHas('user_verification_otps', [
+            'user_id' => $user->id,
+            'channel' => 'email',
+            'destination' => $user->email,
+        ]);
+    }
+
+    public function test_sms_or_whatsapp_otp_requires_phone_and_configured_channel(): void
+    {
+        $user = User::create([
+            'name' => 'Phone User',
+            'email' => 'phone-user@example.org',
+            'password' => 'secret-password',
+            'preferred_locale' => 'en',
+            'status' => User::STATUS_PENDING,
+        ]);
+
+        $this->postJson('/api/v1/auth/email/otp/resend', [
+            'email' => $user->email,
+            'channel' => 'sms',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('channel');
+
+        $user->forceFill(['phone' => '+237600000000'])->save();
+
+        $this->postJson('/api/v1/auth/email/otp/resend', [
+            'email' => $user->email,
+            'channel' => 'whatsapp',
+        ])->assertStatus(503)
+            ->assertJsonPath('message', 'This verification channel is not available at the moment. Please use email verification.');
     }
 
     public function test_pending_user_cannot_login_until_email_is_verified(): void
