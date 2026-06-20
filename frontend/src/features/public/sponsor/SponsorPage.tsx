@@ -319,7 +319,7 @@ interface SponsorCopy {
   impactEyebrow: string;
   impactTitle: string;
   impactBody: string;
-  impact: string[];
+  impact: readonly string[];
   covenantEyebrow: string;
   covenantTitle: string;
   covenantBody: string;
