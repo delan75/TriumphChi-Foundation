@@ -33,6 +33,11 @@ const stepIcons = [UsersRound, ShieldCheck, HandHeart, CheckCircle2];
 const optionIcons = [GraduationCap, UsersRound, BookOpen, HandHeart];
 const accountabilityIcons = [FileText, GraduationCap, School, BookOpen, CheckCircle2];
 const impactIcons = [School, BookOpen, GraduationCap, UsersRound, HeartHandshake, Home, CheckCircle2, HandHeart];
+const fallbackIcon = School;
+
+function getIcon<T>(icons: T[], index: number): T {
+  return icons[index] ?? fallbackIcon;
+}
 
 export function SponsorPage({ locale, page }: SponsorPageProps) {
   const copy = sponsorCopy[locale];
