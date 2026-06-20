@@ -141,11 +141,6 @@ function getBrowserLocale(): Locale | null {
     if (isLocale(langCode)) {
       return langCode;
     }
-
-    // Check for French variants
-    if (browserLang.toLowerCase().startsWith('fr')) {
-      return 'fr';
-    }
   } catch {
     // Silent fail
   }
