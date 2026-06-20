@@ -165,6 +165,7 @@ class AuthApiTest extends TestCase
         $user = User::create([
             'name' => 'Pending User',
             'email' => 'pending-user@example.org',
+            'phone' => '+237611111111',
             'password' => 'secret-password',
             'preferred_locale' => 'en',
             'status' => User::STATUS_PENDING,
@@ -174,8 +175,11 @@ class AuthApiTest extends TestCase
             'email' => $user->email,
             'password' => 'secret-password',
             'device_name' => 'API Client',
-        ])->assertUnprocessable()
-            ->assertJsonValidationErrors('email')
+        ])->assertConflict()
+            ->assertJsonPath('code', 'email_not_verified')
+            ->assertJsonPath('data.email', $user->email)
+            ->assertJsonPath('data.masked_email', 'pe***@example.org')
+            ->assertJsonPath('data.masked_phone', '+237***11')
             ->assertSee('verify your email');
 
         $this->assertDatabaseHas('audit_logs', [
@@ -184,11 +188,86 @@ class AuthApiTest extends TestCase
         ]);
     }
 
+    public function test_pending_user_can_correct_verification_contact_without_duplicate_account(): void
+    {
+        Notification::fake();
+
+        $user = User::create([
+            'name' => 'Correction User',
+            'email' => 'mistyped@example.org',
+            'phone' => '+237622222222',
+            'password' => 'secret-password',
+            'preferred_locale' => 'en',
+            'status' => User::STATUS_PENDING,
+        ]);
+
+        $this->postJson('/api/v1/auth/verification/contact', [
+            'current_email' => 'mistyped@example.org',
+            'password' => 'secret-password',
+            'email' => 'corrected@example.org',
+            'phone' => '+237633333333',
+            'channel' => 'email',
+        ])->assertOk()
+            ->assertJsonPath('message', 'Your verification details have been updated. A new code has been sent.')
+            ->assertJsonPath('data.verification.email', 'corrected@example.org')
+            ->assertJsonPath('data.verification.masked_email', 'co***@example.org')
+            ->assertJsonPath('data.verification.masked_phone', '+237***33');
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'email' => 'corrected@example.org',
+            'phone' => '+237633333333',
+            'status' => User::STATUS_PENDING,
+        ]);
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $user->id,
+            'action' => 'verification_contact_updated',
+        ]);
+        Notification::assertSentTo($user->fresh(), VerificationOtpNotification::class);
+    }
+
+    public function test_verification_contact_update_requires_correct_password_and_unique_contact_details(): void
+    {
+        User::create([
+            'name' => 'Existing Phone User',
+            'email' => 'existing-phone@example.org',
+            'phone' => '+237644444444',
+            'password' => 'secret-password',
+            'preferred_locale' => 'en',
+            'status' => User::STATUS_PENDING,
+        ]);
+
+        User::create([
+            'name' => 'Correction User',
+            'email' => 'correction@example.org',
+            'phone' => '+237655555555',
+            'password' => 'secret-password',
+            'preferred_locale' => 'en',
+            'status' => User::STATUS_PENDING,
+        ]);
+
+        $this->postJson('/api/v1/auth/verification/contact', [
+            'current_email' => 'correction@example.org',
+            'password' => 'wrong-password',
+            'phone' => '+237666666666',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('current_email');
+
+        $this->postJson('/api/v1/auth/verification/contact', [
+            'current_email' => 'correction@example.org',
+            'password' => 'secret-password',
+            'phone' => '+237644444444',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('phone');
+    }
+
     public function test_register_rejects_duplicate_email_addresses(): void
     {
         User::create([
             'name' => 'Existing User',
             'email' => 'existing-user@example.org',
+            'phone' => '+237677777777',
             'password' => 'secure-password',
             'preferred_locale' => 'en',
             'status' => User::STATUS_ACTIVE,
@@ -203,6 +282,16 @@ class AuthApiTest extends TestCase
             'preferred_locale' => 'en',
         ])->assertUnprocessable()
             ->assertJsonValidationErrors('email');
+
+        $this->postJson('/api/v1/auth/register', [
+            'name' => 'Duplicate Phone User',
+            'email' => 'duplicate-phone@example.org',
+            'phone' => '+237677777777',
+            'password' => 'secure-password',
+            'password_confirmation' => 'secure-password',
+            'preferred_locale' => 'en',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('phone');
     }
 
     public function test_role_permission_seeder_creates_verified_super_admin_with_all_permissions(): void

@@ -57,6 +57,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->middleware('throttle:6,1')
             ->name('email.otp.verify');
 
+        Route::post('verification/contact', [AuthController::class, 'updateVerificationContact'])
+            ->middleware('throttle:5,1')
+            ->name('verification.contact.update');
+
         Route::post('oauth/exchange', [AuthController::class, 'exchangeOAuthCode'])
             ->middleware('throttle:10,1')
             ->name('oauth.exchange');

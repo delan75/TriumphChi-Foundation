@@ -145,6 +145,28 @@ Supported OTP channels:
 
 SMS and WhatsApp verification require a phone number on the user account. If a channel is not configured, the API returns a clear unavailable-channel response and the user can continue with email.
 
+Pending users can correct a mistyped email address or phone number before verification without creating another account:
+
+```http
+POST /api/v1/auth/verification/contact
+Accept: application/json
+Content-Type: application/json
+```
+
+```json
+{
+  "current_email": "mistyped@example.org",
+  "password": "secure-password",
+  "email": "corrected@example.org",
+  "phone": "+237600000000",
+  "channel": "email"
+}
+```
+
+The endpoint requires the account password, only works before verification, enforces unique email and phone values, removes pending OTPs, updates the same user record, and sends a fresh code.
+
+For safety, unverified login responses include only masked contact context for display. They do not expose full phone numbers.
+
 ## Login
 
 ```http
@@ -191,6 +213,8 @@ Authorization: Bearer 1|...
 Accept: application/json
 Accept-Language: en
 ```
+
+Frontend `redirectTo` values are accepted only for protected staff routes such as `/en/staff` and `/en/staff/applications`. Public-page redirects are ignored after authentication.
 
 ## OAuth
 

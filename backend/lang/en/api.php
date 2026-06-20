@@ -17,6 +17,8 @@ return [
         'otp_too_many_attempts' => 'Too many verification attempts. Please request a new code.',
         'otp_phone_required' => 'A phone number is required for SMS or WhatsApp verification.',
         'otp_channel_unavailable' => 'This verification channel is not available at the moment. Please use email verification.',
+        'contact_updated' => 'Your verification details have been updated. A new code has been sent.',
+        'contact_update_not_allowed' => 'These verification details can no longer be changed.',
     ],
 
     'locale' => [

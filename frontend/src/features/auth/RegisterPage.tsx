@@ -4,7 +4,7 @@ import { UserRound } from 'lucide-react';
 import { cn } from '../../components/ui/cn';
 import { Locale } from '../../lib/i18n';
 import { Seo } from '../../components/seo/Seo';
-import { apiRegister } from '../../lib/api';
+import { AuthUser, apiRegister } from '../../lib/api';
 import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { PasswordField } from '../../components/ui/PasswordField';
@@ -60,6 +60,7 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
 
       if (!storeAuthSession(response)) {
         setSuccessMessage(response.message ?? copy.verifyEmailNotice);
+        persistVerificationContext(response.user);
         navigate(`/${locale}/verify-account?email=${encodeURIComponent(formData.email)}`, { replace: true });
         setFormData({
           name: '',
@@ -276,6 +277,29 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
   );
 }
 
+function persistVerificationContext(user: AuthUser): void {
+  window.sessionStorage.setItem('triumphchi.verification', JSON.stringify({
+    email: user.email,
+    masked_email: maskEmail(user.email),
+    masked_phone: user.phone ? maskPhone(user.phone) : null,
+    has_phone: Boolean(user.phone),
+  }));
+}
+
+function maskEmail(email: string): string {
+  const [name, domain] = email.split('@');
+
+  if (!name || !domain) {
+    return email;
+  }
+
+  return `${name.slice(0, 2)}***@${domain}`;
+}
+
+function maskPhone(phone: string): string {
+  return `${phone.slice(0, 4)}***${phone.slice(-2)}`;
+}
+
 function validateRegister(
   formData: { name: string; email: string; phone: string; password: string; confirmPassword: string },
   copy: typeof registerCopy.en,
@@ -332,7 +356,7 @@ const registerCopy = {
     namePlaceholder: 'John Doe',
     emailLabel: 'Email Address',
     phoneLabel: 'Phone Number',
-    phoneHelp: 'Needed only if you want SMS or WhatsApp verification later.',
+    phoneHelp: 'Enter your phone number.',
     passwordLabel: 'Password',
     confirmPasswordLabel: 'Confirm Password',
     createAccount: 'Create Account',
