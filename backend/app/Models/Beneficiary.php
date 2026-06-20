@@ -84,6 +84,11 @@ class Beneficiary extends Model
         return $this->hasMany(Sponsorship::class);
     }
 
+    public function impactUpdates()
+    {
+        return $this->hasMany(ImpactUpdate::class);
+    }
+
     public function referenceColumn(): string
     {
         return 'internal_id';

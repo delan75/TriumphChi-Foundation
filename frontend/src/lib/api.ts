@@ -16,6 +16,7 @@ export interface AuthUser {
   preferred_locale: string;
   status?: string;
   email_verified_at?: string | null;
+  last_login_at?: string | null;
   roles?: string[];
   permissions?: string[];
 }
@@ -49,6 +50,57 @@ export interface GlobalSearchResponse {
     returned: number;
     group_count: number;
     limit: number;
+  };
+}
+
+export interface DashboardMetric {
+  key: string;
+  count: number;
+  path: string;
+  tone: 'info' | 'warning' | 'success';
+}
+
+export interface DashboardQueueItem {
+  id: string;
+  reference?: string | null;
+  title: string;
+  status: string;
+  status_label: string;
+  secondary?: string | null;
+  updated_at?: string | null;
+  path: string;
+}
+
+export interface DashboardQueue {
+  key: string;
+  count: number;
+  path: string;
+  items: DashboardQueueItem[];
+}
+
+export interface DashboardActivityItem {
+  key: string;
+  reference?: string | null;
+  title: string;
+  description: string;
+  happened_at?: string | null;
+  path: string;
+}
+
+export interface DashboardQuickAction {
+  key: string;
+  permission: string;
+  path: string;
+}
+
+export interface DashboardSummaryResponse {
+  metrics: DashboardMetric[];
+  priority_queues: DashboardQueue[];
+  recent_activity: DashboardActivityItem[];
+  quick_actions: DashboardQuickAction[];
+  snapshot: {
+    accessible_modules: string[];
+    generated_at: string;
   };
 }
 
@@ -226,6 +278,10 @@ export async function apiExchangeOAuthCode(code: string, deviceName?: string): P
 
 export async function apiGetCurrentUser(): Promise<AuthUser> {
   return apiGet('/auth/me');
+}
+
+export async function apiGetDashboardSummary(): Promise<DashboardSummaryResponse> {
+  return apiGet('/dashboard/summary');
 }
 
 export async function apiGlobalSearch(query: string, limit = 8): Promise<GlobalSearchResponse> {

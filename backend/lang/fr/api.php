@@ -55,6 +55,10 @@ return [
         ],
     ],
 
+    'dashboard' => [
+        'retrieved' => 'RÃ©sumÃ© du tableau de bord rÃ©cupÃ©rÃ© avec succÃ¨s.',
+    ],
+
     'errors' => [
         'allocation_currency_mismatch' => 'La devise de l allocation doit correspondre à celle du don.',
         'allocation_fund_mismatch' => 'Le fonds de l allocation doit correspondre au fonds du don.',

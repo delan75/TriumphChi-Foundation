@@ -55,6 +55,10 @@ return [
         ],
     ],
 
+    'dashboard' => [
+        'retrieved' => 'Dashboard summary retrieved successfully.',
+    ],
+
     'errors' => [
         'allocation_currency_mismatch' => 'The allocation currency must match the donation currency.',
         'allocation_fund_mismatch' => 'The allocation fund must match the donation fund.',

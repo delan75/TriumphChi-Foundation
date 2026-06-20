@@ -233,7 +233,7 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
                   type="submit"
                   disabled={isLoading}
                   className={cn(
-                    'focus-ring flex w-full justify-center rounded-md border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-700 shadow-sm transition duration-200 hover:border-foundation-200 hover:bg-foundation-50',
+                    'focus-ring flex w-full justify-center rounded-md bg-foundation-50 px-4 py-2.5 text-sm font-semibold text-foundation-900 shadow-sm transition hover:bg-foundation-900 hover:text-white',
                     isLoading && 'cursor-not-allowed opacity-50',
                   )}
                 >
@@ -253,7 +253,7 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
                   {copy.haveAccount}{' '}
                   <Link
                     to={buildAuthPath(locale, 'login', redirectTarget)}
-                    className="font-semibold text-foundation-600 hover:text-foundation-900"
+                    className="font-semibold text-foundation-600 hover:text-foundation-900 hover:underline hover:underline-offset-4"
                   >
                     {copy.signIn}
                   </Link>
@@ -261,7 +261,7 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
               </div>
 
               <div className="mt-6 text-center">
-                <Link to={`/${locale}`} className="text-sm text-ink-400 hover:text-ink-600">
+                <Link to={`/${locale}`} className="text-sm text-ink-400 hover:underline hover:underline-offset-4 hover:text-ink-600">
                   {'←'} {copy.backHome}
                 </Link>
               </div>

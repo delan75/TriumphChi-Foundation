@@ -277,7 +277,7 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
                   type="submit"
                   disabled={isVerifying}
                   className={cn(
-                    'focus-ring flex w-full justify-center rounded-md bg-foundation-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-foundation-900',
+                    'focus-ring flex w-full justify-center rounded-md bg-foundation-50 px-4 py-2.5 text-sm font-semibold text-foundation-900 shadow-sm transition hover:bg-foundation-900 hover:text-white',
                     isVerifying && 'cursor-not-allowed opacity-60',
                   )}
                 >
@@ -287,17 +287,20 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
 
               <div className="mt-5 flex flex-col gap-3 text-center text-sm sm:flex-row sm:items-center sm:justify-between">
                 <button
-                  type="button"
-                  onClick={resend}
-                  disabled={isSending}
-                  className="font-semibold text-foundation-700 hover:text-foundation-900 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isSending ? copy.sending : copy.resend}
-                </button>
+  type="button"
+  onClick={resend}
+  disabled={isSending}
+  className="font-semibold text-foundation-700 transition-all duration-200 ease-out hover:underline hover:underline-offset-4 hover:-translate-y-0.5 hover:text-foundation-900 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+>
+  {isSending ? copy.sending : copy.resend}
+</button>
 
-                <Link to={`/${locale}/login`} className="text-ink-500 hover:text-ink-700">
-                  {copy.backToLogin}
-                </Link>
+                <Link
+  to={`/${locale}/login`}
+  className="inline-block text-ink-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:text-ink-700 hover:underline hover:underline-offset-4 active:translate-y-0"
+>
+  {copy.backToLogin}
+</Link>
               </div>
             </div>
           </div>
