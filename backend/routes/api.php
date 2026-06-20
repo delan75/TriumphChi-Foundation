@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AllocationController;
 use App\Http\Controllers\Api\V1\ApplicationController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ContactMessageController;
 use App\Http\Controllers\Api\V1\PasswordResetController;
 use App\Http\Controllers\Api\V1\BeneficiaryController;
 use App\Http\Controllers\Api\V1\DonationController;
@@ -23,6 +24,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('public/impact-summary', PublicImpactController::class)
         ->middleware(SetLocale::class)
         ->name('public.impact-summary');
+    Route::post('public/contact-messages', [ContactMessageController::class, 'store'])
+        ->middleware([SetLocale::class, 'throttle:5,1'])
+        ->name('public.contact-messages.store');
 
     Route::prefix('auth')->name('auth.')->middleware(SetLocale::class)->group(function () {
         Route::post('register', [AuthController::class, 'register'])

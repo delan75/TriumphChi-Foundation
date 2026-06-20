@@ -13,6 +13,15 @@ return [
         'unsupported' => 'The selected language is not supported.',
     ],
 
+    'contact' => [
+        'received' => 'Thank you for contacting us. We will respond as soon as possible.',
+        'unsafe_attachment' => 'The attached file could not be accepted. Please remove it and try again.',
+        'unsupported_attachment' => 'The attached file could not be accepted. Please remove it and try again.',
+        'attachment_too_large' => 'The attached file is too large. Please attach a smaller file.',
+        'too_many_attachments' => 'Please attach fewer files.',
+        'consent_required' => 'Please confirm that we may respond to your message.',
+    ],
+
     'errors' => [
         'allocation_currency_mismatch' => 'The allocation currency must match the donation currency.',
         'allocation_fund_mismatch' => 'The allocation fund must match the donation fund.',
