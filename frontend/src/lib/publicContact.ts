@@ -2,6 +2,15 @@ import { Locale } from './i18n';
 
 const env = import.meta.env;
 
+interface PublicContact {
+  email: string;
+  emailHref: string;
+  phoneDisplay: string;
+  phoneHref: string;
+  location: Record<Locale, string>;
+  responseTime: Record<Locale, string>;
+}
+
 const normalizePhoneTel = (value: string): string => {
   const digitsOnly = value.replace(/\D/g, '');
   if (!digitsOnly) return '';
@@ -25,14 +34,7 @@ export const publicContact = {
     en: env.VITE_PUBLIC_CONTACT_RESPONSE_TIME_EN ?? 'We aim to respond as promptly as possible.',
     fr: env.VITE_PUBLIC_CONTACT_RESPONSE_TIME_FR ?? 'Nous répondons aussi rapidement que possible.',
   },
-} satisfies {
-  email: string;
-  emailHref: string;
-  phoneDisplay: string;
-  phoneHref: string;
-  location: Record<Locale, string>;
-  responseTime: Record<Locale, string>;
-};
+} satisfies PublicContact;
 
 const supportText: Record<Locale, string> = {
   en: `Need help? Contact ${publicContact.email}`,
