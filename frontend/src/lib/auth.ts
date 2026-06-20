@@ -1,43 +1,8 @@
 import { Locale } from './i18n';
+import type { AuthResponse } from './api';
 
 const AUTH_TOKEN_KEYS = ['auth_token', 'token'] as const;
-
-function base64UrlDecode(input: string): string | null {
-  try {
-    const base64 = input.replace(/-/g, '+').replace(/_/g, '/');
-    const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
-    if (typeof atob === 'function') {
-      return atob(padded);
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function isUnexpiredJwt(token: string): boolean {
-  const parts = token.split('.');
-  if (parts.length !== 3) {
-    return false;
-  }
-
-  const payloadRaw = base64UrlDecode(parts[1]);
-  if (!payloadRaw) {
-    return false;
-  }
-
-  try {
-    const payload = JSON.parse(payloadRaw) as { exp?: unknown };
-    if (typeof payload.exp !== 'number' || !Number.isFinite(payload.exp)) {
-      return false;
-    }
-
-    const nowInSeconds = Math.floor(Date.now() / 1000);
-    return payload.exp > nowInSeconds;
-  } catch {
-    return false;
-  }
-}
+const AUTH_EXPIRES_AT_KEY = 'auth_token_expires_at';
 
 export function isAuthenticated(): boolean {
   if (typeof window === 'undefined') {
@@ -45,13 +10,57 @@ export function isAuthenticated(): boolean {
   }
 
   try {
-    return AUTH_TOKEN_KEYS.some((key) => {
+    const hasToken = AUTH_TOKEN_KEYS.some((key) => {
       const token = window.localStorage.getItem(key);
-      return typeof token === 'string' && token.length > 0 && isUnexpiredJwt(token);
+      return typeof token === 'string' && token.length > 0;
     });
+
+    if (!hasToken) {
+      return false;
+    }
+
+    const expiresAt = window.localStorage.getItem(AUTH_EXPIRES_AT_KEY);
+
+    if (!expiresAt) {
+      return true;
+    }
+
+    const expiresAtTime = Date.parse(expiresAt);
+
+    return Number.isFinite(expiresAtTime) && expiresAtTime > Date.now();
   } catch {
     return false;
   }
+}
+
+export function storeAuthSession(response: AuthResponse): boolean {
+  if (typeof window === 'undefined' || !response.token?.access_token) {
+    return false;
+  }
+
+  window.localStorage.setItem('triumphchi.authenticated', 'true');
+  window.localStorage.setItem('triumphchi.user', JSON.stringify(response.user));
+  window.localStorage.setItem('auth_token', response.token.access_token);
+
+  if (response.token.expires_at) {
+    window.localStorage.setItem(AUTH_EXPIRES_AT_KEY, response.token.expires_at);
+  } else {
+    window.localStorage.removeItem(AUTH_EXPIRES_AT_KEY);
+  }
+
+  return true;
+}
+
+export function clearAuthSession(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.removeItem('triumphchi.authenticated');
+  window.localStorage.removeItem('triumphchi.user');
+  window.localStorage.removeItem('auth_token');
+  window.localStorage.removeItem('token');
+  window.localStorage.removeItem(AUTH_EXPIRES_AT_KEY);
 }
 
 export function buildAuthPath(locale: Locale, page: 'login' | 'register' | 'forgot-password' | 'reset-password', redirectTo?: string | null): string {

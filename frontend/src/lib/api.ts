@@ -1,19 +1,24 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1';
 
-interface TokenResponse {
+export interface TokenResponse {
   access_token: string;
   token_type: string;
+  expires_at?: string;
 }
 
-interface AuthUser {
+export interface AuthUser {
   id: number;
   name: string;
   email: string;
+  phone?: string | null;
   preferred_locale: string;
+  status?: string;
+  email_verified_at?: string | null;
 }
 
-interface AuthResponse {
-  token: TokenResponse;
+export interface AuthResponse {
+  message?: string;
+  token: TokenResponse | null;
   user: AuthUser;
 }
 
@@ -86,6 +91,20 @@ export async function apiRegister(
   });
 
   return parseJsonResponse<AuthResponse>(response, `Registration failed with ${response.status}`);
+}
+
+export async function apiExchangeOAuthCode(code: string, deviceName?: string): Promise<AuthResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/oauth/exchange`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }, false),
+    credentials: 'omit',
+    body: JSON.stringify({
+      code,
+      device_name: deviceName || 'web-client',
+    }),
+  });
+
+  return parseJsonResponse<AuthResponse>(response, `OAuth sign-in failed with ${response.status}`);
 }
 
 export async function apiGetCurrentUser(): Promise<AuthUser> {

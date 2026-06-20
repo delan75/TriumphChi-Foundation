@@ -11,6 +11,7 @@ import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '../features/auth/ResetPasswordPage';
+import { OAuthCallbackPage } from '../features/auth/OAuthCallbackPage';
 import { NotFoundPage } from '../features/errors/NotFoundPage';
 import { LocaleRecoveryWrapper } from '../features/errors/LocaleRecoveryWrapper';
 import { isAuthenticated, resolvePostAuthPath } from '../lib/auth';
@@ -54,6 +55,10 @@ export const router = createBrowserRouter([
       {
         path: 'reset-password',
         element: <ResetPasswordPageWrapper />,
+      },
+      {
+        path: 'oauth/callback',
+        element: <OAuthCallbackPageWrapper />,
       },
     ],
   },
@@ -148,6 +153,13 @@ function ResetPasswordPageWrapper() {
   }
 
   return <ResetPasswordPage locale={activeLocale} redirectTo={redirectTo} />;
+}
+
+function OAuthCallbackPageWrapper() {
+  const { locale = 'en' } = useParams();
+  const activeLocale = isLocale(locale) ? locale : 'en';
+
+  return <OAuthCallbackPage locale={activeLocale} />;
 }
 
 function NotFoundPageWrapper() {
