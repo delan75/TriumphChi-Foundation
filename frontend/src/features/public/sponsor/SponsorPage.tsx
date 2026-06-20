@@ -165,7 +165,7 @@ export function SponsorPage({ locale, page }: SponsorPageProps) {
             <SectionIntro eyebrow={copy.accountabilityEyebrow} title={copy.accountabilityTitle} body={copy.accountabilityBody} />
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {copy.accountability.map((item, index) => {
-                const Icon = accountabilityIcons[index];
+                const Icon = accountabilityIcons[index] ?? CheckCircle2;
 
                 return (
                   <div key={item} className="flex min-h-12 items-center gap-3 rounded-md border border-ink-100 bg-ink-50 px-4 py-3 text-sm font-bold text-ink-700">
