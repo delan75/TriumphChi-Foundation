@@ -1,10 +1,44 @@
 import { Locale } from './i18n';
 
 const env = import.meta.env;
+const MIN_PHONE_DIGITS = 8;
+const MAX_PHONE_DIGITS = 15;
+
+interface PublicContact {
+  email: string;
+  emailHref: string;
+  phoneDisplay: string;
+  phoneHref: string;
+  location: Record<Locale, string>;
+  responseTime: Record<Locale, string>;
+}
+
+const normalizePhoneTel = (value: string): string => {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+
+  const hasLeadingPlus = trimmed.startsWith('+');
+  const digitsOnly = trimmed.replace(/\D/g, '');
+
+  // Basic E.164-style guardrails: international numbers are up to 15 digits.
+  if (digitsOnly.length < MIN_PHONE_DIGITS || digitsOnly.length > MAX_PHONE_DIGITS) return '';
+
+  if (hasLeadingPlus) {
+    return `+${digitsOnly}`;
+  }
+
+  // If no '+' was provided, only accept already international-looking digits.
+  // Reject likely local/trunk-prefixed values (for example, leading zero).
+  if (digitsOnly.startsWith('0')) return '';
+
+  return `+${digitsOnly}`;
+};
 
 const email = env.VITE_PUBLIC_CONTACT_EMAIL ?? 'support@triumphchi.org';
 const phoneDisplay = env.VITE_PUBLIC_CONTACT_PHONE_DISPLAY ?? '+237 000 000 000';
-const phoneTel = env.VITE_PUBLIC_CONTACT_PHONE_TEL ?? phoneDisplay.replace(/[^\d+]/g, '');
+const defaultPhoneTel = normalizePhoneTel('+237 000 000 000');
+const configuredPhoneTel = normalizePhoneTel(env.VITE_PUBLIC_CONTACT_PHONE_TEL ?? phoneDisplay);
+const phoneTel = configuredPhoneTel || defaultPhoneTel || '+237000000000';
 
 export const publicContact = {
   email,
@@ -19,15 +53,13 @@ export const publicContact = {
     en: env.VITE_PUBLIC_CONTACT_RESPONSE_TIME_EN ?? 'We aim to respond as promptly as possible.',
     fr: env.VITE_PUBLIC_CONTACT_RESPONSE_TIME_FR ?? 'Nous répondons aussi rapidement que possible.',
   },
-} satisfies {
-  email: string;
-  emailHref: string;
-  phoneDisplay: string;
-  phoneHref: string;
-  location: Record<Locale, string>;
-  responseTime: Record<Locale, string>;
+} satisfies PublicContact;
+
+const supportText: Record<Locale, string> = {
+  en: `Need help? Contact ${publicContact.email}`,
+  fr: `Besoin d’aide ? Contactez ${publicContact.email}`,
 };
 
 export function getPublicContactSupportText(locale: Locale): string {
-  return locale === 'fr' ? `Besoin d’aide ? Contactez ${publicContact.email}` : `Need help? Contact ${publicContact.email}`;
+  return supportText[locale] ?? supportText.en;
 }

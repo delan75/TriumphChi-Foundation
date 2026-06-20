@@ -63,10 +63,8 @@ export function sanitizeRedirectTo(redirectTo?: string | null): string | null {
     return null;
   }
 
-  const normalized = (trimmed.startsWith('/') ? trimmed : `/${trimmed}`).replace(/\/{2,}/g, '/');
-  if (!normalized.startsWith('/') || normalized.startsWith('//')) {
-    return null;
-  }
+  const slashNormalized = trimmed.replace(/\\/g, '/');
+  const normalized = (slashNormalized.startsWith('/') ? slashNormalized : `/${slashNormalized}`).replace(/\/{2,}/g, '/');
 
   return normalized;
 }
