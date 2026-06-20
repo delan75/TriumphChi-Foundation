@@ -110,7 +110,10 @@ function getCookieLocale(): Locale | null {
   try {
     const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
-      const [name, value] = cookie.trim().split('=');
+      const trimmedCookie = cookie.trim();
+      const separatorIndex = trimmedCookie.indexOf('=');
+      const name = separatorIndex === -1 ? trimmedCookie : trimmedCookie.slice(0, separatorIndex);
+      const value = separatorIndex === -1 ? '' : trimmedCookie.slice(separatorIndex + 1);
       if (name === LOCALE_COOKIE_NAME && isLocale(value)) {
         return value;
       }
