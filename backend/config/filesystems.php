@@ -2,6 +2,7 @@
 
 return [
     'default' => env('FILESYSTEM_DISK', 'local'),
+    'private_upload_disk' => env('PRIVATE_UPLOAD_DISK', env('FILESYSTEM_DISK', 'local')),
     'disks' => [
         'local' => [
             'driver' => 'local',

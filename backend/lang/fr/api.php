@@ -15,8 +15,12 @@ return [
 
     'contact' => [
         'received' => 'Merci de nous avoir contactés. Nous vous répondrons dans les plus brefs délais.',
-        'unsafe_attachment' => 'Le fichier joint ne peut pas être accepté. Veuillez le retirer et réessayer.',
-        'unsupported_attachment' => 'Le fichier joint ne peut pas être accepté. Veuillez le retirer et réessayer.',
+        'blocked_attachment' => 'Le fichier joint ne peut pas être accepté pour des raisons de sécurité. Veuillez le retirer et renvoyer votre message.',
+        'invalid_image_attachment' => 'L’image jointe ne peut pas être lue. Veuillez joindre une image valide ou envoyer votre message sans ce fichier.',
+        'suspicious_attachment' => 'Le nom du fichier joint semble risqué. Veuillez renommer ou retirer le fichier et réessayer.',
+        'unsafe_attachment' => 'Le fichier joint semble risqué. Veuillez le retirer et renvoyer votre message.',
+        'unreadable_attachment' => 'Le fichier joint ne peut pas être lu. Veuillez le retirer et réessayer.',
+        'unsupported_attachment' => 'Ce type de fichier joint n’est pas pris en charge. Veuillez le retirer et renvoyer votre message.',
         'attachment_too_large' => 'Le fichier joint est trop volumineux. Veuillez joindre un fichier plus léger.',
         'too_many_attachments' => 'Veuillez joindre moins de fichiers.',
         'consent_required' => 'Veuillez confirmer que nous pouvons répondre à votre message.',

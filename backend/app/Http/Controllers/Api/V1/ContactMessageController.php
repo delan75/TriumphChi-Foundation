@@ -7,6 +7,8 @@ use App\Http\Requests\StoreContactMessageRequest;
 use App\Models\ContactMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ContactMessageController extends Controller
 {
@@ -27,13 +29,20 @@ class ContactMessageController extends Controller
             ]);
 
             foreach ($request->file('attachments', []) as $file) {
-                $path = $file->store("contact-messages/{$contactMessage->uuid}", 'local');
+                $disk = config('filesystems.private_upload_disk', 'local');
+                $storedName = Str::uuid()->toString().'.'.strtolower($file->getClientOriginalExtension());
+                $path = Storage::disk($disk)->putFileAs(
+                    "contact-messages/{$contactMessage->uuid}",
+                    $file,
+                    $storedName,
+                    ['visibility' => 'private'],
+                );
 
                 $contactMessage->attachments()->create([
                     'original_name' => $file->getClientOriginalName(),
-                    'stored_name' => basename($path),
+                    'stored_name' => $storedName,
                     'path' => $path,
-                    'disk' => 'local',
+                    'disk' => $disk,
                     'mime_type' => $file->getMimeType(),
                     'size_bytes' => $file->getSize(),
                     'scan_status' => 'passed',

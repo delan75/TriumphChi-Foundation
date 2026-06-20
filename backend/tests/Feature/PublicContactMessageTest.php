@@ -16,7 +16,10 @@ class PublicContactMessageTest extends TestCase
     {
         Storage::fake('local');
 
-        $file = UploadedFile::fake()->create('school-letter.pdf', 120, 'application/pdf');
+        $file = UploadedFile::fake()->createWithContent(
+            'school-letter.pdf',
+            "%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF",
+        );
 
         $response = $this->withHeader('Accept-Language', 'fr')
             ->post('/api/v1/public/contact-messages', [
@@ -45,12 +48,16 @@ class PublicContactMessageTest extends TestCase
             'reason' => 'assistance',
             'locale' => 'fr',
         ]);
+        $attachment = $contactMessage->attachments()->firstOrFail();
+
+        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}\.pdf$/', $attachment->stored_name);
         $this->assertDatabaseHas('contact_message_attachments', [
             'contact_message_id' => $contactMessage->id,
             'original_name' => 'school-letter.pdf',
+            'stored_name' => $attachment->stored_name,
             'scan_status' => 'passed',
         ]);
-        Storage::disk('local')->assertExists($contactMessage->attachments()->firstOrFail()->path);
+        Storage::disk('local')->assertExists($attachment->path);
     }
 
     public function test_public_contact_message_rejects_unsafe_attachment(): void
@@ -73,6 +80,54 @@ class PublicContactMessageTest extends TestCase
 
         $this->assertDatabaseCount('contact_messages', 0);
         $this->assertDatabaseCount('contact_message_attachments', 0);
+    }
+
+    public function test_public_contact_message_rejects_fake_image_attachment(): void
+    {
+        Storage::fake('local');
+
+        $file = UploadedFile::fake()->createWithContent('photo.jpg', "\xFF\xD8\xFF\xE0not a complete image");
+
+        $this->post('/api/v1/public/contact-messages', [
+            'name' => 'Fake Image Sender',
+            'email' => 'fake-image@example.org',
+            'reason' => 'general',
+            'message' => 'This message has enough characters.',
+            'consent' => '1',
+            'attachments' => [$file],
+        ], [
+            'Accept' => 'application/json',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('attachments.0')
+            ->assertSee('image');
+
+        $this->assertDatabaseCount('contact_messages', 0);
+        $this->assertDatabaseCount('contact_message_attachments', 0);
+    }
+
+    public function test_public_contact_message_accepts_text_file_with_sql_words(): void
+    {
+        Storage::fake('local');
+
+        $file = UploadedFile::fake()->createWithContent(
+            'notes.txt',
+            "Please review this school computer club note: CREATE TABLE students example only.",
+        );
+
+        $this->post('/api/v1/public/contact-messages', [
+            'name' => 'Text Sender',
+            'email' => 'text@example.org',
+            'reason' => 'school',
+            'message' => 'This message has enough characters.',
+            'consent' => '1',
+            'attachments' => [$file],
+        ], [
+            'Accept' => 'application/json',
+        ])->assertCreated()
+            ->assertJsonPath('data.attachments_count', 1);
+
+        $this->assertDatabaseCount('contact_messages', 1);
+        $this->assertDatabaseCount('contact_message_attachments', 1);
     }
 
     public function test_public_contact_message_requires_minimum_message_length(): void
