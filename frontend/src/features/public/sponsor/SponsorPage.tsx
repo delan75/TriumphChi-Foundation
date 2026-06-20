@@ -36,10 +36,6 @@ const accountabilityIcons: LucideIcon[] = [FileText, GraduationCap, School, Book
 const impactIcons: LucideIcon[] = [School, BookOpen, GraduationCap, UsersRound, HeartHandshake, Home, CheckCircle2, HandHeart];
 const fallbackIcon = School;
 
-function getIcon(icons: LucideIcon[], index: number): LucideIcon {
-  return icons[index] ?? fallbackIcon;
-}
-
 export function SponsorPage({ locale, page }: SponsorPageProps) {
   const copy = sponsorCopy[locale];
   const homePage = getPageByKey('home');
