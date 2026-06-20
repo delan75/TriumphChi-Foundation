@@ -37,6 +37,46 @@ The platform uses a decoupled architecture.
 
 Roles are bundles of permissions. APIs authorize permissions, not role names. Policies handle record-level rules such as future field officer region ownership.
 
+## API Responses
+
+All API endpoints return standardized responses using `ApiResponseTrait`:
+
+```php
+return $this->success($data, 'Success message', 200);
+return $this->error('Error message', 400);
+```
+
+Responses include `success` boolean, `message` string, and `data` field. CORS is configured for local development with credentials support.
+
+## Authentication
+
+The platform supports:
+
+- Email/password authentication via Laravel Sanctum
+- Google OAuth via Laravel Socialite
+- Facebook OAuth via Laravel Socialite
+
+OAuth endpoints:
+
+- `GET /api/v1/auth/{provider}/redirect` - Initiate OAuth flow
+- `GET /api/v1/auth/{provider}/callback` - Handle OAuth callback
+
+Socialite runs in stateless mode. Users are created or retrieved by email and linked to social providers.
+
+## Public Contact Messages
+
+Public contact form submissions are handled through `POST /api/v1/public/contact-messages`.
+
+- Contact messages persist with soft deletes
+- Optional file attachments with security scanning
+- Attachments stored on private disk with UUID filenames
+- Original filename retained as metadata
+- FileSecurityScanner rejects executables, scripts, SQL files, and suspicious double extensions
+- MIME verification via `finfo`, image validation via `getimagesize`
+- Localized rejection messages and logging with filename, MIME, size, extension, and reason
+- Contact details sourced from environment configuration
+- Private upload disk configurable via `PRIVATE_UPLOAD_DISK`
+
 ## Frontend Ownership
 
 React is the product frontend for core workflows:
@@ -107,6 +147,24 @@ npm run dev
 ```
 
 Machine-specific settings such as database host, port, username, and password belong in the local `.env` file.
+
+### Backend Environment
+
+Copy `backend/.env.example` and configure:
+
+- Database connection
+- Google OAuth credentials (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URL`)
+- Facebook OAuth credentials (`FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`, `FACEBOOK_REDIRECT_URL`)
+- Private upload disk (`PRIVATE_UPLOAD_DISK`)
+- Public contact details
+
+### Frontend Environment
+
+Copy `frontend/.env.example` and configure:
+
+- `VITE_PUBLIC_CONTACT_EMAIL`
+- `VITE_PUBLIC_CONTACT_PHONE_DISPLAY`
+- `VITE_PUBLIC_CONTACT_PHONE_TEL`
 
 ## Documentation
 
