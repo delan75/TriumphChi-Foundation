@@ -80,13 +80,20 @@ function getUserProfileLocale(): Locale | null {
     const userStr = localStorage.getItem(USER_STORAGE_KEY);
     if (!userStr) return null;
 
-    const user = JSON.parse(userStr);
-    if (user?.preferred_locale && isLocale(user.preferred_locale)) {
-      return user.preferred_locale;
+    const parsed: unknown = JSON.parse(userStr);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return null;
     }
 
-    if (user?.locale && isLocale(user.locale)) {
-      return user.locale;
+    const user = parsed as Record<string, unknown>;
+    const preferredLocale = user['preferred_locale'];
+    if (typeof preferredLocale === 'string' && isLocale(preferredLocale)) {
+      return preferredLocale;
+    }
+
+    const locale = user['locale'];
+    if (typeof locale === 'string' && isLocale(locale)) {
+      return locale;
     }
   } catch {
     // Silent fail
@@ -110,7 +117,10 @@ function getCookieLocale(): Locale | null {
   try {
     const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
-      const [name, value] = cookie.trim().split('=');
+      const trimmedCookie = cookie.trim();
+      const separatorIndex = trimmedCookie.indexOf('=');
+      const name = separatorIndex === -1 ? trimmedCookie : trimmedCookie.slice(0, separatorIndex);
+      const value = separatorIndex === -1 ? '' : trimmedCookie.slice(separatorIndex + 1);
       if (name === LOCALE_COOKIE_NAME && isLocale(value)) {
         return value;
       }
@@ -155,7 +165,9 @@ function setCookie(name: string, value: string, days: number): void {
     const expires = new Date();
     expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
     const secureAttr = window.location.protocol === 'https:' ? ';Secure' : '';
-    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax${secureAttr}`;
+    const encodedName = encodeURIComponent(name);
+    const encodedValue = encodeURIComponent(value);
+    document.cookie = `${encodedName}=${encodedValue};expires=${expires.toUTCString()};path=/;SameSite=Lax${secureAttr}`;
   } catch {
     // Silent fail
   }
