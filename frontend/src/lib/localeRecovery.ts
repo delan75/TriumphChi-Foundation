@@ -137,7 +137,9 @@ function getBrowserLocale(): Locale | null {
     const browserLang = navigator.language;
     if (!browserLang) return null;
 
-    const langCode = browserLang.split('-')[0].toLowerCase();
+    const langCode = browserLang.split('-')[0].trim().toLowerCase();
+    if (!langCode) return null;
+
     if (isLocale(langCode)) {
       return langCode;
     }
