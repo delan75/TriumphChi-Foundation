@@ -1,184 +1,502 @@
-import { BarChart3, ClipboardCheck, HandCoins, ShieldCheck, UsersRound } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { useMemo } from 'react';
+import { ArrowRight, Clock3, Layers3, RefreshCcw, Sparkles, UsersRound, FileText, Wallet, ShieldCheck, ListChecks, Search, type LucideIcon } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
 import { DashboardPanel } from '../../components/staff/DashboardPanel';
-import { GlobalSearchPanel } from '../../components/staff/GlobalSearchPanel';
-import { WorkspaceCard } from '../../components/staff/WorkspaceCard';
-import { PageHeader } from '../../components/ui/PageHeader';
 import { StatusBadge } from '../../components/ui/StatusBadge';
-import { staffDashboardContent } from '../../content/staffDashboard';
+import { cn } from '../../components/ui/cn';
+import { staffDashboardText } from '../../content/staffDashboard';
 import { readStoredAuthUser } from '../../lib/auth';
 import { isLocale, type Locale } from '../../lib/i18n';
+import { useDashboardSummary } from './useDashboardSummary';
 
-const workspaceIcons = {
-  applications: ClipboardCheck,
-  beneficiaries: UsersRound,
-  funding: HandCoins,
-  reports: BarChart3,
+type MetricTone = 'info' | 'warning' | 'success';
+
+const metricToneClasses: Record<MetricTone, string> = {
+  info: 'bg-blue-50 text-blue-700 ring-blue-100',
+  warning: 'bg-amber-50 text-amber-800 ring-amber-100',
+  success: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
 };
 
-const workspaceTones = {
-  applications: 'amber',
-  beneficiaries: 'foundation',
-  funding: 'blue',
-  reports: 'ink',
-} as const;
+const metricIcons: Record<string, LucideIcon> = {
+  applications_pending_review: ListChecks,
+  beneficiaries_supported: UsersRound,
+  schools_connected: ShieldCheck,
+  active_sponsorships: Wallet,
+  funding_awaiting_allocation: RefreshCcw,
+  reports_due: FileText,
+};
+
+const quickActionIcons: Record<string, LucideIcon> = {
+  applications_review: ListChecks,
+  beneficiaries_open: UsersRound,
+  funding_open: Wallet,
+  reports_open: FileText,
+};
 
 export function StaffDashboardPage() {
   const { locale = 'en' } = useParams();
   const activeLocale = isLocale(locale) ? locale : 'en';
-  const copy = staffDashboardContent[activeLocale];
+  const copy = staffDashboardText[activeLocale];
+  const summaryQuery = useDashboardSummary();
   const user = readStoredAuthUser();
-  const permissions = user?.permissions ?? [];
-  const workspacePermissions = buildWorkspacePermissions();
-  const accessibleWorkspaces = copy.workspace.cards.filter((workspace) =>
-    workspacePermissions[workspace.key].some((permission) => permissions.includes(permission)),
-  );
+  const summary = summaryQuery.data;
+  const metrics = summary?.metrics ?? [];
+  const queues = summary?.priority_queues ?? [];
+  const activity = summary?.recent_activity ?? [];
+  const quickActions = summary?.quick_actions ?? [];
+  const accessibleModules = summary?.snapshot.accessible_modules ?? [];
+
+  const directPermissions = user?.permissions?.length ?? 0;
+  const roleLabel = user?.roles?.[0] ?? copy.roleLabel;
+  const lastLogin = formatDateTime(user?.last_login_at, activeLocale);
+  const generatedAt = formatDateTime(summary?.snapshot.generated_at, activeLocale, true);
+
+  const queuePreview = useMemo(() => queues.slice(0, 4), [queues]);
+
+  const topActions = quickActions.slice(0, 2);
+
+  if (summaryQuery.isError) {
+    return (
+      <section className="space-y-4">
+        <DashboardPanel
+          title={copy.title}
+          description={copy.subtitle}
+          action={
+            <button
+              type="button"
+              onClick={() => summaryQuery.refetch()}
+              className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-foundation-600 px-4 text-sm font-semibold text-white transition hover:bg-foundation-700"
+            >
+              <RefreshCcw className="h-4 w-4" aria-hidden="true" />
+              {copy.retryLabel}
+            </button>
+          }
+          >
+          <div className="rounded-md border border-amber-100 bg-amber-50 p-4 text-sm text-amber-900">
+            <p className="font-semibold">{copy.errorTitle}</p>
+            <p className="mt-1 leading-6">{copy.errorDescription}</p>
+          </div>
+        </DashboardPanel>
+      </section>
+    );
+  }
 
   return (
     <section className="space-y-6">
-      <PageHeader
-        eyebrow={copy.eyebrow}
-        title={copy.title}
-        description={copy.description}
-        action={<StatusBadge label={copy.liveBadge} tone="info" />}
-      />
-
-      <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <GlobalSearchPanel
-          locale={activeLocale}
-          title={copy.search.title}
-          description={copy.search.description}
-          placeholder={copy.search.placeholder}
-          helperText={copy.search.helperText}
-          emptyText={copy.search.emptyText}
-          shortQueryText={copy.search.shortQueryText}
-          permissionsHint={copy.search.permissionsHint}
-          visibleScopesLabel={copy.search.visibleScopesLabel}
-          scopeLabels={accessibleWorkspaces.map((workspace) => workspace.title)}
-          openWorkspaceLabel={copy.search.openWorkspaceLabel}
-          clearLabel={copy.search.clearLabel}
-          resultSingular={copy.search.resultSingular}
-          resultPlural={copy.search.resultPlural}
-          noVisibleScopes={copy.search.noVisibleScopes}
-        />
-
-        <DashboardPanel title={copy.access.title} description={copy.access.description}>
-          <dl className="grid gap-4 sm:grid-cols-2">
-            <SummaryItem label={copy.access.metrics.user} value={user?.name ?? copy.access.fallbackUser} />
-            <SummaryItem label={copy.access.metrics.locale} value={formatLocale(activeLocale)} />
-            <SummaryItem label={copy.access.metrics.permissions} value={String(permissions.length)} />
-            <SummaryItem label={copy.access.metrics.workspaces} value={String(accessibleWorkspaces.length)} />
-          </dl>
-
-          <div className="mt-5 rounded-md border border-foundation-100 bg-foundation-50 p-4">
-            <div className="flex items-start gap-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-white text-foundation-700 shadow-sm">
-                <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <div>
-                <h3 className="text-sm font-semibold text-foundation-900">{copy.access.noteTitle}</h3>
-                <p className="mt-1 text-sm leading-6 text-foundation-900">{copy.access.noteBody}</p>
+      <header className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-sm">
+        <div className="border-b border-ink-100 bg-gradient-to-r from-foundation-50 via-white to-white px-5 py-5 sm:px-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge label={copy.liveLabel} tone="success" />
+                <span className="inline-flex min-h-7 items-center rounded-md bg-ink-100 px-2.5 text-xs font-semibold text-ink-600">
+                  {generatedAt ? `${copy.generatedLabel} ${generatedAt}` : copy.generatedLabel}
+                </span>
               </div>
+              <h1 className="mt-4 text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">
+                {copy.greeting}, {user?.name ?? copy.staffFallback}
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-500 sm:text-base">
+                {copy.subtitle}
+              </p>
             </div>
-          </div>
-        </DashboardPanel>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {copy.workspace.cards.map((workspace) => {
-          const Icon = workspaceIcons[workspace.key];
-          const available = workspacePermissions[workspace.key].some((permission) => permissions.includes(permission));
+            {topActions.length ? (
+              <div className="grid gap-2 sm:grid-cols-2 lg:min-w-[360px] lg:max-w-[440px]">
+                {topActions.map((action, index) => {
+                  const actionCopy = copy.quickActionLabels[action.key] ?? {
+                    title: action.key,
+                    description: action.path,
+                  };
 
-          return (
-            <WorkspaceCard
-              key={workspace.key}
-              icon={Icon}
-              title={workspace.title}
-              description={workspace.description}
-              footer={workspace.footer}
-              ctaLabel={copy.workspace.available}
-              lockedLabel={copy.workspace.locked}
-              available={available}
-              tone={workspaceTones[workspace.key]}
-              to={buildWorkspacePath(activeLocale, workspace.key)}
-            />
-          );
-        })}
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <DashboardPanel title={copy.rhythm.title} description={copy.rhythm.description}>
-          <div className="space-y-4">
-            {copy.rhythm.items.map((item, index) => (
-              <div key={item.title} className="grid gap-3 border-b border-ink-100 pb-4 last:border-b-0 last:pb-0 sm:grid-cols-[2.5rem_1fr]">
-                <div className="grid h-10 w-10 place-items-center rounded-md bg-ink-50 text-sm font-semibold text-foundation-700">
-                  {index + 1}
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-ink-900">{item.title}</h3>
-                  <p className="mt-1 text-sm leading-6 text-ink-500">{item.description}</p>
-                </div>
+                  return (
+                    <TopActionLink
+                      key={action.key}
+                      to={`/${activeLocale}${action.path}`}
+                      label={actionCopy.title}
+                      hint={actionCopy.description}
+                      icon={quickActionIcons[action.key] ?? Layers3}
+                      tone={index === 0 ? 'foundation' : 'ink'}
+                    />
+                  );
+                })}
               </div>
-            ))}
+            ) : null}
           </div>
-        </DashboardPanel>
 
-        <DashboardPanel
-          title={copy.privacy.title}
-          description={copy.privacy.description}
-          action={<StatusBadge label={copy.access.privateBadge} tone="success" />}
-        >
-          <div className="space-y-4">
-            {copy.privacy.items.map((item) => (
-              <article key={item.title} className="rounded-md border border-ink-100 bg-ink-50 p-4">
-                <h3 className="text-sm font-semibold text-ink-900">{item.title}</h3>
-                <p className="mt-1 text-sm leading-6 text-ink-500">{item.description}</p>
-              </article>
-            ))}
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <CompactStat label={copy.roleLabel} value={roleLabel} />
+            <CompactStat label={copy.lastLoginLabel} value={lastLogin} />
+            <CompactStat label={copy.workspaceLabel} value={copy.title} />
           </div>
-        </DashboardPanel>
-      </div>
-
-      <DashboardPanel title={copy.lifecycle.title} description={copy.lifecycle.description}>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {copy.lifecycle.steps.map((step, index) => (
-            <article key={step.title} className="rounded-md border border-ink-100 bg-ink-50 p-4">
-              <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-md bg-white text-sm font-bold text-foundation-700">
-                {index + 1}
-              </div>
-              <h3 className="font-semibold text-ink-900">{step.title}</h3>
-              <p className="mt-1 text-sm leading-6 text-ink-500">{step.description}</p>
-            </article>
-          ))}
         </div>
-      </DashboardPanel>
+      </header>
+
+      {summaryQuery.isLoading ? <DashboardSkeleton /> : null}
+
+      {!summaryQuery.isLoading ? (
+        <>
+          <section className="space-y-4">
+            <div className="flex items-end justify-between gap-3">
+              <h2 className="text-base font-semibold text-ink-900">{copy.metricsSectionTitle}</h2>
+              <span className="text-xs font-semibold uppercase tracking-normal text-ink-500">{copy.liveLabel}</span>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {metrics.length ? (
+                metrics.map((metric) => {
+                  const Icon = metricIcons[metric.key] ?? Layers3;
+                  return (
+                    <article
+                      key={metric.key}
+                      className="rounded-md border border-ink-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className={cn('grid h-11 w-11 place-items-center rounded-md ring-1', metricToneClasses[metric.tone as MetricTone] ?? metricToneClasses.info)}>
+                          <Icon className="h-5 w-5" aria-hidden="true" />
+                        </div>
+                        <Link
+                          to={`/${activeLocale}${metric.path}`}
+                          className="focus-ring inline-flex min-h-9 items-center gap-1 rounded-md px-2 text-xs font-semibold text-foundation-700 transition hover:bg-foundation-50 hover:text-foundation-900"
+                        >
+                          {copy.openLabel}
+                          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                        </Link>
+                      </div>
+                      <p className="mt-4 text-sm font-medium text-ink-500">{copy.metricLabels[metric.key] ?? metric.key}</p>
+                      <p className="mt-2 text-3xl font-bold tracking-tight text-ink-900 tabular-nums">
+                        {formatNumber(metric.count, activeLocale)}
+                      </p>
+                    </article>
+                  );
+                })
+              ) : (
+                <article className="rounded-md border border-dashed border-ink-200 bg-white p-5 text-sm text-ink-500 shadow-sm sm:col-span-2 xl:col-span-3">
+                  {copy.statusLabels.noData}
+                </article>
+              )}
+            </div>
+          </section>
+
+          <section className="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
+            <DashboardPanel
+              title={copy.queuesSectionTitle}
+              action={
+                <Link
+                  to={`/${activeLocale}/staff/applications`}
+                  className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md border border-ink-100 px-4 text-sm font-semibold text-ink-700 transition hover:bg-ink-50"
+                >
+                  <Search className="h-4 w-4" aria-hidden="true" />
+                  {copy.searchLabel}
+                </Link>
+              }
+            >
+              {queuePreview.length ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {queuePreview.map((queue) => (
+                    <article key={queue.key} className="rounded-md border border-ink-100 bg-ink-50/60 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-ink-900">{copy.queueLabels[queue.key] ?? queue.key}</p>
+                          <p className="mt-1 text-xs text-ink-500">
+                            {formatNumber(queue.count, activeLocale)} {queue.count === 1 ? copy.recordLabel : copy.recordsLabel}
+                          </p>
+                        </div>
+                        <Link
+                          to={`/${activeLocale}${queue.path}`}
+                          className="focus-ring inline-flex min-h-9 items-center gap-1 rounded-md px-2 text-xs font-semibold text-foundation-700 transition hover:bg-white"
+                        >
+                          {copy.queueAction}
+                          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                        </Link>
+                      </div>
+
+                      <div className="mt-4 space-y-2">
+                        {queue.items.length ? (
+                          queue.items.map((item) => (
+                            <Link
+                              key={item.id}
+                              to={`/${activeLocale}${item.path}`}
+                              className="focus-ring flex items-start justify-between gap-4 rounded-md bg-white px-3 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                            >
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="truncate text-sm font-semibold text-ink-900">{item.title}</p>
+                                  {item.reference ? (
+                                    <span className="rounded-md bg-ink-100 px-2 py-1 text-[11px] font-semibold text-ink-600">
+                                      {item.reference}
+                                    </span>
+                                  ) : null}
+                                </div>
+                                {item.secondary ? <p className="mt-1 text-xs leading-5 text-ink-500">{item.secondary}</p> : null}
+                              </div>
+                              <div className="shrink-0 text-right">
+                                <StatusBadge label={item.status_label} tone={statusTone(item.status)} />
+                                <p className="mt-2 text-[11px] text-ink-500">{formatRelativeTime(item.updated_at, activeLocale)}</p>
+                              </div>
+                            </Link>
+                          ))
+                        ) : (
+                          <p className="rounded-md border border-dashed border-ink-200 bg-white px-3 py-4 text-sm text-ink-500">
+                            {copy.queueEmpty}
+                          </p>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-md border border-dashed border-ink-200 bg-ink-50/40 p-4 text-sm text-ink-500">
+                  {copy.statusLabels.noData}
+                </div>
+              )}
+            </DashboardPanel>
+
+            <div className="space-y-6">
+            <DashboardPanel title={copy.activitySectionTitle}>
+                {activity.length ? (
+                  <div className="space-y-3">
+                    {activity.slice(0, 6).map((item) => (
+                      <Link
+                        key={`${item.key}-${item.reference ?? item.title}`}
+                        to={`/${activeLocale}${item.path}`}
+                        className="focus-ring flex items-start justify-between gap-4 rounded-md border border-ink-100 bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:border-foundation-100 hover:shadow-sm"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-ink-900">{item.title}</p>
+                            {item.reference ? (
+                              <span className="rounded-md bg-foundation-50 px-2 py-1 text-[11px] font-semibold text-foundation-800">
+                                {item.reference}
+                              </span>
+                            ) : null}
+                          </div>
+                          <p className="mt-1 text-sm leading-6 text-ink-500">{item.description}</p>
+                        </div>
+                        <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-400">
+                          <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
+                          {formatRelativeTime(item.happened_at, activeLocale)}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm leading-6 text-ink-500">{copy.activityEmpty}</p>
+                )}
+              </DashboardPanel>
+
+              <DashboardPanel title={copy.overviewSectionTitle}>
+                <div className="space-y-4">
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                    <SummaryPill label={copy.overviewLabels.accessibleModules} value={formatNumber(accessibleModules.length, activeLocale)} />
+                    <SummaryPill label={copy.overviewLabels.directPermissions} value={formatNumber(directPermissions, activeLocale)} />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {accessibleModules.length ? (
+                      accessibleModules.map((module) => (
+                        <span
+                          key={module}
+                          className="inline-flex min-h-8 items-center rounded-md border border-ink-100 bg-ink-50 px-2.5 text-xs font-semibold text-ink-700"
+                        >
+                          {module}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-sm text-ink-500">{copy.statusLabels.noData}</span>
+                    )}
+                  </div>
+                </div>
+              </DashboardPanel>
+            </div>
+          </section>
+
+          <DashboardPanel
+            title={copy.actionsSectionTitle}
+            action={
+              <Link
+                to={`/${activeLocale}/staff/reports`}
+                className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md border border-ink-100 px-4 text-sm font-semibold text-ink-700 transition hover:bg-ink-50"
+              >
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
+                {copy.openReportsLabel}
+              </Link>
+            }
+          >
+            {quickActions.length ? (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {quickActions.map((action) => {
+                  const ActionIcon = quickActionIcons[action.key] ?? Layers3;
+                  const actionCopy = copy.quickActionLabels[action.key] ?? {
+                    title: action.key,
+                    description: action.path,
+                  };
+
+                  return (
+                    <Link
+                      key={action.key}
+                      to={`/${activeLocale}${action.path}`}
+                      className="focus-ring group rounded-md border border-ink-100 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-foundation-100 hover:shadow-md"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="grid h-11 w-11 place-items-center rounded-md bg-foundation-50 text-foundation-700 transition group-hover:bg-foundation-600 group-hover:text-white">
+                          <ActionIcon className="h-5 w-5" aria-hidden="true" />
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-ink-400 transition group-hover:text-foundation-700" aria-hidden="true" />
+                      </div>
+                      <h3 className="mt-4 text-sm font-semibold text-ink-900">{actionCopy.title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-ink-500">{actionCopy.description}</p>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm leading-6 text-ink-500">{copy.statusLabels.noData}</p>
+            )}
+          </DashboardPanel>
+        </>
+      ) : null}
     </section>
   );
 }
 
-function SummaryItem({ label, value }: { label: string; value: string }) {
+function CompactStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-ink-100 bg-ink-50 p-4">
-      <dt className="text-sm font-medium text-ink-500">{label}</dt>
-      <dd className="mt-2 text-xl font-semibold text-ink-900">{value}</dd>
+    <div className="rounded-md border border-ink-100 bg-white px-4 py-3 shadow-sm">
+      <p className="text-[11px] font-semibold uppercase tracking-normal text-ink-500">{label}</p>
+      <p className="mt-1 truncate text-sm font-semibold text-ink-900">{value}</p>
     </div>
   );
 }
 
-function buildWorkspacePermissions() {
-  return {
-    applications: ['applications.view'],
-    beneficiaries: ['beneficiaries.view', 'schools.view'],
-    funding: ['donors.view', 'donations.view', 'funds.view', 'allocations.view', 'payments.view'],
-    reports: ['impact_updates.view', 'audit_logs.view'],
-  } satisfies Record<'applications' | 'beneficiaries' | 'funding' | 'reports', string[]>;
+function SummaryPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-ink-100 bg-white px-4 py-3 shadow-sm">
+      <p className="text-xs font-semibold text-ink-500">{label}</p>
+      <p className="mt-1 text-xl font-bold tracking-tight text-ink-900 tabular-nums">{value}</p>
+    </div>
+  );
 }
 
-function buildWorkspacePath(locale: Locale, key: 'applications' | 'beneficiaries' | 'funding' | 'reports') {
-  return `/${locale}/staff/${key}`;
+function TopActionLink({
+  to,
+  label,
+  hint,
+  icon: Icon,
+  tone,
+}: {
+  to: string;
+  label: string;
+  hint: string;
+  icon: LucideIcon;
+  tone: 'foundation' | 'ink';
+}) {
+  return (
+    <Link
+      to={to}
+      className={cn(
+        'focus-ring group flex min-h-14 items-center justify-between gap-3 rounded-md border px-4 py-3 text-left shadow-sm transition duration-200 hover:-translate-y-0.5',
+        tone === 'foundation'
+          ? 'border-foundation-100 bg-foundation-600 text-white hover:bg-foundation-700'
+          : 'border-ink-100 bg-white text-ink-900 hover:border-foundation-100 hover:bg-foundation-50',
+      )}
+    >
+      <div className="min-w-0">
+        <p className="text-sm font-semibold">{label}</p>
+        <p className={cn('mt-1 text-xs leading-5', tone === 'foundation' ? 'text-white/80' : 'text-ink-500')}>{hint}</p>
+      </div>
+      <span className={cn('grid h-10 w-10 shrink-0 place-items-center rounded-md transition', tone === 'foundation' ? 'bg-white/10 text-white' : 'bg-foundation-50 text-foundation-700 group-hover:bg-foundation-600 group-hover:text-white')}>
+        <Icon className="h-5 w-5" aria-hidden="true" />
+      </span>
+    </Link>
+  );
 }
 
-function formatLocale(locale: Locale) {
-  return locale === 'fr' ? 'Francais' : 'English';
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6" aria-hidden="true">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div key={index} className="h-32 animate-pulse rounded-md border border-ink-100 bg-white" />
+        ))}
+      </section>
+      <section className="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
+        <div className="h-[26rem] animate-pulse rounded-md border border-ink-100 bg-white" />
+        <div className="space-y-6">
+          <div className="h-64 animate-pulse rounded-md border border-ink-100 bg-white" />
+          <div className="h-48 animate-pulse rounded-md border border-ink-100 bg-white" />
+        </div>
+      </section>
+      <div className="h-72 animate-pulse rounded-md border border-ink-100 bg-white" />
+    </div>
+  );
 }
 
+function formatNumber(value: number, locale: Locale) {
+  return new Intl.NumberFormat(locale).format(value ?? 0);
+}
+
+function formatDateTime(value: string | null | undefined, locale: Locale, compact = false) {
+  if (!value) {
+    return '-';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: compact ? 'medium' : 'long',
+    timeStyle: compact ? 'short' : 'short',
+  }).format(date);
+}
+
+function formatRelativeTime(value: string | null | undefined, locale: Locale) {
+  if (!value) {
+    return '-';
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '-';
+  }
+
+  const diffMs = date.getTime() - Date.now();
+  const diffMinutes = Math.round(diffMs / 60_000);
+  const diffHours = Math.round(diffMs / 3_600_000);
+  const diffDays = Math.round(diffMs / 86_400_000);
+
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+
+  if (Math.abs(diffDays) >= 1) {
+    return rtf.format(diffDays, 'day');
+  }
+
+  if (Math.abs(diffHours) >= 1) {
+    return rtf.format(diffHours, 'hour');
+  }
+
+  return rtf.format(diffMinutes, 'minute');
+}
+
+function statusTone(status: string): 'neutral' | 'info' | 'success' | 'warning' | 'danger' {
+  const normalized = status.toLowerCase();
+
+  if (normalized.includes('verified') || normalized.includes('active') || normalized.includes('approved')) {
+    return 'success';
+  }
+
+  if (normalized.includes('pending') || normalized.includes('review') || normalized.includes('verification')) {
+    return 'warning';
+  }
+
+  if (normalized.includes('rejected') || normalized.includes('failed') || normalized.includes('declined')) {
+    return 'danger';
+  }
+
+  if (normalized.includes('info') || normalized.includes('submitted')) {
+    return 'info';
+  }
+
+  return 'neutral';
+}
