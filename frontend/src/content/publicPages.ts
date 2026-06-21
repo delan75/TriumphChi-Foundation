@@ -271,10 +271,21 @@ export const publicPages: PublicPageDefinition[] = [
     path: { en: '/apply', fr: '/postuler' },
     label: { en: 'Apply', fr: 'Postuler' },
     eyebrow: { en: 'Application intake', fr: 'Dépôt de demande' },
-    title: { en: 'Start an education support application.', fr: 'Commencer une demande de soutien scolaire.' },
+    title: {
+      en: 'Request educational support for a child.',
+      fr: 'Demander un soutien éducatif pour un enfant.',
+    },
     description: {
-      en: 'Applications may come from families, schools, field officers, or NGO staff and remain private throughout review.',
-      fr: "Les demandes peuvent venir des familles, écoles, agents de terrain ou de l'équipe, et restent privées pendant l'étude.",
+      en: "Share the child's situation, school context, and the person who can help us verify the request so we can begin review.",
+      fr: "Partagez la situation de l'enfant, le contexte scolaire et la personne qui peut aider à vérifier la demande pour lancer l'examen.",
+    },
+    seoTitle: {
+      en: 'Apply for Education Support | TriumphChi Foundation',
+      fr: 'Demander un soutien éducatif | Fondation TriumphChi',
+    },
+    seoDescription: {
+      en: 'Use the public education application to request help for a child in rural Cameroon. Share the child, the need, and a responsible contact so the review can begin.',
+      fr: "Utilisez la demande publique de soutien éducatif pour signaler un besoin d'aide pour un enfant au Cameroun rural. Partagez l'enfant, le besoin et un contact responsable afin de lancer l'examen.",
     },
     schemaType: 'WebPage',
     sections: [],

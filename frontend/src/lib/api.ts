@@ -140,6 +140,31 @@ export interface ContactMessagePayload {
   attachments?: File[];
 }
 
+export interface PublicApplicationPayload {
+  child_name: string;
+  gender?: string;
+  date_of_birth?: string;
+  school_name?: string;
+  grade_level?: string;
+  region_name?: string;
+  village_name?: string;
+  need_type: 'fees' | 'books' | 'uniform' | 'exam' | 'transport' | 'meals' | 'other';
+  need_summary: string;
+  situation_summary: string;
+  contact_role: 'parent' | 'guardian' | 'school' | 'community_leader' | 'child' | 'other';
+  contact_name: string;
+  contact_phone: string;
+  contact_email?: string;
+  preferred_contact_method: 'phone' | 'sms' | 'whatsapp' | 'email';
+  consent: boolean;
+}
+
+export interface PublicApplicationSubmissionResponse {
+  uuid: string;
+  application_number: string;
+  submitted_at?: string;
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: buildHeaders(),
@@ -155,6 +180,21 @@ export async function apiPublicGet<T>(path: string): Promise<T> {
       Accept: 'application/json',
     },
     credentials: 'omit',
+  });
+
+  return parseJsonResponse<T>(response, `API request failed with ${response.status}`);
+}
+
+export async function apiPublicPost<T>(path: string, payload: unknown, locale: string): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    },
+    credentials: 'omit',
+    body: JSON.stringify(payload),
   });
 
   return parseJsonResponse<T>(response, `API request failed with ${response.status}`);
@@ -371,6 +411,29 @@ export async function apiSubmitContactMessage(
 
   return {
     message: String(data.message ?? 'Thank you for contacting us. We will respond as soon as possible.'),
+  };
+}
+
+export async function apiSubmitPublicApplication(
+  payload: PublicApplicationPayload,
+  locale: string,
+): Promise<{ message: string; data?: PublicApplicationSubmissionResponse }> {
+  const response = await fetch(`${API_BASE_URL}/public/applications`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    },
+    credentials: 'omit',
+    body: JSON.stringify(payload),
+  });
+
+  const data = await parseJsonEnvelope(response, 'We could not send your application. Please try again.');
+
+  return {
+    message: String(data.message ?? 'Thank you. Your application has been received and will be reviewed.'),
+    data: data.data as PublicApplicationSubmissionResponse | undefined,
   };
 }
 
