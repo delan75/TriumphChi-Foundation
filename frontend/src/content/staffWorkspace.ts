@@ -64,13 +64,15 @@ export interface StaffWorkspaceCopy {
     };
     loading: string;
   };
-  profile: {
-    title: string;
-    description: string;
-    identityTitle: string;
-    identityDescription: string;
-    labels: {
-      name: string;
+    profile: {
+      title: string;
+      description: string;
+      identityTitle: string;
+      identityDescription: string;
+      accessNote: string;
+      noPermissions: string;
+      labels: {
+        name: string;
       email: string;
       phone: string;
       locale: string;
@@ -196,6 +198,8 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
       description: 'Review the account details currently shaping this workspace.',
       identityTitle: 'Identity',
       identityDescription: 'Keep your account details visible and easy to confirm while you work.',
+      accessNote: 'Current access is derived from role and permission assignments.',
+      noPermissions: 'No direct permissions available.',
       labels: {
         name: 'Name',
         email: 'Email',
@@ -321,6 +325,8 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
       description: 'Consultez les informations de compte qui structurent cet espace de travail.',
       identityTitle: 'Identite',
       identityDescription: 'Gardez vos informations de compte visibles et faciles a verifier pendant le travail.',
+      accessNote: "L'acces actuel provient des roles et des permissions attribues.",
+      noPermissions: 'Aucune permission directe disponible.',
       labels: {
         name: 'Nom',
         email: 'Email',

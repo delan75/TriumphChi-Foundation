@@ -3,6 +3,8 @@ import { createBrowserRouter, Navigate, Outlet, useLocation, useParams } from 'r
 import { AppShell } from './shell/AppShell';
 import { PublicPage } from '../features/public/PublicPage';
 import { StaffDashboardPage } from '../features/staff/StaffDashboardPage';
+import { StaffProfilePage } from '../features/staff/StaffProfilePage';
+import { StaffSettingsPage } from '../features/staff/StaffSettingsPage';
 import { ApplicationsPage } from '../features/applications/ApplicationsPage';
 import { BeneficiariesPage } from '../features/beneficiaries/BeneficiariesPage';
 import { FundingPage } from '../features/funding/FundingPage';
@@ -37,6 +39,8 @@ export const router = createBrowserRouter([
             element: <ProtectedStaffOutlet />,
             children: [
               { index: true, element: <StaffDashboardPage /> },
+              { path: 'profile', element: <StaffProfilePage /> },
+              { path: 'settings', element: <StaffSettingsPage /> },
               { path: 'applications', element: <ApplicationsPage /> },
               { path: 'beneficiaries', element: <BeneficiariesPage /> },
               { path: 'funding', element: <FundingPage /> },
