@@ -38,6 +38,10 @@ return [
         'consent_required' => 'Veuillez confirmer que nous pouvons répondre à votre message.',
     ],
 
+    'application' => [
+        'received' => 'Merci. Votre demande a été reçue et sera examinée.',
+    ],
+
     'search' => [
         'retrieved' => 'RÃ©sultats de recherche rÃ©cupÃ©rÃ©s avec succÃ¨s.',
         'fallbacks' => [

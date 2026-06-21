@@ -6,6 +6,7 @@ import { isLocale } from '../../lib/i18n';
 import { buildPublicPageSchema, getPageByKey, getPublicPage, publicPages } from '../../content/publicPages';
 import { LandingPage } from './landing/LandingPage';
 import { AboutPage } from './about/AboutPage';
+import { ApplyPage } from './apply/ApplyPage';
 import { SponsorPage } from './sponsor/SponsorPage';
 import { ContactPage } from './contact/ContactPage';
 import { NotFoundPage } from '../errors/NotFoundPage';
@@ -34,6 +35,10 @@ export function PublicPage() {
 
   if (page.key === 'contact') {
     return <ContactPage locale={activeLocale} page={page} />;
+  }
+
+  if (page.key === 'apply') {
+    return <ApplyPage locale={activeLocale} page={page} />;
   }
 
   const ctaPage = page.cta ? getPageByKey(page.cta.page) : undefined;

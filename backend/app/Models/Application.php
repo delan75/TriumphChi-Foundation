@@ -28,6 +28,7 @@ class Application extends Model
         'school_id',
         'submitted_by',
         'needs_assessment',
+        'intake_payload',
         'verification_notes',
         'submitted_at',
         'verified_at',
@@ -39,6 +40,7 @@ class Application extends Model
         return [
             'status' => ApplicationStatus::class,
             'date_of_birth' => 'date',
+            'intake_payload' => 'array',
             'submitted_at' => 'datetime',
             'verified_at' => 'datetime',
             'reviewed_at' => 'datetime',

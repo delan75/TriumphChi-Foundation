@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\ImpactUpdateController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\PublicImpactController;
+use App\Http\Controllers\Api\V1\PublicApplicationController;
 use App\Http\Controllers\Api\V1\SchoolController;
 use App\Http\Controllers\Api\V1\SponsorshipController;
 use App\Http\Controllers\Api\V1\SocialiteController;
@@ -29,6 +30,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('public/contact-messages', [ContactMessageController::class, 'store'])
         ->middleware([SetLocale::class, 'throttle:5,1'])
         ->name('public.contact-messages.store');
+    Route::post('public/applications', [PublicApplicationController::class, 'store'])
+        ->middleware([SetLocale::class, 'throttle:5,1'])
+        ->name('public.applications.store');
 
     Route::prefix('auth')->name('auth.')->middleware(SetLocale::class)->group(function () {
         Route::post('register', [AuthController::class, 'register'])
