@@ -30,9 +30,36 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('public/contact-messages', [ContactMessageController::class, 'store'])
         ->middleware([SetLocale::class, 'throttle:5,1'])
         ->name('public.contact-messages.store');
-    Route::post('public/applications', [PublicApplicationController::class, 'store'])
-        ->middleware([SetLocale::class, 'throttle:5,1'])
-        ->name('public.applications.store');
+    Route::prefix('public/applications')->name('public.applications.')->group(function () {
+        Route::post('draft', [PublicApplicationController::class, 'initDraft'])
+            ->middleware([SetLocale::class, 'throttle:5,1'])
+            ->name('draft');
+
+        Route::put('{token}/step/{step}', [PublicApplicationController::class, 'saveStep'])
+            ->middleware([SetLocale::class, 'throttle:10,1'])
+            ->name('step.save');
+
+        Route::post('{token}/documents', [PublicApplicationController::class, 'uploadDocument'])
+            ->middleware([SetLocale::class, 'throttle:10,1'])
+            ->name('documents.upload');
+
+        Route::post('{token}/submit', [PublicApplicationController::class, 'submit'])
+            ->middleware([SetLocale::class, 'throttle:5,1'])
+            ->name('submit');
+
+        Route::get('{token}/pdf', [PublicApplicationController::class, 'generatePdf'])
+            ->middleware([SetLocale::class, 'throttle:10,1'])
+            ->name('pdf');
+            
+        Route::post('preview-pdf', [PublicApplicationController::class, 'previewPdf'])
+            ->middleware([SetLocale::class, 'throttle:10,1'])
+            ->name('preview.pdf');
+            
+        // Legacy single-payload endpoint (optional, might remove later if front-end completely migrated)
+        Route::post('/', [PublicApplicationController::class, 'store'])
+            ->middleware([SetLocale::class, 'throttle:5,1'])
+            ->name('store');
+    });
 
     Route::prefix('auth')->name('auth.')->middleware(SetLocale::class)->group(function () {
         Route::post('register', [AuthController::class, 'register'])
