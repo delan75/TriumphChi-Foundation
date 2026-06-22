@@ -21,4 +21,9 @@ class ImpactUpdate extends Model
     {
         return ['published_at' => 'datetime'];
     }
+
+    public function beneficiary()
+    {
+        return $this->belongsTo(Beneficiary::class);
+    }
 }

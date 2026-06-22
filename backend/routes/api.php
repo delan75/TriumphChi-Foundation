@@ -8,11 +8,14 @@ use App\Http\Controllers\Api\V1\PasswordResetController;
 use App\Http\Controllers\Api\V1\BeneficiaryController;
 use App\Http\Controllers\Api\V1\DonationController;
 use App\Http\Controllers\Api\V1\DonorController;
+use App\Http\Controllers\Api\V1\DashboardSummaryController;
 use App\Http\Controllers\Api\V1\EducationalNeedController;
 use App\Http\Controllers\Api\V1\FundController;
+use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\ImpactUpdateController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\PublicImpactController;
+use App\Http\Controllers\Api\V1\PublicApplicationController;
 use App\Http\Controllers\Api\V1\SchoolController;
 use App\Http\Controllers\Api\V1\SponsorshipController;
 use App\Http\Controllers\Api\V1\SocialiteController;
@@ -27,6 +30,36 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('public/contact-messages', [ContactMessageController::class, 'store'])
         ->middleware([SetLocale::class, 'throttle:5,1'])
         ->name('public.contact-messages.store');
+    Route::prefix('public/applications')->name('public.applications.')->group(function () {
+        Route::post('draft', [PublicApplicationController::class, 'initDraft'])
+            ->middleware([SetLocale::class, 'throttle:5,1'])
+            ->name('draft');
+
+        Route::put('{token}/step/{step}', [PublicApplicationController::class, 'saveStep'])
+            ->middleware([SetLocale::class, 'throttle:10,1'])
+            ->name('step.save');
+
+        Route::post('{token}/documents', [PublicApplicationController::class, 'uploadDocument'])
+            ->middleware([SetLocale::class, 'throttle:10,1'])
+            ->name('documents.upload');
+
+        Route::post('{token}/submit', [PublicApplicationController::class, 'submit'])
+            ->middleware([SetLocale::class, 'throttle:5,1'])
+            ->name('submit');
+
+        Route::get('{token}/pdf', [PublicApplicationController::class, 'generatePdf'])
+            ->middleware([SetLocale::class, 'throttle:10,1'])
+            ->name('pdf');
+            
+        Route::post('preview-pdf', [PublicApplicationController::class, 'previewPdf'])
+            ->middleware([SetLocale::class, 'throttle:10,1'])
+            ->name('preview.pdf');
+            
+        // Legacy single-payload endpoint (optional, might remove later if front-end completely migrated)
+        Route::post('/', [PublicApplicationController::class, 'store'])
+            ->middleware([SetLocale::class, 'throttle:5,1'])
+            ->name('store');
+    });
 
     Route::prefix('auth')->name('auth.')->middleware(SetLocale::class)->group(function () {
         Route::post('register', [AuthController::class, 'register'])
@@ -101,6 +134,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
     Route::middleware(['auth:sanctum', 'account.active', SetLocale::class])->group(function () {
+        Route::get('dashboard/summary', DashboardSummaryController::class)
+            ->name('dashboard.summary');
+
+        Route::get('global-search', GlobalSearchController::class)
+            ->name('global-search');
+
         Route::apiResource('applications', ApplicationController::class)
             ->middlewareFor(['index', 'show'], 'can:applications.view')
             ->middlewareFor('store', 'can:applications.create')

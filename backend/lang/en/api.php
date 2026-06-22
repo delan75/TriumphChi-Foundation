@@ -38,6 +38,38 @@ return [
         'consent_required' => 'Please confirm that we may respond to your message.',
     ],
 
+    'application' => [
+        'received' => 'Thank you. Your application has been received and will be reviewed.',
+        'retrieved' => 'Applications retrieved successfully.',
+        'retrieved_single' => 'Application retrieved successfully.',
+        'created' => 'Application created successfully.',
+        'updated' => 'Application updated successfully.',
+        'deleted' => 'Application deleted successfully.',
+        'transitioned' => 'Application status updated successfully.',
+        'invalid_transition' => 'This status transition is not permitted for the current application state.',
+    ],
+
+    'search' => [
+        'retrieved' => 'Search results retrieved successfully.',
+        'fallbacks' => [
+            'donation' => 'Donation record',
+        ],
+        'groups' => [
+            'applications' => 'Applications',
+            'beneficiaries' => 'Beneficiaries',
+            'schools' => 'Schools',
+            'donors' => 'Donors',
+            'donations' => 'Donations',
+            'funds' => 'Funds',
+            'payments' => 'Payments',
+            'sponsorships' => 'Sponsorships',
+        ],
+    ],
+
+    'dashboard' => [
+        'retrieved' => 'Dashboard summary retrieved successfully.',
+    ],
+
     'errors' => [
         'allocation_currency_mismatch' => 'The allocation currency must match the donation currency.',
         'allocation_fund_mismatch' => 'The allocation fund must match the donation fund.',

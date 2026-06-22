@@ -11,6 +11,7 @@ backend/vendor/
 backend/.env
 backend/storage/*.key
 backend/bootstrap/cache/*.php
+backend/node_modules/
 
 # Frontend
 frontend/node_modules/

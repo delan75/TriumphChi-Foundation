@@ -87,9 +87,9 @@ class RolePermissionSeeder extends Seeder
         }
 
         $admin = User::firstOrCreate(
-            ['email' => env('SUPER_ADMIN_EMAIL', 'admin@triumphchi.org')],
+            ['email' => env('SUPER_ADMIN_EMAIL', 'admin@gmail.com')],
             [
-                'name' => env('SUPER_ADMIN_NAME', 'Super Administrator'),
+                'name' => env('SUPER_ADMIN_NAME', 'Super Admin'),
                 'password' => $password,
                 'preferred_locale' => env('SUPER_ADMIN_LOCALE', 'en'),
                 'status' => User::STATUS_ACTIVE,
