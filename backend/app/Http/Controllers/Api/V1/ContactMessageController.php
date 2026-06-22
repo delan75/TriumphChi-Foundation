@@ -28,25 +28,26 @@ class ContactMessageController extends Controller
                 'user_agent' => $request->userAgent(),
             ]);
 
-            foreach ($request->file('attachments', []) as $file) {
+            foreach ($request->input('draft_attachments', []) as $draft) {
                 $disk = config('filesystems.private_upload_disk', 'local');
-                $storedName = Str::uuid()->toString().'.'.strtolower($file->getClientOriginalExtension());
-                $path = Storage::disk($disk)->putFileAs(
-                    "contact-messages/{$contactMessage->uuid}",
-                    $file,
-                    $storedName,
-                    ['visibility' => 'private'],
-                );
+                // The filename from the draft path (e.g., drafts/contact-messages/uuid.jpg)
+                $storedName = basename($draft['path']);
+                $finalPath = "contact-messages/{$contactMessage->uuid}/{$storedName}";
 
-                $contactMessage->attachments()->create([
-                    'original_name' => $file->getClientOriginalName(),
-                    'stored_name' => $storedName,
-                    'path' => $path,
-                    'disk' => $disk,
-                    'mime_type' => $file->getMimeType(),
-                    'size_bytes' => $file->getSize(),
-                    'scan_status' => 'passed',
-                ]);
+                // Move the file from the draft location to the final location
+                if (Storage::disk($disk)->exists($draft['path'])) {
+                    Storage::disk($disk)->move($draft['path'], $finalPath);
+
+                    $contactMessage->attachments()->create([
+                        'original_name' => $draft['original_name'],
+                        'stored_name' => $storedName,
+                        'path' => $finalPath,
+                        'disk' => $disk,
+                        'mime_type' => $draft['mime_type'],
+                        'size_bytes' => $draft['size'],
+                        'scan_status' => 'passed',
+                    ]);
+                }
             }
 
             return $contactMessage->load('attachments');

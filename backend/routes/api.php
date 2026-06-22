@@ -16,9 +16,12 @@ use App\Http\Controllers\Api\V1\ImpactUpdateController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\PublicImpactController;
 use App\Http\Controllers\Api\V1\PublicApplicationController;
+use App\Http\Controllers\Api\V1\PublicApplicationTrackingController;
+use App\Http\Controllers\Api\V1\PublicLookupController;
 use App\Http\Controllers\Api\V1\SchoolController;
 use App\Http\Controllers\Api\V1\SponsorshipController;
 use App\Http\Controllers\Api\V1\SocialiteController;
+use App\Http\Controllers\Api\V1\ContactMessageDraftAttachmentController;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +33,18 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('public/contact-messages', [ContactMessageController::class, 'store'])
         ->middleware([SetLocale::class, 'throttle:5,1'])
         ->name('public.contact-messages.store');
+    Route::post('public/contact-messages/draft-attachments', [ContactMessageDraftAttachmentController::class, 'store'])
+        ->middleware([SetLocale::class, 'throttle:20,1'])
+        ->name('public.contact-messages.draft-attachments.store');
+    Route::post('public/applications', [PublicApplicationController::class, 'store'])
+        ->middleware([SetLocale::class, 'throttle:5,1'])
+        ->name('public.applications.store');
+    Route::get('public/lookups/{type}', [PublicLookupController::class, 'index'])
+        ->middleware([SetLocale::class, 'throttle:20,1'])
+        ->name('public.lookups.index');
+    Route::get('public/applications/track', [PublicApplicationTrackingController::class, 'show'])
+        ->middleware([SetLocale::class, 'throttle:20,1'])
+        ->name('public.applications.track');
     Route::prefix('public/applications')->name('public.applications.')->group(function () {
         Route::post('draft', [PublicApplicationController::class, 'initDraft'])
             ->middleware([SetLocale::class, 'throttle:5,1'])

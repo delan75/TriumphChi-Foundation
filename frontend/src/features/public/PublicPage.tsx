@@ -7,6 +7,7 @@ import { buildPublicPageSchema, getPageByKey, getPublicPage, publicPages } from 
 import { LandingPage } from './landing/LandingPage';
 import { AboutPage } from './about/AboutPage';
 import { ApplyPage } from './apply/ApplyPage';
+import { ProgramsPage } from './programs/ProgramsPage';
 import { SponsorPage } from './sponsor/SponsorPage';
 import { ContactPage } from './contact/ContactPage';
 import { NotFoundPage } from '../errors/NotFoundPage';
@@ -27,6 +28,10 @@ export function PublicPage() {
 
   if (page.key === 'about') {
     return <AboutPage locale={activeLocale} page={page} />;
+  }
+
+  if (page.key === 'programs') {
+    return <ProgramsPage locale={activeLocale} page={page} />;
   }
 
   if (page.key === 'sponsor') {

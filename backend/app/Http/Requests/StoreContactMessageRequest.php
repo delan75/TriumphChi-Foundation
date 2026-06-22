@@ -23,57 +23,24 @@ class StoreContactMessageRequest extends FormRequest
             'reason' => ['required', 'string', 'in:sponsorship,assistance,school,volunteer,partnership,general'],
             'subject' => ['nullable', 'string', 'max:255'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
-            'attachments' => ['nullable', 'array', 'max:3'],
-            'attachments.*' => [
-                'file',
-                'max:5120',
-            ],
+            'draft_attachments' => ['nullable', 'array', 'max:3'],
+            'draft_attachments.*.path' => ['required', 'string'],
+            'draft_attachments.*.original_name' => ['required', 'string'],
+            'draft_attachments.*.size' => ['required', 'integer'],
+            'draft_attachments.*.mime_type' => ['required', 'string'],
             'consent' => ['accepted'],
         ];
     }
 
     public function withValidator(Validator $validator): void
     {
-        $validator->after(function (Validator $validator): void {
-            $scanner = app(FileSecurityScanner::class);
-
-            foreach ($this->file('attachments', []) as $index => $file) {
-                if (! $file) {
-                    $validator->errors()->add(
-                        "attachments.{$index}",
-                        __('api.contact.unreadable_attachment'),
-                    );
-
-                    continue;
-                }
-
-                $scan = $scanner->scan($file);
-
-                if (! $scan->passed) {
-                    Log::warning('Rejected public contact attachment.', [
-                        'original_name' => $file->getClientOriginalName(),
-                        'client_mime_type' => $file->getClientMimeType(),
-                        'detected_mime_type' => $file->getMimeType(),
-                        'extension' => $file->getClientOriginalExtension(),
-                        'size_bytes' => $file->getSize(),
-                        'reason' => $scan->reason,
-                    ]);
-
-                    $validator->errors()->add(
-                        "attachments.{$index}",
-                        __($scan->messageKey ?? 'api.contact.unsafe_attachment'),
-                    );
-                }
-            }
-        });
+        // Scanning is now done at the draft attachment upload stage.
     }
 
     public function messages(): array
     {
         return [
-            'attachments.max' => __('api.contact.too_many_attachments'),
-            'attachments.*.file' => __('api.contact.unreadable_attachment'),
-            'attachments.*.max' => __('api.contact.attachment_too_large'),
+            'draft_attachments.max' => __('api.contact.too_many_attachments'),
             'consent.accepted' => __('api.contact.consent_required'),
         ];
     }

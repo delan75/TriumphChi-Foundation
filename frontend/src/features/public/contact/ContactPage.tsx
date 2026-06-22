@@ -21,9 +21,12 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { PublicPageTitle } from '../../../components/public/PublicPageTitle';
 import { Seo } from '../../../components/seo/Seo';
+import { InputField } from '../../../components/ui/InputField';
+import { SelectField } from '../../../components/ui/SelectField';
+import { TextAreaField } from '../../../components/ui/TextAreaField';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
-import { apiSubmitContactMessage } from '../../../lib/api';
+import { apiSubmitContactMessage, ContactDraftAttachment } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
 import { publicContact } from '../../../lib/publicContact';
 import heroImage from '../../../assets/landing/rural-home-cameroon.jpg';
@@ -71,7 +74,8 @@ export function ContactPage({ locale, page }: ContactPageProps) {
   const [form, setForm] = useState<ContactFormState>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormState, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [attachments, setAttachments] = useState<File[]>([]);
+  const [drafts, setDrafts] = useState<ContactDraftAttachment[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [attachmentInputKey, setAttachmentInputKey] = useState(0);
   const [submissionMessage, setSubmissionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const contactMethods = [
@@ -127,14 +131,14 @@ export function ContactPage({ locale, page }: ContactPageProps) {
           subject: form.subject.trim() || undefined,
           message: form.message.trim(),
           consent: form.consent,
-          attachments,
+          draft_attachments: drafts,
         },
         locale,
       );
 
       setSubmissionMessage({ type: 'success', text: response.message });
       setForm(initialForm);
-      setAttachments([]);
+      setDrafts([]);
       setAttachmentInputKey((current) => current + 1);
     } catch (error) {
       setSubmissionMessage({
@@ -146,11 +150,53 @@ export function ContactPage({ locale, page }: ContactPageProps) {
     }
   };
 
-  const handleAttachmentsChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setAttachments(Array.from(event.target.files ?? []));
+  const handleAttachmentsChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (files.length === 0) return;
 
     if (submissionMessage) {
       setSubmissionMessage(null);
+    }
+
+    setIsUploading(true);
+    const newDrafts: ContactDraftAttachment[] = [];
+
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('attachment', file);
+
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}/public/contact-messages/draft-attachments`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Accept-Language': locale,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || copy.validation.failed);
+        }
+
+        const data: ContactDraftAttachment = await response.json();
+        
+        if (file.type.startsWith('image/')) {
+          data.preview_url = URL.createObjectURL(file);
+        }
+        
+        newDrafts.push(data);
+      }
+      
+      setDrafts((prev) => [...prev, ...newDrafts]);
+    } catch (error) {
+      setSubmissionMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : copy.validation.failed,
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -253,106 +299,130 @@ export function ContactPage({ locale, page }: ContactPageProps) {
 
             <form onSubmit={handleSubmit} className="grid gap-5" noValidate>
               <div className="grid gap-5 sm:grid-cols-2">
-                <Field label={copy.fields.name} id="contact-name" error={errors.name}>
-                  <input
-                    id="contact-name"
-                    name="name"
-                    type="text"
-                    autoComplete="name"
-                    value={form.name}
-                    onChange={(event) => updateField('name', event.target.value)}
-                    className={fieldClass(Boolean(errors.name))}
-                    aria-invalid={Boolean(errors.name)}
-                    aria-describedby={errors.name ? 'contact-name-error' : undefined}
-                  />
-                </Field>
+                <InputField
+                  id="contact-name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  label={copy.fields.name}
+                  value={form.name}
+                  onChange={(event) => updateField('name', event.target.value)}
+                  error={errors.name}
+                  required
+                />
 
-                <Field label={copy.fields.email} id="contact-email" error={errors.email}>
-                  <input
-                    id="contact-email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    value={form.email}
-                    onChange={(event) => updateField('email', event.target.value)}
-                    className={fieldClass(Boolean(errors.email))}
-                    aria-invalid={Boolean(errors.email)}
-                    aria-describedby={errors.email ? 'contact-email-error' : undefined}
-                  />
-                </Field>
+                <InputField
+                  id="contact-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  label={copy.fields.email}
+                  value={form.email}
+                  onChange={(event) => updateField('email', event.target.value)}
+                  error={errors.email}
+                  required
+                />
               </div>
 
               <div className="grid gap-5 sm:grid-cols-2">
-                <Field label={copy.fields.phone} id="contact-phone" error={errors.phone}>
-                  <input
-                    id="contact-phone"
-                    name="phone"
-                    type="tel"
-                    autoComplete="tel"
-                    value={form.phone}
-                    onChange={(event) => updateField('phone', event.target.value)}
-                    className={fieldClass(Boolean(errors.phone))}
-                    aria-invalid={Boolean(errors.phone)}
-                    aria-describedby={errors.phone ? 'contact-phone-error' : undefined}
-                  />
-                </Field>
+                <InputField
+                  id="contact-phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  label={copy.fields.phone}
+                  value={form.phone}
+                  onChange={(event) => updateField('phone', event.target.value)}
+                  error={errors.phone}
+                />
 
-                <Field label={copy.fields.reason} id="contact-reason" error={errors.reason}>
-                  <select
-                    id="contact-reason"
-                    name="reason"
-                    value={form.reason}
-                    onChange={(event) => updateField('reason', event.target.value as ContactReason)}
-                    className={fieldClass(Boolean(errors.reason))}
-                    aria-invalid={Boolean(errors.reason)}
-                    aria-describedby={errors.reason ? 'contact-reason-error' : undefined}
-                  >
-                    {copy.reasonOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
+                <SelectField
+                  id="contact-reason"
+                  name="reason"
+                  label={copy.fields.reason}
+                  value={form.reason}
+                  onChange={(event) => updateField('reason', event.target.value as ContactReason)}
+                  error={errors.reason}
+                  required
+                >
+                  {copy.reasonOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </SelectField>
               </div>
 
-              <Field label={copy.fields.subject} id="contact-subject" error={errors.subject}>
-                <input
-                  id="contact-subject"
-                  name="subject"
-                  type="text"
-                  value={form.subject}
-                  onChange={(event) => updateField('subject', event.target.value)}
-                  className={fieldClass(Boolean(errors.subject))}
-                  aria-invalid={Boolean(errors.subject)}
-                  aria-describedby={errors.subject ? 'contact-subject-error' : undefined}
-                />
-              </Field>
+              <InputField
+                id="contact-subject"
+                name="subject"
+                type="text"
+                label={copy.fields.subject}
+                value={form.subject}
+                onChange={(event) => updateField('subject', event.target.value)}
+                error={errors.subject}
+                required
+              />
 
-              <Field label={copy.fields.message} id="contact-message" error={errors.message} helpText={copy.messageHelp}>
-                <textarea
-                  id="contact-message"
-                  name="message"
-                  rows={6}
-                  value={form.message}
-                  onChange={(event) => updateField('message', event.target.value)}
-                  className={cn(fieldClass(Boolean(errors.message)), 'min-h-40 resize-y leading-6')}
-                  aria-invalid={Boolean(errors.message)}
-                  aria-describedby={errors.message ? 'contact-message-error' : 'contact-message-help'}
-                />
-              </Field>
+              <TextAreaField
+                id="contact-message"
+                name="message"
+                label={copy.fields.message}
+                value={form.message}
+                onChange={(event) => updateField('message', event.target.value)}
+                error={errors.message}
+                helpText={copy.messageHelp}
+                maxLength={5000}
+                required
+              />
 
-              <Field label={copy.fields.attachments} id="contact-attachments" helpText={attachments.length > 0 ? copy.attachmentsSelected(attachments.length) : undefined}>
-                <input
-                  id="contact-attachments"
-                  key={attachmentInputKey}
-                  name="attachments"
-                  type="file"
-                  multiple
-                  onChange={handleAttachmentsChange}
-                  className="block min-h-12 w-full rounded-md border border-ink-200 bg-white px-3 py-2.5 text-base text-ink-900 shadow-sm transition duration-200 file:mr-4 file:rounded-md file:border-0 file:bg-foundation-50 file:px-3 file:py-2 file:text-sm file:font-bold file:text-foundation-700 hover:file:bg-foundation-100 focus:border-foundation-500 focus:outline-none focus:ring-2 focus:ring-foundation-500/20 sm:text-sm"
-                />
-              </Field>
+              <div>
+                <label htmlFor="contact-attachments" className="block text-sm font-bold text-ink-700">
+                  {copy.fields.attachments}
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="contact-attachments"
+                    key={attachmentInputKey}
+                    name="attachments"
+                    type="file"
+                    multiple
+                    disabled={isUploading || isSubmitting}
+                    onChange={handleAttachmentsChange}
+                    className="block min-h-12 w-full rounded-md border border-ink-200 bg-white px-3 py-2.5 text-base text-ink-900 shadow-sm transition duration-200 file:mr-4 file:rounded-md file:border-0 file:bg-foundation-50 file:px-3 file:py-2 file:text-sm file:font-bold file:text-foundation-700 hover:file:bg-foundation-100 focus:border-foundation-500 focus:outline-none focus:ring-2 focus:ring-foundation-500/20 disabled:opacity-50 sm:text-sm"
+                  />
+                </div>
+                {isUploading && (
+                  <p className="mt-2 text-xs font-medium text-foundation-600 animate-pulse">Uploading file(s)...</p>
+                )}
+                {drafts.length > 0 && (
+                  <ul className="mt-3 divide-y divide-ink-100 rounded-md border border-ink-100 bg-white">
+                    {drafts.map((draft, idx) => (
+                      <li key={idx} className="flex items-center justify-between py-2 pl-3 pr-4 text-sm">
+                        <div className="flex w-0 flex-1 items-center">
+                          {draft.mime_type.startsWith('image/') ? (
+                            <div className="mr-3 h-8 w-8 flex-shrink-0 rounded bg-ink-100 flex items-center justify-center text-[10px] uppercase font-bold text-ink-500 overflow-hidden">
+                              {draft.preview_url ? (
+                                <img src={draft.preview_url} alt={draft.original_name} className="h-full w-full object-cover" />
+                              ) : (
+                                "IMG"
+                              )}
+                            </div>
+                          ) : (
+                            <svg className="mr-3 h-5 w-5 flex-shrink-0 text-ink-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path fillRule="evenodd" d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                          <span className="truncate font-medium text-ink-700">{draft.original_name}</span>
+                        </div>
+                        <div className="ml-4 flex-shrink-0 text-xs text-ink-500">
+                          {(draft.size / 1024 / 1024).toFixed(2)} MB
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
 
               <label className="flex items-start gap-3 rounded-md border border-ink-100 bg-ink-50 p-4 text-sm leading-6 text-ink-600">
                 <input
@@ -507,35 +577,22 @@ function SectionIntro({ eyebrow, title, body }: { eyebrow: string; title: string
   );
 }
 
-function Field({
-  label,
-  id,
-  error,
-  helpText,
-  children,
-}: {
-  label: string;
-  id: string;
-  error?: string;
-  helpText?: string;
-  children: ReactNode;
-}) {
+function ContactItem({ icon, title, text, href }: { icon: React.ReactNode; title: string; text: string; href?: string }) {
   return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-bold text-ink-700">
-        {label}
-      </label>
-      <div className="mt-1">{children}</div>
-      {helpText ? (
-        <p id={`${id}-help`} className="mt-2 text-xs leading-5 text-ink-500">
-          {helpText}
-        </p>
-      ) : null}
-      {error ? (
-        <p id={`${id}-error`} className="mt-2 text-sm text-support-red">
-          {error}
-        </p>
-      ) : null}
+    <div className="flex gap-4">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-foundation-100 text-foundation-600">
+        {icon}
+      </div>
+      <div>
+        <h3 className="font-bold text-ink-900">{title}</h3>
+        {href ? (
+          <a href={href} className="mt-1 block text-ink-600 hover:text-foundation-600">
+            {text}
+          </a>
+        ) : (
+          <p className="mt-1 text-ink-600">{text}</p>
+        )}
+      </div>
     </div>
   );
 }

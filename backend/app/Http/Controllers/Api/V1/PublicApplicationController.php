@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\ApplicationStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Services\PublicApplicationIntakeService;
 use App\Models\ApplicationStep;
 use App\Models\ApplicationDocument;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +18,10 @@ use App\Http\Requests\Api\V1\StorePublicApplicationRequest;
 
 class PublicApplicationController extends Controller
 {
+    public function __construct(private readonly PublicApplicationIntakeService $intakeService)
+    {
+    }
+
     public function initDraft(Request $request): JsonResponse
     {
         $application = Application::create([
@@ -233,6 +238,12 @@ class PublicApplicationController extends Controller
     {
         // For backwards compatibility or direct monolithic submission
         $application = DB::transaction(function () use ($request): Application {
+            $location = $this->intakeService->resolveLocationAndSchool(
+                $request->filled('region_name') ? $request->string('region_name')->toString() : null,
+                $request->filled('village_name') ? $request->string('village_name')->toString() : null,
+                $request->filled('school_name') ? $request->string('school_name')->toString() : null,
+            );
+
             $application = Application::create([
                 'source' => 'online',
                 'status' => ApplicationStatus::Submitted,
@@ -241,8 +252,11 @@ class PublicApplicationController extends Controller
                 'date_of_birth' => $request->filled('date_of_birth') ? $request->date('date_of_birth') : null,
                 'guardian_name' => $request->string('contact_name')->toString(),
                 'guardian_phone' => $request->string('contact_phone')->toString(),
+                'region_id' => $location['region']?->id,
+                'village_id' => $location['village']?->id,
+                'school_id' => $location['school']?->id,
                 'needs_assessment' => $this->summarizeNeed($request),
-                'intake_payload' => $this->buildIntakePayload($request),
+                'intake_payload' => $this->buildIntakePayload($request, $location),
                 'submitted_at' => now(),
             ]);
 
@@ -275,16 +289,31 @@ class PublicApplicationController extends Controller
         ])));
     }
 
-    private function buildIntakePayload(StorePublicApplicationRequest $request): array
+    private function buildIntakePayload(StorePublicApplicationRequest $request, array $location): array
     {
         return [
             'child_name' => $request->string('child_name')->toString(),
             'gender' => $request->filled('gender') ? $request->string('gender')->toString() : null,
             'date_of_birth' => $request->filled('date_of_birth') ? $request->date('date_of_birth')?->toDateString() : null,
+            'region_id' => $location['region']?->id,
+            'village_id' => $location['village']?->id,
+            'school_id' => $location['school']?->id,
             'school_name' => $request->filled('school_name') ? $request->string('school_name')->toString() : null,
             'grade_level' => $request->filled('grade_level') ? $request->string('grade_level')->toString() : null,
             'region_name' => $request->filled('region_name') ? $request->string('region_name')->toString() : null,
             'village_name' => $request->filled('village_name') ? $request->string('village_name')->toString() : null,
+            'school_enrollment_status' => $request->filled('school_enrollment_status') ? $request->string('school_enrollment_status')->toString() : null,
+            'last_school_attended' => $request->filled('last_school_attended') ? $request->string('last_school_attended')->toString() : null,
+            'education_interruption_reason' => $request->filled('education_interruption_reason') ? $request->string('education_interruption_reason')->toString() : null,
+            'teacher_school_name' => $request->filled('teacher_school_name') ? $request->string('teacher_school_name')->toString() : null,
+            'teacher_position' => $request->filled('teacher_position') ? $request->string('teacher_position')->toString() : null,
+            'institution_name' => $request->filled('institution_name') ? $request->string('institution_name')->toString() : null,
+            'institution_role' => $request->filled('institution_role') ? $request->string('institution_role')->toString() : null,
+            'fee_amount' => $request->filled('fee_amount') ? $request->string('fee_amount')->toString() : null,
+            'fee_due_date' => $request->filled('fee_due_date') ? $request->date('fee_due_date')?->toDateString() : null,
+            'exam_name' => $request->filled('exam_name') ? $request->string('exam_name')->toString() : null,
+            'exam_date' => $request->filled('exam_date') ? $request->date('exam_date')?->toDateString() : null,
+            'exam_fee_amount' => $request->filled('exam_fee_amount') ? $request->string('exam_fee_amount')->toString() : null,
             'need_type' => $request->string('need_type')->toString(),
             'need_summary' => $request->string('need_summary')->toString(),
             'situation_summary' => $request->string('situation_summary')->toString(),

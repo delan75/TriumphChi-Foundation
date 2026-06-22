@@ -40,6 +40,7 @@ return [
 
     'application' => [
         'received' => 'Merci. Votre demande a été reçue et sera examinée.',
+        'not_found_or_unauthorized' => 'Demande introuvable. Veuillez vous assurer que le numéro de demande et l\'adresse email sont corrects.',
         'retrieved' => 'Demandes récupérées avec succès.',
         'retrieved_single' => 'Demande récupérée avec succès.',
         'created' => 'Demande créée avec succès.',
@@ -47,6 +48,10 @@ return [
         'deleted' => 'Demande supprimée avec succès.',
         'transitioned' => 'Statut de la demande mis à jour avec succès.',
         'invalid_transition' => 'Cette transition de statut n\'est pas autorisée pour l\'état actuel de la demande.',
+    ],
+
+    'lookup' => [
+        'suggestions' => 'Suggestions récupérées.',
     ],
 
     'search' => [
