@@ -24,7 +24,7 @@ class StoreContactMessageRequest extends FormRequest
             'subject' => ['nullable', 'string', 'max:255'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
             'draft_attachments' => ['nullable', 'array', 'max:3'],
-            'draft_attachments.*.path' => ['required', 'string'],
+            'draft_attachments.*.path' => ['required', 'string', 'starts_with:drafts/contact-messages/'],
             'draft_attachments.*.original_name' => ['required', 'string'],
             'draft_attachments.*.size' => ['required', 'integer'],
             'draft_attachments.*.mime_type' => ['required', 'string'],

@@ -13,7 +13,7 @@ class ContactMessageDraftAttachmentController extends Controller
     public function store(Request $request, \App\Support\FileSecurityScanner $scanner): JsonResponse
     {
         $request->validate([
-            'attachment' => ['required', 'file', 'max:5120', 'mimes:pdf,doc,docx,jpg,jpeg,png'],
+            'attachment' => ['required', 'file', 'max:5120', 'mimes:pdf,txt,doc,docx,xls,xlsx,jpg,jpeg,png'],
         ]);
 
         $file = $request->file('attachment');
