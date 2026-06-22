@@ -40,6 +40,13 @@ return [
 
     'application' => [
         'received' => 'Thank you. Your application has been received and will be reviewed.',
+        'retrieved' => 'Applications retrieved successfully.',
+        'retrieved_single' => 'Application retrieved successfully.',
+        'created' => 'Application created successfully.',
+        'updated' => 'Application updated successfully.',
+        'deleted' => 'Application deleted successfully.',
+        'transitioned' => 'Application status updated successfully.',
+        'invalid_transition' => 'This status transition is not permitted for the current application state.',
     ],
 
     'search' => [

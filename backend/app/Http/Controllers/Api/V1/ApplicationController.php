@@ -16,12 +16,34 @@ class ApplicationController extends Controller
     {
         $this->authorize('viewAny', Application::class);
 
-        $applications = Application::query()
+        $query = Application::query()
             ->with(['region', 'village', 'school.region', 'school.village'])
-            ->latest()
-            ->paginate($request->integer('per_page', 15));
+            ->latest();
 
-        return $this->paginated($applications, 'Applications retrieved successfully', ApplicationResource::class);
+        // Status filter: accepts comma-separated values, e.g. ?status=submitted,verification_pending
+        if ($request->filled('status')) {
+            $statuses = array_filter(array_map('trim', explode(',', $request->string('status'))));
+            $query->whereIn('status', $statuses);
+        }
+
+        // Free-text search: application_number or applicant_name
+        if ($request->filled('search')) {
+            $term = '%'.trim($request->string('search')).'%';
+            $query->where(function ($q) use ($term) {
+                $q->where('application_number', 'like', $term)
+                  ->orWhere('applicant_name', 'like', $term)
+                  ->orWhere('guardian_name', 'like', $term);
+            });
+        }
+
+        // Source filter
+        if ($request->filled('source')) {
+            $query->where('source', $request->string('source'));
+        }
+
+        $applications = $query->paginate($request->integer('per_page', 20));
+
+        return $this->paginated($applications, __('api.applications.retrieved'), ApplicationResource::class);
     }
 
     public function store(StoreApplicationRequest $request)
@@ -30,7 +52,7 @@ class ApplicationController extends Controller
 
         return $this->created(
             ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village'])),
-            'Application created successfully'
+            __('api.applications.created')
         );
     }
 
@@ -40,7 +62,7 @@ class ApplicationController extends Controller
 
         return $this->success(
             ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village'])),
-            'Application retrieved successfully'
+            __('api.applications.retrieved_single')
         );
     }
 
@@ -52,7 +74,7 @@ class ApplicationController extends Controller
 
         return $this->updated(
             ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village'])),
-            'Application updated successfully'
+            __('api.applications.updated')
         );
     }
 
@@ -62,7 +84,7 @@ class ApplicationController extends Controller
 
         $application->delete();
 
-        return $this->deleted('Application deleted successfully');
+        return $this->deleted(__('api.applications.deleted'));
     }
 
     public function transition(TransitionApplicationStatusRequest $request, Application $application)
@@ -70,7 +92,7 @@ class ApplicationController extends Controller
         $this->authorize('transition', $application);
 
         $next = ApplicationStatus::from($request->validated('status'));
-        abort_unless($application->status->canTransitionTo($next), 422, 'Invalid application status transition.');
+        abort_unless($application->status->canTransitionTo($next), 422, __('api.applications.invalid_transition'));
         $previous = $application->status;
 
         $application->update([
@@ -94,7 +116,7 @@ class ApplicationController extends Controller
 
         return $this->success(
             ApplicationResource::make($application->fresh(['region', 'village', 'school.region', 'school.village'])),
-            'Application status updated successfully'
+            __('api.applications.transitioned')
         );
     }
 }

@@ -141,21 +141,39 @@ export interface ContactMessagePayload {
 }
 
 export interface PublicApplicationPayload {
+  // Step 1: Who Are You Applying For
+  applying_for?: 'self' | 'child' | 'other';
+  // Step 2: Child Information
   child_name: string;
   gender?: string;
   date_of_birth?: string;
+  // Step 3: Education Information
+  is_enrolled?: boolean;
   school_name?: string;
   grade_level?: string;
+  distance_to_school?: string;
+  interruption_reasons?: string;
+  // Location
   region_name?: string;
   village_name?: string;
+  // Step 4: Need Assessment
   need_type: 'fees' | 'books' | 'uniform' | 'exam' | 'transport' | 'meals' | 'other';
   need_summary: string;
   situation_summary: string;
+  // Step 5: Household Situation
+  household_income_range?: string;
+  household_size?: number;
+  primary_caregiver_occupation?: string;
+  household_challenges?: string[];
+  // Step 6: Verification Contacts
   contact_role: 'parent' | 'guardian' | 'school' | 'community_leader' | 'child' | 'other';
   contact_name: string;
   contact_phone: string;
   contact_email?: string;
   preferred_contact_method: 'phone' | 'sms' | 'whatsapp' | 'email';
+  // Step 7: Documents
+  documents?: { type: string; id: number }[];
+  // Step 8: Review & Submit
   consent: boolean;
 }
 
@@ -164,6 +182,102 @@ export interface PublicApplicationSubmissionResponse {
   application_number: string;
   submitted_at?: string;
 }
+
+export interface ApplicationRecord {
+  id: number;
+  uuid: string;
+  source: string;
+  source_label: string | null;
+  status: string;
+  status_label: string | null;
+  application_number: string;
+  applicant_name: string;
+  gender: string | null;
+  date_of_birth: string | null;
+  guardian_name: string | null;
+  guardian_phone: string | null;
+  region: { id: number; name: string } | null;
+  village: { id: number; name: string } | null;
+  school: { id: number; name: string } | null;
+  submitted_by: number | null;
+  needs_assessment: string | null;
+  household_income_range: string | null;
+  household_size: number | null;
+  primary_caregiver_occupation: string | null;
+  household_challenges: string[] | null;
+  intake_payload: Record<string, unknown> | null;
+  verification_notes: string | null;
+  submitted_at: string | null;
+  verified_at: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+  };
+  links: {
+    first: string | null;
+    last: string | null;
+    prev: string | null;
+    next: string | null;
+  };
+}
+
+export async function apiListApplications(params: {
+  status?: string;
+  search?: string;
+  source?: string;
+  page?: number;
+  per_page?: number;
+}): Promise<PaginatedResponse<ApplicationRecord>> {
+  const qs = new URLSearchParams();
+  if (params.status) qs.set('status', params.status);
+  if (params.search) qs.set('search', params.search);
+  if (params.source) qs.set('source', params.source);
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page));
+  const query = qs.toString();
+
+  const response = await fetch(`${API_BASE_URL}/applications${query ? `?${query}` : ''}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch applications.');
+  return {
+    data: (envelope.data as ApplicationRecord[]) ?? [],
+    meta: (envelope.meta as PaginatedResponse<ApplicationRecord>['meta']),
+    links: (envelope.links as PaginatedResponse<ApplicationRecord>['links']),
+  };
+}
+
+export async function apiGetApplication(uuid: string): Promise<ApplicationRecord> {
+  return apiGet<ApplicationRecord>(`/applications/${uuid}`);
+}
+
+export async function apiTransitionApplicationStatus(
+  uuid: string,
+  status: string,
+  notes?: string,
+): Promise<ApplicationRecord> {
+  const response = await fetch(`${API_BASE_URL}/applications/${uuid}/status`, {
+    method: 'PATCH',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify({ status, notes }),
+  });
+  return parseJsonResponse<ApplicationRecord>(response, 'Failed to update application status.');
+}
+
 
 export async function apiGet<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -414,18 +528,92 @@ export async function apiSubmitContactMessage(
   };
 }
 
+export async function apiCreateApplicationDraft(locale: string): Promise<{ data: { draft_token: string; application_number: string } }> {
+  const response = await fetch(`${API_BASE_URL}/public/applications/draft`, {
+    method: 'POST',
+    headers: buildHeaders({
+      Accept: 'application/json',
+      'Accept-Language': locale,
+    }),
+  });
+  const env = await parseJsonEnvelope(response, 'Failed to initialize draft.');
+  return { data: env.data as { draft_token: string; application_number: string } };
+}
+
+export async function apiSaveApplicationStep(
+  token: string,
+  stepIndex: number,
+  payload: Partial<PublicApplicationPayload>,
+  locale: string
+): Promise<{ message: string }> {
+  const response = await fetch(`${API_BASE_URL}/public/applications/${token}/step/${stepIndex}`, {
+    method: 'PUT',
+    headers: buildHeaders({
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    }),
+    body: JSON.stringify(payload),
+  });
+  const env = await parseJsonEnvelope(response, 'Failed to save progress.');
+  return { message: String(env.message ?? 'Saved') };
+}
+
+export async function apiUploadApplicationDocument(
+  token: string,
+  file: File,
+  documentType: string,
+  locale: string
+): Promise<{ message: string; document_id: number }> {
+  const body = new FormData();
+  body.append('file', file);
+  body.append('document_type', documentType);
+
+  const response = await fetch(`${API_BASE_URL}/public/applications/${token}/documents`, {
+    method: 'POST',
+    headers: buildHeaders({
+      Accept: 'application/json',
+      'Accept-Language': locale,
+    }),
+    body,
+  });
+  const env = await parseJsonEnvelope(response, 'Failed to upload document.');
+  return { 
+    message: String(env.message ?? 'Uploaded'), 
+    document_id: (env.data as any).document_id 
+  };
+}
+
+export async function apiSubmitApplicationDraft(
+  token: string,
+  locale: string
+): Promise<{ message: string; data?: PublicApplicationSubmissionResponse }> {
+  const response = await fetch(`${API_BASE_URL}/public/applications/${token}/submit`, {
+    method: 'POST',
+    headers: buildHeaders({
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    }),
+  });
+  const data = await parseJsonEnvelope(response, 'Failed to submit application.');
+  return {
+    message: String(data.message ?? 'Application submitted successfully.'),
+    data: data.data as PublicApplicationSubmissionResponse | undefined,
+  };
+}
+
 export async function apiSubmitPublicApplication(
   payload: PublicApplicationPayload,
   locale: string,
 ): Promise<{ message: string; data?: PublicApplicationSubmissionResponse }> {
   const response = await fetch(`${API_BASE_URL}/public/applications`, {
     method: 'POST',
-    headers: {
+    headers: buildHeaders({
       Accept: 'application/json',
       'Content-Type': 'application/json',
       'Accept-Language': locale,
-    },
-    credentials: 'omit',
+    }),
     body: JSON.stringify(payload),
   });
 
@@ -435,6 +623,24 @@ export async function apiSubmitPublicApplication(
     message: String(data.message ?? 'Thank you. Your application has been received and will be reviewed.'),
     data: data.data as PublicApplicationSubmissionResponse | undefined,
   };
+}
+
+export async function apiDownloadPreviewPdf(payload: PublicApplicationPayload, locale: string): Promise<Blob> {
+  const response = await fetch(`${API_BASE_URL}/public/applications/preview-pdf`, {
+    method: 'POST',
+    headers: buildHeaders({
+      Accept: 'application/pdf',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    }),
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to generate PDF preview.');
+  }
+
+  return response.blob();
 }
 
 export async function apiLogout(): Promise<void> {
