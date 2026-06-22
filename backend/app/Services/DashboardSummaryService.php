@@ -42,11 +42,12 @@ class DashboardSummaryService
                 'key' => 'applications_pending_review',
                 'count' => Application::query()
                     ->whereIn('status', [
+                        ApplicationStatus::Submitted->value,
                         ApplicationStatus::VerificationPending->value,
                         ApplicationStatus::ReviewPending->value,
                     ])
                     ->count(),
-                'path' => '/staff/applications?status=verification_pending,review_pending',
+                'path' => '/staff/applications?status=submitted,verification_pending,review_pending',
                 'tone' => 'warning',
             ]);
         }
@@ -339,7 +340,7 @@ class DashboardSummaryService
             [
                 'key' => 'applications_review',
                 'permission' => 'applications.view',
-                'path' => '/staff/applications?status=verification_pending,review_pending',
+                'path' => '/staff/applications?status=submitted,verification_pending,review_pending',
             ],
             [
                 'key' => 'beneficiaries_open',

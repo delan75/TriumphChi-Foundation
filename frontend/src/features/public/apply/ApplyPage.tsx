@@ -188,7 +188,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
         [copy.fields.contactName, form.contact_name],
         [copy.fields.contactPhone, form.contact_phone],
         [copy.fields.contactEmail, form.contact_email || copy.optionalValue],
-        [copy.fields.preferredContactMethod, copy.contactMethods.find((item) => item.value === form.preferred_contact_method)?.label ?? form.preferred_contact_method],
+        [copy.fields.contactMethod, copy.contactMethods.find((item) => item.value === form.preferred_contact_method)?.label ?? form.preferred_contact_method],
       ],
     },
   ] as const;
@@ -293,7 +293,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
     }
   };
 
-  const content = renderStepContent(currentStep, form, errors, copy, updateField);
+  const content = renderStepContent(currentStep, form, errors, copy, updateField, reviewGroups);
 
   return (
     <>
@@ -531,6 +531,7 @@ function renderStepContent(
   errors: Partial<Record<keyof ApplicationFormState, string>>,
   copy: typeof applyCopy.en,
   updateField: <Field extends keyof ApplicationFormState>(field: Field, value: ApplicationFormState[Field]) => void,
+  reviewGroups: ReadonlyArray<{ readonly title: string; readonly items: ReadonlyArray<readonly [string, string]> }>,
 ) {
   if (stepIndex === 0) {
     return (
@@ -650,7 +651,7 @@ function renderStepContent(
               {group.items.map(([label, value]) => (
                 <div key={label}>
                   <dt className="text-xs font-bold uppercase text-ink-500">{label}</dt>
-                  <dd className="mt-1 text-sm leading-6 text-ink-800">{value || copy.optionalValue}</dd>
+                  <dd className="mt-1 text-sm leading-6 text-ink-800">{String(value) || copy.optionalValue}</dd>
                 </div>
               ))}
             </dl>
@@ -667,7 +668,7 @@ function renderStepContent(
           aria-describedby={errors.consent ? 'application-consent-error' : undefined}
         />
         <span>
-          {copy.consent}
+          {copy.consentLabel}
           {errors.consent ? (
             <span id="application-consent-error" className="mt-2 block text-sm text-support-red">
               {errors.consent}
@@ -907,6 +908,7 @@ const applyCopy = {
     situationSummaryHint: 'Describe the situation clearly so we can understand the context.',
     reviewEyebrow: 'Review before sending',
     reviewBody: 'Please check the details below. Once sent, we will review the request and contact the person listed.',
+    consentLabel: 'I confirm that the details above are accurate and that TriumphChi Foundation may contact the person listed to follow up on this application.',
     reviewSections: {
       child: 'Child details',
       need: 'Education need',
@@ -1035,8 +1037,9 @@ const applyCopy = {
     schoolPlaceholder: "Nom de l'Ã©cole ou du centre",
     needSummaryHint: 'Une courte description du besoin et de son importance.',
     situationSummaryHint: 'DÃ©crivez clairement la situation pour que nous comprenions le contexte.',
-    reviewEyebrow: 'VÃ©rifiez avant l’envoi',
-    reviewBody: 'Merci de relire les informations ci-dessous. Une fois la demande envoyÃ©e, nous l’examinerons et contacterons la personne indiquÃ©e.',
+    reviewEyebrow: 'Vérifiez avant l’envoi',
+    reviewBody: 'Merci de relire les informations ci-dessous. Une fois la demande envoyée, nous l’examinerons et contacterons la personne indiquée.',
+    consentLabel: 'Je confirme que les informations ci-dessus sont exactes et que la Fondation TriumphChi peut contacter la personne indiquée pour donner suite à cette demande.',
     reviewSections: {
       child: "Informations sur l'enfant",
       need: 'Besoin Ã©ducatif',
@@ -1150,6 +1153,7 @@ const applyCopy = {
   situationSummaryHint: string;
   reviewEyebrow: string;
   reviewBody: string;
+  consentLabel: string;
   reviewSections: {
     child: string;
     need: string;
