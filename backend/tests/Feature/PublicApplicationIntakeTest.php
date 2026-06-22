@@ -4,6 +4,9 @@ namespace Tests\Feature;
 
 use App\Enums\ApplicationStatus;
 use App\Models\Application;
+use App\Models\Region;
+use App\Models\School;
+use App\Models\Village;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -28,7 +31,7 @@ class PublicApplicationIntakeTest extends TestCase
                 'contact_role' => 'guardian',
                 'contact_name' => 'Mimi Talla',
                 'contact_phone' => '+237 600 000 000',
-                'contact_email' => 'guardian@example.org',
+                'contact_email' => 'guardian@gmail.com',
                 'preferred_contact_method' => 'phone',
                 'consent' => true,
             ]);
@@ -45,6 +48,9 @@ class PublicApplicationIntakeTest extends TestCase
         $this->assertSame('Mimi Talla', $application->guardian_name);
         $this->assertSame('+237 600 000 000', $application->guardian_phone);
         $this->assertSame(ApplicationStatus::Submitted, $application->status);
+        $this->assertNotNull($application->region_id);
+        $this->assertNotNull($application->village_id);
+        $this->assertNotNull($application->school_id);
         $this->assertSame('fr', $application->intake_payload['locale']);
         $this->assertSame('fees', $application->intake_payload['need_type']);
         $this->assertSame('phone', $application->intake_payload['preferred_contact_method']);
@@ -55,6 +61,9 @@ class PublicApplicationIntakeTest extends TestCase
             'source' => 'online',
             'status' => ApplicationStatus::Submitted->value,
         ]);
+        $this->assertDatabaseHas('regions', ['name' => 'North West']);
+        $this->assertDatabaseHas('villages', ['name' => 'Bamenda']);
+        $this->assertDatabaseHas('schools', ['name' => 'Government Bilingual Primary School']);
     }
 
     public function test_public_application_requires_the_child_and_contact_details(): void
@@ -78,5 +87,36 @@ class PublicApplicationIntakeTest extends TestCase
                 'contact_phone',
                 'consent',
             ]);
+    }
+
+    public function test_public_lookup_returns_school_suggestions(): void
+    {
+        $region = Region::create([
+            'name' => 'North West',
+            'code' => 'REG-NW',
+            'status' => 'active',
+        ]);
+
+        $village = Village::create([
+            'region_id' => $region->id,
+            'name' => 'Bamenda',
+            'status' => 'active',
+        ]);
+
+        School::create([
+            'code' => 'SCH-BAM-001',
+            'name' => 'Government Bilingual Primary School',
+            'region_id' => $region->id,
+            'village_id' => $village->id,
+            'verification_status' => 'pending',
+        ]);
+
+        $this->withHeader('Accept-Language', 'fr')
+            ->getJson('/api/v1/public/lookups/schools?q=government')
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.type', 'schools')
+            ->assertJsonPath('data.count', 1)
+            ->assertJsonPath('data.results.0.label', 'Government Bilingual Primary School');
     }
 }

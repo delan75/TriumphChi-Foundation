@@ -156,13 +156,24 @@ export const publicPages: PublicPageDefinition[] = [
     navGroup: 'primary',
     path: { en: '/programs', fr: '/programmes' },
     label: { en: 'Programs', fr: 'Programmes' },
-    eyebrow: { en: 'Education programs', fr: 'Programmes éducatifs' },
-    title: { en: 'Support for school fees, books, uniforms, exams, and mentorship.', fr: 'Soutien pour les frais scolaires, livres, uniformes, examens et mentorat.' },
-    description: {
-      en: 'Programs are structured around educational needs that can be funded, allocated, paid, and reported independently.',
-      fr: 'Les programmes sont structurés autour de besoins scolaires qui peuvent être financés, alloués, payés et suivis séparément.',
+    eyebrow: { en: 'What we do', fr: 'Ce que nous faisons' },
+    title: {
+      en: 'Programs That Keep Children Learning',
+      fr: 'Des programmes qui aident les enfants à poursuivre leur scolarité',
     },
-    cta: { label: { en: 'Donate to a program', fr: 'Donner à un programme' }, page: 'donate' },
+    description: {
+      en: 'TriumphChi Foundation responds to the barriers that keep children out of school with practical support, encouragement, and community care.',
+      fr: "La Fondation TriumphChi répond aux obstacles qui empêchent les enfants d'aller à l'école par un soutien concret, de l'encouragement et l'appui de la communauté.",
+    },
+    seoTitle: {
+      en: 'Programs | TriumphChi Foundation',
+      fr: 'Programmes | Fondation TriumphChi',
+    },
+    seoDescription: {
+      en: 'See how TriumphChi Foundation helps children stay in school through fees support, books, uniforms, exam help, mentorship, and community partnership.',
+      fr: "Découvrez comment la Fondation TriumphChi aide les enfants à rester à l'école grâce aux frais scolaires, livres, uniformes, soutien aux examens, mentorat et partenariat communautaire.",
+    },
+    cta: { label: { en: 'Support a child', fr: 'Soutenir un enfant' }, page: 'sponsor' },
     schemaType: 'CollectionPage',
     sections: [],
   },

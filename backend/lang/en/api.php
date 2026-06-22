@@ -40,6 +40,7 @@ return [
 
     'application' => [
         'received' => 'Thank you. Your application has been received and will be reviewed.',
+        'not_found_or_unauthorized' => 'Application not found. Please ensure the application number and email address are correct.',
         'retrieved' => 'Applications retrieved successfully.',
         'retrieved_single' => 'Application retrieved successfully.',
         'created' => 'Application created successfully.',
@@ -47,6 +48,10 @@ return [
         'deleted' => 'Application deleted successfully.',
         'transitioned' => 'Application status updated successfully.',
         'invalid_transition' => 'This status transition is not permitted for the current application state.',
+    ],
+
+    'lookup' => [
+        'suggestions' => 'Suggestions retrieved.',
     ],
 
     'search' => [

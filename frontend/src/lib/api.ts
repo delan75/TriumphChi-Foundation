@@ -129,6 +129,14 @@ export class ApiRequestError extends Error {
   }
 }
 
+export interface ContactDraftAttachment {
+  path: string;
+  original_name: string;
+  size: number;
+  mime_type: string;
+  preview_url?: string;
+}
+
 export interface ContactMessagePayload {
   name: string;
   email: string;
@@ -137,7 +145,7 @@ export interface ContactMessagePayload {
   subject?: string;
   message: string;
   consent: boolean;
-  attachments?: File[];
+  draft_attachments?: ContactDraftAttachment[];
 }
 
 export interface PublicApplicationPayload {
@@ -156,17 +164,22 @@ export interface PublicApplicationPayload {
   // Location
   region_name?: string;
   village_name?: string;
-  // Step 4: Need Assessment
+  school_enrollment_status?: 'enrolled' | 'not_enrolled' | 'unsure';
+  last_school_attended?: string;
+  education_interruption_reason?: string;
+  teacher_school_name?: string;
+  teacher_position?: string;
+  institution_name?: string;
+  institution_role?: string;
+  fee_amount?: string;
+  fee_due_date?: string;
+  exam_name?: string;
+  exam_date?: string;
+  exam_fee_amount?: string;
   need_type: 'fees' | 'books' | 'uniform' | 'exam' | 'transport' | 'meals' | 'other';
   need_summary: string;
   situation_summary: string;
-  // Step 5: Household Situation
-  household_income_range?: string;
-  household_size?: number;
-  primary_caregiver_occupation?: string;
-  household_challenges?: string[];
-  // Step 6: Verification Contacts
-  contact_role: 'parent' | 'guardian' | 'school' | 'community_leader' | 'child' | 'other';
+  contact_role: 'parent' | 'guardian' | 'school' | 'school_representative' | 'teacher' | 'community_leader' | 'child' | 'other';
   contact_name: string;
   contact_phone: string;
   contact_email?: string;
@@ -181,6 +194,18 @@ export interface PublicApplicationSubmissionResponse {
   uuid: string;
   application_number: string;
   submitted_at?: string;
+}
+
+export interface PublicLookupSuggestion {
+  id: number;
+  label: string;
+  secondary?: string | null;
+}
+
+export interface PublicLookupResponse {
+  type: 'regions' | 'villages' | 'schools';
+  results: PublicLookupSuggestion[];
+  count: number;
 }
 
 export interface ApplicationRecord {
@@ -288,15 +313,43 @@ export async function apiGet<T>(path: string): Promise<T> {
   return parseJsonResponse<T>(response, `API request failed with ${response.status}`);
 }
 
-export async function apiPublicGet<T>(path: string): Promise<T> {
+export async function apiPublicGet<T>(path: string, locale?: string): Promise<T> {
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+  };
+
+  if (locale) {
+    headers['Accept-Language'] = locale;
+  }
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      Accept: 'application/json',
-    },
+    headers,
     credentials: 'omit',
   });
 
   return parseJsonResponse<T>(response, `API request failed with ${response.status}`);
+}
+
+export async function apiPublicLookup(
+  type: 'regions' | 'villages' | 'schools',
+  query: string,
+  locale: string,
+  filters?: { region_name?: string; village_name?: string },
+): Promise<PublicLookupResponse> {
+  const params = new URLSearchParams({
+    q: query,
+  });
+
+  if (filters?.region_name) {
+    params.set('region_name', filters.region_name);
+  }
+
+  if (filters?.village_name) {
+    params.set('village_name', filters.village_name);
+  }
+
+  const response = await apiPublicGet<PublicLookupResponse>(`/public/lookups/${type}?${params.toString()}`, locale);
+  return response;
 }
 
 export async function apiPublicPost<T>(path: string, payload: unknown, locale: string): Promise<T> {
@@ -491,34 +544,18 @@ export async function apiSubmitContactMessage(
   payload: ContactMessagePayload,
   locale: string,
 ): Promise<{ message: string }> {
-  const body = new FormData();
-
-  body.append('name', payload.name);
-  body.append('email', payload.email);
-  body.append('reason', payload.reason);
-  body.append('message', payload.message);
-  body.append('consent', payload.consent ? '1' : '0');
-
-  if (payload.phone) {
-    body.append('phone', payload.phone);
-  }
-
-  if (payload.subject) {
-    body.append('subject', payload.subject);
-  }
-
-  payload.attachments?.forEach((file) => {
-    body.append('attachments[]', file);
-  });
-
   const response = await fetch(`${API_BASE_URL}/public/contact-messages`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
+      'Content-Type': 'application/json',
       'Accept-Language': locale,
     },
     credentials: 'omit',
-    body,
+    body: JSON.stringify({
+      ...payload,
+      consent: payload.consent,
+    }),
   });
 
   const data = await parseJsonEnvelope(response, 'We could not send your message. Please try again.');

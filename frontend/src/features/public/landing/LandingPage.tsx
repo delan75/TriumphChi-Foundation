@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { GivingChannels } from '../../../components/public/GivingChannels';
+import { ImpactSummaryGrid } from '../../../components/public/ImpactSummaryGrid';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
@@ -304,25 +305,15 @@ export function LandingPage({ locale, page }: LandingPageProps) {
         </div>
       </section>
 
-      <section className="bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-          <SectionIntro eyebrow={copy.impactEyebrow} title={copy.impactTitle} body={copy.impactBody} />
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {impactStats.items.map((item, index) => {
-              const Icon = impactIcons[index];
-
-              return (
-                <article key={item.label} className="rounded-md border border-foundation-100 bg-foundation-50 p-5">
-                  <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
-                  <p className="mt-4 text-3xl font-black text-ink-900">{item.value}</p>
-                  <p className="mt-1 text-sm font-bold leading-6 text-ink-500">{item.label}</p>
-                </article>
-              );
-            })}
-          </div>
-          {impactStats.usesFallback ? <p className="mt-4 text-sm font-bold text-ink-500">{copy.impactFallbackNote}</p> : null}
-        </div>
-      </section>
+      <ImpactSummaryGrid
+        eyebrow={copy.impactEyebrow}
+        title={copy.impactTitle}
+        body={copy.impactBody}
+        items={impactStats.items}
+        icons={impactIcons}
+        usesFallback={impactStats.usesFallback}
+        fallbackNote={copy.impactFallbackNote}
+      />
 
       <section className="bg-ink-900 text-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-16">
