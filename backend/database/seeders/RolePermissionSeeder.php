@@ -87,7 +87,7 @@ class RolePermissionSeeder extends Seeder
         }
 
         $admin = User::firstOrCreate(
-            ['email' => env('SUPER_ADMIN_EMAIL', 'admin@gmail.com')],
+            ['email' => env('SUPER_ADMIN_EMAIL', 'admin@triumphchi.org')],
             [
                 'name' => env('SUPER_ADMIN_NAME', 'Super Admin'),
                 'password' => $password,
