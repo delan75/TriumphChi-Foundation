@@ -34,7 +34,6 @@ const stepIcons: LucideIcon[] = [UsersRound, ShieldCheck, HandHeart, CheckCircle
 const optionIcons: LucideIcon[] = [GraduationCap, UsersRound, BookOpen, HandHeart];
 const accountabilityIcons: LucideIcon[] = [FileText, GraduationCap, School, BookOpen, CheckCircle2];
 const impactIcons: LucideIcon[] = [School, BookOpen, GraduationCap, UsersRound, HeartHandshake, Home, CheckCircle2, HandHeart];
-const fallbackIcon = School;
 
 export function SponsorPage({ locale, page }: SponsorPageProps) {
   const copy = sponsorCopy[locale];
