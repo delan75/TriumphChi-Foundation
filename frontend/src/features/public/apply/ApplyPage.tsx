@@ -5,7 +5,7 @@ import { PublicPageTitle } from '../../../components/public/PublicPageTitle';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
-import { apiSubmitPublicApplication, type PublicApplicationPayload } from '../../../lib/api';
+import { apiSubmitPublicApplication, apiDownloadPreviewPdf, type PublicApplicationPayload } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
 import { publicContact } from '../../../lib/publicContact';
 import heroImage from '../../../assets/landing/school_kids_in_cameroon.jpg';
@@ -20,21 +20,30 @@ type ContactRole = PublicApplicationPayload['contact_role'];
 type ContactMethod = PublicApplicationPayload['preferred_contact_method'];
 
 interface ApplicationFormState {
+  applying_for: 'self' | 'child' | 'other';
   child_name: string;
   gender: string;
   date_of_birth: string;
+  is_enrolled: boolean;
   school_name: string;
   grade_level: string;
+  distance_to_school: string;
+  interruption_reasons: string;
   region_name: string;
   village_name: string;
   need_type: NeedType;
   need_summary: string;
   situation_summary: string;
+  household_income_range: string;
+  household_size: number | '';
+  primary_caregiver_occupation: string;
+  household_challenges: string[];
   contact_role: ContactRole;
   contact_name: string;
   contact_phone: string;
   contact_email: string;
   preferred_contact_method: ContactMethod;
+  documents: { type: string; id: number }[];
   consent: boolean;
 }
 
@@ -42,46 +51,57 @@ interface DraftState {
   stepIndex: number;
   form: ApplicationFormState;
   updatedAt: string;
+  draftToken?: string;
+  applicationNumber?: string;
 }
 
 const STORAGE_KEY = 'triumphchi.public-application.draft.v1';
 
 const initialForm: ApplicationFormState = {
+  applying_for: 'child',
   child_name: '',
   gender: '',
   date_of_birth: '',
+  is_enrolled: false,
   school_name: '',
   grade_level: '',
+  distance_to_school: '',
+  interruption_reasons: '',
   region_name: '',
   village_name: '',
   need_type: 'fees',
   need_summary: '',
   situation_summary: '',
+  household_income_range: '',
+  household_size: '',
+  primary_caregiver_occupation: '',
+  household_challenges: [],
   contact_role: 'guardian',
   contact_name: '',
   contact_phone: '',
   contact_email: '',
   preferred_contact_method: 'phone',
+  documents: [],
   consent: false,
 };
 
-const fieldGroups = [
-  {
-    key: 'child',
-    icon: Home,
-  },
-  {
-    key: 'need',
-    icon: HeartHandshake,
-  },
-  {
-    key: 'contact',
-    icon: Phone,
-  },
-  {
-    key: 'review',
-    icon: ShieldCheck,
-  },
+const fieldGroupsUnauth = [
+  { key: 'child', icon: Home },
+  { key: 'need', icon: HeartHandshake },
+  { key: 'verification', icon: FileText },
+  { key: 'contact', icon: Phone },
+  { key: 'review', icon: ShieldCheck }, // Preview/Review step
+] as const;
+
+const fieldGroupsAuth = [
+  { key: 'applying_for', icon: UsersRound },
+  { key: 'child', icon: Home },
+  { key: 'education', icon: School },
+  { key: 'need', icon: HeartHandshake },
+  { key: 'household', icon: Home },
+  { key: 'verification', icon: UsersRound },
+  { key: 'documents', icon: FileText },
+  { key: 'review', icon: ShieldCheck },
 ] as const;
 
 export function ApplyPage({ locale, page }: ApplyPageProps) {
@@ -145,12 +165,29 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
     return () => window.clearTimeout(timeout);
   }, [currentStep, form]);
 
-  const stepLabels = [
+  const isAuthenticated = typeof window !== 'undefined' && Boolean(window.localStorage.getItem('auth_token'));
+  const fieldGroups = isAuthenticated ? fieldGroupsAuth : fieldGroupsUnauth;
+
+  const stepLabelsUnauth = [
     copy.childStepLabel,
     copy.needStepLabel,
+    copy.verificationStepLabel || 'Verification',
     copy.contactStepLabel,
     copy.reviewStepLabel,
   ];
+
+  const stepLabelsAuth = [
+    copy.applyingForStepLabel || 'Applying For',
+    copy.childStepLabel,
+    copy.educationStepLabel || 'Education',
+    copy.needStepLabel,
+    copy.householdStepLabel || 'Household',
+    copy.verificationStepLabel || 'Verification',
+    copy.documentsStepLabel || 'Documents',
+    copy.reviewStepLabel,
+  ];
+
+  const stepLabels = isAuthenticated ? stepLabelsAuth : stepLabelsUnauth;
 
   const contactRows = [
     { icon: Mail, label: copy.contactCards.email, value: publicContact.email, href: publicContact.emailHref },
@@ -160,7 +197,54 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
   ];
 
   const progress = ((currentStep + 1) / fieldGroups.length) * 100;
-  const reviewGroups = [
+  const reviewGroups = isAuthenticated ? [
+    {
+      title: copy.reviewSections.child || 'Applying For & Child Details',
+      items: [
+        [copy.fields.applyingFor || 'Applying For', form.applying_for],
+        [copy.fields.childName, form.child_name],
+        [copy.fields.gender, form.gender || copy.optionalValue],
+        [copy.fields.dateOfBirth, form.date_of_birth || copy.optionalValue],
+      ],
+    },
+    {
+      title: copy.reviewSections.education || 'Education Details',
+      items: [
+        [copy.fields.isEnrolled || 'Currently Enrolled?', form.is_enrolled ? 'Yes' : 'No'],
+        [copy.fields.schoolName, form.school_name || copy.optionalValue],
+        [copy.fields.gradeLevel, form.grade_level || copy.optionalValue],
+        [copy.fields.distanceToSchool || 'Distance to School', form.distance_to_school || copy.optionalValue],
+      ],
+    },
+    {
+      title: copy.reviewSections.need,
+      items: [
+        [copy.fields.needType, copy.needTypes.find((item) => item.value === form.need_type)?.label ?? form.need_type],
+        [copy.fields.needSummary, form.need_summary],
+        [copy.fields.situationSummary, form.situation_summary],
+        [copy.fields.regionName, form.region_name || copy.optionalValue],
+        [copy.fields.villageName, form.village_name || copy.optionalValue],
+      ],
+    },
+    {
+      title: copy.reviewSections.household || 'Household Situation',
+      items: [
+        [copy.fields.householdIncome || 'Income Range', form.household_income_range || copy.optionalValue],
+        [copy.fields.householdSize || 'Household Size', String(form.household_size) || copy.optionalValue],
+        [copy.fields.primaryCaregiverOccupation || 'Caregiver Occupation', form.primary_caregiver_occupation || copy.optionalValue],
+      ],
+    },
+    {
+      title: copy.reviewSections.contact,
+      items: [
+        [copy.fields.contactRole, copy.contactRoles.find((item) => item.value === form.contact_role)?.label ?? form.contact_role],
+        [copy.fields.contactName, form.contact_name],
+        [copy.fields.contactPhone, form.contact_phone],
+        [copy.fields.contactEmail, form.contact_email || copy.optionalValue],
+        [copy.fields.preferredContactMethod, copy.contactMethods.find((item) => item.value === form.preferred_contact_method)?.label ?? form.preferred_contact_method],
+      ],
+    },
+  ] : [
     {
       title: copy.reviewSections.child,
       items: [
@@ -191,7 +275,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
         [copy.fields.preferredContactMethod, copy.contactMethods.find((item) => item.value === form.preferred_contact_method)?.label ?? form.preferred_contact_method],
       ],
     },
-  ] as const;
+  ];
 
   const updateField = <Field extends keyof ApplicationFormState>(field: Field, value: ApplicationFormState[Field]) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -204,7 +288,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
   };
 
   const goNext = () => {
-    const nextErrors = validateStep(currentStep, form, copy);
+    const nextErrors = validateStep(currentStep, form, copy, isAuthenticated);
 
     if (Object.keys(nextErrors).length > 0) {
       setErrors((current) => ({ ...current, ...nextErrors }));
@@ -213,7 +297,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
 
     setErrors((current) => {
       const next = { ...current };
-      for (const key of stepFieldKeys(currentStep)) {
+      for (const key of stepFieldKeys(currentStep, isAuthenticated)) {
         delete next[key];
       }
       return next;
@@ -237,12 +321,12 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const finalErrors = validateAll(form, copy);
+    const finalErrors = validateAll(form, copy, isAuthenticated);
     setErrors(finalErrors);
     setSubmitMessage(null);
 
     if (Object.keys(finalErrors).length > 0) {
-      setCurrentStep(findFirstInvalidStep(finalErrors));
+      setCurrentStep(findFirstInvalidStep(finalErrors, isAuthenticated));
       setSubmitMessage({ type: 'error', text: copy.validation.review });
       return;
     }
@@ -250,27 +334,37 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
     setIsSubmitting(true);
 
     try {
-      const response = await apiSubmitPublicApplication(
-        {
-          child_name: form.child_name.trim(),
-          gender: form.gender.trim() || undefined,
-          date_of_birth: form.date_of_birth || undefined,
-          school_name: form.school_name.trim() || undefined,
-          grade_level: form.grade_level.trim() || undefined,
-          region_name: form.region_name.trim() || undefined,
-          village_name: form.village_name.trim() || undefined,
-          need_type: form.need_type,
-          need_summary: form.need_summary.trim(),
-          situation_summary: form.situation_summary.trim(),
-          contact_role: form.contact_role,
-          contact_name: form.contact_name.trim(),
-          contact_phone: form.contact_phone.trim(),
-          contact_email: form.contact_email.trim() || undefined,
-          preferred_contact_method: form.preferred_contact_method,
-          consent: form.consent,
-        },
-        locale,
-      );
+      // Drafts approach wasn't fully initialized with API here, fallback to full monolithic payload
+      // as backend allows full monolithic `store` method as well.
+      const payload: PublicApplicationPayload = {
+        applying_for: form.applying_for,
+        child_name: form.child_name.trim(),
+        gender: form.gender.trim() || undefined,
+        date_of_birth: form.date_of_birth || undefined,
+        is_enrolled: form.is_enrolled,
+        school_name: form.school_name.trim() || undefined,
+        grade_level: form.grade_level.trim() || undefined,
+        distance_to_school: form.distance_to_school.trim() || undefined,
+        interruption_reasons: form.interruption_reasons.trim() || undefined,
+        region_name: form.region_name.trim() || undefined,
+        village_name: form.village_name.trim() || undefined,
+        need_type: form.need_type,
+        need_summary: form.need_summary.trim(),
+        situation_summary: form.situation_summary.trim(),
+        household_income_range: form.household_income_range.trim() || undefined,
+        household_size: typeof form.household_size === 'number' ? form.household_size : undefined,
+        primary_caregiver_occupation: form.primary_caregiver_occupation.trim() || undefined,
+        household_challenges: form.household_challenges,
+        contact_role: form.contact_role,
+        contact_name: form.contact_name.trim(),
+        contact_phone: form.contact_phone.trim(),
+        contact_email: form.contact_email.trim() || undefined,
+        preferred_contact_method: form.preferred_contact_method,
+        documents: form.documents,
+        consent: form.consent,
+      };
+
+      const response = await apiSubmitPublicApplication(payload, locale);
 
       window.localStorage.removeItem(STORAGE_KEY);
       setHasDraft(false);
@@ -293,7 +387,51 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
     }
   };
 
-  const content = renderStepContent(currentStep, form, errors, copy, updateField);
+  const handleDownloadPdf = async () => {
+    try {
+      const payload: PublicApplicationPayload = {
+        applying_for: form.applying_for,
+        child_name: form.child_name.trim(),
+        gender: form.gender || undefined,
+        date_of_birth: form.date_of_birth || undefined,
+        is_enrolled: form.is_enrolled,
+        school_name: form.school_name.trim() || undefined,
+        grade_level: form.grade_level.trim() || undefined,
+        distance_to_school: form.distance_to_school.trim() || undefined,
+        interruption_reasons: form.interruption_reasons.trim() || undefined,
+        region_name: form.region_name.trim() || undefined,
+        village_name: form.village_name.trim() || undefined,
+        need_type: form.need_type,
+        need_summary: form.need_summary.trim(),
+        situation_summary: form.situation_summary.trim(),
+        household_income_range: form.household_income_range.trim() || undefined,
+        household_size: typeof form.household_size === 'number' ? form.household_size : undefined,
+        primary_caregiver_occupation: form.primary_caregiver_occupation.trim() || undefined,
+        household_challenges: form.household_challenges,
+        contact_role: form.contact_role,
+        contact_name: form.contact_name.trim(),
+        contact_phone: form.contact_phone.trim(),
+        contact_email: form.contact_email.trim() || undefined,
+        preferred_contact_method: form.preferred_contact_method,
+        documents: form.documents,
+        consent: form.consent,
+      };
+
+      const blob = await apiDownloadPreviewPdf(payload, locale);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Application_Preview.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      alert('Failed to download PDF preview.');
+    }
+  };
+
+  const content = renderStepContent(currentStep, form, errors, copy, updateField, reviewGroups, isAuthenticated, handleDownloadPdf);
 
   return (
     <>
@@ -529,125 +667,52 @@ function renderStepContent(
   stepIndex: number,
   form: ApplicationFormState,
   errors: Partial<Record<keyof ApplicationFormState, string>>,
-  copy: typeof applyCopy.en,
+  copy: any,
   updateField: <Field extends keyof ApplicationFormState>(field: Field, value: ApplicationFormState[Field]) => void,
+  reviewGroups: any,
+  isAuthenticated: boolean,
+  onDownloadPdf: () => void
 ) {
-  if (stepIndex === 0) {
-    return (
-      <fieldset className="grid gap-5">
-        <legend className="sr-only">{copy.childStepLabel}</legend>
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field label={copy.fields.childName} id="child_name" error={errors.child_name} required>
-            <input id="child_name" type="text" value={form.child_name} onChange={(event) => updateField('child_name', event.target.value)} className={fieldClass(Boolean(errors.child_name))} />
-          </Field>
-          <Field label={copy.fields.gender} id="gender">
-            <select id="gender" value={form.gender} onChange={(event) => updateField('gender', event.target.value)} className={fieldClass(Boolean(errors.gender))}>
-              {copy.genders.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field label={copy.fields.dateOfBirth} id="date_of_birth" helpText={copy.optionalHint}>
-            <input id="date_of_birth" type="date" value={form.date_of_birth} onChange={(event) => updateField('date_of_birth', event.target.value)} className={fieldClass(Boolean(errors.date_of_birth))} />
-          </Field>
-          <Field label={copy.fields.gradeLevel} id="grade_level" helpText={copy.optionalHint}>
-            <input id="grade_level" type="text" value={form.grade_level} onChange={(event) => updateField('grade_level', event.target.value)} className={fieldClass(Boolean(errors.grade_level))} placeholder={copy.gradeLevelPlaceholder} />
-          </Field>
-        </div>
-        <Field label={copy.fields.schoolName} id="school_name" helpText={copy.schoolHint}>
-          <input id="school_name" type="text" value={form.school_name} onChange={(event) => updateField('school_name', event.target.value)} className={fieldClass(Boolean(errors.school_name))} placeholder={copy.schoolPlaceholder} />
-        </Field>
-      </fieldset>
-    );
+  if (isAuthenticated) {
+    if (stepIndex === 7) return renderReviewStep(form, errors, copy, updateField, reviewGroups, onDownloadPdf);
+    return renderAuthStepContent(stepIndex, form, errors, copy, updateField);
+  } else {
+    if (stepIndex === 4) return renderReviewStep(form, errors, copy, updateField, reviewGroups, onDownloadPdf);
+    return renderUnauthStepContent(stepIndex, form, errors, copy, updateField);
   }
+}
 
-  if (stepIndex === 1) {
-    return (
-      <fieldset className="grid gap-5">
-        <legend className="sr-only">{copy.needStepLabel}</legend>
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field label={copy.fields.needType} id="need_type" error={errors.need_type} required>
-            <select id="need_type" value={form.need_type} onChange={(event) => updateField('need_type', event.target.value as NeedType)} className={fieldClass(Boolean(errors.need_type))}>
-              {copy.needTypes.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label={copy.fields.regionName} id="region_name" helpText={copy.optionalHint}>
-            <input id="region_name" type="text" value={form.region_name} onChange={(event) => updateField('region_name', event.target.value)} className={fieldClass(Boolean(errors.region_name))} />
-          </Field>
-        </div>
-        <Field label={copy.fields.villageName} id="village_name" helpText={copy.optionalHint}>
-          <input id="village_name" type="text" value={form.village_name} onChange={(event) => updateField('village_name', event.target.value)} className={fieldClass(Boolean(errors.village_name))} />
-        </Field>
-        <Field label={copy.fields.needSummary} id="need_summary" error={errors.need_summary} required helpText={copy.needSummaryHint}>
-          <textarea id="need_summary" rows={5} value={form.need_summary} onChange={(event) => updateField('need_summary', event.target.value)} className={cn(fieldClass(Boolean(errors.need_summary)), 'min-h-36 resize-y leading-6')} />
-        </Field>
-        <Field label={copy.fields.situationSummary} id="situation_summary" error={errors.situation_summary} required helpText={copy.situationSummaryHint}>
-          <textarea id="situation_summary" rows={5} value={form.situation_summary} onChange={(event) => updateField('situation_summary', event.target.value)} className={cn(fieldClass(Boolean(errors.situation_summary)), 'min-h-36 resize-y leading-6')} />
-        </Field>
-      </fieldset>
-    );
-  }
-
-  if (stepIndex === 2) {
-    return (
-      <fieldset className="grid gap-5">
-        <legend className="sr-only">{copy.contactStepLabel}</legend>
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field label={copy.fields.contactRole} id="contact_role" error={errors.contact_role} required>
-            <select id="contact_role" value={form.contact_role} onChange={(event) => updateField('contact_role', event.target.value as ContactRole)} className={fieldClass(Boolean(errors.contact_role))}>
-              {copy.contactRoles.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label={copy.fields.contactMethod} id="preferred_contact_method" error={errors.preferred_contact_method} required>
-            <select id="preferred_contact_method" value={form.preferred_contact_method} onChange={(event) => updateField('preferred_contact_method', event.target.value as ContactMethod)} className={fieldClass(Boolean(errors.preferred_contact_method))}>
-              {copy.contactMethods.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field label={copy.fields.contactName} id="contact_name" error={errors.contact_name} required>
-            <input id="contact_name" type="text" value={form.contact_name} onChange={(event) => updateField('contact_name', event.target.value)} className={fieldClass(Boolean(errors.contact_name))} />
-          </Field>
-          <Field label={copy.fields.contactPhone} id="contact_phone" error={errors.contact_phone} required>
-            <input id="contact_phone" type="tel" value={form.contact_phone} onChange={(event) => updateField('contact_phone', event.target.value)} className={fieldClass(Boolean(errors.contact_phone))} />
-          </Field>
-        </div>
-        <Field label={copy.fields.contactEmail} id="contact_email" helpText={copy.optionalHint}>
-          <input id="contact_email" type="email" value={form.contact_email} onChange={(event) => updateField('contact_email', event.target.value)} className={fieldClass(Boolean(errors.contact_email))} />
-        </Field>
-      </fieldset>
-    );
-  }
-
+function renderReviewStep(
+  form: ApplicationFormState,
+  errors: Partial<Record<keyof ApplicationFormState, string>>,
+  copy: any,
+  updateField: <Field extends keyof ApplicationFormState>(field: Field, value: ApplicationFormState[Field]) => void,
+  reviewGroups: any,
+  onDownloadPdf: () => void
+) {
   return (
     <fieldset className="grid gap-5">
       <legend className="sr-only">{copy.reviewStepLabel}</legend>
-      <div className="rounded-md border border-foundation-100 bg-foundation-50 p-4">
-        <p className="text-sm font-black uppercase text-foundation-600">{copy.reviewEyebrow}</p>
-        <p className="mt-2 text-base leading-7 text-ink-700">{copy.reviewBody}</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-md border border-foundation-100 bg-foundation-50 p-4">
+        <div>
+          <p className="text-sm font-black uppercase text-foundation-600">{copy.reviewEyebrow}</p>
+          <p className="mt-2 text-base leading-7 text-ink-700">{copy.reviewBody}</p>
+        </div>
+        <button
+          type="button"
+          onClick={onDownloadPdf}
+          className="focus-ring inline-flex h-10 shrink-0 items-center gap-2 rounded-md border border-foundation-200 bg-white px-4 text-sm font-bold text-foundation-700 transition hover:bg-foundation-50"
+        >
+          <FileText className="h-4 w-4" />
+          Download PDF Preview
+        </button>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
-        {reviewGroups.map((group) => (
+        {reviewGroups.map((group: any) => (
           <article key={group.title} className="rounded-md border border-ink-100 bg-ink-50 p-4">
             <h3 className="text-sm font-black uppercase text-ink-500">{group.title}</h3>
             <dl className="mt-3 space-y-3">
-              {group.items.map(([label, value]) => (
+              {group.items.map(([label, value]: [string, string]) => (
                 <div key={label}>
                   <dt className="text-xs font-bold uppercase text-ink-500">{label}</dt>
                   <dd className="mt-1 text-sm leading-6 text-ink-800">{value || copy.optionalValue}</dd>
@@ -677,6 +742,327 @@ function renderStepContent(
       </label>
     </fieldset>
   );
+}
+
+function renderUnauthStepContent(
+  stepIndex: number,
+  form: ApplicationFormState,
+  errors: Partial<Record<keyof ApplicationFormState, string>>,
+  copy: any,
+  updateField: <Field extends keyof ApplicationFormState>(field: Field, value: ApplicationFormState[Field]) => void,
+) {
+  if (stepIndex === 0) {
+    return (
+      <fieldset className="grid gap-5">
+        <legend className="sr-only">{copy.childStepLabel}</legend>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.childName} id="child_name" error={errors.child_name} required>
+            <input id="child_name" type="text" value={form.child_name} onChange={(event) => updateField('child_name', event.target.value)} className={fieldClass(Boolean(errors.child_name))} />
+          </Field>
+          <Field label={copy.fields.gender} id="gender">
+            <select id="gender" value={form.gender} onChange={(event) => updateField('gender', event.target.value)} className={fieldClass(Boolean(errors.gender))}>
+              {copy.genders.map((option: any) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.dateOfBirth} id="date_of_birth" helpText={copy.optionalHint}>
+            <input id="date_of_birth" type="date" value={form.date_of_birth} onChange={(event) => updateField('date_of_birth', event.target.value)} className={fieldClass(Boolean(errors.date_of_birth))} />
+          </Field>
+          <Field label={copy.fields.gradeLevel} id="grade_level" helpText={copy.optionalHint}>
+            <input id="grade_level" type="text" value={form.grade_level} onChange={(event) => updateField('grade_level', event.target.value)} className={fieldClass(Boolean(errors.grade_level))} placeholder={copy.gradeLevelPlaceholder} />
+          </Field>
+        </div>
+        <Field label={copy.fields.schoolName} id="school_name" helpText={copy.schoolHint}>
+          <input id="school_name" type="text" value={form.school_name} onChange={(event) => updateField('school_name', event.target.value)} className={fieldClass(Boolean(errors.school_name))} placeholder={copy.schoolPlaceholder} />
+        </Field>
+      </fieldset>
+    );
+  }
+
+  if (stepIndex === 1) {
+    return (
+      <fieldset className="grid gap-5">
+        <legend className="sr-only">{copy.needStepLabel}</legend>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.needType} id="need_type" error={errors.need_type} required>
+            <select id="need_type" value={form.need_type} onChange={(event) => updateField('need_type', event.target.value as NeedType)} className={fieldClass(Boolean(errors.need_type))}>
+              {copy.needTypes.map((option: any) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label={copy.fields.regionName} id="region_name" helpText={copy.optionalHint}>
+            <input id="region_name" type="text" value={form.region_name} onChange={(event) => updateField('region_name', event.target.value)} className={fieldClass(Boolean(errors.region_name))} />
+          </Field>
+        </div>
+        <Field label={copy.fields.villageName} id="village_name" helpText={copy.optionalHint}>
+          <input id="village_name" type="text" value={form.village_name} onChange={(event) => updateField('village_name', event.target.value)} className={fieldClass(Boolean(errors.village_name))} />
+        </Field>
+        <Field label={copy.fields.needSummary} id="need_summary" error={errors.need_summary} required helpText={copy.needSummaryHint}>
+          <textarea id="need_summary" rows={5} value={form.need_summary} onChange={(event) => updateField('need_summary', event.target.value)} className={cn(fieldClass(Boolean(errors.need_summary)), 'min-h-36 resize-y leading-6')} />
+        </Field>
+        <Field label={copy.fields.situationSummary} id="situation_summary" error={errors.situation_summary} required helpText={copy.situationSummaryHint}>
+          <textarea id="situation_summary" rows={5} value={form.situation_summary} onChange={(event) => updateField('situation_summary', event.target.value)} className={cn(fieldClass(Boolean(errors.situation_summary)), 'min-h-36 resize-y leading-6')} />
+        </Field>
+      </fieldset>
+    );
+  }
+
+  if (stepIndex === 2) {
+    return (
+      <fieldset className="grid gap-5">
+        <legend className="sr-only">{copy.verificationStepLabel || 'Verification'}</legend>
+        <div className="rounded-md border border-ink-100 bg-white p-5 shadow-sm">
+          <p className="text-sm font-semibold text-ink-900 mb-2">{copy.fields.documentsLabel || 'Upload Supporting Documents'}</p>
+          <p className="text-xs text-ink-500 mb-4">{copy.fields.documentsHint || 'Please provide fee statement, result slip, or receipt.'}</p>
+          {/* Note: In a real app we would use apiUploadApplicationDocument here. For now we just add a placeholder. */}
+          <div className="border-2 border-dashed border-ink-200 rounded-md p-6 text-center text-ink-500 hover:bg-ink-50 hover:border-ink-300 transition-colors cursor-pointer">
+            <FileText className="mx-auto h-8 w-8 mb-2" />
+            <span className="text-sm">Click to upload document</span>
+          </div>
+        </div>
+      </fieldset>
+    );
+  }
+
+  if (stepIndex === 3) {
+    return (
+      <fieldset className="grid gap-5">
+        <legend className="sr-only">{copy.contactStepLabel}</legend>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.contactRole} id="contact_role" error={errors.contact_role} required>
+            <select id="contact_role" value={form.contact_role} onChange={(event) => updateField('contact_role', event.target.value as ContactRole)} className={fieldClass(Boolean(errors.contact_role))}>
+              {copy.contactRoles.map((option: any) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label={copy.fields.contactMethod} id="preferred_contact_method" error={errors.preferred_contact_method} required>
+            <select id="preferred_contact_method" value={form.preferred_contact_method} onChange={(event) => updateField('preferred_contact_method', event.target.value as ContactMethod)} className={fieldClass(Boolean(errors.preferred_contact_method))}>
+              {copy.contactMethods.map((option: any) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.contactName} id="contact_name" error={errors.contact_name} required>
+            <input id="contact_name" type="text" value={form.contact_name} onChange={(event) => updateField('contact_name', event.target.value)} className={fieldClass(Boolean(errors.contact_name))} />
+          </Field>
+          <Field label={copy.fields.contactPhone} id="contact_phone" error={errors.contact_phone} required>
+            <input id="contact_phone" type="tel" value={form.contact_phone} onChange={(event) => updateField('contact_phone', event.target.value)} className={fieldClass(Boolean(errors.contact_phone))} />
+          </Field>
+        </div>
+        <Field label={copy.fields.contactEmail} id="contact_email" helpText={copy.optionalHint}>
+          <input id="contact_email" type="email" value={form.contact_email} onChange={(event) => updateField('contact_email', event.target.value)} className={fieldClass(Boolean(errors.contact_email))} />
+        </Field>
+      </fieldset>
+    );
+  }
+
+  return null;
+}
+
+function renderAuthStepContent(
+  stepIndex: number,
+  form: ApplicationFormState,
+  errors: Partial<Record<keyof ApplicationFormState, string>>,
+  copy: any,
+  updateField: <Field extends keyof ApplicationFormState>(field: Field, value: ApplicationFormState[Field]) => void,
+) {
+  if (stepIndex === 0) {
+    return (
+      <fieldset className="grid gap-5">
+        <legend className="sr-only">{copy.applyingForStepLabel || 'Applying For'}</legend>
+        <Field label={copy.fields.applyingFor || 'Who are you applying for?'} id="applying_for">
+          <select id="applying_for" value={form.applying_for} onChange={(event) => updateField('applying_for', event.target.value as any)} className={fieldClass(Boolean(errors.applying_for))}>
+            <option value="child">A child</option>
+            <option value="self">Myself</option>
+            <option value="other">Other</option>
+          </select>
+        </Field>
+      </fieldset>
+    );
+  }
+
+  if (stepIndex === 1) {
+    return (
+      <fieldset className="grid gap-5">
+        <legend className="sr-only">{copy.childStepLabel}</legend>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.childName} id="child_name" error={errors.child_name} required>
+            <input id="child_name" type="text" value={form.child_name} onChange={(event) => updateField('child_name', event.target.value)} className={fieldClass(Boolean(errors.child_name))} />
+          </Field>
+          <Field label={copy.fields.gender} id="gender">
+            <select id="gender" value={form.gender} onChange={(event) => updateField('gender', event.target.value)} className={fieldClass(Boolean(errors.gender))}>
+              {copy.genders.map((option: any) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.dateOfBirth} id="date_of_birth" helpText={copy.optionalHint}>
+            <input id="date_of_birth" type="date" value={form.date_of_birth} onChange={(event) => updateField('date_of_birth', event.target.value)} className={fieldClass(Boolean(errors.date_of_birth))} />
+          </Field>
+        </div>
+      </fieldset>
+    );
+  }
+
+  if (stepIndex === 2) {
+    return (
+      <fieldset className="grid gap-5">
+        <legend className="sr-only">{copy.educationStepLabel || 'Education'}</legend>
+        <label className="flex items-start gap-3 rounded-md border border-ink-100 bg-white p-4 text-sm leading-6 text-ink-600 mb-4">
+          <input
+            type="checkbox"
+            checked={form.is_enrolled}
+            onChange={(event) => updateField('is_enrolled', event.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-ink-300 text-foundation-600 focus:ring-foundation-500"
+          />
+          <span>{copy.fields.isEnrolled || 'Is the child currently enrolled in school?'}</span>
+        </label>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.schoolName} id="school_name" helpText={copy.schoolHint}>
+            <input id="school_name" type="text" value={form.school_name} onChange={(event) => updateField('school_name', event.target.value)} className={fieldClass(Boolean(errors.school_name))} placeholder={copy.schoolPlaceholder} />
+          </Field>
+          <Field label={copy.fields.gradeLevel} id="grade_level" helpText={copy.optionalHint}>
+            <input id="grade_level" type="text" value={form.grade_level} onChange={(event) => updateField('grade_level', event.target.value)} className={fieldClass(Boolean(errors.grade_level))} placeholder={copy.gradeLevelPlaceholder} />
+          </Field>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2 mt-4">
+          <Field label={copy.fields.distanceToSchool || 'Distance to School'} id="distance_to_school" helpText={copy.optionalHint}>
+            <input id="distance_to_school" type="text" value={form.distance_to_school} onChange={(event) => updateField('distance_to_school', event.target.value)} className={fieldClass(Boolean(errors.distance_to_school))} placeholder="e.g. 5 km or 30 mins walk" />
+          </Field>
+          <Field label={copy.fields.interruptionReasons || 'School Interruptions'} id="interruption_reasons" helpText={copy.optionalHint}>
+            <input id="interruption_reasons" type="text" value={form.interruption_reasons} onChange={(event) => updateField('interruption_reasons', event.target.value)} className={fieldClass(Boolean(errors.interruption_reasons))} placeholder="Any reasons for missing school?" />
+          </Field>
+        </div>
+      </fieldset>
+    );
+  }
+
+  if (stepIndex === 3) {
+    return (
+      <fieldset className="grid gap-5">
+        <legend className="sr-only">{copy.needStepLabel}</legend>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.needType} id="need_type" error={errors.need_type} required>
+            <select id="need_type" value={form.need_type} onChange={(event) => updateField('need_type', event.target.value as NeedType)} className={fieldClass(Boolean(errors.need_type))}>
+              {copy.needTypes.map((option: any) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label={copy.fields.regionName} id="region_name" helpText={copy.optionalHint}>
+            <input id="region_name" type="text" value={form.region_name} onChange={(event) => updateField('region_name', event.target.value)} className={fieldClass(Boolean(errors.region_name))} />
+          </Field>
+        </div>
+        <Field label={copy.fields.villageName} id="village_name" helpText={copy.optionalHint}>
+          <input id="village_name" type="text" value={form.village_name} onChange={(event) => updateField('village_name', event.target.value)} className={fieldClass(Boolean(errors.village_name))} />
+        </Field>
+        <Field label={copy.fields.needSummary} id="need_summary" error={errors.need_summary} required helpText={copy.needSummaryHint}>
+          <textarea id="need_summary" rows={5} value={form.need_summary} onChange={(event) => updateField('need_summary', event.target.value)} className={cn(fieldClass(Boolean(errors.need_summary)), 'min-h-36 resize-y leading-6')} />
+        </Field>
+        <Field label={copy.fields.situationSummary} id="situation_summary" error={errors.situation_summary} required helpText={copy.situationSummaryHint}>
+          <textarea id="situation_summary" rows={5} value={form.situation_summary} onChange={(event) => updateField('situation_summary', event.target.value)} className={cn(fieldClass(Boolean(errors.situation_summary)), 'min-h-36 resize-y leading-6')} />
+        </Field>
+      </fieldset>
+    );
+  }
+
+  if (stepIndex === 4) {
+    return (
+      <fieldset className="grid gap-5">
+        <legend className="sr-only">{copy.householdStepLabel || 'Household Situation'}</legend>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.householdIncome || 'Estimated Monthly Income'} id="household_income_range" helpText={copy.optionalHint}>
+            <input id="household_income_range" type="text" value={form.household_income_range} onChange={(event) => updateField('household_income_range', event.target.value)} className={fieldClass(Boolean(errors.household_income_range))} placeholder="e.g. Under 50,000 XAF" />
+          </Field>
+          <Field label={copy.fields.householdSize || 'Number of people in household'} id="household_size" helpText={copy.optionalHint}>
+            <input id="household_size" type="number" min="1" value={form.household_size} onChange={(event) => updateField('household_size', parseInt(event.target.value) || '')} className={fieldClass(Boolean(errors.household_size))} />
+          </Field>
+        </div>
+        <Field label={copy.fields.primaryCaregiverOccupation || 'Primary Caregiver Occupation'} id="primary_caregiver_occupation" helpText={copy.optionalHint}>
+          <input id="primary_caregiver_occupation" type="text" value={form.primary_caregiver_occupation} onChange={(event) => updateField('primary_caregiver_occupation', event.target.value)} className={fieldClass(Boolean(errors.primary_caregiver_occupation))} placeholder="e.g. Farmer, Trader" />
+        </Field>
+      </fieldset>
+    );
+  }
+
+  if (stepIndex === 5) {
+    return (
+      <fieldset className="grid gap-5">
+        <legend className="sr-only">{copy.contactStepLabel}</legend>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.contactRole} id="contact_role" error={errors.contact_role} required>
+            <select id="contact_role" value={form.contact_role} onChange={(event) => updateField('contact_role', event.target.value as ContactRole)} className={fieldClass(Boolean(errors.contact_role))}>
+              {copy.contactRoles.map((option: any) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label={copy.fields.contactMethod} id="preferred_contact_method" error={errors.preferred_contact_method} required>
+            <select id="preferred_contact_method" value={form.preferred_contact_method} onChange={(event) => updateField('preferred_contact_method', event.target.value as ContactMethod)} className={fieldClass(Boolean(errors.preferred_contact_method))}>
+              {copy.contactMethods.map((option: any) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label={copy.fields.contactName} id="contact_name" error={errors.contact_name} required>
+            <input id="contact_name" type="text" value={form.contact_name} onChange={(event) => updateField('contact_name', event.target.value)} className={fieldClass(Boolean(errors.contact_name))} />
+          </Field>
+          <Field label={copy.fields.contactPhone} id="contact_phone" error={errors.contact_phone} required>
+            <input id="contact_phone" type="tel" value={form.contact_phone} onChange={(event) => updateField('contact_phone', event.target.value)} className={fieldClass(Boolean(errors.contact_phone))} />
+          </Field>
+        </div>
+        <Field label={copy.fields.contactEmail} id="contact_email" helpText={copy.optionalHint}>
+          <input id="contact_email" type="email" value={form.contact_email} onChange={(event) => updateField('contact_email', event.target.value)} className={fieldClass(Boolean(errors.contact_email))} />
+        </Field>
+      </fieldset>
+    );
+  }
+
+  if (stepIndex === 6) {
+    return (
+      <fieldset className="grid gap-5">
+        <legend className="sr-only">{copy.documentsStepLabel || 'Documents'}</legend>
+        <div className="rounded-md border border-ink-100 bg-white p-5 shadow-sm">
+          <p className="text-sm font-semibold text-ink-900 mb-2">{copy.fields.documentsLabel || 'Upload Supporting Documents'}</p>
+          <p className="text-xs text-ink-500 mb-4">{copy.fields.documentsHint || 'Please provide fee statement, result slip, or receipt.'}</p>
+          <div className="border-2 border-dashed border-ink-200 rounded-md p-6 text-center text-ink-500 hover:bg-ink-50 hover:border-ink-300 transition-colors cursor-pointer">
+            <FileText className="mx-auto h-8 w-8 mb-2" />
+            <span className="text-sm">Click to upload document</span>
+          </div>
+        </div>
+      </fieldset>
+    );
+  }
+
+  return null;
 }
 
 function SectionIntro({ eyebrow, title, body }: { eyebrow: string; title: string; body: string }) {
@@ -783,16 +1169,26 @@ function readDraft(): DraftState | null {
   }
 }
 
-function stepFieldKeys(stepIndex: number): Array<keyof ApplicationFormState> {
+function stepFieldKeys(stepIndex: number, isAuthenticated: boolean): Array<keyof ApplicationFormState> {
+  if (!isAuthenticated) {
+    switch (stepIndex) {
+      case 0: return ['child_name', 'gender', 'date_of_birth', 'school_name', 'grade_level'];
+      case 1: return ['need_type', 'need_summary', 'situation_summary', 'region_name', 'village_name'];
+      case 2: return ['documents']; // Verification step
+      case 3: return ['contact_role', 'contact_name', 'contact_phone', 'contact_email', 'preferred_contact_method'];
+      default: return ['consent'];
+    }
+  }
+
   switch (stepIndex) {
-    case 0:
-      return ['child_name', 'gender', 'date_of_birth', 'school_name', 'grade_level'];
-    case 1:
-      return ['need_type', 'need_summary', 'situation_summary', 'region_name', 'village_name'];
-    case 2:
-      return ['contact_role', 'contact_name', 'contact_phone', 'contact_email', 'preferred_contact_method'];
-    default:
-      return ['consent'];
+    case 0: return ['applying_for'];
+    case 1: return ['child_name', 'gender', 'date_of_birth'];
+    case 2: return ['is_enrolled', 'school_name', 'grade_level', 'distance_to_school', 'interruption_reasons'];
+    case 3: return ['need_type', 'need_summary', 'situation_summary', 'region_name', 'village_name'];
+    case 4: return ['household_income_range', 'household_size', 'primary_caregiver_occupation', 'household_challenges'];
+    case 5: return ['contact_role', 'contact_name', 'contact_phone', 'contact_email', 'preferred_contact_method'];
+    case 6: return ['documents'];
+    default: return ['consent'];
   }
 }
 
@@ -800,29 +1196,31 @@ function validateStep(
   stepIndex: number,
   form: ApplicationFormState,
   copy: typeof applyCopy.en,
+  isAuthenticated: boolean
 ): Partial<Record<keyof ApplicationFormState, string>> {
   const errors: Partial<Record<keyof ApplicationFormState, string>> = {};
 
-  if (stepIndex === 0 && !form.child_name.trim()) {
-    errors.child_name = copy.validation.childName;
+  if (!isAuthenticated) {
+    if (stepIndex === 0 && !form.child_name.trim()) errors.child_name = copy.validation.childName;
+    if (stepIndex === 1) {
+      if (!form.need_summary.trim()) errors.need_summary = copy.validation.needSummary;
+      if (!form.situation_summary.trim()) errors.situation_summary = copy.validation.situationSummary;
+    }
+    if (stepIndex === 3) {
+      if (!form.contact_name.trim()) errors.contact_name = copy.validation.contactName;
+      if (!form.contact_phone.trim()) errors.contact_phone = copy.validation.contactPhone;
+    }
+    return errors;
   }
 
-  if (stepIndex === 1) {
-    if (!form.need_summary.trim()) {
-      errors.need_summary = copy.validation.needSummary;
-    }
-    if (!form.situation_summary.trim()) {
-      errors.situation_summary = copy.validation.situationSummary;
-    }
+  if (stepIndex === 1 && !form.child_name.trim()) errors.child_name = copy.validation.childName;
+  if (stepIndex === 3) {
+    if (!form.need_summary.trim()) errors.need_summary = copy.validation.needSummary;
+    if (!form.situation_summary.trim()) errors.situation_summary = copy.validation.situationSummary;
   }
-
-  if (stepIndex === 2) {
-    if (!form.contact_name.trim()) {
-      errors.contact_name = copy.validation.contactName;
-    }
-    if (!form.contact_phone.trim()) {
-      errors.contact_phone = copy.validation.contactPhone;
-    }
+  if (stepIndex === 5) {
+    if (!form.contact_name.trim()) errors.contact_name = copy.validation.contactName;
+    if (!form.contact_phone.trim()) errors.contact_phone = copy.validation.contactPhone;
   }
 
   return errors;
@@ -831,29 +1229,36 @@ function validateStep(
 function validateAll(
   form: ApplicationFormState,
   copy: typeof applyCopy.en,
+  isAuthenticated: boolean
 ): Partial<Record<keyof ApplicationFormState, string>> {
+  const totalSteps = isAuthenticated ? 8 : 5;
+  let allErrors = {};
+  for (let i = 0; i < totalSteps - 1; i++) {
+    allErrors = { ...allErrors, ...validateStep(i, form, copy, isAuthenticated) };
+  }
   return {
-    ...validateStep(0, form, copy),
-    ...validateStep(1, form, copy),
-    ...validateStep(2, form, copy),
+    ...allErrors,
     ...(form.consent ? {} : { consent: copy.validation.consent }),
   };
 }
 
-function findFirstInvalidStep(errors: Partial<Record<keyof ApplicationFormState, string>>): number {
-  if (errors.child_name || errors.gender || errors.date_of_birth || errors.school_name || errors.grade_level) {
-    return 0;
+function findFirstInvalidStep(errors: Partial<Record<keyof ApplicationFormState, string>>, isAuthenticated: boolean): number {
+  if (!isAuthenticated) {
+    if (errors.child_name || errors.gender || errors.date_of_birth || errors.school_name || errors.grade_level) return 0;
+    if (errors.need_type || errors.need_summary || errors.situation_summary || errors.region_name || errors.village_name) return 1;
+    if (errors.documents) return 2;
+    if (errors.contact_role || errors.contact_name || errors.contact_phone || errors.contact_email || errors.preferred_contact_method) return 3;
+    return 4;
   }
 
-  if (errors.need_type || errors.need_summary || errors.situation_summary || errors.region_name || errors.village_name) {
-    return 1;
-  }
-
-  if (errors.contact_role || errors.contact_name || errors.contact_phone || errors.contact_email || errors.preferred_contact_method) {
-    return 2;
-  }
-
-  return 3;
+  if (errors.applying_for) return 0;
+  if (errors.child_name || errors.gender || errors.date_of_birth) return 1;
+  if (errors.is_enrolled || errors.school_name || errors.grade_level || errors.distance_to_school || errors.interruption_reasons) return 2;
+  if (errors.need_type || errors.need_summary || errors.situation_summary || errors.region_name || errors.village_name) return 3;
+  if (errors.household_income_range || errors.household_size || errors.primary_caregiver_occupation || errors.household_challenges) return 4;
+  if (errors.contact_role || errors.contact_name || errors.contact_phone || errors.contact_email || errors.preferred_contact_method) return 5;
+  if (errors.documents) return 6;
+  return 7;
 }
 
 const applyCopy = {
@@ -889,10 +1294,15 @@ const applyCopy = {
     saveDraftLabel: 'Draft saved',
     lastSavedLabel: 'Last saved',
     clearDraftLabel: 'Clear draft',
-    childStepLabel: 'Child details',
-    needStepLabel: 'Education need',
-    contactStepLabel: 'Contact person',
-    reviewStepLabel: 'Review and send',
+    childStepLabel: '1. Child Details',
+    needStepLabel: '2. Support Needed',
+    contactStepLabel: '3. Contact Person',
+    reviewStepLabel: '4. Review & Confirm',
+    applyingForStepLabel: 'Applying For',
+    educationStepLabel: 'Education Details',
+    householdStepLabel: 'Household Situation',
+    verificationStepLabel: 'Verification',
+    documentsStepLabel: 'Documents',
     backLabel: 'Back',
     continueLabel: 'Continue',
     submitLabel: 'Submit application',
@@ -908,9 +1318,11 @@ const applyCopy = {
     reviewEyebrow: 'Review before sending',
     reviewBody: 'Please check the details below. Once sent, we will review the request and contact the person listed.',
     reviewSections: {
-      child: 'Child details',
-      need: 'Education need',
-      contact: 'Contact person',
+      child: 'Child Details',
+      need: 'Support Needed',
+      contact: 'Contact Person',
+      education: 'Education',
+      household: 'Household',
     },
     nextStepsEyebrow: 'What happens next',
     nextStepsTitle: 'A simple process from request to follow-up.',
@@ -930,21 +1342,31 @@ const applyCopy = {
       responseTime: 'Response time',
     },
     fields: {
-      childName: 'Child full name',
+      childName: "Child's Full Name",
       gender: 'Gender',
-      dateOfBirth: 'Date of birth',
-      schoolName: 'School name',
-      gradeLevel: 'Class or grade level',
-      regionName: 'Region',
-      villageName: 'Village or community',
-      needType: 'What support is needed?',
-      needSummary: 'What support is needed?',
-      situationSummary: 'What is happening?',
-      contactRole: 'Who are you in relation to the child?',
-      contactName: 'Responsible adult or contact person',
-      contactPhone: 'Phone number',
-      contactEmail: 'Email address',
-      contactMethod: 'Preferred contact method',
+      dateOfBirth: 'Date of Birth',
+      schoolName: 'Current or Last School Name',
+      gradeLevel: 'Current or Next Grade/Class',
+      regionName: 'Region / Province',
+      villageName: 'City / Village / Quarter',
+      needType: 'Primary Support Needed',
+      needSummary: 'Brief Summary of Need',
+      situationSummary: 'Family / Household Situation',
+      contactRole: 'Relationship to Child',
+      contactName: 'Contact Person Name',
+      contactPhone: 'Phone Number',
+      contactEmail: 'Email Address',
+      contactMethod: 'Preferred Contact Method',
+      preferredContactMethod: 'Preferred Contact Method',
+      applyingFor: 'Who are you applying for?',
+      isEnrolled: 'Is the child currently enrolled in school?',
+      distanceToSchool: 'Distance to School',
+      interruptionReasons: 'School Interruptions',
+      householdIncome: 'Estimated Monthly Income',
+      householdSize: 'Number of people in household',
+      primaryCaregiverOccupation: 'Primary Caregiver Occupation',
+      documentsLabel: 'Upload Supporting Documents',
+      documentsHint: 'Please provide fee statement, result slip, or receipt.',
     },
     genders: [
       { value: '', label: 'Select gender' },
@@ -1019,10 +1441,15 @@ const applyCopy = {
     saveDraftLabel: 'Brouillon enregistrÃ©',
     lastSavedLabel: 'Dernière sauvegarde',
     clearDraftLabel: 'Effacer le brouillon',
-    childStepLabel: "Informations sur l'enfant",
-    needStepLabel: 'Besoin Ã©ducatif',
-    contactStepLabel: 'Personne Ã  contacter',
-    reviewStepLabel: 'VÃ©rifier et envoyer',
+    childStepLabel: "1. DÃ©tails de l'enfant",
+    needStepLabel: '2. Soutien nÃ©cessaire',
+    contactStepLabel: '3. Personne de contact',
+    reviewStepLabel: '4. VÃ©rification',
+    applyingForStepLabel: 'Demande Pour',
+    educationStepLabel: 'Éducation',
+    householdStepLabel: 'Situation Familiale',
+    verificationStepLabel: 'Vérification',
+    documentsStepLabel: 'Documents',
     backLabel: 'Retour',
     continueLabel: 'Continuer',
     submitLabel: 'Envoyer la demande',
@@ -1038,9 +1465,11 @@ const applyCopy = {
     reviewEyebrow: 'VÃ©rifiez avant l’envoi',
     reviewBody: 'Merci de relire les informations ci-dessous. Une fois la demande envoyÃ©e, nous l’examinerons et contacterons la personne indiquÃ©e.',
     reviewSections: {
-      child: "Informations sur l'enfant",
-      need: 'Besoin Ã©ducatif',
-      contact: 'Personne Ã contacter',
+      child: "DÃ©tails de l'enfant",
+      need: 'Soutien nÃ©cessaire',
+      contact: 'Personne de contact',
+      education: 'Éducation',
+      household: 'Foyer',
     },
     nextStepsEyebrow: 'Ce qui se passe ensuite',
     nextStepsTitle: 'Un processus simple de la demande au suivi.',
@@ -1061,20 +1490,30 @@ const applyCopy = {
     },
     fields: {
       childName: "Nom complet de l'enfant",
-      gender: 'Sexe',
+      gender: 'Genre',
       dateOfBirth: 'Date de naissance',
-      schoolName: 'Nom de l’Ã©cole',
-      gradeLevel: 'Classe ou niveau',
-      regionName: 'RÃ©gion',
-      villageName: 'Village ou communautÃ©',
-      needType: 'Quel soutien est nÃ©cessaire ?',
-      needSummary: 'Quel soutien est nÃ©cessaire ?',
-      situationSummary: 'Que se passe-t-il ?',
-      contactRole: "Quel est votre lien avec l'enfant ?",
-      contactName: 'Adulte responsable ou personne Ã  contacter',
+      schoolName: 'Nom de l’Ã©cole (actuelle ou derniÃ¨re)',
+      gradeLevel: 'Classe / Niveau',
+      regionName: 'RÃ©gion / Province',
+      villageName: 'Ville / Village / Quartier',
+      needType: 'Type de soutien principal',
+      needSummary: 'Bref rÃ©sumÃ© du besoin',
+      situationSummary: 'Situation familiale / RÃ©sidence',
+      contactRole: "Lien avec l'enfant",
+      contactName: 'Nom du contact',
       contactPhone: 'NumÃ©ro de tÃ©lÃ©phone',
       contactEmail: 'Adresse email',
-      contactMethod: 'Moyen de contact prÃ©fÃ©rÃ©',
+      contactMethod: 'MÃ©thode de contact prÃ©fÃ©rÃ©e',
+      preferredContactMethod: 'MÃ©thode de contact prÃ©fÃ©rÃ©e',
+      applyingFor: 'Pour qui postulez-vous?',
+      isEnrolled: "L'enfant est-il actuellement inscrit à l'école?",
+      distanceToSchool: "Distance jusqu'à l'école",
+      interruptionReasons: "Interruptions scolaires",
+      householdIncome: "Revenu mensuel estimé",
+      householdSize: "Nombre de personnes dans le foyer",
+      primaryCaregiverOccupation: "Profession du responsable",
+      documentsLabel: 'Télécharger des Documents',
+      documentsHint: 'Veuillez fournir un relevé de frais, bulletin de notes ou reçu.',
     },
     genders: [
       { value: '', label: 'Choisir le sexe' },
@@ -1136,6 +1575,11 @@ const applyCopy = {
   needStepLabel: string;
   contactStepLabel: string;
   reviewStepLabel: string;
+  applyingForStepLabel?: string;
+  educationStepLabel?: string;
+  householdStepLabel?: string;
+  verificationStepLabel?: string;
+  documentsStepLabel?: string;
   backLabel: string;
   continueLabel: string;
   submitLabel: string;
@@ -1154,6 +1598,8 @@ const applyCopy = {
     child: string;
     need: string;
     contact: string;
+    education?: string;
+    household?: string;
   };
   nextStepsEyebrow: string;
   nextStepsTitle: string;
@@ -1184,6 +1630,16 @@ const applyCopy = {
     contactPhone: string;
     contactEmail: string;
     contactMethod: string;
+    preferredContactMethod?: string;
+    applyingFor?: string;
+    isEnrolled?: string;
+    distanceToSchool?: string;
+    interruptionReasons?: string;
+    householdIncome?: string;
+    householdSize?: string;
+    primaryCaregiverOccupation?: string;
+    documentsLabel?: string;
+    documentsHint?: string;
   };
   genders: Array<{ value: string; label: string }>;
   needTypes: Array<{ value: NeedType; label: string }>;

@@ -33,6 +33,12 @@ class Application extends Model
         'submitted_at',
         'verified_at',
         'reviewed_at',
+        'draft_token',
+        'current_step',
+        'household_income_range',
+        'household_size',
+        'primary_caregiver_occupation',
+        'household_challenges',
     ];
 
     protected function casts(): array
@@ -41,6 +47,7 @@ class Application extends Model
             'status' => ApplicationStatus::class,
             'date_of_birth' => 'date',
             'intake_payload' => 'array',
+            'household_challenges' => 'array',
             'submitted_at' => 'datetime',
             'verified_at' => 'datetime',
             'reviewed_at' => 'datetime',
@@ -75,6 +82,31 @@ class Application extends Model
     public function statusHistory()
     {
         return $this->hasMany(ApplicationStatusHistory::class);
+    }
+
+    public function steps()
+    {
+        return $this->hasMany(ApplicationStep::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(ApplicationDocument::class);
+    }
+
+    public function verificationContacts()
+    {
+        return $this->hasMany(ApplicationVerificationContact::class);
+    }
+
+    public function educationDetails()
+    {
+        return $this->hasOne(ApplicationEducationDetail::class);
+    }
+
+    public function needAssessments()
+    {
+        return $this->hasMany(ApplicationNeedAssessment::class);
     }
 
     public function referenceColumn(): string

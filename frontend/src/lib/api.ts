@@ -141,21 +141,39 @@ export interface ContactMessagePayload {
 }
 
 export interface PublicApplicationPayload {
+  // Step 1: Who Are You Applying For
+  applying_for?: 'self' | 'child' | 'other';
+  // Step 2: Child Information
   child_name: string;
   gender?: string;
   date_of_birth?: string;
+  // Step 3: Education Information
+  is_enrolled?: boolean;
   school_name?: string;
   grade_level?: string;
+  distance_to_school?: string;
+  interruption_reasons?: string;
+  // Location
   region_name?: string;
   village_name?: string;
+  // Step 4: Need Assessment
   need_type: 'fees' | 'books' | 'uniform' | 'exam' | 'transport' | 'meals' | 'other';
   need_summary: string;
   situation_summary: string;
+  // Step 5: Household Situation
+  household_income_range?: string;
+  household_size?: number;
+  primary_caregiver_occupation?: string;
+  household_challenges?: string[];
+  // Step 6: Verification Contacts
   contact_role: 'parent' | 'guardian' | 'school' | 'community_leader' | 'child' | 'other';
   contact_name: string;
   contact_phone: string;
   contact_email?: string;
   preferred_contact_method: 'phone' | 'sms' | 'whatsapp' | 'email';
+  // Step 7: Documents
+  documents?: { type: string; id: number }[];
+  // Step 8: Review & Submit
   consent: boolean;
 }
 
@@ -414,18 +432,92 @@ export async function apiSubmitContactMessage(
   };
 }
 
+export async function apiCreateApplicationDraft(locale: string): Promise<{ data: { draft_token: string; application_number: string } }> {
+  const response = await fetch(`${API_BASE_URL}/public/applications/draft`, {
+    method: 'POST',
+    headers: buildHeaders({
+      Accept: 'application/json',
+      'Accept-Language': locale,
+    }),
+  });
+  const env = await parseJsonEnvelope(response, 'Failed to initialize draft.');
+  return { data: env.data as { draft_token: string; application_number: string } };
+}
+
+export async function apiSaveApplicationStep(
+  token: string,
+  stepIndex: number,
+  payload: Partial<PublicApplicationPayload>,
+  locale: string
+): Promise<{ message: string }> {
+  const response = await fetch(`${API_BASE_URL}/public/applications/${token}/step/${stepIndex}`, {
+    method: 'PUT',
+    headers: buildHeaders({
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    }),
+    body: JSON.stringify(payload),
+  });
+  const env = await parseJsonEnvelope(response, 'Failed to save progress.');
+  return { message: String(env.message ?? 'Saved') };
+}
+
+export async function apiUploadApplicationDocument(
+  token: string,
+  file: File,
+  documentType: string,
+  locale: string
+): Promise<{ message: string; document_id: number }> {
+  const body = new FormData();
+  body.append('file', file);
+  body.append('document_type', documentType);
+
+  const response = await fetch(`${API_BASE_URL}/public/applications/${token}/documents`, {
+    method: 'POST',
+    headers: buildHeaders({
+      Accept: 'application/json',
+      'Accept-Language': locale,
+    }),
+    body,
+  });
+  const env = await parseJsonEnvelope(response, 'Failed to upload document.');
+  return { 
+    message: String(env.message ?? 'Uploaded'), 
+    document_id: (env.data as any).document_id 
+  };
+}
+
+export async function apiSubmitApplicationDraft(
+  token: string,
+  locale: string
+): Promise<{ message: string; data?: PublicApplicationSubmissionResponse }> {
+  const response = await fetch(`${API_BASE_URL}/public/applications/${token}/submit`, {
+    method: 'POST',
+    headers: buildHeaders({
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    }),
+  });
+  const data = await parseJsonEnvelope(response, 'Failed to submit application.');
+  return {
+    message: String(data.message ?? 'Application submitted successfully.'),
+    data: data.data as PublicApplicationSubmissionResponse | undefined,
+  };
+}
+
 export async function apiSubmitPublicApplication(
   payload: PublicApplicationPayload,
   locale: string,
 ): Promise<{ message: string; data?: PublicApplicationSubmissionResponse }> {
   const response = await fetch(`${API_BASE_URL}/public/applications`, {
     method: 'POST',
-    headers: {
+    headers: buildHeaders({
       Accept: 'application/json',
       'Content-Type': 'application/json',
       'Accept-Language': locale,
-    },
-    credentials: 'omit',
+    }),
     body: JSON.stringify(payload),
   });
 
@@ -435,6 +527,24 @@ export async function apiSubmitPublicApplication(
     message: String(data.message ?? 'Thank you. Your application has been received and will be reviewed.'),
     data: data.data as PublicApplicationSubmissionResponse | undefined,
   };
+}
+
+export async function apiDownloadPreviewPdf(payload: PublicApplicationPayload, locale: string): Promise<Blob> {
+  const response = await fetch(`${API_BASE_URL}/public/applications/preview-pdf`, {
+    method: 'POST',
+    headers: buildHeaders({
+      Accept: 'application/pdf',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    }),
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to generate PDF preview.');
+  }
+
+  return response.blob();
 }
 
 export async function apiLogout(): Promise<void> {
