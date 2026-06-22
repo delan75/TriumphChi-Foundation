@@ -176,6 +176,10 @@ export interface PublicApplicationPayload {
   exam_name?: string;
   exam_date?: string;
   exam_fee_amount?: string;
+  household_income_range?: string;
+  household_size?: number;
+  primary_caregiver_occupation?: string;
+  household_challenges?: string[];
   need_type: 'fees' | 'books' | 'uniform' | 'exam' | 'transport' | 'meals' | 'other';
   need_summary: string;
   situation_summary: string;

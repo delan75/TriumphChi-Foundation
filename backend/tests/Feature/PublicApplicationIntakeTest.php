@@ -25,9 +25,16 @@ class PublicApplicationIntakeTest extends TestCase
                 'grade_level' => 'Primary 5',
                 'region_name' => 'North West',
                 'village_name' => 'Bamenda',
+                'school_enrollment_status' => 'enrolled',
                 'need_type' => 'fees',
                 'need_summary' => 'School fees are due and the child cannot remain in class without support.',
                 'situation_summary' => 'The child is at risk of missing school because the family cannot cover the current term fees.',
+                'fee_amount' => '45000',
+                'fee_due_date' => '2026-09-15',
+                'household_income_range' => 'Below XAF 50,000',
+                'household_size' => 6,
+                'primary_caregiver_occupation' => 'Farmer',
+                'household_challenges' => ['loss of parent', 'unstable income'],
                 'contact_role' => 'guardian',
                 'contact_name' => 'Mimi Talla',
                 'contact_phone' => '+237 600 000 000',
@@ -54,6 +61,12 @@ class PublicApplicationIntakeTest extends TestCase
         $this->assertSame('fr', $application->intake_payload['locale']);
         $this->assertSame('fees', $application->intake_payload['need_type']);
         $this->assertSame('phone', $application->intake_payload['preferred_contact_method']);
+        $this->assertSame('Below XAF 50,000', $application->household_income_range);
+        $this->assertSame(6, $application->household_size);
+        $this->assertSame('Farmer', $application->primary_caregiver_occupation);
+        $this->assertSame(['loss of parent', 'unstable income'], $application->household_challenges);
+        $this->assertSame('45000', $application->intake_payload['fee_amount']);
+        $this->assertSame('enrolled', $application->intake_payload['school_enrollment_status']);
         $this->assertDatabaseHas('applications', [
             'applicant_name' => 'Grace Talla',
             'guardian_name' => 'Mimi Talla',
@@ -86,7 +99,37 @@ class PublicApplicationIntakeTest extends TestCase
                 'contact_name',
                 'contact_phone',
                 'consent',
-            ]);
+        ]);
+    }
+
+    public function test_public_application_accepts_teacher_verification_contact(): void
+    {
+        $this->postJson('/api/v1/public/applications', [
+            'child_name' => 'Junior Neba',
+            'school_enrollment_status' => 'not_enrolled',
+            'last_school_attended' => 'Village Primary School',
+            'education_interruption_reason' => 'Fees were not paid before the new term.',
+            'need_type' => 'exam',
+            'need_summary' => 'The child needs examination support.',
+            'situation_summary' => 'The teacher can help confirm the records and exam date.',
+            'exam_name' => 'Common Entrance',
+            'exam_fee_amount' => '25000',
+            'contact_role' => 'teacher',
+            'teacher_school_name' => 'Village Primary School',
+            'teacher_position' => 'Class teacher',
+            'contact_name' => 'Mr. Tabi',
+            'contact_phone' => '+237 677 000 000',
+            'preferred_contact_method' => 'whatsapp',
+            'consent' => true,
+        ])->assertCreated()
+            ->assertJsonPath('success', true);
+
+        $application = Application::query()->firstOrFail();
+
+        $this->assertSame('teacher', $application->intake_payload['contact_role']);
+        $this->assertSame('Village Primary School', $application->intake_payload['teacher_school_name']);
+        $this->assertSame('Class teacher', $application->intake_payload['teacher_position']);
+        $this->assertSame('Common Entrance', $application->intake_payload['exam_name']);
     }
 
     public function test_public_lookup_returns_school_suggestions(): void
