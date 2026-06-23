@@ -12,9 +12,11 @@ import {
   UsersRound,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { FaqSection } from '../../../components/public/FaqSection';
 import { PublicPageTitle } from '../../../components/public/PublicPageTitle';
 import { Seo } from '../../../components/seo/Seo';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
+import { publicFaqSections } from '../../../content/publicFaqs';
 import { Locale } from '../../../lib/i18n';
 import { publicContact } from '../../../lib/publicContact';
 import heroImage from '../../../assets/landing/rural-home-cameroon.jpg';
@@ -226,6 +228,7 @@ export function PrivacyPolicyPage({ locale, page }: PrivacyPolicyPageProps) {
   const contactPage = getPageByKey('contact');
   const applyPage = getPageByKey('apply');
   const copy = privacyCopy[locale];
+  const faqSection = publicFaqSections.privacy;
 
   return (
     <>
@@ -367,6 +370,14 @@ export function PrivacyPolicyPage({ locale, page }: PrivacyPolicyPageProps) {
             </section>
           </div>
         </section>
+
+        <FaqSection
+          eyebrow={faqSection.eyebrow[locale]}
+          title={faqSection.title[locale]}
+          body={faqSection.body[locale]}
+          items={faqSection.items[locale]}
+          surface="white"
+        />
       </main>
     </>
   );
