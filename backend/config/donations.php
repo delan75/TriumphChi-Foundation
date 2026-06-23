@@ -11,13 +11,13 @@ return [
     ],
 
     'currencies' => [
-        'USD' => ['symbol' => '$', 'minimum_amount' => 10, 'suggested_amounts' => [10, 25, 50, 100, 250]],
-        'GBP' => ['symbol' => '£', 'minimum_amount' => 10, 'suggested_amounts' => [10, 25, 50, 100, 250]],
-        'EUR' => ['symbol' => '€', 'minimum_amount' => 10, 'suggested_amounts' => [10, 25, 50, 100, 250]],
-        'ZAR' => ['symbol' => 'R', 'minimum_amount' => 100, 'suggested_amounts' => [100, 250, 500, 1000, 2500]],
-        'XAF' => ['symbol' => 'FCFA', 'minimum_amount' => 5000, 'suggested_amounts' => [5000, 10000, 25000, 50000, 100000]],
-        'CAD' => ['symbol' => '$', 'minimum_amount' => 10, 'suggested_amounts' => [10, 25, 50, 100, 250]],
-        'AUD' => ['symbol' => '$', 'minimum_amount' => 10, 'suggested_amounts' => [10, 25, 50, 100, 250]],
+        'USD' => ['symbol' => '$', 'minimum_amount' => 2, 'suggested_amounts' => [10, 25, 50, 100, 250]],
+        'GBP' => ['symbol' => '£', 'minimum_amount' => 1, 'suggested_amounts' => [10, 25, 50, 100, 250]],
+        'EUR' => ['symbol' => '€', 'minimum_amount' => 2, 'suggested_amounts' => [10, 25, 50, 100, 250]],
+        'ZAR' => ['symbol' => 'R', 'minimum_amount' => 10, 'suggested_amounts' => [100, 250, 500, 1000, 2500]],
+        'XAF' => ['symbol' => 'FCFA', 'minimum_amount' => 100, 'suggested_amounts' => [1000, 5000, 10000, 25000, 50000, 100000]],
+        'CAD' => ['symbol' => '$', 'minimum_amount' => 250, 'suggested_amounts' => [10, 25, 50, 100, 250]],
+        'AUD' => ['symbol' => '$', 'minimum_amount' => 5, 'suggested_amounts' => [10, 25, 50, 100, 250]],
     ],
 
     'purposes' => [
@@ -38,6 +38,7 @@ return [
             'category' => 'card',
             'enabled' => true,
             'currencies' => ['USD', 'GBP', 'EUR', 'ZAR', 'XAF', 'CAD', 'AUD'],
+            'country_codes' => ['*'],
         ],
         [
             'key' => 'paypal',
@@ -46,6 +47,7 @@ return [
             'category' => 'wallet',
             'enabled' => true,
             'currencies' => ['USD', 'GBP', 'EUR', 'CAD', 'AUD'],
+            'country_codes' => ['*'],
         ],
         [
             'key' => 'momo',
@@ -53,7 +55,8 @@ return [
             'method' => 'mtn_mobile_money',
             'category' => 'mobile_money',
             'enabled' => true,
-            'currencies' => ['XAF'],
+            'currencies' => array_values(array_filter(array_map('trim', explode(',', env('MOMO_COLLECTIONS_CURRENCIES', 'XAF'))))),
+            'country_codes' => array_values(array_filter(array_map('trim', explode(',', env('MOMO_COLLECTIONS_COUNTRY_CODES', 'CM'))))),
         ],
         [
             'key' => 'bank_transfer',
@@ -62,6 +65,7 @@ return [
             'category' => 'bank',
             'enabled' => true,
             'currencies' => ['USD', 'GBP', 'EUR', 'ZAR', 'XAF', 'CAD', 'AUD'],
+            'country_codes' => ['*'],
         ],
     ],
 ];

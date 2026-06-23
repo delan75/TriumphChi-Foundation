@@ -78,6 +78,9 @@ return [
     'messages' => [
         'donation_config_retrieved' => 'Options de don recuperees avec succes.',
         'donation_intent_created' => 'Merci. Votre don a ete prepare de maniere securisee.',
+        'donation_intent_status_retrieved' => 'Statut du don recupere avec succes.',
+        'momo_account_holder_status_retrieved' => 'Statut du compte MoMo recupere avec succes.',
+        'momo_callback_received' => 'Notification MoMo recue.',
     ],
 
     'errors' => [
@@ -93,7 +96,19 @@ return [
         'payment_allocation_total_mismatch' => 'Les montants alloués doivent être égaux au montant du paiement.',
         'payment_fund_mismatch' => 'Le fonds du paiement doit correspondre au fonds de chaque allocation liée.',
         'minimum_donation_amount' => 'Le don minimum est de :amount :currency.',
+        'momo_consent_required' => 'Veuillez confirmer que le numero MoMo vous appartient et peut recevoir la demande de paiement.',
+        'momo_account_rejected' => 'MoMo n a pas pu envoyer la demande a ce numero. Verifiez que le numero est actif, ou choisissez carte, PayPal ou virement bancaire.',
+        'momo_country_unsupported' => 'Le don par MoMo est actuellement disponible uniquement pour le Cameroun. Veuillez choisir carte, PayPal ou virement bancaire pour les autres pays.',
+        'momo_currency_rejected' => 'MoMo n a pas accepte cette devise. Utilisez XAF pour un don MoMo au Cameroun, ou choisissez un autre canal de don.',
+        'momo_currency_unsupported' => 'Le don par MoMo exige actuellement XAF. Changez la devise en XAF ou choisissez un autre canal de don.',
+        'momo_phone_invalid' => 'Veuillez saisir un numero MoMo valide.',
+        'momo_phone_required' => 'Un numero MoMo est requis pour donner avec MoMo.',
+        'momo_account_status_failed' => 'Nous n avons pas pu verifier le statut du compte MoMo. Veuillez reessayer.',
+        'momo_request_failed' => 'MoMo n a pas pu lancer ce paiement. Verifiez le pays, la devise et le numero, ou choisissez carte, PayPal ou virement bancaire.',
+        'momo_status_failed' => 'Nous ne pouvons pas encore confirmer le statut MoMo. Veuillez reessayer.',
+        'momo_token_failed' => 'MoMo est temporairement indisponible. Veuillez reessayer.',
         'payment_provider_currency_unsupported' => 'Le canal de don selectionne ne prend pas en charge cette devise.',
+        'similar_donation_pending' => 'Un don similaire est deja en attente. Veuillez confirmer avant d en lancer un autre.',
         'payment_reference_exists' => 'Un paiement avec cette référence existe déjà.',
     ],
 ];

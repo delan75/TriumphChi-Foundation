@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\EducationalNeedController;
 use App\Http\Controllers\Api\V1\FundController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\ImpactUpdateController;
+use App\Http\Controllers\Api\V1\MomoDiagnosticsController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\PublicDonationController;
 use App\Http\Controllers\Api\V1\PublicImpactController;
@@ -37,6 +38,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('public/donation-intents', [PublicDonationController::class, 'storeIntent'])
         ->middleware([SetLocale::class, 'throttle:5,1'])
         ->name('public.donation-intents.store');
+    Route::get('public/donation-intents/{paymentIntent}/status', [PublicDonationController::class, 'status'])
+        ->middleware([SetLocale::class, 'throttle:20,1'])
+        ->name('public.donation-intents.status');
+    Route::post('public/momo/callbacks/{hash}', [PublicDonationController::class, 'momoCallback'])
+        ->middleware('throttle:120,1')
+        ->name('public.momo.callbacks');
     Route::post('public/contact-messages', [ContactMessageController::class, 'store'])
         ->middleware([SetLocale::class, 'throttle:5,1'])
         ->name('public.contact-messages.store');
@@ -161,6 +168,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('global-search', GlobalSearchController::class)
             ->name('global-search');
+
+        Route::get('payment-providers/momo/account-holder-status', [MomoDiagnosticsController::class, 'accountHolderStatus'])
+            ->middleware('can:payments.view')
+            ->name('payment-providers.momo.account-holder-status');
 
         Route::get('applications/{application}/pdf', [ApplicationController::class, 'pdf'])
             ->middleware('can:applications.view')

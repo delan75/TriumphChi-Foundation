@@ -78,6 +78,9 @@ return [
     'messages' => [
         'donation_config_retrieved' => 'Donation options retrieved successfully.',
         'donation_intent_created' => 'Thank you. Your donation has been prepared securely.',
+        'donation_intent_status_retrieved' => 'Donation status retrieved successfully.',
+        'momo_account_holder_status_retrieved' => 'MoMo account holder status retrieved successfully.',
+        'momo_callback_received' => 'MoMo callback received.',
     ],
 
     'errors' => [
@@ -93,7 +96,19 @@ return [
         'payment_allocation_total_mismatch' => 'The allocation amounts must equal the payment amount.',
         'payment_fund_mismatch' => 'The payment fund must match every linked allocation fund.',
         'minimum_donation_amount' => 'The minimum donation is :amount :currency.',
+        'momo_consent_required' => 'Please confirm that the MoMo number belongs to you and can be prompted for this donation.',
+        'momo_account_rejected' => 'MoMo could not prompt this number. Please confirm the number is active and try again, or choose card, PayPal, or bank transfer.',
+        'momo_country_unsupported' => 'MoMo giving is currently available only for Cameroon. Please choose card, PayPal, or bank transfer for other countries.',
+        'momo_currency_rejected' => 'MoMo did not accept this currency. Please use XAF for Cameroon MoMo giving, or choose another giving channel.',
+        'momo_currency_unsupported' => 'MoMo giving currently requires XAF. Please change the currency to XAF or choose another giving channel.',
+        'momo_phone_invalid' => 'Please enter a valid MoMo phone number.',
+        'momo_phone_required' => 'A MoMo phone number is required for MoMo giving.',
+        'momo_account_status_failed' => 'We could not check the MoMo account holder status. Please try again.',
+        'momo_request_failed' => 'MoMo could not start this payment. Please confirm the country, currency, and phone number, or choose card, PayPal, or bank transfer.',
+        'momo_status_failed' => 'We could not confirm the MoMo payment status yet. Please try again.',
+        'momo_token_failed' => 'MoMo is temporarily unavailable. Please try again.',
         'payment_provider_currency_unsupported' => 'The selected giving channel does not support this currency.',
         'payment_reference_exists' => 'A payment with this reference already exists.',
+        'similar_donation_pending' => 'A similar donation is already pending. Please confirm before starting another one.',
     ],
 ];

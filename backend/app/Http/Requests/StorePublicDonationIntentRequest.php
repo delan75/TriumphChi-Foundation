@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\Payments\PaymentCapabilityRegistry;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -34,6 +35,9 @@ class StorePublicDonationIntentRequest extends FormRequest
             'donor.phone' => ['nullable', 'string', 'max:40'],
             'donor.country' => ['required', 'string', 'size:2'],
             'anonymous' => ['sometimes', 'boolean'],
+            'payment_consent' => ['sometimes', 'boolean'],
+            'similar_donation_acknowledged' => ['sometimes', 'boolean'],
+            'client_reference' => ['nullable', 'string', 'max:120'],
         ];
     }
 
@@ -45,6 +49,7 @@ class StorePublicDonationIntentRequest extends FormRequest
             $amount = (float) $this->input('amount');
             $currencyConfig = config("donations.currencies.{$currency}");
             $providerConfig = collect(config('donations.providers', []))->firstWhere('key', $providerKey);
+            $capabilities = app(PaymentCapabilityRegistry::class);
 
             if ($currencyConfig && $amount < (float) $currencyConfig['minimum_amount']) {
                 $validator->errors()->add(
@@ -58,6 +63,31 @@ class StorePublicDonationIntentRequest extends FormRequest
                     'payment_provider',
                     __('api.errors.payment_provider_currency_unsupported'),
                 );
+            }
+
+            if ($providerKey === 'momo') {
+                $phone = (string) $this->input('donor.phone');
+                $country = strtoupper((string) $this->input('donor.country'));
+
+                if ($phone === '') {
+                    $validator->errors()->add('donor.phone', __('api.errors.momo_phone_required'));
+                }
+
+                if ($phone !== '' && ! preg_match('/^\+?[1-9][0-9]{7,14}$/', preg_replace('/[\s-]+/', '', $phone))) {
+                    $validator->errors()->add('donor.phone', __('api.errors.momo_phone_invalid'));
+                }
+
+                if (! $this->boolean('payment_consent')) {
+                    $validator->errors()->add('payment_consent', __('api.errors.momo_consent_required'));
+                }
+
+                if (! $capabilities->providerSupportsCountry($providerConfig, $country)) {
+                    $validator->errors()->add('payment_provider', __('api.errors.momo_country_unsupported'));
+                }
+
+                if (! $capabilities->providerSupports($providerConfig, $country, $currency)) {
+                    $validator->errors()->add('currency', __('api.errors.momo_currency_unsupported'));
+                }
             }
         });
     }
