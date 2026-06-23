@@ -14,6 +14,7 @@ interface ImpactSummaryGridProps {
   icons: LucideIcon[];
   usesFallback?: boolean;
   fallbackNote?: string;
+  isLoading?: boolean;
   variant?: 'light' | 'dark';
   className?: string;
 }
@@ -26,6 +27,7 @@ export function ImpactSummaryGrid({
   icons,
   usesFallback = false,
   fallbackNote,
+  isLoading = false,
   variant = 'light',
   className,
 }: ImpactSummaryGridProps) {
@@ -41,7 +43,21 @@ export function ImpactSummaryGrid({
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {items.map((item, index) => {
+          {isLoading
+            ? Array.from({ length: Math.max(items.length, 4) }).map((_, index) => (
+                <div
+                  key={`impact-summary-loading-${index}`}
+                  className={cn(
+                    'min-h-40 animate-pulse rounded-md border p-5',
+                    dark ? 'border-white/10 bg-white/5' : 'border-foundation-100 bg-foundation-50',
+                  )}
+                >
+                  <div className={cn('h-6 w-6 rounded-md', dark ? 'bg-white/15' : 'bg-foundation-100')} />
+                  <div className={cn('mt-5 h-8 w-24 rounded-md', dark ? 'bg-white/15' : 'bg-foundation-100')} />
+                  <div className={cn('mt-3 h-4 w-32 rounded-md', dark ? 'bg-white/15' : 'bg-foundation-100')} />
+                </div>
+              ))
+            : items.map((item, index) => {
             const Icon = icons[index] ?? icons[icons.length - 1];
 
             return (

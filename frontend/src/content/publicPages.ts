@@ -184,11 +184,19 @@ export const publicPages: PublicPageDefinition[] = [
     navGroup: 'primary',
     path: { en: '/impact', fr: '/impact' },
     label: { en: 'Impact', fr: 'Impact' },
-    eyebrow: { en: 'Impact statistics', fr: "Statistiques d'impact" },
-    title: { en: 'Measure outcomes without exposing private child records.', fr: 'Mesurer les résultats sans exposer les dossiers privés des enfants.' },
+    eyebrow: { en: 'Evidence of hope', fr: "Preuves d'esperance" },
+    title: { en: 'Education Changes Futures', fr: "L'education change l'avenir" },
     description: {
-      en: 'Impact pages will present aggregate metrics, school milestones, funded needs, and curated updates approved for public sharing.',
-      fr: "Les pages d'impact présenteront des données agrégées, des étapes scolaires, des besoins financés et des nouvelles validées pour publication.",
+      en: 'See how education support helps children stay in school, families regain hope, and communities work together for lasting progress.',
+      fr: "Decouvrez comment le soutien scolaire aide les enfants a rester a l'ecole, les familles a retrouver l'espoir et les communautes a avancer ensemble.",
+    },
+    seoTitle: {
+      en: 'Impact | TriumphChi Foundation',
+      fr: 'Impact | Fondation TriumphChi',
+    },
+    seoDescription: {
+      en: 'Explore the impact of TriumphChi Foundation education support in rural Cameroon, including children supported, partner schools, stories of progress, and responsible stewardship.',
+      fr: "Explorez l'impact du soutien scolaire de la Fondation TriumphChi au Cameroun rural : enfants soutenus, ecoles partenaires, histoires de progres et responsabilite.",
     },
     schemaType: 'WebPage',
     sections: [],
