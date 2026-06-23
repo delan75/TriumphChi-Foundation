@@ -29,7 +29,8 @@ export type PublicPageKey =
   | 'donate'
   | 'apply'
   | 'sponsor'
-  | 'corporate';
+  | 'corporate'
+  | 'privacy';
 
 export interface PublicPageSection {
   title: Record<Locale, string>;
@@ -335,6 +336,29 @@ export const publicPages: PublicPageDefinition[] = [
     description: {
       en: 'Corporate partners can support program funds, school infrastructure, emergency needs, and transparent reporting.',
       fr: "Les entreprises peuvent soutenir les fonds de programme, l'infrastructure scolaire, les urgences et les rapports.",
+    },
+    schemaType: 'WebPage',
+    sections: [],
+  },
+  {
+    key: 'privacy',
+    icon: ShieldCheck,
+    navGroup: 'secondary',
+    path: { en: '/privacy-policy', fr: '/politique-de-confidentialite' },
+    label: { en: 'Privacy Policy', fr: 'Confidentialite' },
+    eyebrow: { en: 'Privacy and child protection', fr: 'Confidentialite et protection des enfants' },
+    title: { en: 'Privacy Policy', fr: 'Politique de confidentialite' },
+    description: {
+      en: 'How TriumphChi Foundation collects, uses, protects, and shares personal information connected to visitors, donors, applicants, children, guardians, schools, volunteers, and partners.',
+      fr: 'Comment la Fondation TriumphChi collecte, utilise, protege et partage les informations personnelles des visiteurs, donateurs, demandeurs, enfants, tuteurs, ecoles, benevoles et partenaires.',
+    },
+    seoTitle: {
+      en: 'Privacy Policy | TriumphChi Foundation',
+      fr: 'Politique de confidentialite | Fondation TriumphChi',
+    },
+    seoDescription: {
+      en: 'Read the TriumphChi Foundation privacy policy, including how we protect child data, donor information, contact messages, applications, attachments, cookies, and privacy rights.',
+      fr: 'Lisez la politique de confidentialite de la Fondation TriumphChi concernant la protection des donnees des enfants, donateurs, messages, demandes, pieces jointes, cookies et droits.',
     },
     schemaType: 'WebPage',
     sections: [],
