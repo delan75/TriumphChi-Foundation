@@ -275,11 +275,19 @@ export const publicPages: PublicPageDefinition[] = [
     navGroup: 'primary',
     path: { en: '/donate', fr: '/donner' },
     label: { en: 'Donate', fr: 'Donner' },
-    eyebrow: { en: 'Give transparently', fr: 'Donner avec transparence' },
-    title: { en: 'Give toward real school needs.', fr: 'Financer les besoins scolaires par des dons traçables.' },
+    eyebrow: { en: 'Give with purpose', fr: 'Donner avec intention' },
+    title: { en: 'Help A Child Stay In School', fr: "Aider un enfant a rester a l'ecole" },
     description: {
-      en: 'Donations can support school fees, books, uniforms, emergency needs, mentorship, and general education funds.',
-      fr: "Les dons peuvent soutenir les frais scolaires, livres, uniformes, urgences, mentorat et fonds d'éducation.",
+      en: 'Support educational opportunities for orphaned and vulnerable children in rural Cameroon through practical school needs and community care.',
+      fr: "Soutenir les opportunites scolaires des orphelins et enfants vulnerables du Cameroun rural par des besoins concrets et le soin communautaire.",
+    },
+    seoTitle: {
+      en: 'Donate | Help A Child Stay In School',
+      fr: "Donner | Aider un enfant a rester a l'ecole",
+    },
+    seoDescription: {
+      en: 'Donate to TriumphChi Foundation and help children in rural Cameroon with school fees, learning materials, examination support, uniforms, and education needs.',
+      fr: "Donnez a la Fondation TriumphChi pour aider les enfants du Cameroun rural avec les frais scolaires, le materiel, les examens, les uniformes et les besoins educatifs.",
     },
     schemaType: 'DonateAction',
     sections: [],
