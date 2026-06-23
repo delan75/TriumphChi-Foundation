@@ -29,7 +29,8 @@ export type PublicPageKey =
   | 'donate'
   | 'apply'
   | 'sponsor'
-  | 'corporate';
+  | 'corporate'
+  | 'privacy';
 
 export interface PublicPageSection {
   title: Record<Locale, string>;
@@ -183,11 +184,19 @@ export const publicPages: PublicPageDefinition[] = [
     navGroup: 'primary',
     path: { en: '/impact', fr: '/impact' },
     label: { en: 'Impact', fr: 'Impact' },
-    eyebrow: { en: 'Impact statistics', fr: "Statistiques d'impact" },
-    title: { en: 'Measure outcomes without exposing private child records.', fr: 'Mesurer les résultats sans exposer les dossiers privés des enfants.' },
+    eyebrow: { en: 'Evidence of hope', fr: "Preuves d'esperance" },
+    title: { en: 'Education Changes Futures', fr: "L'education change l'avenir" },
     description: {
-      en: 'Impact pages will present aggregate metrics, school milestones, funded needs, and curated updates approved for public sharing.',
-      fr: "Les pages d'impact présenteront des données agrégées, des étapes scolaires, des besoins financés et des nouvelles validées pour publication.",
+      en: 'See how education support helps children stay in school, families regain hope, and communities work together for lasting progress.',
+      fr: "Decouvrez comment le soutien scolaire aide les enfants a rester a l'ecole, les familles a retrouver l'espoir et les communautes a avancer ensemble.",
+    },
+    seoTitle: {
+      en: 'Impact | TriumphChi Foundation',
+      fr: 'Impact | Fondation TriumphChi',
+    },
+    seoDescription: {
+      en: 'Explore the impact of TriumphChi Foundation education support in rural Cameroon, including children supported, partner schools, stories of progress, and responsible stewardship.',
+      fr: "Explorez l'impact du soutien scolaire de la Fondation TriumphChi au Cameroun rural : enfants soutenus, ecoles partenaires, histoires de progres et responsabilite.",
     },
     schemaType: 'WebPage',
     sections: [],
@@ -266,11 +275,19 @@ export const publicPages: PublicPageDefinition[] = [
     navGroup: 'primary',
     path: { en: '/donate', fr: '/donner' },
     label: { en: 'Donate', fr: 'Donner' },
-    eyebrow: { en: 'Give transparently', fr: 'Donner avec transparence' },
-    title: { en: 'Give toward real school needs.', fr: 'Financer les besoins scolaires par des dons traçables.' },
+    eyebrow: { en: 'Give with purpose', fr: 'Donner avec intention' },
+    title: { en: 'Help A Child Stay In School', fr: "Aider un enfant a rester a l'ecole" },
     description: {
-      en: 'Donations can support school fees, books, uniforms, emergency needs, mentorship, and general education funds.',
-      fr: "Les dons peuvent soutenir les frais scolaires, livres, uniformes, urgences, mentorat et fonds d'éducation.",
+      en: 'Support educational opportunities for orphaned and vulnerable children in rural Cameroon through practical school needs and community care.',
+      fr: "Soutenir les opportunites scolaires des orphelins et enfants vulnerables du Cameroun rural par des besoins concrets et le soin communautaire.",
+    },
+    seoTitle: {
+      en: 'Donate | Help A Child Stay In School',
+      fr: "Donner | Aider un enfant a rester a l'ecole",
+    },
+    seoDescription: {
+      en: 'Donate to TriumphChi Foundation and help children in rural Cameroon with school fees, learning materials, examination support, uniforms, and education needs.',
+      fr: "Donnez a la Fondation TriumphChi pour aider les enfants du Cameroun rural avec les frais scolaires, le materiel, les examens, les uniformes et les besoins educatifs.",
     },
     schemaType: 'DonateAction',
     sections: [],
@@ -335,6 +352,29 @@ export const publicPages: PublicPageDefinition[] = [
     description: {
       en: 'Corporate partners can support program funds, school infrastructure, emergency needs, and transparent reporting.',
       fr: "Les entreprises peuvent soutenir les fonds de programme, l'infrastructure scolaire, les urgences et les rapports.",
+    },
+    schemaType: 'WebPage',
+    sections: [],
+  },
+  {
+    key: 'privacy',
+    icon: ShieldCheck,
+    navGroup: 'secondary',
+    path: { en: '/privacy-policy', fr: '/politique-de-confidentialite' },
+    label: { en: 'Privacy Policy', fr: 'Confidentialite' },
+    eyebrow: { en: 'Privacy and child protection', fr: 'Confidentialite et protection des enfants' },
+    title: { en: 'Privacy Policy', fr: 'Politique de confidentialite' },
+    description: {
+      en: 'How TriumphChi Foundation collects, uses, protects, and shares personal information connected to visitors, donors, applicants, children, guardians, schools, volunteers, and partners.',
+      fr: 'Comment la Fondation TriumphChi collecte, utilise, protege et partage les informations personnelles des visiteurs, donateurs, demandeurs, enfants, tuteurs, ecoles, benevoles et partenaires.',
+    },
+    seoTitle: {
+      en: 'Privacy Policy | TriumphChi Foundation',
+      fr: 'Politique de confidentialite | Fondation TriumphChi',
+    },
+    seoDescription: {
+      en: 'Read the TriumphChi Foundation privacy policy, including how we protect child data, donor information, contact messages, applications, attachments, cookies, and privacy rights.',
+      fr: 'Lisez la politique de confidentialite de la Fondation TriumphChi concernant la protection des donnees des enfants, donateurs, messages, demandes, pieces jointes, cookies et droits.',
     },
     schemaType: 'WebPage',
     sections: [],

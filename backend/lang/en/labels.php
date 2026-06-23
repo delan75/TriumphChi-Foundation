@@ -76,6 +76,28 @@ return [
         'paypal' => 'PayPal',
     ],
 
+    'donation_frequencies' => [
+        'one_time' => 'One-Time',
+        'monthly' => 'Monthly',
+    ],
+
+    'donation_purposes' => [
+        'greatest_need' => 'Greatest Need',
+        'general_education' => 'General Education Fund',
+        'school_fees' => 'School Fees',
+        'learning_materials' => 'Learning Materials',
+        'examination_support' => 'Examination Support',
+        'uniform_support' => 'Uniform Support',
+        'emergency_education' => 'Emergency Educational Support',
+    ],
+
+    'payment_providers' => [
+        'cards' => 'Cards',
+        'paypal' => 'PayPal',
+        'momo' => 'MoMo',
+        'bank_transfer' => 'Bank Transfer',
+    ],
+
     'school_verification_statuses' => [
         'pending' => 'Pending',
         'verified' => 'Verified',

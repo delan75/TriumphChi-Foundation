@@ -75,6 +75,11 @@ return [
         'retrieved' => 'Dashboard summary retrieved successfully.',
     ],
 
+    'messages' => [
+        'donation_config_retrieved' => 'Donation options retrieved successfully.',
+        'donation_intent_created' => 'Thank you. Your donation has been prepared securely.',
+    ],
+
     'errors' => [
         'allocation_currency_mismatch' => 'The allocation currency must match the donation currency.',
         'allocation_fund_mismatch' => 'The allocation fund must match the donation fund.',
@@ -87,6 +92,8 @@ return [
         'payment_allocation_not_approved' => 'Payments can only be linked to approved allocations.',
         'payment_allocation_total_mismatch' => 'The allocation amounts must equal the payment amount.',
         'payment_fund_mismatch' => 'The payment fund must match every linked allocation fund.',
+        'minimum_donation_amount' => 'The minimum donation is :amount :currency.',
+        'payment_provider_currency_unsupported' => 'The selected giving channel does not support this currency.',
         'payment_reference_exists' => 'A payment with this reference already exists.',
     ],
 ];

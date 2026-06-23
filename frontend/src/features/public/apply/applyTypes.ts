@@ -48,6 +48,7 @@ export interface DraftState {
   stepIndex: number;
   form: ApplicationFormState;
   updatedAt: string;
+  draftToken?: string;
 }
 
 export interface ReviewGroup {

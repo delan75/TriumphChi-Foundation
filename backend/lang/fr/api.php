@@ -75,6 +75,11 @@ return [
         'retrieved' => 'RÃ©sumÃ© du tableau de bord rÃ©cupÃ©rÃ© avec succÃ¨s.',
     ],
 
+    'messages' => [
+        'donation_config_retrieved' => 'Options de don recuperees avec succes.',
+        'donation_intent_created' => 'Merci. Votre don a ete prepare de maniere securisee.',
+    ],
+
     'errors' => [
         'allocation_currency_mismatch' => 'La devise de l allocation doit correspondre à celle du don.',
         'allocation_fund_mismatch' => 'Le fonds de l allocation doit correspondre au fonds du don.',
@@ -87,6 +92,8 @@ return [
         'payment_allocation_not_approved' => 'Les paiements ne peuvent être liés qu aux allocations approuvées.',
         'payment_allocation_total_mismatch' => 'Les montants alloués doivent être égaux au montant du paiement.',
         'payment_fund_mismatch' => 'Le fonds du paiement doit correspondre au fonds de chaque allocation liée.',
+        'minimum_donation_amount' => 'Le don minimum est de :amount :currency.',
+        'payment_provider_currency_unsupported' => 'Le canal de don selectionne ne prend pas en charge cette devise.',
         'payment_reference_exists' => 'Un paiement avec cette référence existe déjà.',
     ],
 ];

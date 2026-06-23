@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\FundController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\ImpactUpdateController;
 use App\Http\Controllers\Api\V1\PaymentController;
+use App\Http\Controllers\Api\V1\PublicDonationController;
 use App\Http\Controllers\Api\V1\PublicImpactController;
 use App\Http\Controllers\Api\V1\PublicApplicationController;
 use App\Http\Controllers\Api\V1\PublicApplicationTrackingController;
@@ -30,6 +31,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('public/impact-summary', PublicImpactController::class)
         ->middleware(SetLocale::class)
         ->name('public.impact-summary');
+    Route::get('public/donation-config', [PublicDonationController::class, 'config'])
+        ->middleware([SetLocale::class, 'throttle:30,1'])
+        ->name('public.donation-config');
+    Route::post('public/donation-intents', [PublicDonationController::class, 'storeIntent'])
+        ->middleware([SetLocale::class, 'throttle:5,1'])
+        ->name('public.donation-intents.store');
     Route::post('public/contact-messages', [ContactMessageController::class, 'store'])
         ->middleware([SetLocale::class, 'throttle:5,1'])
         ->name('public.contact-messages.store');
@@ -154,6 +161,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('global-search', GlobalSearchController::class)
             ->name('global-search');
+
+        Route::get('applications/{application}/pdf', [ApplicationController::class, 'pdf'])
+            ->middleware('can:applications.view')
+            ->name('applications.pdf');
 
         Route::apiResource('applications', ApplicationController::class)
             ->middlewareFor(['index', 'show'], 'can:applications.view')

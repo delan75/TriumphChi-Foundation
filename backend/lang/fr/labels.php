@@ -76,6 +76,28 @@ return [
         'cheque' => 'Chèque',
     ],
 
+    'donation_frequencies' => [
+        'one_time' => 'Une fois',
+        'monthly' => 'Mensuel',
+    ],
+
+    'donation_purposes' => [
+        'greatest_need' => 'Besoin le plus urgent',
+        'general_education' => 'Fonds general pour l education',
+        'school_fees' => 'Frais scolaires',
+        'learning_materials' => 'Materiel scolaire',
+        'examination_support' => 'Soutien aux examens',
+        'uniform_support' => 'Soutien aux uniformes',
+        'emergency_education' => 'Urgence scolaire',
+    ],
+
+    'payment_providers' => [
+        'cards' => 'Cartes',
+        'paypal' => 'PayPal',
+        'momo' => 'MoMo',
+        'bank_transfer' => 'Virement bancaire',
+    ],
+
     'school_verification_statuses' => [
         'pending' => 'En attente',
         'verified' => 'Vérifiée',

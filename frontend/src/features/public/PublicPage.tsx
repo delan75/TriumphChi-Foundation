@@ -10,6 +10,9 @@ import { ApplyPage } from './apply/ApplyPage';
 import { ProgramsPage } from './programs/ProgramsPage';
 import { SponsorPage } from './sponsor/SponsorPage';
 import { ContactPage } from './contact/ContactPage';
+import { PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
+import { ImpactPage } from './impact/ImpactPage';
+import { DonatePage } from './donate/DonatePage';
 import { NotFoundPage } from '../errors/NotFoundPage';
 import defaultPageHeroImage from '../../assets/landing/rural_kids.jpg';
 
@@ -34,6 +37,10 @@ export function PublicPage() {
     return <ProgramsPage locale={activeLocale} page={page} />;
   }
 
+  if (page.key === 'impact') {
+    return <ImpactPage locale={activeLocale} page={page} />;
+  }
+
   if (page.key === 'sponsor') {
     return <SponsorPage locale={activeLocale} page={page} />;
   }
@@ -42,8 +49,16 @@ export function PublicPage() {
     return <ContactPage locale={activeLocale} page={page} />;
   }
 
+  if (page.key === 'donate') {
+    return <DonatePage locale={activeLocale} page={page} />;
+  }
+
   if (page.key === 'apply') {
     return <ApplyPage locale={activeLocale} page={page} />;
+  }
+
+  if (page.key === 'privacy') {
+    return <PrivacyPolicyPage locale={activeLocale} page={page} />;
   }
 
   const ctaPage = page.cta ? getPageByKey(page.cta.page) : undefined;

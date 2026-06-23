@@ -16,10 +16,12 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { GivingChannels } from '../../../components/public/GivingChannels';
+import { FaqSection } from '../../../components/public/FaqSection';
 import { ImpactSummaryGrid } from '../../../components/public/ImpactSummaryGrid';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
+import { publicFaqSections } from '../../../content/publicFaqs';
 import { apiPublicGet } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
 import heroImage from '../../../assets/landing/cameroon.jpg';
@@ -64,6 +66,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
   const applyPage = getPageByKey('apply');
   const impactPage = getPageByKey('impact');
   const visionPage = getPageByKey('vision');
+  const faqSection = publicFaqSections.home;
   const impactStats = buildImpactStats(copy, locale, impactSummary.data?.data);
   const activeStatementCopy = copy[activeStatement];
   const heroSlides = [
@@ -350,6 +353,14 @@ export function LandingPage({ locale, page }: LandingPageProps) {
           </div>
         </div>
       </section>
+
+      <FaqSection
+        eyebrow={faqSection.eyebrow[locale]}
+        title={faqSection.title[locale]}
+        body={faqSection.body[locale]}
+        items={faqSection.items[locale]}
+        surface="tinted"
+      />
 
       <section className="bg-foundation-50">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8 lg:py-16">

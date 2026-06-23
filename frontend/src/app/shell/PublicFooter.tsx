@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { GivingChannels } from '../../components/public/GivingChannels';
-import { publicNavigation } from '../../content/publicPages';
+import { getPageByKey, publicNavigation } from '../../content/publicPages';
 import { Locale, t } from '../../lib/i18n';
 
 interface PublicFooterProps {
@@ -9,6 +9,8 @@ interface PublicFooterProps {
 }
 
 export function PublicFooter({ locale }: PublicFooterProps) {
+  const privacyPage = getPageByKey('privacy');
+
   return (
     <footer className="border-t border-foundation-100 bg-foundation-900 text-white">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.2fr_1fr] lg:px-8">
@@ -43,8 +45,21 @@ export function PublicFooter({ locale }: PublicFooterProps) {
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:px-8">
           <GivingChannels locale={locale} variant="dark" />
+          <div className="flex flex-col gap-3 border-t border-white/10 pt-5 text-sm text-foundation-100 sm:flex-row sm:items-center sm:justify-between">
+            <p>
+              {locale === 'fr'
+                ? '© 2026 Fondation TriumphChi. Tous droits reserves.'
+                : '© 2026 TriumphChi Foundation. All rights reserved.'}
+            </p>
+            <Link
+              to={`/${locale}${privacyPage.path[locale]}`}
+              className="focus-ring inline-flex min-h-10 items-center rounded-md text-sm font-bold text-white transition hover:text-foundation-50"
+            >
+              {privacyPage.label[locale]}
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
