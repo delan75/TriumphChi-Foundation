@@ -8,6 +8,7 @@ use App\Models\Region;
 use App\Models\School;
 use App\Models\Village;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\LaravelPdf\Facades\Pdf;
 use Tests\TestCase;
 
 class PublicApplicationIntakeTest extends TestCase
@@ -130,6 +131,73 @@ class PublicApplicationIntakeTest extends TestCase
         $this->assertSame('Village Primary School', $application->intake_payload['teacher_school_name']);
         $this->assertSame('Class teacher', $application->intake_payload['teacher_position']);
         $this->assertSame('Common Entrance', $application->intake_payload['exam_name']);
+    }
+
+    public function test_public_application_accepts_long_need_and_situation_summaries(): void
+    {
+        $needSummary = str_repeat('N', 5000);
+        $situationSummary = str_repeat('S', 7000);
+
+        $this->postJson('/api/v1/public/applications', [
+            'child_name' => 'Long Story Child',
+            'need_type' => 'fees',
+            'need_summary' => $needSummary,
+            'situation_summary' => $situationSummary,
+            'contact_role' => 'guardian',
+            'contact_name' => 'Responsible Guardian',
+            'contact_phone' => '+237 677 111 222',
+            'preferred_contact_method' => 'phone',
+            'consent' => true,
+        ])->assertCreated()
+            ->assertJsonPath('success', true);
+
+        $application = Application::query()->firstOrFail();
+
+        $this->assertSame($needSummary, $application->intake_payload['need_summary']);
+        $this->assertSame($situationSummary, $application->intake_payload['situation_summary']);
+    }
+
+    public function test_public_application_pdf_preview_merges_saved_draft_and_current_payload(): void
+    {
+        $pdf = Pdf::fake();
+
+        $application = Application::create([
+            'source' => 'online',
+            'status' => ApplicationStatus::Draft,
+            'applicant_name' => 'Saved Child',
+            'guardian_name' => 'Saved Guardian',
+            'guardian_phone' => '+237 600 123 123',
+            'needs_assessment' => 'Saved need summary',
+            'draft_token' => 'draft-preview-token',
+            'intake_payload' => [
+                'school_name' => 'Saved School',
+                'need_type' => 'fees',
+            ],
+        ]);
+
+        $application->steps()->create([
+            'step_number' => 1,
+            'data' => [
+                'region_name' => 'Saved Region',
+                'village_name' => 'Saved Village',
+            ],
+            'completed_at' => now(),
+        ]);
+
+        $this->postJson('/api/v1/public/applications/preview-pdf', [
+            'draft_token' => 'draft-preview-token',
+            'child_name' => 'Current Child',
+            'situation_summary' => 'Current situation summary from the final review step.',
+        ])->assertOk();
+
+        $pdf->assertRespondedWithPdf(function ($generatedPdf): bool {
+            return $generatedPdf->viewName === 'pdf.application_summary'
+                && data_get($generatedPdf->viewData, 'isPreview') === true
+                && data_get($generatedPdf->viewData, 'data.child_name') === 'Current Child'
+                && data_get($generatedPdf->viewData, 'data.school_name') === 'Saved School'
+                && data_get($generatedPdf->viewData, 'data.region_name') === 'Saved Region'
+                && data_get($generatedPdf->viewData, 'data.situation_summary') === 'Current situation summary from the final review step.';
+        });
     }
 
     public function test_public_lookup_returns_school_suggestions(): void

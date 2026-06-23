@@ -155,6 +155,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('global-search', GlobalSearchController::class)
             ->name('global-search');
 
+        Route::get('applications/{application}/pdf', [ApplicationController::class, 'pdf'])
+            ->middleware('can:applications.view')
+            ->name('applications.pdf');
+
         Route::apiResource('applications', ApplicationController::class)
             ->middlewareFor(['index', 'show'], 'can:applications.view')
             ->middlewareFor('store', 'can:applications.create')

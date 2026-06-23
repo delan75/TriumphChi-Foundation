@@ -149,6 +149,7 @@ export interface ContactMessagePayload {
 }
 
 export interface PublicApplicationPayload {
+  draft_token?: string;
   // Step 1: Who Are You Applying For
   applying_for?: 'self' | 'child' | 'other';
   // Step 2: Child Information
@@ -291,6 +292,21 @@ export async function apiListApplications(params: {
 
 export async function apiGetApplication(uuid: string): Promise<ApplicationRecord> {
   return apiGet<ApplicationRecord>(`/applications/${uuid}`);
+}
+
+export async function apiDownloadApplicationPdf(uuid: string): Promise<Blob> {
+  const response = await fetch(`${API_BASE_URL}/applications/${uuid}/pdf`, {
+    headers: buildHeaders({
+      Accept: 'application/pdf',
+    }),
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to generate application PDF.');
+  }
+
+  return response.blob();
 }
 
 export async function apiTransitionApplicationStatus(

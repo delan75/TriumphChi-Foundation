@@ -182,45 +182,86 @@ class PublicApplicationController extends Controller
             return response()->json(['message' => 'Application not found'], 404);
         }
 
-        $steps = $application->steps()->orderBy('step_number')->get()->keyBy('step_number');
-        $data = [];
-        foreach ($steps as $step) {
-            $data = array_merge($data, $step->data);
-        }
-        
-        // Use monolithic payload if step data is empty (legacy backward compat)
-        if (empty($data) && $application->intake_payload) {
-            $data = $application->intake_payload;
-        }
-
-        $pdf = Pdf::view('pdf.application_summary', [
-            'application' => $application,
-            'data' => $data
-        ])
-        ->format('A4')
-        ->name('Application_' . $application->application_number . '.pdf');
-
-        return $pdf;
+        return $this->applicationPdf($application, 'Application_' . $application->application_number . '.pdf');
     }
 
     public function previewPdf(Request $request)
     {
-        $data = $request->all();
-        
-        // Create a dummy application for the view
-        $application = new Application([
+        $application = null;
+
+        if ($request->filled('draft_token')) {
+            $application = $this->findDraftByToken($request->string('draft_token')->toString());
+        }
+
+        $application ??= new Application([
             'application_number' => 'DRAFT-PREVIEW',
+            'source' => 'online',
+            'status' => ApplicationStatus::Draft,
             'submitted_at' => null,
         ]);
 
+        return $this->applicationPdf(
+            $application,
+            'Application_Preview.pdf',
+            $request->except('draft_token'),
+            true,
+        );
+    }
+
+    private function applicationPdf(
+        Application $application,
+        string $fileName,
+        array $payload = [],
+        bool $isPreview = false,
+    ) {
         $pdf = Pdf::view('pdf.application_summary', [
             'application' => $application,
-            'data' => $data
+            'data' => $this->buildPdfData($application, $payload),
+            'generatedAt' => now(),
+            'isPreview' => $isPreview,
         ])
         ->format('A4')
-        ->name('Application_Preview.pdf');
+        ->margins(10, 10, 12, 10)
+        ->name($fileName);
 
         return $pdf;
+    }
+
+    private function buildPdfData(Application $application, array $payload = []): array
+    {
+        if ($application->exists) {
+            $application->loadMissing(['region', 'village', 'school', 'steps']);
+        }
+
+        $recordData = array_filter([
+            'child_name' => $application->applicant_name,
+            'gender' => $application->gender,
+            'date_of_birth' => $application->date_of_birth?->toDateString(),
+            'region_name' => $application->region?->name,
+            'village_name' => $application->village?->name,
+            'school_name' => $application->school?->name,
+            'need_summary' => $application->needs_assessment,
+            'household_income_range' => $application->household_income_range,
+            'household_size' => $application->household_size,
+            'primary_caregiver_occupation' => $application->primary_caregiver_occupation,
+            'household_challenges' => $application->household_challenges,
+            'contact_name' => $application->guardian_name,
+            'contact_phone' => $application->guardian_phone,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        $stepData = [];
+        if ($application->exists) {
+            foreach ($application->steps()->orderBy('step_number')->get() as $step) {
+                $stepData = array_merge($stepData, $step->data ?? []);
+            }
+        }
+
+        return array_merge(
+            $recordData,
+            $application->intake_payload ?? [],
+            $stepData,
+            array_filter($payload, fn ($value) => $value !== null && $value !== ''),
+        );
     }
 
     private function findDraftByToken(string $token): ?Application
