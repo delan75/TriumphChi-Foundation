@@ -88,6 +88,42 @@ class MtnMomoCollectionsService
         return $this->applyProviderStatus($intent, $response->json() ?? []);
     }
 
+    public function validateAccountHolderStatus(string $msisdn): array
+    {
+        $this->assertConfigured();
+
+        $normalizedMsisdn = $this->normalizeMsisdn($msisdn);
+        $response = Http::baseUrl($this->baseUrl())
+            ->timeout($this->timeout())
+            ->withToken($this->accessToken())
+            ->withHeaders(array_merge($this->momoHeaders(), [
+                'Cache-Control' => 'no-cache',
+            ]))
+            ->get("/collection/v1_0/accountholder/msisdn/{$normalizedMsisdn}/active");
+
+        if ($response->ok()) {
+            return [
+                'active' => (bool) ($response->json('result') ?? true),
+                'status_code' => $response->status(),
+                'masked_msisdn' => $this->maskMsisdn($normalizedMsisdn),
+                'target_environment' => $this->targetEnvironment(),
+                'checked_at' => now()->toISOString(),
+            ];
+        }
+
+        if ($response->status() === 404) {
+            return [
+                'active' => false,
+                'status_code' => $response->status(),
+                'masked_msisdn' => $this->maskMsisdn($normalizedMsisdn),
+                'target_environment' => $this->targetEnvironment(),
+                'checked_at' => now()->toISOString(),
+            ];
+        }
+
+        throw new PaymentProviderException(__('api.errors.momo_account_status_failed'), $response->status());
+    }
+
     public function handleCallback(string $hash, array $payload): ?PaymentIntent
     {
         $intent = PaymentIntent::query()

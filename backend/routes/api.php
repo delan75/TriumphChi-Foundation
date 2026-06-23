@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\EducationalNeedController;
 use App\Http\Controllers\Api\V1\FundController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\ImpactUpdateController;
+use App\Http\Controllers\Api\V1\MomoDiagnosticsController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\PublicDonationController;
 use App\Http\Controllers\Api\V1\PublicImpactController;
@@ -167,6 +168,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('global-search', GlobalSearchController::class)
             ->name('global-search');
+
+        Route::get('payment-providers/momo/account-holder-status', [MomoDiagnosticsController::class, 'accountHolderStatus'])
+            ->middleware('can:payments.view')
+            ->name('payment-providers.momo.account-holder-status');
 
         Route::get('applications/{application}/pdf', [ApplicationController::class, 'pdf'])
             ->middleware('can:applications.view')

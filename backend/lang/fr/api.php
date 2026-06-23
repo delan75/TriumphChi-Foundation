@@ -79,6 +79,7 @@ return [
         'donation_config_retrieved' => 'Options de don recuperees avec succes.',
         'donation_intent_created' => 'Merci. Votre don a ete prepare de maniere securisee.',
         'donation_intent_status_retrieved' => 'Statut du don recupere avec succes.',
+        'momo_account_holder_status_retrieved' => 'Statut du compte MoMo recupere avec succes.',
         'momo_callback_received' => 'Notification MoMo recue.',
     ],
 
@@ -98,6 +99,7 @@ return [
         'momo_consent_required' => 'Veuillez confirmer que le numero MoMo vous appartient et peut recevoir la demande de paiement.',
         'momo_phone_invalid' => 'Veuillez saisir un numero MoMo valide.',
         'momo_phone_required' => 'Un numero MoMo est requis pour donner avec MoMo.',
+        'momo_account_status_failed' => 'Nous n avons pas pu verifier le statut du compte MoMo. Veuillez reessayer.',
         'momo_request_failed' => 'Nous n avons pas pu lancer la demande de paiement MoMo. Veuillez reessayer.',
         'momo_status_failed' => 'Nous ne pouvons pas encore confirmer le statut MoMo. Veuillez reessayer.',
         'momo_token_failed' => 'MoMo est temporairement indisponible. Veuillez reessayer.',

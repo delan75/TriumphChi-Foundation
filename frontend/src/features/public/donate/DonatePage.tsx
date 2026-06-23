@@ -619,7 +619,14 @@ function DonationCard({
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField id="donor-name" label={copy.nameLabel} value={state.name} error={errors.name} onChange={(value) => updateField('name', value)} />
           <TextField id="donor-email" label={copy.emailLabel} value={state.email} error={errors.email} type="email" onChange={(value) => updateField('email', value)} />
-          <TextField id="donor-phone" label={copy.phoneLabel} value={state.phone} type="tel" onChange={(value) => updateField('phone', value)} />
+          <TextField
+            id="donor-phone"
+            label={copy.phoneLabel}
+            value={state.phone}
+            error={errors.phone}
+            type="tel"
+            onChange={(value) => updateField('phone', value)}
+          />
           <TextField
             id="donor-country"
             label={copy.countryLabel}
@@ -737,10 +744,15 @@ function TextField({
         type={type}
         value={value}
         maxLength={maxLength}
+        aria-invalid={error ? 'true' : 'false'}
+        aria-describedby={error ? `${id}-error` : undefined}
         onChange={(event) => onChange(event.target.value)}
-        className="focus-ring mt-2 min-h-12 w-full rounded-md border border-ink-200 bg-white px-3 text-base text-ink-900"
+        className={cn(
+          'focus-ring mt-2 min-h-12 w-full rounded-md border bg-white px-3 text-base text-ink-900',
+          error ? 'border-red-400 bg-red-50/40' : 'border-ink-200',
+        )}
       />
-      {error ? <p className="mt-2 text-sm font-bold text-red-700">{error}</p> : null}
+      {error ? <p id={`${id}-error`} className="mt-2 text-sm font-bold text-red-700">{error}</p> : null}
     </div>
   );
 }

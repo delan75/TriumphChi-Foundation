@@ -6,10 +6,13 @@ use App\Models\Donation;
 use App\Models\Donor;
 use App\Models\PaymentIntent;
 use App\Models\PaymentProvider;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class PublicDonationIntentTest extends TestCase
@@ -246,6 +249,62 @@ class PublicDonationIntentTest extends TestCase
             ->assertJsonValidationErrors(['donor.phone', 'payment_consent']);
     }
 
+    public function test_momo_account_holder_status_endpoint_checks_active_msisdn(): void
+    {
+        $this->configureMomo();
+        $this->actingAsPaymentViewer();
+
+        Http::fake([
+            'https://sandbox.momodeveloper.mtn.com/collection/token/' => Http::response(['access_token' => 'test-token'], 200),
+            'https://sandbox.momodeveloper.mtn.com/collection/v1_0/accountholder/msisdn/237670000000/active' => Http::response(['result' => true], 200),
+        ]);
+
+        $this->getJson('/api/v1/payment-providers/momo/account-holder-status?msisdn=%2B237670000000')
+            ->assertOk()
+            ->assertJsonPath('data.active', true)
+            ->assertJsonPath('data.masked_msisdn', '********0000')
+            ->assertJsonPath('data.target_environment', 'sandbox');
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() === 'https://sandbox.momodeveloper.mtn.com/collection/v1_0/accountholder/msisdn/237670000000/active'
+                && $request->hasHeader('Authorization', 'Bearer test-token')
+                && $request->hasHeader('X-Target-Environment', 'sandbox')
+                && $request->hasHeader('Ocp-Apim-Subscription-Key', 'subscription-key')
+                && $request->hasHeader('Cache-Control', 'no-cache');
+        });
+    }
+
+    public function test_momo_account_holder_status_requires_payment_permission(): void
+    {
+        $this->configureMomo();
+
+        Sanctum::actingAs(User::create([
+            'name' => 'No Payment Access',
+            'email' => 'no-payment-access@example.test',
+            'password' => 'password',
+            'status' => User::STATUS_ACTIVE,
+            'email_verified_at' => now(),
+        ]));
+
+        $this->getJson('/api/v1/payment-providers/momo/account-holder-status?msisdn=%2B237670000000')
+            ->assertForbidden();
+    }
+
+    public function test_momo_account_holder_status_reports_provider_failure_without_leaking_number(): void
+    {
+        $this->configureMomo();
+        $this->actingAsPaymentViewer();
+
+        Http::fake([
+            'https://sandbox.momodeveloper.mtn.com/collection/token/' => Http::response(['access_token' => 'test-token'], 200),
+            'https://sandbox.momodeveloper.mtn.com/collection/v1_0/accountholder/msisdn/237670000000/active' => Http::response(['message' => 'service unavailable'], 500),
+        ]);
+
+        $this->getJson('/api/v1/payment-providers/momo/account-holder-status?msisdn=%2B237670000000')
+            ->assertStatus(502)
+            ->assertJsonMissing(['237670000000']);
+    }
+
     private function createPendingMomoIntent(): PaymentIntent
     {
         $this->configureMomo();
@@ -276,6 +335,24 @@ class PublicDonationIntentTest extends TestCase
             'momo.collections.target_environment' => 'sandbox',
             'momo.collections.base_url' => 'https://sandbox.momodeveloper.mtn.com',
         ]);
+    }
+
+    private function actingAsPaymentViewer(): User
+    {
+        Permission::firstOrCreate(['name' => 'payments.view', 'guard_name' => 'web'], ['group' => 'payments']);
+
+        $user = User::create([
+            'name' => 'Payment Viewer',
+            'email' => 'payment-viewer@example.test',
+            'password' => 'password',
+            'status' => User::STATUS_ACTIVE,
+            'email_verified_at' => now(),
+        ]);
+
+        $user->givePermissionTo('payments.view');
+        Sanctum::actingAs($user);
+
+        return $user;
     }
 
     private function momoPayload(): array
