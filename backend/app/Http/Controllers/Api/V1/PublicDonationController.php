@@ -2,24 +2,69 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exceptions\PaymentProviderException;
+use App\Exceptions\SimilarDonationPendingException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePublicDonationIntentRequest;
+use App\Jobs\ProcessMomoCallback;
 use App\Models\PaymentIntent;
+use App\Services\Payments\MtnMomoCollectionsService;
 use App\Services\PublicDonationService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\IpUtils;
+use Symfony\Component\HttpFoundation\Response;
 
 class PublicDonationController extends Controller
 {
-    public function config(PublicDonationService $donations): JsonResponse
+    public function config(Request $request, PublicDonationService $donations): JsonResponse
     {
-        return $this->success($donations->config(), __('api.messages.donation_config_retrieved'));
+        return $this->success($donations->config($request), __('api.messages.donation_config_retrieved'));
     }
 
     public function storeIntent(StorePublicDonationIntentRequest $request, PublicDonationService $donations): JsonResponse
     {
-        $intent = $donations->createIntent($request->validated());
+        try {
+            $intent = $donations->createIntent($request->validated());
+        } catch (SimilarDonationPendingException $exception) {
+            return response()->json([
+                'success' => false,
+                'message' => $exception->getMessage(),
+                'code' => 'similar_donation_pending',
+                'data' => [
+                    'similar_donation' => $exception->similarDonation,
+                ],
+            ], Response::HTTP_CONFLICT);
+        } catch (PaymentProviderException $exception) {
+            return $this->error(
+                $exception->getMessage(),
+                Response::HTTP_BAD_GATEWAY,
+            );
+        }
 
         return $this->created($this->intentPayload($intent), __('api.messages.donation_intent_created'));
+    }
+
+    public function momoCallback(Request $request, string $hash): JsonResponse
+    {
+        if ($this->momoCallbackIpAllowed($request)) {
+            ProcessMomoCallback::dispatch($hash, $request->all());
+        }
+
+        return $this->success(null, __('api.messages.momo_callback_received'));
+    }
+
+    public function status(PaymentIntent $paymentIntent, MtnMomoCollectionsService $momo): JsonResponse
+    {
+        if ($paymentIntent->provider?->key === 'momo' && $paymentIntent->status === 'pending') {
+            try {
+                $paymentIntent = $momo->refreshStatus($paymentIntent);
+            } catch (PaymentProviderException) {
+                $paymentIntent->load(['donation', 'provider']);
+            }
+        }
+
+        return $this->success($this->intentPayload($paymentIntent->load(['donation', 'provider'])), __('api.messages.donation_intent_status_retrieved'));
     }
 
     private function intentPayload(PaymentIntent $intent): array
@@ -45,5 +90,16 @@ class PublicDonationController extends Controller
             'checkout_url' => $intent->checkout_url,
             'expires_at' => $intent->expires_at,
         ];
+    }
+
+    private function momoCallbackIpAllowed(Request $request): bool
+    {
+        $allowedIps = config('momo.collections.callback_allowed_ips', []);
+
+        if (empty($allowedIps)) {
+            return true;
+        }
+
+        return IpUtils::checkIp($request->ip() ?? '', $allowedIps);
     }
 }
