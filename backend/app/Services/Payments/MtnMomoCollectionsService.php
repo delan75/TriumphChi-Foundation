@@ -55,7 +55,7 @@ class MtnMomoCollectionsService
                 'provider_body' => $this->safeBody($response),
             ]);
 
-            throw new PaymentProviderException(__('api.errors.momo_request_failed'), $response->status());
+            throw new PaymentProviderException($this->requestFailureMessage($response), $response->status());
         }
 
         $transaction->forceFill([
@@ -360,6 +360,22 @@ class MtnMomoCollectionsService
         }
 
         return $response->body() ? Str::limit($response->body(), 1000) : null;
+    }
+
+    private function requestFailureMessage(Response $response): string
+    {
+        $payload = $this->safeBody($response);
+        $providerMessage = strtolower((string) ($payload['message'] ?? $payload['reason'] ?? $payload['code'] ?? ''));
+
+        if (str_contains($providerMessage, 'currency')) {
+            return __('api.errors.momo_currency_rejected');
+        }
+
+        if (str_contains($providerMessage, 'payer') || str_contains($providerMessage, 'account') || str_contains($providerMessage, 'msisdn')) {
+            return __('api.errors.momo_account_rejected');
+        }
+
+        return __('api.errors.momo_request_failed');
     }
 
     private function safePayload(array $payload): array

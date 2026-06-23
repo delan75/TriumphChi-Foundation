@@ -7,6 +7,7 @@ import {
   HeartHandshake,
   Loader2,
   MapPin,
+  Smartphone,
   School,
   ShieldCheck,
   Sparkles,
@@ -307,14 +308,15 @@ function DonationCard({
   const [statusMessage, setStatusMessage] = useState('');
   const [statusKind, setStatusKind] = useState<'success' | 'error' | ''>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAwaitingMomoApproval, setIsAwaitingMomoApproval] = useState(false);
   const [createdIntentUuid, setCreatedIntentUuid] = useState<string | null>(null);
   const [createdIntentStatus, setCreatedIntentStatus] = useState<string | null>(null);
 
   const currencyConfig = config?.currencies[state.currency];
   const suggestedAmounts = currencyConfig?.suggested_amounts ?? [];
   const supportedProviders = useMemo(
-    () => filterProviders(config?.payment_providers ?? [], state.currency),
-    [config?.payment_providers, state.currency],
+    () => filterProviders(config?.payment_providers ?? [], state.currency, state.country),
+    [config?.payment_providers, state.country, state.currency],
   );
   const selectedProvider = supportedProviders.find((provider) => provider.key === state.paymentProvider) ?? supportedProviders[0];
   const selectedPurpose = config?.purposes.find((purpose) => purpose.key === state.purpose);
@@ -328,7 +330,7 @@ function DonationCard({
 
     const saved = readSavedDonationState();
     const currency = saved?.currency && config.currencies[saved.currency] ? saved.currency : config.default_currency;
-    const providers = filterProviders(config.payment_providers, currency);
+    const providers = filterProviders(config.payment_providers, currency, saved?.country ?? '');
     const provider = saved?.paymentProvider && providers.some((item) => item.key === saved.paymentProvider)
       ? saved.paymentProvider
       : providers[0]?.key ?? 'cards';
@@ -385,18 +387,21 @@ function DonationCard({
         setCreatedIntentStatus(intent.status);
 
         if (intent.donation.status === 'confirmed' || intent.status === 'successful') {
+          setIsAwaitingMomoApproval(false);
           setStatusKind('success');
           setStatusMessage(copy.momoSuccessMessage);
           window.clearInterval(interval);
         }
 
         if (intent.donation.status === 'failed' || intent.status === 'failed') {
+          setIsAwaitingMomoApproval(false);
           setStatusKind('error');
           setStatusMessage(copy.momoFailedMessage);
           window.clearInterval(interval);
         }
 
         if (attempts >= 12) {
+          setIsAwaitingMomoApproval(false);
           setStatusKind('success');
           setStatusMessage(copy.momoStillPendingMessage);
           window.clearInterval(interval);
@@ -420,12 +425,13 @@ function DonationCard({
     });
     setStatusMessage('');
     setStatusKind('');
+    setIsAwaitingMomoApproval(false);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const nextErrors = validateDonation(state, minimumAmount, copy);
+    const nextErrors = validateDonation(state, minimumAmount, copy, selectedProvider);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0 || !selectedProvider) {
@@ -461,6 +467,7 @@ function DonationCard({
       setStatusKind('success');
       setCreatedIntentUuid(response.data?.uuid ?? null);
       setCreatedIntentStatus(response.data?.status ?? null);
+      setIsAwaitingMomoApproval(selectedProvider.key === 'momo' && response.data?.status === 'pending');
       setStatusMessage(
         response.data?.checkout_url
           ? copy.redirectingMessage
@@ -473,6 +480,7 @@ function DonationCard({
         window.location.assign(response.data.checkout_url);
       }
     } catch (error) {
+      setIsAwaitingMomoApproval(false);
       setStatusKind('error');
       setStatusMessage(error instanceof ApiRequestError ? error.message : copy.submitErrorMessage);
     } finally {
@@ -485,10 +493,12 @@ function DonationCard({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={cn('rounded-md border border-foundation-100 bg-white p-4 shadow-xl shadow-foundation-950/10 sm:p-6', className)}
-    >
+    <>
+      <MomoPendingOverlay open={isAwaitingMomoApproval} copy={copy} />
+      <form
+        onSubmit={handleSubmit}
+        className={cn('rounded-md border border-foundation-100 bg-white p-4 shadow-xl shadow-foundation-950/10 sm:p-6', className)}
+      >
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-black uppercase text-foundation-600">{copy.formEyebrow}</p>
@@ -614,6 +624,7 @@ function DonationCard({
             ))}
           </div>
           {errors.paymentProvider ? <p className="mt-2 text-sm font-bold text-red-700">{errors.paymentProvider}</p> : null}
+          <p className="mt-2 text-xs font-bold leading-5 text-ink-500">{providerGuidance(copy, state, config.payment_providers)}</p>
         </fieldset>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -699,7 +710,8 @@ function DonationCard({
           ) : null}
         </div>
       </div>
-    </form>
+      </form>
+    </>
   );
 }
 
@@ -712,6 +724,29 @@ function DonationCardSkeleton({ className, copy }: { className?: string; copy: D
         {Array.from({ length: 7 }).map((_, index) => (
           <div key={index} className="h-12 animate-pulse rounded-md bg-ink-100" />
         ))}
+      </div>
+    </div>
+  );
+}
+
+function MomoPendingOverlay({ open, copy }: { open: boolean; copy: DonateCopy }) {
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[1000] grid min-h-dvh place-items-center bg-foundation-950/80 px-4 py-8 backdrop-blur-md" role="status" aria-live="polite">
+      <div className="w-full max-w-md rounded-md border border-white/15 bg-white p-6 text-center shadow-2xl shadow-foundation-950/30">
+        <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-foundation-50 text-foundation-700">
+          <Loader2 className="h-10 w-10 animate-spin" aria-hidden="true" />
+        </div>
+        <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full bg-foundation-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-foundation-800">
+          <Smartphone className="h-4 w-4" aria-hidden="true" />
+          {copy.momoOverlayEyebrow}
+        </div>
+        <h3 className="mt-4 text-2xl font-black leading-tight text-ink-900">{copy.momoOverlayTitle}</h3>
+        <p className="mt-3 text-sm leading-6 text-ink-600">{copy.momoOverlayBody}</p>
+        <p className="mt-4 rounded-md bg-ink-50 px-3 py-2 text-xs font-bold leading-5 text-ink-500">{copy.momoOverlayNote}</p>
       </div>
     </div>
   );
@@ -792,8 +827,42 @@ function SectionIntro({ eyebrow, title, body, dark = false }: { eyebrow: string;
   );
 }
 
-function filterProviders(providers: PublicDonationProvider[], currency: string) {
-  return providers.filter((provider) => provider.currencies.includes(currency));
+function filterProviders(providers: PublicDonationProvider[], currency: string, country: string) {
+  const countryCode = country.trim().toUpperCase();
+
+  return providers.filter((provider) => {
+    if (!provider.currencies.includes(currency)) {
+      return false;
+    }
+
+    if (provider.key === 'momo') {
+      const countryCodes = (provider.country_codes?.length ? provider.country_codes : ['CM']).map((code) => code.toUpperCase());
+      return countryCode !== '' && (countryCodes.includes('*') || countryCodes.includes(countryCode));
+    }
+
+    return true;
+  });
+}
+
+function providerGuidance(copy: DonateCopy, state: DonationFormState, providers: PublicDonationProvider[]): string {
+  const countryCode = state.country.trim().toUpperCase();
+  const momoProvider = providers.find((provider) => provider.key === 'momo');
+  const momoCountries = (momoProvider?.country_codes?.length ? momoProvider.country_codes : ['CM']).map((code) => code.toUpperCase());
+  const momoCurrencies = momoProvider?.currencies ?? ['XAF'];
+
+  if (!countryCode) {
+    return copy.providerCountryHint;
+  }
+
+  if (!(momoCountries.includes('*') || momoCountries.includes(countryCode))) {
+    return copy.momoUnavailableCountryMessage;
+  }
+
+  if (!momoCurrencies.includes(state.currency)) {
+    return copy.momoCountryCurrencyHint;
+  }
+
+  return copy.momoAvailableHint;
 }
 
 function providerLogo(provider?: PublicDonationProvider): string {
@@ -821,7 +890,12 @@ function readSavedDonationState(): Partial<DonationFormState> | null {
   }
 }
 
-function validateDonation(state: DonationFormState, minimumAmount: number, copy: DonateCopy): Record<string, string> {
+function validateDonation(
+  state: DonationFormState,
+  minimumAmount: number,
+  copy: DonateCopy,
+  selectedProvider?: PublicDonationProvider,
+): Record<string, string> {
   const errors: Record<string, string> = {};
   const amount = Number(state.amount);
 
@@ -847,6 +921,17 @@ function validateDonation(state: DonationFormState, minimumAmount: number, copy:
 
   if (state.paymentProvider === 'momo') {
     const normalizedPhone = state.phone.replace(/[\s-]+/g, '');
+    const countryCode = state.country.trim().toUpperCase();
+    const countryCodes = (selectedProvider?.country_codes?.length ? selectedProvider.country_codes : ['CM']).map((code) => code.toUpperCase());
+    const providerAllowsCountry = countryCodes.includes('*') || countryCodes.includes(countryCode);
+
+    if (!providerAllowsCountry) {
+      errors.paymentProvider = copy.momoUnavailableCountryError;
+    }
+
+    if (!selectedProvider?.currencies.includes(state.currency)) {
+      errors.amount = copy.momoCurrencyError;
+    }
 
     if (!normalizedPhone) {
       errors.phone = copy.momoPhoneRequiredError;
@@ -934,6 +1019,16 @@ interface DonateCopy {
   momoConsentLabel: string;
   momoConsentHelper: string;
   momoConsentError: string;
+  momoOverlayEyebrow: string;
+  momoOverlayTitle: string;
+  momoOverlayBody: string;
+  momoOverlayNote: string;
+  providerCountryHint: string;
+  momoAvailableHint: string;
+  momoCountryCurrencyHint: string;
+  momoUnavailableCountryMessage: string;
+  momoUnavailableCountryError: string;
+  momoCurrencyError: string;
   momoPhoneRequiredError: string;
   momoPhoneInvalidError: string;
   summaryTitle: string;
@@ -1054,6 +1149,17 @@ const donateCopy = {
     momoConsentLabel: 'Confirm this MoMo number',
     momoConsentHelper: 'MoMo will send a payment prompt to this number. Confirm it belongs to you and can be used for this gift.',
     momoConsentError: 'Please confirm the MoMo number before continuing.',
+    momoOverlayEyebrow: 'Waiting for MoMo approval',
+    momoOverlayTitle: 'Check your phone to approve the gift.',
+    momoOverlayBody:
+      'A MoMo payment prompt has been sent to your phone. Approve it on your device to complete the donation.',
+    momoOverlayNote: 'Please keep this page open while we check the payment status securely.',
+    providerCountryHint: 'Enter your country code so we can show the giving channels available to you.',
+    momoAvailableHint: 'MoMo is available for Cameroon gifts in XAF. Card, PayPal, and bank transfer remain available where supported.',
+    momoCountryCurrencyHint: 'MoMo gifts from Cameroon use XAF. Change the currency to XAF to use MoMo, or choose another channel.',
+    momoUnavailableCountryMessage: 'MoMo is currently available only for Cameroon. Please use card, PayPal, or bank transfer for other countries.',
+    momoUnavailableCountryError: 'MoMo is currently available only for Cameroon. Please choose another giving channel.',
+    momoCurrencyError: 'MoMo requires XAF. Please change the currency to XAF or choose another giving channel.',
     momoPhoneRequiredError: 'Please enter the MoMo phone number that should receive the payment prompt.',
     momoPhoneInvalidError: 'Please enter a valid MoMo phone number.',
     summaryTitle: 'Donation summary',
@@ -1071,7 +1177,7 @@ const donateCopy = {
     submitErrorMessage: 'We could not prepare your donation. Please try again.',
     momoPendingMessage: 'MoMo has been prompted. Please check your phone and approve the payment request.',
     momoSuccessMessage: 'Thank you. Your MoMo donation has been confirmed.',
-    momoFailedMessage: 'The MoMo payment was not completed. You may try again or choose another giving channel.',
+    momoFailedMessage: 'The MoMo payment was not completed. Please confirm the number is active, then try again or choose card, PayPal, or bank transfer.',
     momoStillPendingMessage: 'Your MoMo payment is still pending. Please check your phone; we will keep the donation record open for confirmation.',
     minimumAmountError: 'The minimum donation is :amount.',
     providerError: 'Please choose a giving channel.',
@@ -1195,6 +1301,17 @@ const donateCopy = {
     momoConsentLabel: 'Confirmer ce numero MoMo',
     momoConsentHelper: 'MoMo enverra une demande de paiement a ce numero. Confirmez qu il vous appartient et peut etre utilise pour ce don.',
     momoConsentError: 'Veuillez confirmer le numero MoMo avant de continuer.',
+    momoOverlayEyebrow: 'En attente de validation MoMo',
+    momoOverlayTitle: 'Verifiez votre telephone pour approuver le don.',
+    momoOverlayBody:
+      'Une demande de paiement MoMo a ete envoyee sur votre telephone. Approuvez-la sur votre appareil pour terminer le don.',
+    momoOverlayNote: 'Veuillez garder cette page ouverte pendant que nous verifions le statut du paiement.',
+    providerCountryHint: 'Saisissez votre code pays afin que nous puissions afficher les canaux de don disponibles.',
+    momoAvailableHint: 'MoMo est disponible pour les dons du Cameroun en XAF. Carte, PayPal et virement restent disponibles selon le cas.',
+    momoCountryCurrencyHint: 'Les dons MoMo depuis le Cameroun utilisent XAF. Changez la devise en XAF pour utiliser MoMo, ou choisissez un autre canal.',
+    momoUnavailableCountryMessage: 'MoMo est actuellement disponible uniquement pour le Cameroun. Veuillez utiliser carte, PayPal ou virement bancaire pour les autres pays.',
+    momoUnavailableCountryError: 'MoMo est actuellement disponible uniquement pour le Cameroun. Veuillez choisir un autre canal de don.',
+    momoCurrencyError: 'MoMo exige XAF. Veuillez changer la devise en XAF ou choisir un autre canal de don.',
     momoPhoneRequiredError: 'Veuillez saisir le numero MoMo qui doit recevoir la demande de paiement.',
     momoPhoneInvalidError: 'Veuillez saisir un numero MoMo valide.',
     summaryTitle: 'Resume du don',
@@ -1212,7 +1329,7 @@ const donateCopy = {
     submitErrorMessage: 'Nous n avons pas pu preparer votre don. Veuillez reessayer.',
     momoPendingMessage: 'MoMo a ete lance. Veuillez verifier votre telephone et approuver la demande de paiement.',
     momoSuccessMessage: 'Merci. Votre don MoMo a ete confirme.',
-    momoFailedMessage: 'Le paiement MoMo n a pas ete termine. Vous pouvez reessayer ou choisir un autre canal de don.',
+    momoFailedMessage: 'Le paiement MoMo n a pas ete termine. Verifiez que le numero est actif, puis reessayez ou choisissez carte, PayPal ou virement bancaire.',
     momoStillPendingMessage: 'Votre paiement MoMo est encore en attente. Veuillez verifier votre telephone; nous garderons le don ouvert pour confirmation.',
     minimumAmountError: 'Le don minimum est :amount.',
     providerError: 'Veuillez choisir un canal de don.',

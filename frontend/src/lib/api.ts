@@ -121,6 +121,7 @@ export interface PublicDonationProvider {
   method: string;
   category: string;
   currencies: string[];
+  country_codes?: string[];
 }
 
 export interface PublicDonationConfig {

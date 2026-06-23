@@ -38,6 +38,7 @@ return [
             'category' => 'card',
             'enabled' => true,
             'currencies' => ['USD', 'GBP', 'EUR', 'ZAR', 'XAF', 'CAD', 'AUD'],
+            'country_codes' => ['*'],
         ],
         [
             'key' => 'paypal',
@@ -46,6 +47,7 @@ return [
             'category' => 'wallet',
             'enabled' => true,
             'currencies' => ['USD', 'GBP', 'EUR', 'CAD', 'AUD'],
+            'country_codes' => ['*'],
         ],
         [
             'key' => 'momo',
@@ -54,6 +56,7 @@ return [
             'category' => 'mobile_money',
             'enabled' => true,
             'currencies' => array_values(array_filter(array_map('trim', explode(',', env('MOMO_COLLECTIONS_CURRENCIES', 'XAF'))))),
+            'country_codes' => array_values(array_filter(array_map('trim', explode(',', env('MOMO_COLLECTIONS_COUNTRY_CODES', 'CM'))))),
         ],
         [
             'key' => 'bank_transfer',
@@ -62,6 +65,7 @@ return [
             'category' => 'bank',
             'enabled' => true,
             'currencies' => ['USD', 'GBP', 'EUR', 'ZAR', 'XAF', 'CAD', 'AUD'],
+            'country_codes' => ['*'],
         ],
     ],
 ];

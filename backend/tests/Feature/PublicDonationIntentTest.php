@@ -29,6 +29,7 @@ class PublicDonationIntentTest extends TestCase
             ->assertJsonFragment(['key' => 'cards'])
             ->assertJsonFragment(['key' => 'paypal'])
             ->assertJsonFragment(['key' => 'momo'])
+            ->assertJsonFragment(['country_codes' => ['CM']])
             ->assertJsonFragment(['key' => 'bank_transfer']);
     }
 
@@ -247,6 +248,17 @@ class PublicDonationIntentTest extends TestCase
         $this->postJson('/api/v1/public/donation-intents', $payload)
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['donor.phone', 'payment_consent']);
+    }
+
+    public function test_public_momo_intent_is_restricted_to_configured_country_and_currency(): void
+    {
+        $payload = $this->momoPayload();
+        $payload['currency'] = 'ZAR';
+        $payload['donor']['country'] = 'ZA';
+
+        $this->postJson('/api/v1/public/donation-intents', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['currency', 'payment_provider']);
     }
 
     public function test_momo_account_holder_status_endpoint_checks_active_msisdn(): void

@@ -63,6 +63,7 @@ class StorePublicDonationIntentRequest extends FormRequest
 
             if ($providerKey === 'momo') {
                 $phone = (string) $this->input('donor.phone');
+                $country = strtoupper((string) $this->input('donor.country'));
 
                 if ($phone === '') {
                     $validator->errors()->add('donor.phone', __('api.errors.momo_phone_required'));
@@ -74,6 +75,17 @@ class StorePublicDonationIntentRequest extends FormRequest
 
                 if (! $this->boolean('payment_consent')) {
                     $validator->errors()->add('payment_consent', __('api.errors.momo_consent_required'));
+                }
+
+                $providerCountries = array_map('strtoupper', $providerConfig['country_codes'] ?? ['CM']);
+                $providerAllowsCountry = in_array('*', $providerCountries, true) || in_array($country, $providerCountries, true);
+
+                if (! $providerAllowsCountry) {
+                    $validator->errors()->add('payment_provider', __('api.errors.momo_country_unsupported'));
+                }
+
+                if (! in_array($currency, $providerConfig['currencies'] ?? ['XAF'], true)) {
+                    $validator->errors()->add('currency', __('api.errors.momo_currency_unsupported'));
                 }
             }
         });

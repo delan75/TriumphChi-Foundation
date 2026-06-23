@@ -27,6 +27,7 @@ class PublicDonationService
                 'method' => $provider['method'],
                 'category' => $provider['category'],
                 'currencies' => $provider['currencies'],
+                'country_codes' => $provider['country_codes'] ?? ['*'],
             ]);
 
         return [
