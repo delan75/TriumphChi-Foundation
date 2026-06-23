@@ -19,6 +19,7 @@ import {
   UsersRound,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { FaqSection } from '../../../components/public/FaqSection';
 import { PublicPageTitle } from '../../../components/public/PublicPageTitle';
 import { Seo } from '../../../components/seo/Seo';
 import { InputField } from '../../../components/ui/InputField';
@@ -26,6 +27,7 @@ import { SelectField } from '../../../components/ui/SelectField';
 import { TextAreaField } from '../../../components/ui/TextAreaField';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
+import { publicFaqSections } from '../../../content/publicFaqs';
 import { apiSubmitContactMessage, ContactDraftAttachment } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
 import { publicContact } from '../../../lib/publicContact';
@@ -71,6 +73,7 @@ export function ContactPage({ locale, page }: ContactPageProps) {
   const donatePage = getPageByKey('donate');
   const impactPage = getPageByKey('impact');
   const aboutPage = getPageByKey('about');
+  const faqSection = publicFaqSections.contact;
   const [form, setForm] = useState<ContactFormState>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormState, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -506,6 +509,14 @@ export function ContactPage({ locale, page }: ContactPageProps) {
           </div>
         </div>
       </section>
+
+      <FaqSection
+        eyebrow={faqSection.eyebrow[locale]}
+        title={faqSection.title[locale]}
+        body={faqSection.body[locale]}
+        items={faqSection.items[locale]}
+        surface="white"
+      />
 
       <section className="bg-ink-900 text-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">

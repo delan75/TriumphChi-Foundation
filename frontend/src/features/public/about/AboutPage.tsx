@@ -11,10 +11,12 @@ import {
   ShieldCheck,
   UsersRound,
 } from 'lucide-react';
+import { FaqSection } from '../../../components/public/FaqSection';
 import { PublicPageTitle } from '../../../components/public/PublicPageTitle';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
 import { buildPublicPageSchema, getPageByKey, PublicPageDefinition } from '../../../content/publicPages';
+import { publicFaqSections } from '../../../content/publicFaqs';
 import { Locale } from '../../../lib/i18n';
 import heroImage from '../../../assets/landing/cameroon-children-educationjpg.jpg';
 import ruralHomeImage from '../../../assets/public/about/rural-home-cameroon.jpg';
@@ -36,6 +38,7 @@ export function AboutPage({ locale, page }: AboutPageProps) {
   const donatePage = getPageByKey('donate');
   const applyPage = getPageByKey('apply');
   const contactPage = getPageByKey('contact');
+  const faqSection = publicFaqSections.about;
 
   return (
     <>
@@ -182,6 +185,14 @@ export function AboutPage({ locale, page }: AboutPageProps) {
           </div>
         </div>
       </section>
+
+      <FaqSection
+        eyebrow={faqSection.eyebrow[locale]}
+        title={faqSection.title[locale]}
+        body={faqSection.body[locale]}
+        items={faqSection.items[locale]}
+        surface="tinted"
+      />
 
       <section className="bg-foundation-50">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8 lg:py-16">
