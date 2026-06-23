@@ -34,6 +34,7 @@ class StorePublicDonationIntentRequest extends FormRequest
             'donor.phone' => ['nullable', 'string', 'max:40'],
             'donor.country' => ['required', 'string', 'size:2'],
             'anonymous' => ['sometimes', 'boolean'],
+            'payment_consent' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -58,6 +59,22 @@ class StorePublicDonationIntentRequest extends FormRequest
                     'payment_provider',
                     __('api.errors.payment_provider_currency_unsupported'),
                 );
+            }
+
+            if ($providerKey === 'momo') {
+                $phone = (string) $this->input('donor.phone');
+
+                if ($phone === '') {
+                    $validator->errors()->add('donor.phone', __('api.errors.momo_phone_required'));
+                }
+
+                if ($phone !== '' && ! preg_match('/^\+?[1-9][0-9]{7,14}$/', preg_replace('/[\s-]+/', '', $phone))) {
+                    $validator->errors()->add('donor.phone', __('api.errors.momo_phone_invalid'));
+                }
+
+                if (! $this->boolean('payment_consent')) {
+                    $validator->errors()->add('payment_consent', __('api.errors.momo_consent_required'));
+                }
             }
         });
     }

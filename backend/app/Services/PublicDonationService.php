@@ -7,10 +7,15 @@ use App\Models\Donor;
 use App\Models\Fund;
 use App\Models\PaymentIntent;
 use App\Models\PaymentProvider;
+use App\Services\Payments\MtnMomoCollectionsService;
 use Illuminate\Support\Facades\DB;
 
 class PublicDonationService
 {
+    public function __construct(private readonly MtnMomoCollectionsService $momo)
+    {
+    }
+
     public function config(): array
     {
         $providers = collect(config('donations.providers', []))
@@ -43,7 +48,7 @@ class PublicDonationService
 
     public function createIntent(array $data): PaymentIntent
     {
-        return DB::transaction(function () use ($data): PaymentIntent {
+        $intent = DB::transaction(function () use ($data): PaymentIntent {
             $providerConfig = collect(config('donations.providers', []))->firstWhere('key', $data['payment_provider']);
             $purposeConfig = collect(config('donations.purposes', []))->firstWhere('key', $data['purpose']);
             $provider = $this->syncProvider($providerConfig);
@@ -82,6 +87,12 @@ class PublicDonationService
                 ],
             ])->load(['donation', 'provider']);
         });
+
+        if ($intent->provider->key === 'momo') {
+            return $this->momo->initiate($intent, $data['donor']);
+        }
+
+        return $intent;
     }
 
     private function syncProvider(array $providerConfig): PaymentProvider

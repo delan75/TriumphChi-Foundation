@@ -30,6 +30,7 @@ import {
   ApiRequestError,
   PublicDonationConfig,
   PublicDonationProvider,
+  apiGetDonationIntentStatus,
 } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
 import heroImage from '../../../assets/landing/cameroon-children-educationjpg.jpg';
@@ -63,6 +64,7 @@ interface DonationFormState {
   phone: string;
   country: string;
   anonymous: boolean;
+  paymentConsent: boolean;
 }
 
 const donationStorageKey = 'triumphchi_public_donation_form_v1';
@@ -299,11 +301,14 @@ function DonationCard({
     phone: '',
     country: '',
     anonymous: false,
+    paymentConsent: false,
   }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [statusMessage, setStatusMessage] = useState('');
   const [statusKind, setStatusKind] = useState<'success' | 'error' | ''>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createdIntentUuid, setCreatedIntentUuid] = useState<string | null>(null);
+  const [createdIntentStatus, setCreatedIntentStatus] = useState<string | null>(null);
 
   const currencyConfig = config?.currencies[state.currency];
   const suggestedAmounts = currencyConfig?.suggested_amounts ?? [];
@@ -366,6 +371,46 @@ function DonationCard({
     }
   }, [config, state.paymentProvider, supportedProviders]);
 
+  useEffect(() => {
+    if (!createdIntentUuid || createdIntentStatus !== 'pending') {
+      return;
+    }
+
+    let attempts = 0;
+    const interval = window.setInterval(async () => {
+      attempts += 1;
+
+      try {
+        const intent = await apiGetDonationIntentStatus(createdIntentUuid, locale);
+        setCreatedIntentStatus(intent.status);
+
+        if (intent.donation.status === 'confirmed' || intent.status === 'successful') {
+          setStatusKind('success');
+          setStatusMessage(copy.momoSuccessMessage);
+          window.clearInterval(interval);
+        }
+
+        if (intent.donation.status === 'failed' || intent.status === 'failed') {
+          setStatusKind('error');
+          setStatusMessage(copy.momoFailedMessage);
+          window.clearInterval(interval);
+        }
+
+        if (attempts >= 12) {
+          setStatusKind('success');
+          setStatusMessage(copy.momoStillPendingMessage);
+          window.clearInterval(interval);
+        }
+      } catch {
+        if (attempts >= 12) {
+          window.clearInterval(interval);
+        }
+      }
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [copy, createdIntentStatus, createdIntentUuid, locale]);
+
   function updateField<K extends keyof DonationFormState>(field: K, value: DonationFormState[K]) {
     setState((current) => ({ ...current, [field]: value }));
     setErrors((current) => {
@@ -408,12 +453,21 @@ function DonationCard({
             country: state.country.trim().toUpperCase(),
           },
           anonymous: state.anonymous,
+          payment_consent: selectedProvider.key === 'momo' ? state.paymentConsent : true,
         },
         locale,
       );
 
       setStatusKind('success');
-      setStatusMessage(response.data?.checkout_url ? copy.redirectingMessage : response.message || copy.intentCreatedMessage);
+      setCreatedIntentUuid(response.data?.uuid ?? null);
+      setCreatedIntentStatus(response.data?.status ?? null);
+      setStatusMessage(
+        response.data?.checkout_url
+          ? copy.redirectingMessage
+          : selectedProvider.key === 'momo'
+            ? copy.momoPendingMessage
+            : response.message || copy.intentCreatedMessage,
+      );
 
       if (response.data?.checkout_url) {
         window.location.assign(response.data.checkout_url);
@@ -575,6 +629,22 @@ function DonationCard({
             onChange={(value) => updateField('country', value.toUpperCase())}
           />
         </div>
+
+        {selectedProvider?.key === 'momo' ? (
+          <label className="flex items-start gap-3 rounded-md border border-foundation-100 bg-foundation-50 p-3">
+            <input
+              type="checkbox"
+              checked={state.paymentConsent}
+              onChange={(event) => updateField('paymentConsent', event.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-ink-300 text-foundation-600 focus:ring-foundation-500"
+            />
+            <span>
+              <span className="block text-sm font-black text-ink-900">{copy.momoConsentLabel}</span>
+              <span className="mt-1 block text-xs leading-5 text-ink-500">{copy.momoConsentHelper}</span>
+              {errors.paymentConsent ? <span className="mt-2 block text-sm font-bold text-red-700">{errors.paymentConsent}</span> : null}
+            </span>
+          </label>
+        ) : null}
 
         <label className="flex items-start gap-3 rounded-md border border-ink-100 bg-ink-50 p-3">
           <input
@@ -763,6 +833,20 @@ function validateDonation(state: DonationFormState, minimumAmount: number, copy:
     errors.country = copy.countryError;
   }
 
+  if (state.paymentProvider === 'momo') {
+    const normalizedPhone = state.phone.replace(/[\s-]+/g, '');
+
+    if (!normalizedPhone) {
+      errors.phone = copy.momoPhoneRequiredError;
+    } else if (!/^\+?[1-9][0-9]{7,14}$/.test(normalizedPhone)) {
+      errors.phone = copy.momoPhoneInvalidError;
+    }
+
+    if (!state.paymentConsent) {
+      errors.paymentConsent = copy.momoConsentError;
+    }
+  }
+
   return errors;
 }
 
@@ -835,6 +919,11 @@ interface DonateCopy {
   countryLabel: string;
   anonymousLabel: string;
   anonymousHelper: string;
+  momoConsentLabel: string;
+  momoConsentHelper: string;
+  momoConsentError: string;
+  momoPhoneRequiredError: string;
+  momoPhoneInvalidError: string;
   summaryTitle: string;
   summaryFrequency: string;
   summaryAmount: string;
@@ -847,6 +936,10 @@ interface DonateCopy {
   intentCreatedMessage: string;
   redirectingMessage: string;
   submitErrorMessage: string;
+  momoPendingMessage: string;
+  momoSuccessMessage: string;
+  momoFailedMessage: string;
+  momoStillPendingMessage: string;
   minimumAmountError: string;
   providerError: string;
   nameError: string;
@@ -946,6 +1039,11 @@ const donateCopy = {
     countryLabel: 'Country Code',
     anonymousLabel: 'Give anonymously',
     anonymousHelper: 'Anonymous gifts still receive internal records and receipts when needed.',
+    momoConsentLabel: 'Confirm this MoMo number',
+    momoConsentHelper: 'MoMo will send a payment prompt to this number. Confirm it belongs to you and can be used for this gift.',
+    momoConsentError: 'Please confirm the MoMo number before continuing.',
+    momoPhoneRequiredError: 'Please enter the MoMo phone number that should receive the payment prompt.',
+    momoPhoneInvalidError: 'Please enter a valid MoMo phone number.',
     summaryTitle: 'Donation summary',
     summaryFrequency: 'Frequency',
     summaryAmount: 'Amount',
@@ -959,6 +1057,10 @@ const donateCopy = {
     intentCreatedMessage: 'Thank you. Your donation has been prepared securely.',
     redirectingMessage: 'Thank you. Redirecting you to complete your gift.',
     submitErrorMessage: 'We could not prepare your donation. Please try again.',
+    momoPendingMessage: 'MoMo has been prompted. Please check your phone and approve the payment request.',
+    momoSuccessMessage: 'Thank you. Your MoMo donation has been confirmed.',
+    momoFailedMessage: 'The MoMo payment was not completed. You may try again or choose another giving channel.',
+    momoStillPendingMessage: 'Your MoMo payment is still pending. Please check your phone; we will keep the donation record open for confirmation.',
     minimumAmountError: 'The minimum donation is :amount.',
     providerError: 'Please choose a giving channel.',
     nameError: 'Please enter your full name.',
@@ -1078,6 +1180,11 @@ const donateCopy = {
     countryLabel: 'Code pays',
     anonymousLabel: 'Donner anonymement',
     anonymousHelper: 'Les dons anonymes gardent des traces internes et des recus lorsque necessaire.',
+    momoConsentLabel: 'Confirmer ce numero MoMo',
+    momoConsentHelper: 'MoMo enverra une demande de paiement a ce numero. Confirmez qu il vous appartient et peut etre utilise pour ce don.',
+    momoConsentError: 'Veuillez confirmer le numero MoMo avant de continuer.',
+    momoPhoneRequiredError: 'Veuillez saisir le numero MoMo qui doit recevoir la demande de paiement.',
+    momoPhoneInvalidError: 'Veuillez saisir un numero MoMo valide.',
     summaryTitle: 'Resume du don',
     summaryFrequency: 'Frequence',
     summaryAmount: 'Montant',
@@ -1091,6 +1198,10 @@ const donateCopy = {
     intentCreatedMessage: 'Merci. Votre don a ete prepare de maniere securisee.',
     redirectingMessage: 'Merci. Redirection pour terminer votre don.',
     submitErrorMessage: 'Nous n avons pas pu preparer votre don. Veuillez reessayer.',
+    momoPendingMessage: 'MoMo a ete lance. Veuillez verifier votre telephone et approuver la demande de paiement.',
+    momoSuccessMessage: 'Merci. Votre don MoMo a ete confirme.',
+    momoFailedMessage: 'Le paiement MoMo n a pas ete termine. Vous pouvez reessayer ou choisir un autre canal de don.',
+    momoStillPendingMessage: 'Votre paiement MoMo est encore en attente. Veuillez verifier votre telephone; nous garderons le don ouvert pour confirmation.',
     minimumAmountError: 'Le don minimum est :amount.',
     providerError: 'Veuillez choisir un canal de don.',
     nameError: 'Veuillez saisir votre nom complet.',

@@ -146,6 +146,7 @@ export interface PublicDonationIntentPayload {
     country: string;
   };
   anonymous: boolean;
+  payment_consent?: boolean;
 }
 
 export interface PublicDonationIntentResponse {
@@ -602,6 +603,13 @@ export async function apiCreateDonationIntent(
     message: String(data.message ?? 'Thank you. Your donation has been prepared securely.'),
     data: data.data as PublicDonationIntentResponse | undefined,
   };
+}
+
+export async function apiGetDonationIntentStatus(
+  uuid: string,
+  locale: string,
+): Promise<PublicDonationIntentResponse> {
+  return apiPublicGet<PublicDonationIntentResponse>(`/public/donation-intents/${uuid}/status`, locale);
 }
 
 export async function apiGlobalSearch(query: string, limit = 8): Promise<GlobalSearchResponse> {

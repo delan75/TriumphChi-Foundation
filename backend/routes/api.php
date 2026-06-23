@@ -37,6 +37,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('public/donation-intents', [PublicDonationController::class, 'storeIntent'])
         ->middleware([SetLocale::class, 'throttle:5,1'])
         ->name('public.donation-intents.store');
+    Route::get('public/donation-intents/{paymentIntent}/status', [PublicDonationController::class, 'status'])
+        ->middleware([SetLocale::class, 'throttle:20,1'])
+        ->name('public.donation-intents.status');
+    Route::post('public/momo/callbacks/{hash}', [PublicDonationController::class, 'momoCallback'])
+        ->middleware('throttle:120,1')
+        ->name('public.momo.callbacks');
     Route::post('public/contact-messages', [ContactMessageController::class, 'store'])
         ->middleware([SetLocale::class, 'throttle:5,1'])
         ->name('public.contact-messages.store');
