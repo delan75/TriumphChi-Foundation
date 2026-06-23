@@ -6,6 +6,7 @@ import {
   Check,
   ChevronDown,
   ClipboardList,
+  Download,
   Filter,
   Loader2,
   Phone,
@@ -19,6 +20,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { cn } from '../../components/ui/cn';
 import {
+  apiDownloadApplicationPdf,
   apiListApplications,
   apiTransitionApplicationStatus,
   type ApplicationRecord,
@@ -97,6 +99,9 @@ const copy = {
       reviewedAt: 'Reviewed at',
       noValue: '—',
       actions: 'Actions',
+      pdf: 'Preview PDF',
+      pdfLoading: 'Preparing PDF...',
+      pdfError: 'Failed to generate application PDF.',
       transitionTo: 'Move to',
       transitionLabels: {
         verification_pending: 'Send to verification',
@@ -181,6 +186,9 @@ const copy = {
       reviewedAt: 'Examiné le',
       noValue: '—',
       actions: 'Actions',
+      pdf: 'Apercu PDF',
+      pdfLoading: 'Preparation du PDF...',
+      pdfError: 'Echec de generation du PDF.',
       transitionTo: 'Passer à',
       transitionLabels: {
         verification_pending: 'Envoyer en vérification',
@@ -275,6 +283,7 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
   const [notes, setNotes] = useState('');
   const [confirming, setConfirming] = useState<string | null>(null);
   const [transitioning, setTransitioning] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const transitions = TRANSITIONS[app.status] ?? [];
@@ -295,6 +304,23 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
     }
   }
 
+  async function downloadPdf() {
+    setPdfLoading(true);
+    setFeedback(null);
+
+    try {
+      const blob = await apiDownloadApplicationPdf(app.uuid);
+      const url = window.URL.createObjectURL(blob);
+
+      window.open(url, '_blank', 'noopener,noreferrer');
+      window.setTimeout(() => window.URL.revokeObjectURL(url), 30_000);
+    } catch (err) {
+      setFeedback({ type: 'error', text: err instanceof Error ? err.message : panel.pdfError });
+    } finally {
+      setPdfLoading(false);
+    }
+  }
+
   // Parse intake_payload if available
   const intake = app.intake_payload as Record<string, unknown> | null;
 
@@ -311,14 +337,30 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
           <p className="text-[11px] font-bold uppercase tracking-wide text-ink-400">{panel.title}</p>
           <h2 className="mt-0.5 text-base font-bold text-ink-900">{app.applicant_name}</h2>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={panel.close}
-          className="focus-ring grid h-9 w-9 place-items-center rounded-md text-ink-400 transition hover:bg-ink-100 hover:text-ink-700"
-        >
-          <X className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={downloadPdf}
+            disabled={pdfLoading}
+            aria-label={pdfLoading ? panel.pdfLoading : panel.pdf}
+            className="focus-ring inline-flex min-h-9 items-center gap-2 rounded-md border border-foundation-200 bg-foundation-50 px-3 py-2 text-xs font-bold text-foundation-800 transition hover:border-foundation-300 hover:bg-foundation-100 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {pdfLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Download className="h-4 w-4" aria-hidden="true" />
+            )}
+            <span className="hidden sm:inline">{pdfLoading ? panel.pdfLoading : panel.pdf}</span>
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={panel.close}
+            className="focus-ring grid h-9 w-9 place-items-center rounded-md text-ink-400 transition hover:bg-ink-100 hover:text-ink-700"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Body */}

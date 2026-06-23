@@ -59,6 +59,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string; reference?: string } | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [hasDraft, setHasDraft] = useState(false);
+  const [draftToken, setDraftToken] = useState<string | null>(null);
   const [schoolSuggestions, setSchoolSuggestions] = useState<PublicLookupSuggestion[]>([]);
   const [regionSuggestions, setRegionSuggestions] = useState<PublicLookupSuggestion[]>([]);
   const [villageSuggestions, setVillageSuggestions] = useState<PublicLookupSuggestion[]>([]);
@@ -80,6 +81,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
       setForm(draft.form);
       setCurrentStep(Math.min(draft.stepIndex, steps.length - 1));
       setSavedAt(draft.updatedAt);
+      setDraftToken(draft.draftToken ?? null);
       setHasDraft(true);
     }
   }, [steps.length]);
@@ -96,6 +98,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
         stepIndex: currentStep,
         form,
         updatedAt: new Date().toISOString(),
+        draftToken: draftToken ?? undefined,
       };
 
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -104,7 +107,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
     }, 180);
 
     return () => window.clearTimeout(timeout);
-  }, [currentStep, form]);
+  }, [currentStep, draftToken, form]);
 
   useEffect(() => {
     return fetchSuggestions('regions', debouncedRegionQuery, locale, setRegionSuggestions);
@@ -163,6 +166,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
     setErrors({});
     setSubmitMessage(null);
     setSavedAt(null);
+    setDraftToken(null);
     setHasDraft(false);
   };
 
@@ -171,7 +175,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
     setSubmitMessage(null);
 
     try {
-      const blob = await apiDownloadPreviewPdf(buildPayload(form), locale);
+      const blob = await apiDownloadPreviewPdf(buildPayload(form, draftToken ?? undefined), locale);
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank', 'noopener,noreferrer');
       window.setTimeout(() => window.URL.revokeObjectURL(url), 30_000);
@@ -624,8 +628,9 @@ function ApplyFormActions({
   );
 }
 
-function buildPayload(form: ApplicationFormState): PublicApplicationPayload {
+function buildPayload(form: ApplicationFormState, draftToken?: string): PublicApplicationPayload {
   return {
+    draft_token: draftToken,
     applying_for: form.applying_for,
     child_name: form.child_name.trim(),
     gender: form.gender.trim() || undefined,

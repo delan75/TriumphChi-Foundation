@@ -9,6 +9,7 @@ use App\Http\Requests\TransitionApplicationStatusRequest;
 use App\Http\Resources\ApplicationResource;
 use App\Models\Application;
 use Illuminate\Http\Request;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class ApplicationController extends Controller
 {
@@ -66,6 +67,23 @@ class ApplicationController extends Controller
         );
     }
 
+    public function pdf(Application $application)
+    {
+        $this->authorize('view', $application);
+
+        $application->loadMissing(['region', 'village', 'school', 'steps']);
+
+        return Pdf::view('pdf.application_summary', [
+            'application' => $application,
+            'data' => $this->buildPdfData($application),
+            'generatedAt' => now(),
+            'isPreview' => false,
+        ])
+            ->format('A4')
+            ->margins(10, 10, 12, 10)
+            ->name('Application_' . $application->application_number . '.pdf');
+    }
+
     public function update(StoreApplicationRequest $request, Application $application)
     {
         $this->authorize('update', $application);
@@ -118,5 +136,31 @@ class ApplicationController extends Controller
             ApplicationResource::make($application->fresh(['region', 'village', 'school.region', 'school.village'])),
             __('api.applications.transitioned')
         );
+    }
+
+    private function buildPdfData(Application $application): array
+    {
+        $recordData = array_filter([
+            'child_name' => $application->applicant_name,
+            'gender' => $application->gender,
+            'date_of_birth' => $application->date_of_birth?->toDateString(),
+            'region_name' => $application->region?->name,
+            'village_name' => $application->village?->name,
+            'school_name' => $application->school?->name,
+            'need_summary' => $application->needs_assessment,
+            'household_income_range' => $application->household_income_range,
+            'household_size' => $application->household_size,
+            'primary_caregiver_occupation' => $application->primary_caregiver_occupation,
+            'household_challenges' => $application->household_challenges,
+            'contact_name' => $application->guardian_name,
+            'contact_phone' => $application->guardian_phone,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        $stepData = [];
+        foreach ($application->steps()->orderBy('step_number')->get() as $step) {
+            $stepData = array_merge($stepData, $step->data ?? []);
+        }
+
+        return array_merge($recordData, $application->intake_payload ?? [], $stepData);
     }
 }
