@@ -8,6 +8,7 @@ use App\Models\PaymentTransaction;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class MtnMomoCollectionsService
@@ -139,24 +140,44 @@ class MtnMomoCollectionsService
 
     private function requestToPay(PaymentIntent $intent, string $msisdn, string $referenceId, string $callbackHash): Response
     {
-        return Http::baseUrl($this->baseUrl())
+        $payload = [
+            'amount' => (string) $intent->amount,
+            'currency' => $intent->currency,
+            'externalId' => $intent->intent_reference,
+            'payer' => [
+                'partyIdType' => 'MSISDN',
+                'partyId' => $msisdn,
+            ],
+            'payerMessage' => 'TriumphChi Foundation education support donation',
+            'payeeNote' => $intent->donation?->reference_number ?? $intent->intent_reference,
+        ];
+
+        Log::info('MoMo request-to-pay prepared.', [
+            'url' => $this->baseUrl().'/collection/v1_0/requesttopay',
+            'reference_id' => $referenceId,
+            'target_environment' => $this->targetEnvironment(),
+            'subscription_key_configured' => filled(config('momo.collections.subscription_key')),
+            'callback_base_url_configured' => filled(config('momo.collections.callback_base_url')),
+            'callback_secret_configured' => filled(config('momo.collections.callback_secret')) || filled(config('app.key')),
+            'payload' => $this->safePayload($payload),
+        ]);
+
+        $response = Http::baseUrl($this->baseUrl())
             ->timeout($this->timeout())
             ->withToken($this->accessToken())
             ->withHeaders(array_merge($this->momoHeaders(), [
                 'X-Reference-Id' => $referenceId,
                 'X-Callback-Url' => $this->callbackUrl($callbackHash),
             ]))
-            ->post('/collection/v1_0/requesttopay', [
-                'amount' => (string) $intent->amount,
-                'currency' => $intent->currency,
-                'externalId' => $intent->intent_reference,
-                'payer' => [
-                    'partyIdType' => 'MSISDN',
-                    'partyId' => $msisdn,
-                ],
-                'payerMessage' => 'TriumphChi Foundation education support donation',
-                'payeeNote' => $intent->donation?->reference_number ?? $intent->intent_reference,
-            ]);
+            ->post('/collection/v1_0/requesttopay', $payload);
+
+        Log::info('MoMo request-to-pay response received.', [
+            'status' => $response->status(),
+            'reference_id' => $referenceId,
+            'body' => $this->safeResponseBody($response),
+        ]);
+
+        return $response;
     }
 
     private function accessToken(): string
@@ -169,6 +190,16 @@ class MtnMomoCollectionsService
                     'Ocp-Apim-Subscription-Key' => (string) config('momo.collections.subscription_key'),
                 ])
                 ->post('/collection/token/');
+
+            Log::info('MoMo access token response received.', [
+                'status' => $response->status(),
+                'base_url' => $this->baseUrl(),
+                'api_user_configured' => filled(config('momo.collections.api_user')),
+                'api_key_configured' => filled(config('momo.collections.api_key')),
+                'subscription_key_configured' => filled(config('momo.collections.subscription_key')),
+                'has_access_token' => filled($response->json('access_token')),
+                'expires_in' => $response->json('expires_in'),
+            ]);
 
             if (! $response->ok() || ! $response->json('access_token')) {
                 throw new PaymentProviderException(__('api.errors.momo_token_failed'), $response->status());
@@ -293,7 +324,12 @@ class MtnMomoCollectionsService
 
     private function callbackHash(string $referenceId): string
     {
-        return hash_hmac('sha256', $referenceId, (string) config('momo.collections.callback_secret'));
+        return hash_hmac('sha256', $referenceId, $this->callbackSecret());
+    }
+
+    private function callbackSecret(): string
+    {
+        return (string) (config('momo.collections.callback_secret') ?: config('app.key') ?: 'local-momo-callback-secret');
     }
 
     private function normalizeMsisdn(string $value): string
@@ -313,6 +349,17 @@ class MtnMomoCollectionsService
     private function safeBody(Response $response): array
     {
         return $this->safePayload($response->json() ?? []);
+    }
+
+    private function safeResponseBody(Response $response): array|string|null
+    {
+        $json = $response->json();
+
+        if (is_array($json)) {
+            return $this->safePayload($json);
+        }
+
+        return $response->body() ? Str::limit($response->body(), 1000) : null;
     }
 
     private function safePayload(array $payload): array

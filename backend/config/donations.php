@@ -53,7 +53,7 @@ return [
             'method' => 'mtn_mobile_money',
             'category' => 'mobile_money',
             'enabled' => true,
-            'currencies' => ['XAF'],
+            'currencies' => array_values(array_filter(array_map('trim', explode(',', env('MOMO_COLLECTIONS_CURRENCIES', 'XAF'))))),
         ],
         [
             'key' => 'bank_transfer',
