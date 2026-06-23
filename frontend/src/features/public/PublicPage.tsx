@@ -11,6 +11,7 @@ import { ProgramsPage } from './programs/ProgramsPage';
 import { SponsorPage } from './sponsor/SponsorPage';
 import { ContactPage } from './contact/ContactPage';
 import { PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
+import { ImpactPage } from './impact/ImpactPage';
 import { NotFoundPage } from '../errors/NotFoundPage';
 import defaultPageHeroImage from '../../assets/landing/rural_kids.jpg';
 
@@ -33,6 +34,10 @@ export function PublicPage() {
 
   if (page.key === 'programs') {
     return <ProgramsPage locale={activeLocale} page={page} />;
+  }
+
+  if (page.key === 'impact') {
+    return <ImpactPage locale={activeLocale} page={page} />;
   }
 
   if (page.key === 'sponsor') {
