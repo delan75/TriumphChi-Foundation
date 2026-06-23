@@ -12,6 +12,7 @@ import { SponsorPage } from './sponsor/SponsorPage';
 import { ContactPage } from './contact/ContactPage';
 import { PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
 import { ImpactPage } from './impact/ImpactPage';
+import { DonatePage } from './donate/DonatePage';
 import { NotFoundPage } from '../errors/NotFoundPage';
 import defaultPageHeroImage from '../../assets/landing/rural_kids.jpg';
 
@@ -46,6 +47,10 @@ export function PublicPage() {
 
   if (page.key === 'contact') {
     return <ContactPage locale={activeLocale} page={page} />;
+  }
+
+  if (page.key === 'donate') {
+    return <DonatePage locale={activeLocale} page={page} />;
   }
 
   if (page.key === 'apply') {

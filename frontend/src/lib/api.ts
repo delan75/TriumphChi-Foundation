@@ -104,6 +104,72 @@ export interface DashboardSummaryResponse {
   };
 }
 
+export interface PublicDonationCurrencyConfig {
+  symbol: string;
+  minimum_amount: number;
+  suggested_amounts: number[];
+}
+
+export interface PublicDonationOption {
+  key: string;
+  label: string;
+}
+
+export interface PublicDonationProvider {
+  key: string;
+  name: string;
+  method: string;
+  category: string;
+  currencies: string[];
+}
+
+export interface PublicDonationConfig {
+  default_currency: string;
+  default_frequency: string;
+  default_purpose: string;
+  frequencies: PublicDonationOption[];
+  currencies: Record<string, PublicDonationCurrencyConfig>;
+  purposes: PublicDonationOption[];
+  payment_providers: PublicDonationProvider[];
+}
+
+export interface PublicDonationIntentPayload {
+  frequency: string;
+  currency: string;
+  amount: number;
+  purpose: string;
+  payment_provider: string;
+  donor: {
+    name: string;
+    email: string;
+    phone?: string;
+    country: string;
+  };
+  anonymous: boolean;
+}
+
+export interface PublicDonationIntentResponse {
+  uuid: string;
+  intent_reference: string;
+  donation: {
+    uuid: string;
+    reference_number: string;
+    status: string;
+  };
+  payment_provider: {
+    key: string;
+    name: string;
+    category: string;
+  };
+  amount: string;
+  currency: string;
+  frequency: string;
+  purpose: string;
+  status: string;
+  checkout_url?: string | null;
+  expires_at?: string | null;
+}
+
 export interface AuthResponse {
   message?: string;
   token: TokenResponse | null;
@@ -509,6 +575,33 @@ export async function apiGetCurrentUser(): Promise<AuthUser> {
 
 export async function apiGetDashboardSummary(): Promise<DashboardSummaryResponse> {
   return apiGet('/dashboard/summary');
+}
+
+export async function apiGetDonationConfig(locale: string): Promise<PublicDonationConfig> {
+  return apiPublicGet<PublicDonationConfig>('/public/donation-config', locale);
+}
+
+export async function apiCreateDonationIntent(
+  payload: PublicDonationIntentPayload,
+  locale: string,
+): Promise<{ message: string; data?: PublicDonationIntentResponse }> {
+  const response = await fetch(`${API_BASE_URL}/public/donation-intents`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    },
+    credentials: 'omit',
+    body: JSON.stringify(payload),
+  });
+
+  const data = await parseJsonEnvelope(response, 'We could not prepare your donation. Please try again.');
+
+  return {
+    message: String(data.message ?? 'Thank you. Your donation has been prepared securely.'),
+    data: data.data as PublicDonationIntentResponse | undefined,
+  };
 }
 
 export async function apiGlobalSearch(query: string, limit = 8): Promise<GlobalSearchResponse> {
