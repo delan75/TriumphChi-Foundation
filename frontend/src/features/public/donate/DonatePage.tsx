@@ -66,6 +66,15 @@ interface DonationFormState {
   country: string;
   anonymous: boolean;
   paymentConsent: boolean;
+  clientReference: string;
+}
+
+interface SimilarDonationWarning {
+  reference_number?: string;
+  amount?: string | number;
+  currency?: string;
+  provider?: string;
+  created_at?: string;
 }
 
 const donationStorageKey = 'triumphchi_public_donation_form_v1';
@@ -303,12 +312,14 @@ function DonationCard({
     country: '',
     anonymous: false,
     paymentConsent: false,
+    clientReference: createDonationClientReference(),
   }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [statusMessage, setStatusMessage] = useState('');
   const [statusKind, setStatusKind] = useState<'success' | 'error' | ''>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAwaitingMomoApproval, setIsAwaitingMomoApproval] = useState(false);
+  const [similarDonation, setSimilarDonation] = useState<SimilarDonationWarning | null>(null);
   const [createdIntentUuid, setCreatedIntentUuid] = useState<string | null>(null);
   const [createdIntentStatus, setCreatedIntentStatus] = useState<string | null>(null);
 
@@ -330,7 +341,8 @@ function DonationCard({
 
     const saved = readSavedDonationState();
     const currency = saved?.currency && config.currencies[saved.currency] ? saved.currency : config.default_currency;
-    const providers = filterProviders(config.payment_providers, currency, saved?.country ?? '');
+    const country = saved?.country || config.detected_country?.country || detectBrowserCountry() || '';
+    const providers = filterProviders(config.payment_providers, currency, country);
     const provider = saved?.paymentProvider && providers.some((item) => item.key === saved.paymentProvider)
       ? saved.paymentProvider
       : providers[0]?.key ?? 'cards';
@@ -344,10 +356,12 @@ function DonationCard({
       ...current,
       ...saved,
       currency,
+      country,
       paymentProvider: provider,
       purpose,
       frequency,
       amount: saved?.amount ?? defaultAmount,
+      clientReference: saved?.clientReference ?? createDonationClientReference(),
     }));
   }, [config]);
 
@@ -388,6 +402,7 @@ function DonationCard({
 
         if (intent.donation.status === 'confirmed' || intent.status === 'successful') {
           setIsAwaitingMomoApproval(false);
+          refreshClientReference();
           setStatusKind('success');
           setStatusMessage(copy.momoSuccessMessage);
           window.clearInterval(interval);
@@ -395,6 +410,7 @@ function DonationCard({
 
         if (intent.donation.status === 'failed' || intent.status === 'failed') {
           setIsAwaitingMomoApproval(false);
+          refreshClientReference();
           setStatusKind('error');
           setStatusMessage(copy.momoFailedMessage);
           window.clearInterval(interval);
@@ -426,11 +442,15 @@ function DonationCard({
     setStatusMessage('');
     setStatusKind('');
     setIsAwaitingMomoApproval(false);
+    setSimilarDonation(null);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    await submitDonation(false);
+  }
 
+  async function submitDonation(acknowledgeSimilarDonation: boolean) {
     const nextErrors = validateDonation(state, minimumAmount, copy, selectedProvider);
     setErrors(nextErrors);
 
@@ -460,11 +480,14 @@ function DonationCard({
           },
           anonymous: state.anonymous,
           payment_consent: selectedProvider.key === 'momo' ? state.paymentConsent : true,
+          client_reference: state.clientReference,
+          similar_donation_acknowledged: acknowledgeSimilarDonation,
         },
         locale,
       );
 
       setStatusKind('success');
+      setSimilarDonation(null);
       setCreatedIntentUuid(response.data?.uuid ?? null);
       setCreatedIntentStatus(response.data?.status ?? null);
       setIsAwaitingMomoApproval(selectedProvider.key === 'momo' && response.data?.status === 'pending');
@@ -476,16 +499,30 @@ function DonationCard({
             : response.message || copy.intentCreatedMessage,
       );
 
+      if (selectedProvider.key !== 'momo') {
+        refreshClientReference();
+      }
+
       if (response.data?.checkout_url) {
         window.location.assign(response.data.checkout_url);
       }
     } catch (error) {
       setIsAwaitingMomoApproval(false);
       setStatusKind('error');
+      if (error instanceof ApiRequestError && error.status === 409 && error.code === 'similar_donation_pending') {
+        setSimilarDonation(extractSimilarDonationWarning(error.data));
+        setStatusMessage(error.message);
+        return;
+      }
+
       setStatusMessage(error instanceof ApiRequestError ? error.message : copy.submitErrorMessage);
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function refreshClientReference() {
+    setState((current) => ({ ...current, clientReference: createDonationClientReference() }));
   }
 
   if (isConfigLoading || !config) {
@@ -688,6 +725,19 @@ function DonationCard({
           <p className="mt-3 text-sm leading-6 text-ink-600">{copy.impactMessage}</p>
         </div>
 
+        {similarDonation ? (
+          <SimilarDonationWarningCard
+            copy={copy}
+            donation={similarDonation}
+            onCancel={() => {
+              setSimilarDonation(null);
+              setStatusMessage('');
+              setStatusKind('');
+            }}
+            onProceed={() => void submitDonation(true)}
+          />
+        ) : null}
+
         <div className="grid gap-3">
           <button
             type="submit"
@@ -747,6 +797,45 @@ function MomoPendingOverlay({ open, copy }: { open: boolean; copy: DonateCopy })
         <h3 className="mt-4 text-2xl font-black leading-tight text-ink-900">{copy.momoOverlayTitle}</h3>
         <p className="mt-3 text-sm leading-6 text-ink-600">{copy.momoOverlayBody}</p>
         <p className="mt-4 rounded-md bg-ink-50 px-3 py-2 text-xs font-bold leading-5 text-ink-500">{copy.momoOverlayNote}</p>
+      </div>
+    </div>
+  );
+}
+
+function SimilarDonationWarningCard({
+  copy,
+  donation,
+  onCancel,
+  onProceed,
+}: {
+  copy: DonateCopy;
+  donation: SimilarDonationWarning;
+  onCancel: () => void;
+  onProceed: () => void;
+}) {
+  return (
+    <div className="rounded-md border border-amber-200 bg-amber-50 p-4">
+      <h3 className="text-sm font-black text-amber-950">{copy.similarDonationTitle}</h3>
+      <p className="mt-2 text-sm leading-6 text-amber-900">{copy.similarDonationBody}</p>
+      <dl className="mt-3 grid gap-2 text-sm">
+        {donation.reference_number ? <SummaryRow label={copy.similarDonationReference} value={donation.reference_number} /> : null}
+        {donation.amount && donation.currency ? <SummaryRow label={copy.summaryAmount} value={`${donation.amount} ${donation.currency}`} /> : null}
+      </dl>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="focus-ring min-h-11 rounded-md border border-amber-300 bg-white px-4 text-sm font-black text-amber-950 transition hover:bg-amber-100"
+        >
+          {copy.similarDonationCancel}
+        </button>
+        <button
+          type="button"
+          onClick={onProceed}
+          className="focus-ring min-h-11 rounded-md bg-amber-700 px-4 text-sm font-black text-white transition hover:bg-amber-900"
+        >
+          {copy.similarDonationProceed}
+        </button>
       </div>
     </div>
   );
@@ -837,7 +926,10 @@ function filterProviders(providers: PublicDonationProvider[], currency: string, 
 
     if (provider.key === 'momo') {
       const countryCodes = (provider.country_codes?.length ? provider.country_codes : ['CM']).map((code) => code.toUpperCase());
-      return countryCode !== '' && (countryCodes.includes('*') || countryCodes.includes(countryCode));
+      const expectedCurrency = provider.country_currency_map?.[countryCode];
+      return countryCode !== ''
+        && (countryCodes.includes('*') || countryCodes.includes(countryCode))
+        && (!expectedCurrency || expectedCurrency === currency);
     }
 
     return true;
@@ -849,6 +941,7 @@ function providerGuidance(copy: DonateCopy, state: DonationFormState, providers:
   const momoProvider = providers.find((provider) => provider.key === 'momo');
   const momoCountries = (momoProvider?.country_codes?.length ? momoProvider.country_codes : ['CM']).map((code) => code.toUpperCase());
   const momoCurrencies = momoProvider?.currencies ?? ['XAF'];
+  const expectedMomoCurrency = momoProvider?.country_currency_map?.[countryCode];
 
   if (!countryCode) {
     return copy.providerCountryHint;
@@ -858,7 +951,7 @@ function providerGuidance(copy: DonateCopy, state: DonationFormState, providers:
     return copy.momoUnavailableCountryMessage;
   }
 
-  if (!momoCurrencies.includes(state.currency)) {
+  if ((expectedMomoCurrency && expectedMomoCurrency !== state.currency) || !momoCurrencies.includes(state.currency)) {
     return copy.momoCountryCurrencyHint;
   }
 
@@ -888,6 +981,46 @@ function readSavedDonationState(): Partial<DonationFormState> | null {
   } catch {
     return null;
   }
+}
+
+function createDonationClientReference(): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `donation-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function detectBrowserCountry(): string | null {
+  if (typeof Intl === 'undefined' || typeof navigator === 'undefined') {
+    return null;
+  }
+
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const timeZoneCountryMap: Record<string, string> = {
+    'Africa/Douala': 'CM',
+    'Africa/Accra': 'GH',
+    'Africa/Kampala': 'UG',
+    'Africa/Kigali': 'RW',
+    'Africa/Johannesburg': 'ZA',
+    'Africa/Lagos': 'NG',
+  };
+
+  if (timeZoneCountryMap[timeZone]) {
+    return timeZoneCountryMap[timeZone];
+  }
+
+  const localeCountry = navigator.language?.match(/-([A-Z]{2})$/)?.[1];
+  return localeCountry ?? null;
+}
+
+function extractSimilarDonationWarning(data: unknown): SimilarDonationWarning | null {
+  if (!data || typeof data !== 'object') {
+    return null;
+  }
+
+  const similar = (data as { similar_donation?: SimilarDonationWarning }).similar_donation;
+  return similar && typeof similar === 'object' ? similar : {};
 }
 
 function validateDonation(
@@ -924,12 +1057,13 @@ function validateDonation(
     const countryCode = state.country.trim().toUpperCase();
     const countryCodes = (selectedProvider?.country_codes?.length ? selectedProvider.country_codes : ['CM']).map((code) => code.toUpperCase());
     const providerAllowsCountry = countryCodes.includes('*') || countryCodes.includes(countryCode);
+    const expectedCurrency = selectedProvider?.country_currency_map?.[countryCode];
 
     if (!providerAllowsCountry) {
       errors.paymentProvider = copy.momoUnavailableCountryError;
     }
 
-    if (!selectedProvider?.currencies.includes(state.currency)) {
+    if ((expectedCurrency && expectedCurrency !== state.currency) || !selectedProvider?.currencies.includes(state.currency)) {
       errors.amount = copy.momoCurrencyError;
     }
 
@@ -1036,6 +1170,11 @@ interface DonateCopy {
   summaryAmount: string;
   summaryPurpose: string;
   summaryProvider: string;
+  similarDonationTitle: string;
+  similarDonationBody: string;
+  similarDonationReference: string;
+  similarDonationCancel: string;
+  similarDonationProceed: string;
   impactMessage: string;
   submitLabel: string;
   submittingLabel: string;
@@ -1167,6 +1306,12 @@ const donateCopy = {
     summaryAmount: 'Amount',
     summaryPurpose: 'Purpose',
     summaryProvider: 'Channel',
+    similarDonationTitle: 'A similar donation is already pending',
+    similarDonationBody:
+      'It looks like you recently started a similar donation. You can wait for that one to finish, or continue if you truly want to start another gift.',
+    similarDonationReference: 'Pending reference',
+    similarDonationCancel: 'Wait for the first one',
+    similarDonationProceed: 'Start another gift',
     impactMessage:
       'Your gift could help provide learning materials, examination support, or educational assistance where it is most needed.',
     submitLabel: 'Give Securely',
@@ -1319,6 +1464,12 @@ const donateCopy = {
     summaryAmount: 'Montant',
     summaryPurpose: 'But',
     summaryProvider: 'Canal',
+    similarDonationTitle: 'Un don similaire est deja en attente',
+    similarDonationBody:
+      'Il semble que vous avez recemment commence un don similaire. Vous pouvez attendre la fin du premier, ou continuer si vous souhaitez vraiment lancer un autre don.',
+    similarDonationReference: 'Reference en attente',
+    similarDonationCancel: 'Attendre le premier',
+    similarDonationProceed: 'Lancer un autre don',
     impactMessage:
       "Votre don peut aider a fournir du materiel, un soutien aux examens ou une aide scolaire la ou le besoin est le plus urgent.",
     submitLabel: 'Donner securise',

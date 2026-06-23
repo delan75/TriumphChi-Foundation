@@ -109,5 +109,6 @@ return [
         'momo_token_failed' => 'MoMo is temporarily unavailable. Please try again.',
         'payment_provider_currency_unsupported' => 'The selected giving channel does not support this currency.',
         'payment_reference_exists' => 'A payment with this reference already exists.',
+        'similar_donation_pending' => 'A similar donation is already pending. Please confirm before starting another one.',
     ],
 ];

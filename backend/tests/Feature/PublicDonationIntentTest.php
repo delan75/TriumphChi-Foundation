@@ -26,11 +26,22 @@ class PublicDonationIntentTest extends TestCase
             ->assertJsonPath('data.default_currency', 'USD')
             ->assertJsonPath('data.default_purpose', 'greatest_need')
             ->assertJsonPath('data.currencies.USD.minimum_amount', 2)
+            ->assertJsonPath('data.detected_country.country', null)
             ->assertJsonFragment(['key' => 'cards'])
             ->assertJsonFragment(['key' => 'paypal'])
             ->assertJsonFragment(['key' => 'momo'])
             ->assertJsonFragment(['country_codes' => ['CM']])
+            ->assertJsonFragment(['country_currency_map' => ['CM' => 'XAF']])
             ->assertJsonFragment(['key' => 'bank_transfer']);
+    }
+
+    public function test_public_donation_config_includes_detected_country_from_geo_header(): void
+    {
+        $this->withHeaders(['CF-IPCountry' => 'CM'])
+            ->getJson('/api/v1/public/donation-config')
+            ->assertOk()
+            ->assertJsonPath('data.detected_country.country', 'CM')
+            ->assertJsonPath('data.detected_country.source', 'geo_header');
     }
 
     public function test_public_donation_intent_creates_pending_donation_and_payment_intent(): void
@@ -261,6 +272,53 @@ class PublicDonationIntentTest extends TestCase
             ->assertJsonValidationErrors(['currency', 'payment_provider']);
     }
 
+    public function test_similar_pending_donation_warns_before_creating_another_intent(): void
+    {
+        $payload = $this->cardPayload(['client_reference' => 'first-client-reference']);
+
+        $this->postJson('/api/v1/public/donation-intents', $payload)
+            ->assertCreated();
+
+        $this->postJson('/api/v1/public/donation-intents', $this->cardPayload(['client_reference' => 'second-client-reference']))
+            ->assertConflict()
+            ->assertJsonPath('code', 'similar_donation_pending')
+            ->assertJsonPath('data.similar_donation.currency', 'USD');
+
+        $this->assertSame(1, PaymentIntent::count());
+    }
+
+    public function test_similar_pending_donation_can_be_confirmed_to_create_another_intent(): void
+    {
+        $this->postJson('/api/v1/public/donation-intents', $this->cardPayload(['client_reference' => 'first-client-reference']))
+            ->assertCreated();
+
+        $payload = $this->cardPayload([
+            'client_reference' => 'second-client-reference',
+            'similar_donation_acknowledged' => true,
+        ]);
+
+        $this->postJson('/api/v1/public/donation-intents', $payload)
+            ->assertCreated();
+
+        $this->assertSame(2, PaymentIntent::count());
+    }
+
+    public function test_retried_client_reference_returns_existing_payment_intent(): void
+    {
+        $payload = $this->cardPayload(['client_reference' => 'same-client-reference']);
+
+        $first = $this->postJson('/api/v1/public/donation-intents', $payload)
+            ->assertCreated()
+            ->json('data.uuid');
+
+        $second = $this->postJson('/api/v1/public/donation-intents', $payload)
+            ->assertCreated()
+            ->json('data.uuid');
+
+        $this->assertSame($first, $second);
+        $this->assertSame(1, PaymentIntent::count());
+    }
+
     public function test_momo_account_holder_status_endpoint_checks_active_msisdn(): void
     {
         $this->configureMomo();
@@ -384,5 +442,23 @@ class PublicDonationIntentTest extends TestCase
             'anonymous' => false,
             'payment_consent' => true,
         ];
+    }
+
+    private function cardPayload(array $overrides = []): array
+    {
+        return array_replace_recursive([
+            'frequency' => 'one_time',
+            'currency' => 'USD',
+            'amount' => 25,
+            'purpose' => 'greatest_need',
+            'payment_provider' => 'cards',
+            'donor' => [
+                'name' => 'Grace Donor',
+                'email' => 'grace@example.com',
+                'phone' => '+237600000000',
+                'country' => 'CM',
+            ],
+            'anonymous' => false,
+        ], $overrides);
     }
 }

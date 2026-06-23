@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\Payments\PaymentCapabilityRegistry;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -35,6 +36,8 @@ class StorePublicDonationIntentRequest extends FormRequest
             'donor.country' => ['required', 'string', 'size:2'],
             'anonymous' => ['sometimes', 'boolean'],
             'payment_consent' => ['sometimes', 'boolean'],
+            'similar_donation_acknowledged' => ['sometimes', 'boolean'],
+            'client_reference' => ['nullable', 'string', 'max:120'],
         ];
     }
 
@@ -46,6 +49,7 @@ class StorePublicDonationIntentRequest extends FormRequest
             $amount = (float) $this->input('amount');
             $currencyConfig = config("donations.currencies.{$currency}");
             $providerConfig = collect(config('donations.providers', []))->firstWhere('key', $providerKey);
+            $capabilities = app(PaymentCapabilityRegistry::class);
 
             if ($currencyConfig && $amount < (float) $currencyConfig['minimum_amount']) {
                 $validator->errors()->add(
@@ -77,14 +81,11 @@ class StorePublicDonationIntentRequest extends FormRequest
                     $validator->errors()->add('payment_consent', __('api.errors.momo_consent_required'));
                 }
 
-                $providerCountries = array_map('strtoupper', $providerConfig['country_codes'] ?? ['CM']);
-                $providerAllowsCountry = in_array('*', $providerCountries, true) || in_array($country, $providerCountries, true);
-
-                if (! $providerAllowsCountry) {
+                if (! $capabilities->providerSupportsCountry($providerConfig, $country)) {
                     $validator->errors()->add('payment_provider', __('api.errors.momo_country_unsupported'));
                 }
 
-                if (! in_array($currency, $providerConfig['currencies'] ?? ['XAF'], true)) {
+                if (! $capabilities->providerSupports($providerConfig, $country, $currency)) {
                     $validator->errors()->add('currency', __('api.errors.momo_currency_unsupported'));
                 }
             }

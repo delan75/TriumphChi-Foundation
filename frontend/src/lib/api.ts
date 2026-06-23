@@ -122,12 +122,18 @@ export interface PublicDonationProvider {
   category: string;
   currencies: string[];
   country_codes?: string[];
+  country_currency_map?: Record<string, string> | null;
 }
 
 export interface PublicDonationConfig {
   default_currency: string;
   default_frequency: string;
   default_purpose: string;
+  detected_country?: {
+    country?: string | null;
+    source?: string | null;
+    signals?: Record<string, string | null>;
+  };
   frequencies: PublicDonationOption[];
   currencies: Record<string, PublicDonationCurrencyConfig>;
   purposes: PublicDonationOption[];
@@ -148,6 +154,8 @@ export interface PublicDonationIntentPayload {
   };
   anonymous: boolean;
   payment_consent?: boolean;
+  client_reference?: string;
+  similar_donation_acknowledged?: boolean;
 }
 
 export interface PublicDonationIntentResponse {

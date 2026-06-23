@@ -108,6 +108,7 @@ return [
         'momo_status_failed' => 'Nous ne pouvons pas encore confirmer le statut MoMo. Veuillez reessayer.',
         'momo_token_failed' => 'MoMo est temporairement indisponible. Veuillez reessayer.',
         'payment_provider_currency_unsupported' => 'Le canal de don selectionne ne prend pas en charge cette devise.',
+        'similar_donation_pending' => 'Un don similaire est deja en attente. Veuillez confirmer avant d en lancer un autre.',
         'payment_reference_exists' => 'Un paiement avec cette référence existe déjà.',
     ],
 ];

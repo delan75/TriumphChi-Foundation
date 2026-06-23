@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\PaymentProviderException;
+use App\Exceptions\SimilarDonationPendingException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePublicDonationIntentRequest;
 use App\Jobs\ProcessMomoCallback;
@@ -16,15 +17,24 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PublicDonationController extends Controller
 {
-    public function config(PublicDonationService $donations): JsonResponse
+    public function config(Request $request, PublicDonationService $donations): JsonResponse
     {
-        return $this->success($donations->config(), __('api.messages.donation_config_retrieved'));
+        return $this->success($donations->config($request), __('api.messages.donation_config_retrieved'));
     }
 
     public function storeIntent(StorePublicDonationIntentRequest $request, PublicDonationService $donations): JsonResponse
     {
         try {
             $intent = $donations->createIntent($request->validated());
+        } catch (SimilarDonationPendingException $exception) {
+            return response()->json([
+                'success' => false,
+                'message' => $exception->getMessage(),
+                'code' => 'similar_donation_pending',
+                'data' => [
+                    'similar_donation' => $exception->similarDonation,
+                ],
+            ], Response::HTTP_CONFLICT);
         } catch (PaymentProviderException $exception) {
             return $this->error(
                 $exception->getMessage(),
