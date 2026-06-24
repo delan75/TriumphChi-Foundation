@@ -119,6 +119,72 @@ return [
         'anonymous' => 'Anonymous',
     ],
 
+    'donor_statuses' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+        'blocked' => 'Blocked',
+    ],
+
+    'contact_reasons' => [
+        'general' => 'General',
+        'sponsorship' => 'Sponsorship',
+        'assistance' => 'Assistance',
+        'school' => 'School',
+        'volunteer' => 'Volunteer',
+        'partnership' => 'Partnership',
+        'church' => 'Church',
+        'corporate' => 'Corporate',
+    ],
+
+    'contact_message_statuses' => [
+        'new' => 'New',
+        'reviewing' => 'Reviewing',
+        'replied' => 'Replied',
+        'archived' => 'Archived',
+        'spam' => 'Spam',
+    ],
+
+    'payment_intent_statuses' => [
+        'draft' => 'Draft',
+        'pending' => 'Pending',
+        'processing' => 'Processing',
+        'completed' => 'Completed',
+        'failed' => 'Failed',
+        'cancelled' => 'Cancelled',
+        'expired' => 'Expired',
+    ],
+
+    'payment_transaction_statuses' => [
+        'pending' => 'Pending',
+        'processing' => 'Processing',
+        'completed' => 'Completed',
+        'failed' => 'Failed',
+        'cancelled' => 'Cancelled',
+        'refunded' => 'Refunded',
+    ],
+
+    'payment_transaction_types' => [
+        'payment' => 'Payment',
+        'request_to_pay' => 'Request to pay',
+        'status_check' => 'Status check',
+        'callback' => 'Callback',
+        'paypal_order' => 'PayPal order',
+        'paypal_capture' => 'PayPal capture',
+        'order_create' => 'Order create',
+    ],
+
+    'donation_document_types' => [
+        'receipt' => 'Receipt',
+        'invoice' => 'Invoice',
+        'tax_certificate' => 'Tax certificate',
+    ],
+
+    'donation_document_statuses' => [
+        'issued' => 'Issued',
+        'voided' => 'Voided',
+        'draft' => 'Draft',
+    ],
+
     'sponsorship_types' => [
         'full' => 'Full sponsorship',
         'partial' => 'Partial sponsorship',
@@ -153,6 +219,10 @@ return [
         'donors.create' => 'Create donors',
         'donors.update' => 'Update donors',
         'donors.delete' => 'Delete donors',
+        'contact_messages.view' => 'View contact inquiries',
+        'contact_messages.update' => 'Update contact inquiries',
+        'contact_messages.archive' => 'Archive contact inquiries',
+        'contact_messages.attachments.view' => 'View contact inquiry attachments',
         'donations.view' => 'View donations',
         'donations.create' => 'Create donations',
         'donations.update' => 'Update donations',
@@ -169,6 +239,7 @@ return [
         'impact_updates.view' => 'View impact updates',
         'impact_updates.create' => 'Create impact updates',
         'impact_updates.publish' => 'Publish impact updates',
+        'reports.view' => 'View reports',
         'users.view' => 'View users',
         'users.create' => 'Create users',
         'users.update' => 'Update users',

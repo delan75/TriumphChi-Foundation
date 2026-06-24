@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Collection;
 use RuntimeException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -73,12 +72,12 @@ class RolePermissionSeeder extends Seeder
             $role->syncPermissions($permissions->only($rolePermissions)->values());
         }
 
-        $this->seedSuperAdministrator($permissions);
+        $this->seedSuperAdministrator();
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 
-    private function seedSuperAdministrator(Collection $permissions): void
+    private function seedSuperAdministrator(): void
     {
         $password = env('SUPER_ADMIN_PASSWORD');
 
@@ -108,7 +107,7 @@ class RolePermissionSeeder extends Seeder
         ])->save();
 
         $admin->syncRoles(['super_administrator']);
-        $admin->syncPermissions($permissions->values());
+        $admin->syncPermissions([]);
         $admin->authProviders()->firstOrCreate(
             ['provider' => 'local'],
             ['linked_at' => now()],
