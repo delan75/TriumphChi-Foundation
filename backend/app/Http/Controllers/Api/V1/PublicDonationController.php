@@ -7,7 +7,10 @@ use App\Exceptions\SimilarDonationPendingException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePublicDonationIntentRequest;
 use App\Jobs\ProcessMomoCallback;
+use App\Models\Donation;
+use App\Models\DonationDocument;
 use App\Models\PaymentIntent;
+use App\Services\DonationDocumentService;
 use App\Services\Payments\MtnMomoCollectionsService;
 use App\Services\Payments\PaypalDonationProvider;
 use App\Services\PublicDonationService;
@@ -15,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Response;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class PublicDonationController extends Controller
 {
@@ -105,8 +109,29 @@ class PublicDonationController extends Controller
         return $this->success(null, __('api.messages.paypal_webhook_received'));
     }
 
+    public function downloadDocument(Donation $donation, DonationDocument $document, DonationDocumentService $documents)
+    {
+        abort_unless($document->donation_id === $donation->id, 404);
+        abort_unless(($donation->status->value ?? $donation->status) === 'confirmed', 404);
+
+        $documents->ensureIssuedDocuments($donation, $document->locale);
+        $document->refresh();
+
+        return Pdf::view('pdf.donation_document', [
+            'donation' => $donation->loadMissing(['donor', 'fund']),
+            'document' => $document,
+        ])
+            ->format('A4')
+            ->margins(8, 8, 8, 8)
+            ->name($document->document_number.'.pdf');
+    }
+
     private function intentPayload(PaymentIntent $intent): array
     {
+        $intent->donation->loadMissing(['donor', 'fund']);
+        $documents = app(DonationDocumentService::class)
+            ->ensureIssuedDocuments($intent->donation, app()->getLocale());
+
         return [
             'uuid' => $intent->uuid,
             'intent_reference' => $intent->intent_reference,
@@ -114,6 +139,18 @@ class PublicDonationController extends Controller
                 'uuid' => $intent->donation->uuid,
                 'reference_number' => $intent->donation->reference_number,
                 'status' => $intent->donation->status->value ?? $intent->donation->status,
+                'documents' => $documents->map(fn (DonationDocument $document) => [
+                    'uuid' => $document->uuid,
+                    'document_number' => $document->document_number,
+                    'type' => $document->type,
+                    'title' => $document->title,
+                    'locale' => $document->locale,
+                    'issued_at' => $document->issued_at,
+                    'download_url' => route('api.v1.public.donation-documents.download', [
+                        'donation' => $intent->donation->uuid,
+                        'document' => $document->uuid,
+                    ]),
+                ])->values(),
             ],
             'payment_provider' => [
                 'key' => $intent->provider->key,

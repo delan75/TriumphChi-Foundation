@@ -174,6 +174,26 @@ export function PaypalDonationReturnPage({ locale, mode }: PaypalDonationReturnP
               </div>
             ) : null}
 
+            {state === 'completed' && intent?.donation.documents?.length ? (
+              <div className="rounded-md border border-foundation-100 bg-white p-4">
+                <p className="text-xs font-black uppercase text-foundation-700">{copy.documentsTitle}</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {intent.donation.documents.map((document) => (
+                    <a
+                      key={document.uuid}
+                      href={document.download_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="focus-ring rounded-md border border-ink-100 bg-foundation-50 px-4 py-3 text-sm font-black text-foundation-900 transition hover:border-foundation-200 hover:bg-foundation-100"
+                    >
+                      <span className="block">{document.title}</span>
+                      <span className="mt-1 block text-xs font-bold text-ink-500">{document.document_number}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             {isWorking ? (
               <div className="rounded-md border border-ink-100 bg-white p-4">
                 <div className="flex items-center justify-between gap-4 text-xs font-black uppercase text-foundation-700">
@@ -267,6 +287,7 @@ interface PaypalReturnCopy {
   tryAgainLabel: string;
   chooseAnotherLabel: string;
   viewImpactLabel: string;
+  documentsTitle: string;
 }
 
 const paypalReturnCopy = {
@@ -290,6 +311,7 @@ const paypalReturnCopy = {
     tryAgainLabel: 'Try Again',
     chooseAnotherLabel: 'Choose Another Channel',
     viewImpactLabel: 'View Impact',
+    documentsTitle: 'Receipt and invoice',
   },
   fr: {
     verifyingTitle: 'Verification de votre don...',
@@ -311,5 +333,6 @@ const paypalReturnCopy = {
     tryAgainLabel: 'Reessayer',
     chooseAnotherLabel: 'Choisir un autre canal',
     viewImpactLabel: 'Voir l impact',
+    documentsTitle: 'Reçu et facture',
   },
 } satisfies Record<Locale, PaypalReturnCopy>;
