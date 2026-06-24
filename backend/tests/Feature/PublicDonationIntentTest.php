@@ -159,7 +159,16 @@ class PublicDonationIntentTest extends TestCase
 
         Http::fake([
             'https://api-m.sandbox.paypal.com/v1/oauth2/token' => Http::response(['access_token' => 'paypal-token', 'expires_in' => 3600], 200),
-            'https://api-m.sandbox.paypal.com/v2/checkout/orders' => Http::response($this->paypalOrderPayload(), 201),
+            'https://api-m.sandbox.paypal.com/v2/checkout/orders' => Http::response($this->paypalOrderPayload([
+                'status' => 'PAYER_ACTION_REQUIRED',
+                'links' => [
+                    [
+                        'href' => 'https://www.sandbox.paypal.com/checkoutnow?token=ORDER-123',
+                        'rel' => 'payer-action',
+                        'method' => 'GET',
+                    ],
+                ],
+            ]), 200),
         ]);
 
         $this->postJson('/api/v1/public/donation-intents', $this->paypalPayload())
@@ -174,7 +183,8 @@ class PublicDonationIntentTest extends TestCase
                 && $request->hasHeader('PayPal-Request-Id')
                 && $request['intent'] === 'CAPTURE'
                 && $request['purchase_units'][0]['amount']['currency_code'] === 'USD'
-                && $request['purchase_units'][0]['amount']['value'] === '25.00';
+                && $request['purchase_units'][0]['amount']['value'] === '25.00'
+                && $request['payment_source']['paypal']['email_address'] === 'grace@example.com';
         });
 
         $intent = PaymentIntent::firstOrFail();

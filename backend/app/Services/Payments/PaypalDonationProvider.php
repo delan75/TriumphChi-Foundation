@@ -37,9 +37,20 @@ class PaypalDonationProvider implements PaymentProviderInterface
             'intent_uuid' => $intent->uuid,
             'has_order_id' => filled($response->json('id')),
             'paypal_status' => $response->json('status'),
+            'link_rels' => $this->linkRels($response->json('links') ?? []),
+            'has_checkout_url' => filled($this->approvalUrl($response->json('links') ?? [])),
+            'paypal_debug_id' => $response->header('PayPal-Debug-Id'),
         ]);
 
-        if (! $response->created() || ! $response->json('id')) {
+        if (! $response->successful() || ! $response->json('id')) {
+            Log::warning('PayPal create order failed before redirect.', [
+                'status' => $response->status(),
+                'intent_uuid' => $intent->uuid,
+                'paypal_status' => $response->json('status'),
+                'paypal_debug_id' => $response->header('PayPal-Debug-Id'),
+                'provider_body' => $this->safeResponseBody($response),
+            ]);
+
             $this->markFailed($intent, 'order_create', null, [
                 'http_status' => $response->status(),
                 'provider_body' => $this->safeResponseBody($response),
@@ -52,6 +63,15 @@ class PaypalDonationProvider implements PaymentProviderInterface
         $approvalUrl = $this->approvalUrl($response->json('links') ?? []);
 
         if (! $approvalUrl) {
+            Log::warning('PayPal create order did not include an approval link.', [
+                'status' => $response->status(),
+                'intent_uuid' => $intent->uuid,
+                'paypal_order_id' => $orderId,
+                'paypal_status' => $response->json('status'),
+                'link_rels' => $this->linkRels($response->json('links') ?? []),
+                'paypal_debug_id' => $response->header('PayPal-Debug-Id'),
+            ]);
+
             $this->markFailed($intent, 'order_create', $orderId, [
                 'provider_body' => $this->safeResponseBody($response),
                 'reason' => 'missing_approval_url',
@@ -589,12 +609,21 @@ class PaypalDonationProvider implements PaymentProviderInterface
     private function approvalUrl(array $links): ?string
     {
         foreach ($links as $link) {
-            if (($link['rel'] ?? null) === 'approve' && filled($link['href'] ?? null)) {
+            if (in_array($link['rel'] ?? null, ['approve', 'payer-action'], true) && filled($link['href'] ?? null)) {
                 return (string) $link['href'];
             }
         }
 
         return null;
+    }
+
+    private function linkRels(array $links): array
+    {
+        return collect($links)
+            ->pluck('rel')
+            ->filter()
+            ->values()
+            ->all();
     }
 
     private function assertConfigured(): void
