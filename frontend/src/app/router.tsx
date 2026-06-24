@@ -15,6 +15,7 @@ import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '../features/auth/ResetPasswordPage';
 import { OAuthCallbackPage } from '../features/auth/OAuthCallbackPage';
 import { VerifyAccountPage } from '../features/auth/VerifyAccountPage';
+import { PaypalDonationReturnPage } from '../features/public/donate/PaypalDonationReturnPage';
 import { NotFoundPage } from '../features/errors/NotFoundPage';
 import { LocaleRecoveryWrapper } from '../features/errors/LocaleRecoveryWrapper';
 import { buildAuthPath, isAuthenticated, resolvePostAuthPath } from '../lib/auth';
@@ -47,6 +48,8 @@ export const router = createBrowserRouter([
               { path: 'reports', element: <ReportsPage /> },
             ],
           },
+          { path: 'donate/paypal/return', element: <PaypalDonationReturnPageWrapper mode="return" /> },
+          { path: 'donate/paypal/cancel', element: <PaypalDonationReturnPageWrapper mode="cancel" /> },
           { path: ':pageSlug', element: <PublicPage /> },
           { path: '*', element: <NotFoundPageWrapper /> },
         ],
@@ -202,6 +205,13 @@ function OAuthCallbackPageWrapper() {
   const activeLocale = isLocale(locale) ? locale : 'en';
 
   return <OAuthCallbackPage locale={activeLocale} />;
+}
+
+function PaypalDonationReturnPageWrapper({ mode }: { mode: 'return' | 'cancel' }) {
+  const { locale = 'en' } = useParams();
+  const activeLocale = isLocale(locale) ? locale : 'en';
+
+  return <PaypalDonationReturnPage locale={activeLocale} mode={mode} />;
 }
 
 function NotFoundPageWrapper() {

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class MtnMomoCollectionsService
+class MtnMomoCollectionsService implements PaymentProviderInterface
 {
     public function initiate(PaymentIntent $intent, array $donorData): PaymentIntent
     {

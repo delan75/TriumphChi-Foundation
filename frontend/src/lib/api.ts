@@ -621,6 +621,52 @@ export async function apiGetDonationIntentStatus(
   return apiPublicGet<PublicDonationIntentResponse>(`/public/donation-intents/${uuid}/status`, locale);
 }
 
+export async function apiCapturePaypalDonationIntent(
+  uuid: string,
+  orderId: string,
+  locale: string,
+): Promise<{ message: string; data?: PublicDonationIntentResponse }> {
+  const response = await fetch(`${API_BASE_URL}/public/donation-intents/${uuid}/paypal/capture`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    },
+    credentials: 'omit',
+    body: JSON.stringify({ order_id: orderId }),
+  });
+
+  const data = await parseJsonEnvelope(response, 'We could not verify your PayPal donation. Please try again.');
+
+  return {
+    message: String(data.message ?? 'PayPal donation verified successfully.'),
+    data: data.data as PublicDonationIntentResponse | undefined,
+  };
+}
+
+export async function apiCancelPaypalDonationIntent(
+  uuid: string,
+  locale: string,
+): Promise<{ message: string; data?: PublicDonationIntentResponse }> {
+  const response = await fetch(`${API_BASE_URL}/public/donation-intents/${uuid}/paypal/cancel`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    },
+    credentials: 'omit',
+  });
+
+  const data = await parseJsonEnvelope(response, 'We could not update your PayPal donation. Please try again.');
+
+  return {
+    message: String(data.message ?? 'PayPal donation cancelled.'),
+    data: data.data as PublicDonationIntentResponse | undefined,
+  };
+}
+
 export async function apiGlobalSearch(query: string, limit = 8): Promise<GlobalSearchResponse> {
   const params = new URLSearchParams({
     q: query,

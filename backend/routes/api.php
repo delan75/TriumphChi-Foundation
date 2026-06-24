@@ -41,6 +41,15 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('public/donation-intents/{paymentIntent}/status', [PublicDonationController::class, 'status'])
         ->middleware([SetLocale::class, 'throttle:20,1'])
         ->name('public.donation-intents.status');
+    Route::post('public/donation-intents/{paymentIntent}/paypal/capture', [PublicDonationController::class, 'capturePaypal'])
+        ->middleware([SetLocale::class, 'throttle:10,1'])
+        ->name('public.donation-intents.paypal.capture');
+    Route::post('public/donation-intents/{paymentIntent}/paypal/cancel', [PublicDonationController::class, 'cancelPaypal'])
+        ->middleware([SetLocale::class, 'throttle:10,1'])
+        ->name('public.donation-intents.paypal.cancel');
+    Route::post('public/paypal/webhooks', [PublicDonationController::class, 'paypalWebhook'])
+        ->middleware('throttle:120,1')
+        ->name('public.paypal.webhooks');
     Route::post('public/momo/callbacks/{hash}', [PublicDonationController::class, 'momoCallback'])
         ->middleware('throttle:120,1')
         ->name('public.momo.callbacks');

@@ -10,6 +10,7 @@ use App\Models\PaymentProvider;
 use App\Services\Payments\CountryResolver;
 use App\Services\Payments\MtnMomoCollectionsService;
 use App\Services\Payments\PaymentCapabilityRegistry;
+use App\Services\Payments\PaypalDonationProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Exceptions\SimilarDonationPendingException;
@@ -19,6 +20,7 @@ class PublicDonationService
 {
     public function __construct(
         private readonly MtnMomoCollectionsService $momo,
+        private readonly PaypalDonationProvider $paypal,
         private readonly CountryResolver $countries,
         private readonly PaymentCapabilityRegistry $capabilities,
     )
@@ -117,6 +119,10 @@ class PublicDonationService
 
         if ($intent->provider->key === 'momo') {
             return $this->momo->initiate($intent, $data['donor']);
+        }
+
+        if ($intent->provider->key === 'paypal') {
+            return $this->paypal->initiate($intent, $data['donor']);
         }
 
         return $intent;
