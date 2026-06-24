@@ -554,6 +554,18 @@ export async function apiGetDonation(uuid: string): Promise<DonationManagementRe
   return (envelope.data ?? envelope) as DonationManagementRecord;
 }
 
+export async function apiRefreshDonationPaymentStatus(uuid: string): Promise<DonationManagementRecord> {
+  const response = await fetch(`${API_BASE_URL}/donations/${uuid}/payment-status`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, `Failed to refresh donation ${uuid}.`);
+
+  return (envelope.data ?? envelope) as DonationManagementRecord;
+}
+
 export async function apiDownloadApplicationPdf(uuid: string): Promise<Blob> {
   const response = await fetch(`${API_BASE_URL}/applications/${uuid}/pdf`, {
     headers: buildHeaders({

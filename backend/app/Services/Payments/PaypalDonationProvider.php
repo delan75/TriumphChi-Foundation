@@ -30,7 +30,7 @@ class PaypalDonationProvider implements PaymentProviderInterface
                 'PayPal-Request-Id' => "order-{$intent->uuid}",
                 'Prefer' => 'return=representation',
             ])
-            ->post("/v2/checkout/orders/{$intent->provider_intent_id}/capture", []);
+            ->post('/v2/checkout/orders', $payload);
 
         Log::info('PayPal create order response received.', [
             'status' => $response->status(),
@@ -141,7 +141,6 @@ class PaypalDonationProvider implements PaymentProviderInterface
         $incomingOrderId = trim((string) $orderId);
         $resolvedOrderId = $incomingOrderId !== '' ? $incomingOrderId : (string) $intent->provider_intent_id;
 
-        // 🚨 Log 1: Trace what incoming orderId we are trying to match against our DB intent
         Log::info('PayPal capture requested.', [
             'intent_uuid' => $intent->uuid,
             'db_provider_intent_id' => $intent->provider_intent_id,
@@ -162,6 +161,23 @@ class PaypalDonationProvider implements PaymentProviderInterface
         if (($intent->donation->status->value ?? $intent->donation->status) === 'confirmed') {
             Log::info('PayPal capture skipped: Donation already confirmed.', ['intent_uuid' => $intent->uuid]);
             return $intent->load(['donation', 'provider']);
+        }
+
+        $existingCapture = PaymentTransaction::query()
+            ->where('payment_intent_id', $intent->id)
+            ->where('type', 'paypal_capture')
+            ->whereIn('status', ['pending', 'completed'])
+            ->latest()
+            ->first();
+
+        if ($existingCapture) {
+            Log::info('PayPal capture skipped: Existing capture transaction is already tracked.', [
+                'intent_uuid' => $intent->uuid,
+                'transaction_status' => $existingCapture->status,
+                'provider_transaction_id' => $existingCapture->provider_transaction_id,
+            ]);
+
+            return $intent->refresh()->load(['donation', 'provider']);
         }
 
         $intent->forceFill([
@@ -188,7 +204,6 @@ class PaypalDonationProvider implements PaymentProviderInterface
             ],
         ]);
 
-        // 🚨 Log 2: Log immediately before hitting PayPal's API
         Log::info('Sending capture request to PayPal.', [
             'intent_uuid' => $intent->uuid,
             'paypal_order_id' => $resolvedOrderId,
@@ -204,7 +219,6 @@ class PaypalDonationProvider implements PaymentProviderInterface
             ->withBody('{}', 'application/json')
             ->post("/v2/checkout/orders/{$resolvedOrderId}/capture");
 
-        // 🚨 Log 3: Log the raw API response meta details immediately
         Log::info('PayPal capture response received.', [
             'status' => $response->status(),
             'intent_uuid' => $intent->uuid,
@@ -213,7 +227,6 @@ class PaypalDonationProvider implements PaymentProviderInterface
         ]);
 
         if (! $response->successful()) {
-            // 🚨 Log 4: Detailed warning log containing the raw error payload from PayPal
             Log::warning('PayPal API capture endpoint failed.', [
                 'status' => $response->status(),
                 'intent_uuid' => $intent->uuid,
@@ -387,6 +400,10 @@ class PaypalDonationProvider implements PaymentProviderInterface
         $captureId = $this->captureId($capture) ?: $this->captureId($payload) ?: $intent->provider_intent_id;
         $amount = $capture['amount'] ?? ($payload['purchase_units'][0]['amount'] ?? null);
 
+        if ($captureStatus === 'PENDING') {
+            return $this->markCapturePending($intent, $captureId, $payload, $transaction);
+        }
+
         if ($captureStatus !== 'COMPLETED') {
             return $this->markFailed($intent, 'paypal_capture', $captureId, [
                 'reason' => 'capture_not_completed',
@@ -446,6 +463,60 @@ class PaypalDonationProvider implements PaymentProviderInterface
             'donated_at' => $intent->donation->donated_at ?? now(),
             'confirmed_at' => $intent->donation->confirmed_at ?? now(),
         ])->save();
+
+        return $intent->refresh()->load(['donation', 'provider']);
+    }
+
+    private function markCapturePending(PaymentIntent $intent, string $captureId, array $payload, ?PaymentTransaction $transaction = null): PaymentIntent
+    {
+        $capture = $this->captureFromPayload($payload);
+
+        if ($transaction) {
+            $transaction->forceFill([
+                'provider_transaction_id' => $captureId,
+                'status' => 'pending',
+                'processed_at' => now(),
+                'raw_payload' => array_merge($transaction->raw_payload ?? [], [
+                    'provider_status' => 'PENDING',
+                    'provider_status_reason' => $capture['status_details']['reason'] ?? null,
+                    'provider_body' => $this->safePayload($payload),
+                    'capture_id' => $captureId,
+                ]),
+            ])->save();
+        } else {
+            PaymentTransaction::create([
+                'payment_intent_id' => $intent->id,
+                'donation_id' => $intent->donation_id,
+                'payment_provider_id' => $intent->payment_provider_id,
+                'provider_transaction_id' => $captureId,
+                'type' => 'paypal_capture',
+                'status' => 'pending',
+                'amount' => $intent->amount,
+                'currency' => $intent->currency,
+                'processed_at' => now(),
+                'raw_payload' => [
+                    'provider_status' => 'PENDING',
+                    'provider_status_reason' => $capture['status_details']['reason'] ?? null,
+                    'provider_body' => $this->safePayload($payload),
+                    'capture_id' => $captureId,
+                ],
+            ]);
+        }
+
+        $intent->forceFill([
+            'status' => 'processing',
+            'metadata' => array_merge($intent->metadata ?? [], [
+                'paypal_order_status' => strtoupper((string) ($payload['status'] ?? 'COMPLETED')),
+                'paypal_capture_status' => 'PENDING',
+                'paypal_capture_pending_reason' => $capture['status_details']['reason'] ?? null,
+                'paypal_capture_id' => $captureId,
+                'paypal_capture_pending_at' => now()->toISOString(),
+            ]),
+        ])->save();
+
+        if (($intent->donation->status->value ?? $intent->donation->status) !== 'confirmed') {
+            $intent->donation->forceFill(['status' => 'pending'])->save();
+        }
 
         return $intent->refresh()->load(['donation', 'provider']);
     }
@@ -624,7 +695,6 @@ class PaypalDonationProvider implements PaymentProviderInterface
         $currency = (string) ($amount['currency_code'] ?? '');
         $value = (string) ($amount['value'] ?? '');
 
-        // 🚨 DEBUG LOG: Inspect exactly what is arriving here
         Log::debug('PayPal Capture Validation Check', [
             'intent_uuid'     => $intent->uuid,
             'intent_currency' => $intent->currency,

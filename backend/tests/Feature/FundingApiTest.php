@@ -17,6 +17,9 @@ use App\Models\PaymentTransaction;
 use App\Models\School;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
@@ -220,6 +223,91 @@ class FundingApiTest extends TestCase
             ->assertJsonPath('data.allocations.0.educational_need.beneficiary.internal_id', $need->beneficiary->internal_id);
     }
 
+    public function test_donation_payment_status_refresh_requires_approval_permission(): void
+    {
+        $user = $this->actingWithPermissions('donations.view');
+        [$donor, $fund] = $this->createDonorAndFund($user);
+        $donation = $this->createDonation($donor, $fund, 25, [
+            'currency' => 'USD',
+            'provider' => 'paypal',
+            'method' => 'paypal',
+            'status' => DonationStatus::Pending,
+            'donated_at' => null,
+            'confirmed_at' => null,
+        ]);
+
+        $this->postJson("/api/v1/donations/{$donation->uuid}/payment-status")
+            ->assertForbidden();
+    }
+
+    public function test_donation_payment_status_refresh_reconciles_paypal_hold_release(): void
+    {
+        $user = $this->actingWithPermissions('donations.view', 'donations.approve');
+        [$donor, $fund] = $this->createDonorAndFund($user);
+        $donation = $this->createDonation($donor, $fund, 250, [
+            'currency' => 'USD',
+            'provider' => 'paypal',
+            'method' => 'paypal',
+            'status' => DonationStatus::Pending,
+            'provider_reference' => null,
+            'donated_at' => null,
+            'confirmed_at' => null,
+        ]);
+        $provider = $this->createPaypalProvider();
+        $intent = PaymentIntent::create([
+            'intent_reference' => 'PINT-PAYPAL-HOLD-001',
+            'donation_id' => $donation->id,
+            'payment_provider_id' => $provider->id,
+            'amount' => 250,
+            'currency' => 'USD',
+            'frequency' => 'one_time',
+            'purpose' => 'greatest_need',
+            'status' => 'processing',
+            'provider_intent_id' => 'ORDER-HOLD-001',
+            'expires_at' => now()->addMinutes(30),
+        ]);
+
+        PaymentTransaction::create([
+            'payment_intent_id' => $intent->id,
+            'donation_id' => $donation->id,
+            'payment_provider_id' => $provider->id,
+            'provider_transaction_id' => 'CAPTURE-HOLD-001',
+            'type' => 'paypal_capture',
+            'status' => 'pending',
+            'amount' => 250,
+            'currency' => 'USD',
+            'processed_at' => now()->subDay(),
+            'raw_payload' => ['provider_status_reason' => 'PENDING_REVIEW'],
+        ]);
+
+        $this->configurePaypalForTest();
+
+        Http::fake([
+            'https://api-m.sandbox.paypal.com/v1/oauth2/token' => Http::response(['access_token' => 'paypal-token', 'expires_in' => 3600], 200),
+            'https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER-HOLD-001' => Http::response($this->paypalReleasedOrderPayload($intent), 200),
+        ]);
+
+        $this->postJson("/api/v1/donations/{$donation->uuid}/payment-status")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'confirmed')
+            ->assertJsonPath('data.provider_reference', 'CAPTURE-RELEASED-001')
+            ->assertJsonCount(2, 'data.documents');
+
+        $this->assertDatabaseHas('payment_intents', ['id' => $intent->id, 'status' => 'completed']);
+        $this->assertDatabaseHas('donations', ['id' => $donation->id, 'status' => 'confirmed']);
+        $this->assertDatabaseHas('payment_transactions', [
+            'payment_intent_id' => $intent->id,
+            'provider_transaction_id' => 'CAPTURE-RELEASED-001',
+            'type' => 'paypal_capture',
+            'status' => 'completed',
+        ]);
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() === 'https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER-HOLD-001'
+                && $request->method() === 'GET';
+        });
+    }
+
     public function test_allocation_store_requires_permission_and_prevents_over_allocation(): void
     {
         $user = User::create([
@@ -395,6 +483,61 @@ class FundingApiTest extends TestCase
         ]);
 
         return [$donor, $fund];
+    }
+
+    private function createPaypalProvider(): PaymentProvider
+    {
+        return PaymentProvider::create([
+            'key' => 'paypal',
+            'name' => 'PayPal',
+            'method' => 'paypal',
+            'category' => 'wallet',
+            'status' => 'active',
+            'currencies' => ['USD'],
+            'sort_order' => 10,
+        ]);
+    }
+
+    private function configurePaypalForTest(): void
+    {
+        Cache::flush();
+
+        config([
+            'paypal.base_url' => 'https://api-m.sandbox.paypal.com',
+            'paypal.client_id' => 'paypal-client-id',
+            'paypal.client_secret' => 'paypal-client-secret',
+            'paypal.webhook_id' => 'WH-123',
+            'paypal.verify_webhooks' => true,
+        ]);
+    }
+
+    private function paypalReleasedOrderPayload(PaymentIntent $intent): array
+    {
+        return [
+            'id' => $intent->provider_intent_id,
+            'status' => 'COMPLETED',
+            'purchase_units' => [
+                [
+                    'reference_id' => $intent->uuid,
+                    'amount' => [
+                        'currency_code' => 'USD',
+                        'value' => '250.00',
+                    ],
+                    'payments' => [
+                        'captures' => [
+                            [
+                                'id' => 'CAPTURE-RELEASED-001',
+                                'status' => 'COMPLETED',
+                                'amount' => [
+                                    'currency_code' => 'USD',
+                                    'value' => '250.00',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 
     private function createBeneficiaryNeed(): array

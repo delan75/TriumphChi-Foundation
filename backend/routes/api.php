@@ -229,6 +229,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->middleware('can:donations.view')
             ->name('donations.documents.download');
 
+        Route::post('donations/{donation}/payment-status', [DonationController::class, 'refreshPaymentStatus'])
+            ->middleware('can:donations.approve')
+            ->name('donations.payment-status.refresh');
+
         Route::apiResource('donations', DonationController::class)
             ->middlewareFor(['index', 'show'], 'can:donations.view')
             ->middlewareFor('store', 'can:donations.create')

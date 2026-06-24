@@ -315,6 +315,44 @@ class PublicDonationIntentTest extends TestCase
         $this->assertDatabaseHas('donations', ['id' => $intent->donation_id, 'status' => 'failed']);
     }
 
+    public function test_public_paypal_pending_review_capture_remains_processing(): void
+    {
+        $intent = $this->createPendingPaypalIntent();
+
+        Http::fake([
+            'https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER-123/capture' => Http::response($this->paypalCapturePayload([
+                'status' => 'PENDING',
+                'status_details' => [
+                    'reason' => 'PENDING_REVIEW',
+                ],
+            ]), 201),
+        ]);
+
+        $this->postJson("/api/v1/public/donation-intents/{$intent->uuid}/paypal/capture", [
+            'order_id' => 'ORDER-123',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'processing')
+            ->assertJsonPath('data.donation.status', 'pending');
+
+        $this->postJson("/api/v1/public/donation-intents/{$intent->uuid}/paypal/capture", [
+            'order_id' => 'ORDER-123',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'processing')
+            ->assertJsonPath('data.donation.status', 'pending');
+
+        $this->assertDatabaseHas('payment_intents', ['id' => $intent->id, 'status' => 'processing']);
+        $this->assertDatabaseHas('donations', ['id' => $intent->donation_id, 'status' => 'pending']);
+        $this->assertDatabaseHas('payment_transactions', [
+            'payment_intent_id' => $intent->id,
+            'provider_transaction_id' => 'CAPTURE-123',
+            'type' => 'paypal_capture',
+            'status' => 'pending',
+        ]);
+        Http::assertSentCount(1);
+    }
+
     public function test_public_paypal_cancel_marks_pending_donation_cancelled(): void
     {
         $intent = $this->createPendingPaypalIntent();

@@ -12,7 +12,7 @@ import { DonationFilters } from './components/DonationFilters';
 import { DonationRecords } from './components/DonationRecords';
 import { DonationSummaryCards } from './components/DonationSummaryCards';
 import { fundingContent, type FundingCopy } from './fundingContent';
-import { useDonation, useDonations } from './useDonations';
+import { useDonation, useDonations, useRefreshDonationPaymentStatus } from './useDonations';
 
 export function FundingPage() {
   const { locale = 'en' } = useParams();
@@ -30,6 +30,7 @@ export function FundingPage() {
 
   const donationsQuery = useDonations(filters, canViewDonations);
   const donationQuery = useDonation(selectedDonationUuid, canViewDonations && Boolean(selectedDonationUuid));
+  const refreshPaymentStatus = useRefreshDonationPaymentStatus();
 
   const donations = donationsQuery.data?.data ?? [];
   const pagination = donationsQuery.data?.meta;
@@ -118,6 +119,8 @@ export function FundingPage() {
           locale={activeLocale}
           donation={selectedDonation}
           isLoading={donationQuery.isLoading}
+          isRefreshingPaymentStatus={refreshPaymentStatus.isPending}
+          onRefreshPaymentStatus={(uuid) => refreshPaymentStatus.mutate(uuid)}
           onClose={() => setSelectedDonationUuid(null)}
         />
       </div>

@@ -50,6 +50,10 @@ export interface FundingCopy {
   noTransactions: string;
   noDocuments: string;
   latestIntent: string;
+  refreshPaymentStatus: string;
+  refreshingPaymentStatus: string;
+  paymentReviewTitle: string;
+  paymentReviewBody: string;
   permissions: string;
   canCreate: string;
   canUpdate: string;
@@ -107,6 +111,10 @@ export const fundingContent = {
     noTransactions: 'No provider transactions are linked yet.',
     noDocuments: 'No receipt or invoice has been issued yet.',
     latestIntent: 'Latest intent',
+    refreshPaymentStatus: 'Check PayPal Status',
+    refreshingPaymentStatus: 'Checking PayPal...',
+    paymentReviewTitle: 'PayPal review in progress',
+    paymentReviewBody: 'PayPal may hold donations for security review. Use this action later to check whether PayPal has released or declined the payment.',
     permissions: 'Allowed actions',
     canCreate: 'Create',
     canUpdate: 'Update',
@@ -162,6 +170,10 @@ export const fundingContent = {
     noTransactions: 'Aucune transaction prestataire n’est encore liée.',
     noDocuments: 'Aucun reçu ou facture n’est encore émis.',
     latestIntent: 'Dernière intention',
+    refreshPaymentStatus: 'Verifier PayPal',
+    refreshingPaymentStatus: 'Verification PayPal...',
+    paymentReviewTitle: 'Verification PayPal en cours',
+    paymentReviewBody: 'PayPal peut retenir certains dons pour verification de securite. Utilisez cette action plus tard pour verifier si PayPal a libere ou refuse le paiement.',
     permissions: 'Actions autorisées',
     canCreate: 'Créer',
     canUpdate: 'Modifier',

@@ -79,6 +79,7 @@ return [
         'donation_config_retrieved' => 'Options de don recuperees avec succes.',
         'donation_intent_created' => 'Merci. Votre don a ete prepare de maniere securisee.',
         'donation_intent_status_retrieved' => 'Statut du don recupere avec succes.',
+        'donation_payment_status_refreshed' => 'Statut du paiement du don verifie avec succes.',
         'momo_account_holder_status_retrieved' => 'Statut du compte MoMo recupere avec succes.',
         'momo_callback_received' => 'Notification MoMo recue.',
         'paypal_donation_verified' => 'Don PayPal verifie avec succes.',

@@ -10,6 +10,7 @@ use App\Http\Resources\DonationResource;
 use App\Models\Donation;
 use App\Models\DonationDocument;
 use App\Services\DonationDocumentService;
+use App\Services\DonationPaymentReconciliationService;
 use App\Services\FundingTransactionService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -56,6 +57,24 @@ class DonationController extends Controller
         ]);
 
         return DonationManagementResource::make($donation);
+    }
+
+    public function refreshPaymentStatus(
+        Donation $donation,
+        DonationPaymentReconciliationService $reconciliation,
+        DonationDocumentService $documents,
+    ) {
+        $donation = $reconciliation->reconcileDonation($donation);
+
+        if (($donation->status->value ?? $donation->status) === 'confirmed') {
+            $documents->ensureIssuedDocuments($donation, app()->getLocale());
+            $donation->load('documents');
+        }
+
+        return DonationManagementResource::make($donation)
+            ->additional([
+                'message' => __('api.messages.donation_payment_status_refreshed'),
+            ]);
     }
 
     public function update(StoreDonationRequest $request, Donation $donation)
