@@ -96,9 +96,13 @@ export function PaypalDonationReturnPage({ locale, mode }: PaypalDonationReturnP
             return;
           }
 
-          setState('failed');
-          setMessage(error instanceof Error ? error.message : copy.failedBody);
-          trackPaypalEvent('paypal_failed', { intentUuid, reason: 'status_error' });
+          setState('reviewing');
+          setMessage(copy.statusCheckDelayedBody);
+          trackPaypalEvent('paypal_review_pending', {
+            intentUuid,
+            reason: 'status_check_delayed',
+            error: error instanceof Error ? error.message : undefined,
+          });
         }
       }, delay);
     }
@@ -226,7 +230,7 @@ export function PaypalDonationReturnPage({ locale, mode }: PaypalDonationReturnP
               <div className="grid gap-3 rounded-md border border-foundation-100 bg-foundation-50 p-4 sm:grid-cols-3">
                 <SummaryItem label={copy.referenceLabel} value={intent.donation.reference_number} />
                 <SummaryItem label={copy.amountLabel} value={`${intent.amount} ${intent.currency}`} />
-                <SummaryItem label={copy.statusLabel} value={intent.donation.status} />
+                <SummaryItem label={copy.statusLabel} value={statusDisplay(intent, copy)} />
               </div>
             ) : null}
 
@@ -329,6 +333,14 @@ function titleForState(state: VerificationState, copy: PaypalReturnCopy) {
   return copy.verifyingTitle;
 }
 
+function statusDisplay(intent: PublicDonationIntentResponse, copy: PaypalReturnCopy) {
+  if (intent.donation.status === 'pending' || intent.status === 'processing') {
+    return copy.reviewingStatusLabel;
+  }
+
+  return intent.donation.status;
+}
+
 function trackPaypalEvent(name: string, details: Record<string, unknown> = {}) {
   window.dispatchEvent(new CustomEvent('triumphchi:analytics', {
     detail: {
@@ -349,6 +361,7 @@ interface PaypalReturnCopy {
   failedTitle: string;
   failedBody: string;
   notConfirmedBody: string;
+  statusCheckDelayedBody: string;
   cancelledTitle: string;
   cancelledBody: string;
   cancelChecking: string;
@@ -356,6 +369,7 @@ interface PaypalReturnCopy {
   referenceLabel: string;
   amountLabel: string;
   statusLabel: string;
+  reviewingStatusLabel: string;
   statusChecksLabel: string;
   tryAgainLabel: string;
   chooseAnotherLabel: string;
@@ -370,13 +384,14 @@ const paypalReturnCopy = {
   en: {
     verifyingTitle: 'Verifying your donation...',
     verifyingBody: 'Please wait while we confirm your PayPal payment securely.',
-    reviewingTitle: 'Donation Under Review',
-    reviewingBody: 'PayPal has accepted the payment request and is completing a review. We will keep this donation open while confirmation is finalized.',
+    reviewingTitle: 'Thank You For Your Donation',
+    reviewingBody: 'Thank you for supporting our mission. Your donation request has been received. If PayPal needs anything else, they may contact you directly.',
     completedTitle: 'Donation Received',
     completedBody: 'Thank you for supporting our mission. Your donation has been confirmed.',
     failedTitle: 'Payment Not Completed',
     failedBody: 'Your donation could not be confirmed.',
-    notConfirmedBody: 'PayPal is still reviewing this payment. You do not need to give again unless PayPal later reports that the payment was not completed.',
+    notConfirmedBody: 'Thank you for supporting our mission. Your donation request has been received. If PayPal needs anything else, they may contact you directly.',
+    statusCheckDelayedBody: 'Thank you for supporting our mission. Your donation request has been received. If PayPal needs anything else, they may contact you directly.',
     cancelledTitle: 'Payment Cancelled',
     cancelledBody: 'The PayPal payment was cancelled before the donation was completed.',
     cancelChecking: 'Please wait while we update this donation request.',
@@ -384,6 +399,7 @@ const paypalReturnCopy = {
     referenceLabel: 'Reference',
     amountLabel: 'Amount',
     statusLabel: 'Status',
+    reviewingStatusLabel: 'Pending',
     statusChecksLabel: 'Verification checks',
     tryAgainLabel: 'Try Again',
     chooseAnotherLabel: 'Choose Another Channel',
@@ -396,13 +412,14 @@ const paypalReturnCopy = {
   fr: {
     verifyingTitle: 'Verification de votre don...',
     verifyingBody: 'Veuillez patienter pendant que nous confirmons votre paiement PayPal de maniere securisee.',
-    reviewingTitle: 'Don en cours de verification',
-    reviewingBody: 'PayPal a accepte la demande de paiement et finalise une verification. Nous garderons ce don ouvert jusqu a la confirmation finale.',
+    reviewingTitle: 'Merci pour votre don',
+    reviewingBody: 'Merci de soutenir notre mission. Votre demande de don a ete recue. Si PayPal a besoin d informations supplementaires, il peut vous contacter directement.',
     completedTitle: 'Don recu',
     completedBody: 'Merci de soutenir notre mission. Votre don a ete confirme.',
     failedTitle: 'Paiement non termine',
     failedBody: 'Votre don n a pas pu etre confirme.',
-    notConfirmedBody: 'PayPal verifie encore ce paiement. Vous n avez pas besoin de donner a nouveau sauf si PayPal indique plus tard que le paiement n a pas ete termine.',
+    notConfirmedBody: 'Merci de soutenir notre mission. Votre demande de don a ete recue. Si PayPal a besoin d informations supplementaires, il peut vous contacter directement.',
+    statusCheckDelayedBody: 'Merci de soutenir notre mission. Votre demande de don a ete recue. Si PayPal a besoin d informations supplementaires, il peut vous contacter directement.',
     cancelledTitle: 'Paiement annule',
     cancelledBody: 'Le paiement PayPal a ete annule avant la fin du don.',
     cancelChecking: 'Veuillez patienter pendant que nous mettons a jour cette demande de don.',
@@ -410,6 +427,7 @@ const paypalReturnCopy = {
     referenceLabel: 'Reference',
     amountLabel: 'Montant',
     statusLabel: 'Statut',
+    reviewingStatusLabel: 'En cours',
     statusChecksLabel: 'Verifications',
     tryAgainLabel: 'Reessayer',
     chooseAnotherLabel: 'Choisir un autre canal',
