@@ -7,7 +7,6 @@ import {
   HeartHandshake,
   Loader2,
   MapPin,
-  Smartphone,
   School,
   ShieldCheck,
   Sparkles,
@@ -20,6 +19,7 @@ import { PublicPageTitle } from '../../../components/public/PublicPageTitle';
 import { ImpactSummaryGrid, type ImpactSummaryItem } from '../../../components/public/ImpactSummaryGrid';
 import { FaqSection, type FaqItem } from '../../../components/public/FaqSection';
 import { GivingChannels } from '../../../components/public/GivingChannels';
+import { MomoPaymentWaitingOverlay, type MomoPaymentOverlayStatus, type MomoPaymentWaitingOverlayCopy } from '../../../components/public/MomoPaymentWaitingOverlay';
 import { PublicArticlePreviewGrid } from '../../../components/public/PublicArticlePreviewGrid';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
@@ -28,9 +28,11 @@ import {
   apiCreateDonationIntent,
   apiGetDonationConfig,
   apiPublicGet,
+  apiSubmitContactMessage,
   ApiRequestError,
-  PublicDonationConfig,
-  PublicDonationProvider,
+  type PublicDonationConfig,
+  type PublicDonationIntentResponse,
+  type PublicDonationProvider,
   apiGetDonationIntentStatus,
 } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
@@ -77,7 +79,18 @@ interface SimilarDonationWarning {
   created_at?: string;
 }
 
+type MomoModalState = 'hidden' | 'starting' | 'checking' | 'success' | 'failed' | 'pending';
+
+interface MomoStatusHistoryItem {
+  attempt: number;
+  status: string;
+  donationStatus?: string;
+  message?: string;
+  checkedAt: string;
+}
+
 const donationStorageKey = 'triumphchi_public_donation_form_v1';
+const momoPollingMaxAttempts = 24;
 const impactIcons = [UsersRound, School, BookOpen, MapPin];
 const supportIcons = [School, BookOpen, GraduationCap, Sparkles, HeartHandshake, ShieldCheck];
 const stewardshipIcons = [HandHeart, CheckCircle2, UsersRound, ShieldCheck];
@@ -318,7 +331,14 @@ function DonationCard({
   const [statusMessage, setStatusMessage] = useState('');
   const [statusKind, setStatusKind] = useState<'success' | 'error' | ''>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAwaitingMomoApproval, setIsAwaitingMomoApproval] = useState(false);
+  const [momoModalState, setMomoModalState] = useState<MomoModalState>('hidden');
+  const [momoModalMessage, setMomoModalMessage] = useState('');
+  const [momoPollingAttempt, setMomoPollingAttempt] = useState(0);
+  const [momoPollingCycle, setMomoPollingCycle] = useState(0);
+  const [momoStatusHistory, setMomoStatusHistory] = useState<MomoStatusHistoryItem[]>([]);
+  const [momoSupportMessage, setMomoSupportMessage] = useState('');
+  const [momoSupportStatusMessage, setMomoSupportStatusMessage] = useState('');
+  const [isSendingMomoSupportNote, setIsSendingMomoSupportNote] = useState(false);
   const [similarDonation, setSimilarDonation] = useState<SimilarDonationWarning | null>(null);
   const [createdIntentUuid, setCreatedIntentUuid] = useState<string | null>(null);
   const [createdIntentStatus, setCreatedIntentStatus] = useState<string | null>(null);
@@ -395,42 +415,94 @@ function DonationCard({
     let attempts = 0;
     const interval = window.setInterval(async () => {
       attempts += 1;
+      setMomoPollingAttempt(attempts);
+      setMomoModalState('checking');
+      trackDonationEvent('momo_waiting', {
+        attempt: attempts,
+        intentUuid: createdIntentUuid,
+      });
 
       try {
         const intent = await apiGetDonationIntentStatus(createdIntentUuid, locale);
         setCreatedIntentStatus(intent.status);
+        setMomoStatusHistory((current) => [
+          ...current,
+          {
+            attempt: attempts,
+            status: intent.status,
+            donationStatus: intent.donation.status,
+            checkedAt: new Date().toISOString(),
+          },
+        ]);
 
         if (intent.donation.status === 'confirmed' || intent.status === 'successful') {
-          setIsAwaitingMomoApproval(false);
+          setMomoModalState('success');
+          setMomoModalMessage(copy.momoSuccessMessage);
+          trackDonationEvent('momo_confirmed', {
+            attempt: attempts,
+            intentUuid: createdIntentUuid,
+          });
           refreshClientReference();
           setStatusKind('success');
-          setStatusMessage(copy.momoSuccessMessage);
+          setStatusMessage('');
           window.clearInterval(interval);
+          return;
         }
 
         if (intent.donation.status === 'failed' || intent.status === 'failed') {
-          setIsAwaitingMomoApproval(false);
+          setMomoModalState('failed');
+          setMomoModalMessage(extractDonationFailureMessage(intent, copy));
+          trackDonationEvent('momo_failed', {
+            attempt: attempts,
+            intentUuid: createdIntentUuid,
+          });
           refreshClientReference();
           setStatusKind('error');
-          setStatusMessage(copy.momoFailedMessage);
+          setStatusMessage('');
           window.clearInterval(interval);
+          return;
         }
 
-        if (attempts >= 12) {
-          setIsAwaitingMomoApproval(false);
+        if (attempts >= momoPollingMaxAttempts) {
+          setMomoModalState('pending');
+          setMomoModalMessage(copy.momoStillPendingMessage);
+          trackDonationEvent('momo_timeout', {
+            attempts,
+            intentUuid: createdIntentUuid,
+          });
           setStatusKind('success');
-          setStatusMessage(copy.momoStillPendingMessage);
+          setStatusMessage('');
           window.clearInterval(interval);
+          return;
         }
-      } catch {
-        if (attempts >= 12) {
+      } catch (error) {
+        setMomoStatusHistory((current) => [
+          ...current,
+          {
+            attempt: attempts,
+            status: 'check_failed',
+            message: error instanceof Error ? error.message : 'Status check failed.',
+            checkedAt: new Date().toISOString(),
+          },
+        ]);
+
+        if (attempts >= momoPollingMaxAttempts) {
+          setMomoModalState('pending');
+          setMomoModalMessage(copy.momoStillPendingMessage);
+          trackDonationEvent('momo_timeout', {
+            attempts,
+            intentUuid: createdIntentUuid,
+          });
+          setStatusKind('success');
+          setStatusMessage('');
           window.clearInterval(interval);
+          return;
         }
       }
     }, 5000);
 
     return () => window.clearInterval(interval);
-  }, [copy, createdIntentStatus, createdIntentUuid, locale]);
+  }, [copy, createdIntentStatus, createdIntentUuid, locale, momoPollingCycle]);
 
   function updateField<K extends keyof DonationFormState>(field: K, value: DonationFormState[K]) {
     setState((current) => ({ ...current, [field]: value }));
@@ -441,7 +513,10 @@ function DonationCard({
     });
     setStatusMessage('');
     setStatusKind('');
-    setIsAwaitingMomoApproval(false);
+    setMomoModalState('hidden');
+    setMomoModalMessage('');
+    setMomoPollingAttempt(0);
+    setMomoSupportStatusMessage('');
     setSimilarDonation(null);
   }
 
@@ -463,6 +538,20 @@ function DonationCard({
     setIsSubmitting(true);
     setStatusMessage('');
     setStatusKind('');
+    setMomoPollingAttempt(0);
+    setMomoModalMessage('');
+    setMomoStatusHistory([]);
+    setMomoSupportMessage('');
+    setMomoSupportStatusMessage('');
+
+    if (selectedProvider.key === 'momo') {
+      setMomoModalState('starting');
+      trackDonationEvent('momo_overlay_opened', {
+        amount: state.amount,
+        currency: state.currency,
+        provider: selectedProvider.key,
+      });
+    }
 
     try {
       const response = await apiCreateDonationIntent(
@@ -490,14 +579,21 @@ function DonationCard({
       setSimilarDonation(null);
       setCreatedIntentUuid(response.data?.uuid ?? null);
       setCreatedIntentStatus(response.data?.status ?? null);
-      setIsAwaitingMomoApproval(selectedProvider.key === 'momo' && response.data?.status === 'pending');
-      setStatusMessage(
-        response.data?.checkout_url
-          ? copy.redirectingMessage
-          : selectedProvider.key === 'momo'
-            ? copy.momoPendingMessage
-            : response.message || copy.intentCreatedMessage,
-      );
+      if (selectedProvider.key === 'momo') {
+        setMomoModalState(momoStateFromIntentStatus(response.data?.status));
+        setMomoModalMessage(response.message || copy.momoPendingMessage);
+        setMomoStatusHistory((current) => [
+          ...current,
+          {
+            attempt: 0,
+            status: response.data?.status ?? 'created',
+            donationStatus: response.data?.donation.status,
+            message: response.message,
+            checkedAt: new Date().toISOString(),
+          },
+        ]);
+      }
+      setStatusMessage(selectedProvider.key === 'momo' ? '' : response.data?.checkout_url ? copy.redirectingMessage : response.message || copy.intentCreatedMessage);
 
       if (selectedProvider.key !== 'momo') {
         refreshClientReference();
@@ -507,11 +603,32 @@ function DonationCard({
         window.location.assign(response.data.checkout_url);
       }
     } catch (error) {
-      setIsAwaitingMomoApproval(false);
+      setMomoPollingAttempt(0);
       setStatusKind('error');
       if (error instanceof ApiRequestError && error.status === 409 && error.code === 'similar_donation_pending') {
+        setMomoModalState('hidden');
         setSimilarDonation(extractSimilarDonationWarning(error.data));
         setStatusMessage(error.message);
+        return;
+      }
+
+      if (selectedProvider.key === 'momo') {
+        setMomoModalState('failed');
+        setMomoModalMessage(error instanceof ApiRequestError ? error.message : copy.submitErrorMessage);
+        setMomoStatusHistory((current) => [
+          ...current,
+          {
+            attempt: 0,
+            status: 'start_failed',
+            message: error instanceof Error ? error.message : copy.submitErrorMessage,
+            checkedAt: new Date().toISOString(),
+          },
+        ]);
+        trackDonationEvent('momo_failed', {
+          reason: error instanceof Error ? error.message : copy.submitErrorMessage,
+          stage: 'start',
+        });
+        setStatusMessage('');
         return;
       }
 
@@ -525,13 +642,138 @@ function DonationCard({
     setState((current) => ({ ...current, clientReference: createDonationClientReference() }));
   }
 
+  function closeMomoModal() {
+    if (momoModalState === 'hidden') {
+      return;
+    }
+
+    trackDonationEvent('momo_closed', {
+      state: momoModalState,
+      attempt: momoPollingAttempt,
+      intentUuid: createdIntentUuid,
+    });
+    setMomoModalState('hidden');
+    setMomoModalMessage('');
+    setMomoPollingAttempt(0);
+    setMomoSupportStatusMessage('');
+  }
+
+  function retryMomoDonation() {
+    closeMomoModal();
+    setCreatedIntentUuid(null);
+    setCreatedIntentStatus(null);
+    setMomoStatusHistory([]);
+    refreshClientReference();
+  }
+
+  function chooseAnotherPaymentMethod() {
+    const fallbackProvider = supportedProviders.find((provider) => provider.key !== 'momo');
+
+    if (fallbackProvider) {
+      setState((current) => ({
+        ...current,
+        paymentProvider: fallbackProvider.key,
+        paymentConsent: false,
+        clientReference: createDonationClientReference(),
+      }));
+    }
+
+    closeMomoModal();
+    setCreatedIntentUuid(null);
+    setCreatedIntentStatus(null);
+  }
+
+  function checkMomoStatusAgain() {
+    if (!createdIntentUuid) {
+      return;
+    }
+
+    setMomoPollingAttempt(0);
+    setMomoModalState('checking');
+    setMomoModalMessage(copy.momoCheckingBody);
+    setCreatedIntentStatus('pending');
+    setMomoPollingCycle((current) => current + 1);
+    trackDonationEvent('momo_waiting', {
+      action: 'manual_check_again',
+      intentUuid: createdIntentUuid,
+    });
+  }
+
+  async function sendMomoSupportNote() {
+    if (momoSupportMessage.trim().length < 10) {
+      setMomoSupportStatusMessage(copy.momoSupportMessageRequired);
+      return;
+    }
+
+    setIsSendingMomoSupportNote(true);
+    setMomoSupportStatusMessage('');
+
+    try {
+      const response = await apiSubmitContactMessage(
+        {
+          name: state.name.trim(),
+          email: state.email.trim(),
+          phone: state.phone.trim() || undefined,
+          reason: 'general',
+          subject: copy.momoSupportSubject,
+          message: buildMomoSupportMessage({
+            userMessage: momoSupportMessage,
+            formState: state,
+            provider: selectedProvider,
+            selectedPurposeLabel: copy.purposeLabels[state.purpose] ?? selectedPurpose?.label ?? state.purpose,
+            intentUuid: createdIntentUuid,
+            intentStatus: createdIntentStatus,
+            modalState: momoModalState,
+            modalMessage: momoModalMessage,
+            attempts: momoPollingAttempt,
+            maxAttempts: momoPollingMaxAttempts,
+            history: momoStatusHistory,
+            locale,
+          }),
+          consent: true,
+        },
+        locale,
+      );
+
+      setMomoSupportStatusMessage(response.message || copy.momoOverlay.supportSentFallback);
+      setMomoSupportMessage('');
+    } catch (error) {
+      setMomoSupportStatusMessage(error instanceof Error ? error.message : copy.submitErrorMessage);
+    } finally {
+      setIsSendingMomoSupportNote(false);
+    }
+  }
+
   if (isConfigLoading || !config) {
     return <DonationCardSkeleton className={className} copy={copy} />;
   }
 
   return (
     <>
-      <MomoPendingOverlay open={isAwaitingMomoApproval} copy={copy} />
+      <MomoPaymentWaitingOverlay
+        isOpen={momoModalState !== 'hidden'}
+        status={momoOverlayStatusFromModalState(momoModalState)}
+        phoneNumber={maskPhoneForDisplay(state.phone)}
+        amount={formatDonationAmountOnly(amountNumber || 0, locale)}
+        currency={state.currency}
+        message={momoModalMessage}
+        attempts={momoPollingAttempt}
+        maxAttempts={momoPollingMaxAttempts}
+        supportMessage={momoSupportMessage}
+        supportStatusMessage={momoSupportStatusMessage}
+        isSendingSupportNote={isSendingMomoSupportNote}
+        canClose={momoModalState === 'success' || momoModalState === 'failed' || momoModalState === 'pending'}
+        copy={copy.momoOverlay}
+        onRetry={retryMomoDonation}
+        onChooseAnother={chooseAnotherPaymentMethod}
+        onClose={closeMomoModal}
+        onCheckAgain={checkMomoStatusAgain}
+        onSupportMessageChange={(value) => {
+          setMomoSupportMessage(value);
+          setMomoSupportStatusMessage('');
+        }}
+        onSendSupportNote={() => void sendMomoSupportNote()}
+      />
       <form
         onSubmit={handleSubmit}
         className={cn('rounded-md border border-foundation-100 bg-white p-4 shadow-xl shadow-foundation-950/10 sm:p-6', className)}
@@ -779,29 +1021,6 @@ function DonationCardSkeleton({ className, copy }: { className?: string; copy: D
   );
 }
 
-function MomoPendingOverlay({ open, copy }: { open: boolean; copy: DonateCopy }) {
-  if (!open) {
-    return null;
-  }
-
-  return (
-    <div className="fixed inset-0 z-[1000] grid min-h-dvh place-items-center bg-foundation-950/80 px-4 py-8 backdrop-blur-md" role="status" aria-live="polite">
-      <div className="w-full max-w-md rounded-md border border-white/15 bg-white p-6 text-center shadow-2xl shadow-foundation-950/30">
-        <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-foundation-50 text-foundation-700">
-          <Loader2 className="h-10 w-10 animate-spin" aria-hidden="true" />
-        </div>
-        <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full bg-foundation-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-foundation-800">
-          <Smartphone className="h-4 w-4" aria-hidden="true" />
-          {copy.momoOverlayEyebrow}
-        </div>
-        <h3 className="mt-4 text-2xl font-black leading-tight text-ink-900">{copy.momoOverlayTitle}</h3>
-        <p className="mt-3 text-sm leading-6 text-ink-600">{copy.momoOverlayBody}</p>
-        <p className="mt-4 rounded-md bg-ink-50 px-3 py-2 text-xs font-bold leading-5 text-ink-500">{copy.momoOverlayNote}</p>
-      </div>
-    </div>
-  );
-}
-
 function SimilarDonationWarningCard({
   copy,
   donation,
@@ -1023,6 +1242,146 @@ function extractSimilarDonationWarning(data: unknown): SimilarDonationWarning | 
   return similar && typeof similar === 'object' ? similar : {};
 }
 
+function momoStateFromIntentStatus(status?: string | null): MomoModalState {
+  if (status === 'successful' || status === 'confirmed') {
+    return 'success';
+  }
+
+  if (status === 'failed') {
+    return 'failed';
+  }
+
+  return 'checking';
+}
+
+function momoOverlayStatusFromModalState(state: MomoModalState): MomoPaymentOverlayStatus {
+  if (state === 'success') {
+    return 'confirmed';
+  }
+
+  if (state === 'failed') {
+    return 'failed';
+  }
+
+  if (state === 'pending') {
+    return 'timeout';
+  }
+
+  if (state === 'checking') {
+    return 'waiting';
+  }
+
+  return 'request_sent';
+}
+
+function extractDonationFailureMessage(intent: PublicDonationIntentResponse, copy: DonateCopy): string {
+  const payload = intent as PublicDonationIntentResponse & {
+    failure_reason?: string | null;
+    provider_message?: string | null;
+    message?: string | null;
+  };
+
+  return payload.failure_reason || payload.provider_message || payload.message || copy.momoFailedMessage;
+}
+
+function maskPhoneForDisplay(phone: string): string {
+  const trimmed = phone.trim();
+
+  if (!trimmed) {
+    return '-';
+  }
+
+  const digits = trimmed.replace(/\D/g, '');
+
+  if (digits.length < 7) {
+    return trimmed;
+  }
+
+  const prefix = trimmed.startsWith('+') ? `+${digits.slice(0, Math.min(3, digits.length - 4))}` : digits.slice(0, 3);
+  const suffix = digits.slice(-4);
+  return `${prefix} *** ${suffix}`;
+}
+
+function buildMomoSupportMessage({
+  userMessage,
+  formState,
+  provider,
+  selectedPurposeLabel,
+  intentUuid,
+  intentStatus,
+  modalState,
+  modalMessage,
+  attempts,
+  maxAttempts,
+  history,
+  locale,
+}: {
+  userMessage: string;
+  formState: DonationFormState;
+  provider?: PublicDonationProvider;
+  selectedPurposeLabel: string;
+  intentUuid: string | null;
+  intentStatus: string | null;
+  modalState: MomoModalState;
+  modalMessage: string;
+  attempts: number;
+  maxAttempts: number;
+  history: MomoStatusHistoryItem[];
+  locale: Locale;
+}): string {
+  const browserContext = typeof navigator === 'undefined'
+    ? {}
+    : {
+      user_agent: navigator.userAgent,
+      language: navigator.language,
+      languages: navigator.languages,
+      platform: navigator.platform,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    };
+
+  const context = {
+    channel: 'momo',
+    provider: provider?.key ?? formState.paymentProvider,
+    provider_name: provider?.name,
+    intent_uuid: intentUuid,
+    intent_status: intentStatus,
+    modal_state: modalState,
+    latest_message: modalMessage,
+    amount: formState.amount,
+    currency: formState.currency,
+    purpose: selectedPurposeLabel,
+    country: formState.country,
+    phone_masked: maskPhoneForDisplay(formState.phone),
+    client_reference: formState.clientReference,
+    checks_completed: attempts,
+    checks_allowed: maxAttempts,
+    locale,
+    status_history: history,
+    browser_context: browserContext,
+  };
+
+  return [
+    userMessage.trim(),
+    '',
+    '--- Donation support context ---',
+    JSON.stringify(context, null, 2),
+  ].join('\n');
+}
+
+function trackDonationEvent(name: string, details: Record<string, unknown> = {}) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.dispatchEvent(new CustomEvent('triumphchi:analytics', {
+    detail: {
+      event: name,
+      details,
+      occurredAt: new Date().toISOString(),
+    },
+  }));
+}
+
 function validateDonation(
   state: DonationFormState,
   minimumAmount: number,
@@ -1093,6 +1452,16 @@ function formatMoney(value: number, currency: string, locale: Locale): string {
   }).format(value);
 }
 
+function formatDonationAmountOnly(value: number, locale: Locale): string {
+  if (!Number.isFinite(value)) {
+    return '0';
+  }
+
+  return new Intl.NumberFormat(locale === 'fr' ? 'fr-FR' : 'en-US', {
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
 function buildImpactStats(
   copy: DonateCopy,
   locale: Locale,
@@ -1157,6 +1526,21 @@ interface DonateCopy {
   momoOverlayTitle: string;
   momoOverlayBody: string;
   momoOverlayNote: string;
+  momoCheckingEyebrow: string;
+  momoCheckingTitle: string;
+  momoCheckingBody: string;
+  momoPollingLabel: string;
+  momoSuccessEyebrow: string;
+  momoSuccessTitle: string;
+  momoFailedEyebrow: string;
+  momoFailedTitle: string;
+  momoLongPendingEyebrow: string;
+  momoLongPendingTitle: string;
+  momoTerminalNote: string;
+  momoCloseLabel: string;
+  momoOverlay: MomoPaymentWaitingOverlayCopy;
+  momoSupportSubject: string;
+  momoSupportMessageRequired: string;
   providerCountryHint: string;
   momoAvailableHint: string;
   momoCountryCurrencyHint: string;
@@ -1293,6 +1677,60 @@ const donateCopy = {
     momoOverlayBody:
       'A MoMo payment prompt has been sent to your phone. Approve it on your device to complete the donation.',
     momoOverlayNote: 'Please keep this page open while we check the payment status securely.',
+    momoCheckingEyebrow: 'Checking payment status',
+    momoCheckingTitle: 'We are checking for confirmation.',
+    momoCheckingBody:
+      'Keep this page open while we ask MoMo for the latest status. This can take a little time after you approve the prompt on your phone.',
+    momoPollingLabel: 'Status checks',
+    momoSuccessEyebrow: 'Donation confirmed',
+    momoSuccessTitle: 'Thank you. Your MoMo donation is confirmed.',
+    momoFailedEyebrow: 'Payment not completed',
+    momoFailedTitle: 'The MoMo payment was not completed.',
+    momoLongPendingEyebrow: 'Still waiting',
+    momoLongPendingTitle: 'Your MoMo payment is still pending.',
+    momoTerminalNote: 'This transaction update is shown here so you can clearly see the latest donation status.',
+    momoCloseLabel: 'Close',
+    momoOverlay: {
+      titleSent: 'Donation Request Sent',
+      bodyPrepared: 'Thank you. Your donation has been prepared securely.',
+      bodyPrompt: 'We have sent a Mobile Money payment request to your phone. Please review and approve the prompt on your device.',
+      phoneLabel: 'Phone Number',
+      amountLabel: 'Amount',
+      statusLabel: 'Current update',
+      preparedLabel: 'Donation prepared',
+      requestSentLabel: 'Request sent to MTN MoMo',
+      waitingApprovalLabel: 'Waiting for your approval',
+      paymentConfirmedLabel: 'Payment confirmed',
+      waitingFirst: 'Waiting for confirmation from your phone...',
+      waitingSecond: 'Still waiting. Please check whether a Mobile Money prompt is open on your device.',
+      waitingLong: 'Approvals sometimes take a little longer. Please review the request on your phone and confirm the payment.',
+      confirmedTitle: 'Payment Confirmed',
+      confirmedBody: 'Your donation has been received successfully. Thank you for supporting our mission.',
+      failedTitle: 'Payment Not Completed',
+      failedBody: 'We could not confirm the Mobile Money payment.',
+      timeoutTitle: 'Still Waiting For Confirmation',
+      timeoutBody: 'We have not yet received a final response from MTN MoMo.',
+      timeoutFollowUp: 'We will keep your donation request open and continue processing if approval is received.',
+      progressLabel: 'Status checks',
+      spinnerLabel: 'Waiting for Mobile Money confirmation',
+      closeLabel: 'Close',
+      tryAgainLabel: 'Try Again',
+      chooseAnotherLabel: 'Choose Another Channel',
+      checkAgainLabel: 'Check Status Again',
+      approvedCheckLabel: 'I Have Approved On My Phone',
+      continueLabel: 'Continue Browsing',
+      receiptLabel: 'View Donation Receipt',
+      supportSummary: 'Need help with this donation?',
+      supportTitle: 'Send us a note',
+      supportBody: 'Tell us what happened. Donation details will be attached automatically so the team can review it quickly.',
+      supportMessageLabel: 'Message',
+      supportPlaceholder: 'For example: I approved the prompt but the page did not update.',
+      supportSendLabel: 'Send Note',
+      supportSendingLabel: 'Sending...',
+      supportSentFallback: 'Thank you. Your note has been sent.',
+    },
+    momoSupportSubject: 'MoMo donation support',
+    momoSupportMessageRequired: 'Please write a short note before sending.',
     providerCountryHint: 'Enter your country code so we can show the giving channels available to you.',
     momoAvailableHint: 'MoMo is available for Cameroon gifts in XAF. Card, PayPal, and bank transfer remain available where supported.',
     momoCountryCurrencyHint: 'MoMo gifts from Cameroon use XAF. Change the currency to XAF to use MoMo, or choose another channel.',
@@ -1451,6 +1889,60 @@ const donateCopy = {
     momoOverlayBody:
       'Une demande de paiement MoMo a ete envoyee sur votre telephone. Approuvez-la sur votre appareil pour terminer le don.',
     momoOverlayNote: 'Veuillez garder cette page ouverte pendant que nous verifions le statut du paiement.',
+    momoCheckingEyebrow: 'Verification du paiement',
+    momoCheckingTitle: 'Nous verifions la confirmation.',
+    momoCheckingBody:
+      'Gardez cette page ouverte pendant que nous demandons a MoMo le dernier statut. Cela peut prendre un peu de temps apres validation sur votre telephone.',
+    momoPollingLabel: 'Verifications',
+    momoSuccessEyebrow: 'Don confirme',
+    momoSuccessTitle: 'Merci. Votre don MoMo est confirme.',
+    momoFailedEyebrow: 'Paiement non termine',
+    momoFailedTitle: 'Le paiement MoMo n a pas ete termine.',
+    momoLongPendingEyebrow: 'Toujours en attente',
+    momoLongPendingTitle: 'Votre paiement MoMo est encore en attente.',
+    momoTerminalNote: 'Cette mise a jour de transaction reste affichee ici afin que le statut du don soit clair.',
+    momoCloseLabel: 'Fermer',
+    momoOverlay: {
+      titleSent: 'Demande de don envoyee',
+      bodyPrepared: 'Merci. Votre don a ete prepare de maniere securisee.',
+      bodyPrompt: 'Nous avons envoye une demande de paiement Mobile Money sur votre telephone. Veuillez la verifier et l approuver sur votre appareil.',
+      phoneLabel: 'Numero de telephone',
+      amountLabel: 'Montant',
+      statusLabel: 'Mise a jour',
+      preparedLabel: 'Don prepare',
+      requestSentLabel: 'Demande envoyee a MTN MoMo',
+      waitingApprovalLabel: 'En attente de votre approbation',
+      paymentConfirmedLabel: 'Paiement confirme',
+      waitingFirst: 'En attente de la confirmation depuis votre telephone...',
+      waitingSecond: 'Toujours en attente. Verifiez si une demande Mobile Money est ouverte sur votre appareil.',
+      waitingLong: 'Les approbations peuvent parfois prendre un peu plus de temps. Veuillez verifier la demande sur votre telephone et confirmer le paiement.',
+      confirmedTitle: 'Paiement confirme',
+      confirmedBody: 'Votre don a ete recu avec succes. Merci de soutenir notre mission.',
+      failedTitle: 'Paiement non termine',
+      failedBody: 'Nous n avons pas pu confirmer le paiement Mobile Money.',
+      timeoutTitle: 'Toujours en attente de confirmation',
+      timeoutBody: 'Nous n avons pas encore recu de reponse finale de MTN MoMo.',
+      timeoutFollowUp: 'Nous garderons votre demande de don ouverte et continuerons le traitement si l approbation est recue.',
+      progressLabel: 'Verifications',
+      spinnerLabel: 'En attente de confirmation Mobile Money',
+      closeLabel: 'Fermer',
+      tryAgainLabel: 'Reessayer',
+      chooseAnotherLabel: 'Choisir un autre canal',
+      checkAgainLabel: 'Verifier encore',
+      approvedCheckLabel: 'J ai approuve sur mon telephone',
+      continueLabel: 'Continuer la visite',
+      receiptLabel: 'Voir le recu du don',
+      supportSummary: 'Besoin d aide avec ce don ?',
+      supportTitle: 'Envoyez-nous une note',
+      supportBody: 'Expliquez ce qui s est passe. Les details du don seront ajoutes automatiquement pour aider l equipe a verifier rapidement.',
+      supportMessageLabel: 'Message',
+      supportPlaceholder: 'Par exemple : J ai approuve la demande mais la page ne s est pas mise a jour.',
+      supportSendLabel: 'Envoyer la note',
+      supportSendingLabel: 'Envoi...',
+      supportSentFallback: 'Merci. Votre note a ete envoyee.',
+    },
+    momoSupportSubject: 'Assistance don MoMo',
+    momoSupportMessageRequired: 'Veuillez ecrire une courte note avant l envoi.',
     providerCountryHint: 'Saisissez votre code pays afin que nous puissions afficher les canaux de don disponibles.',
     momoAvailableHint: 'MoMo est disponible pour les dons du Cameroun en XAF. Carte, PayPal et virement restent disponibles selon le cas.',
     momoCountryCurrencyHint: 'Les dons MoMo depuis le Cameroun utilisent XAF. Changez la devise en XAF pour utiliser MoMo, ou choisissez un autre canal.',
