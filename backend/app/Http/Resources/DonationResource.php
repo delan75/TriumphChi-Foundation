@@ -32,6 +32,7 @@ class DonationResource extends JsonResource
             'donated_at' => $this->donated_at,
             'confirmed_at' => $this->confirmed_at,
             'receipt_path' => $this->receipt_path,
+            'documents' => $this->whenLoaded('documents', fn () => DonationDocumentResource::collection($this->documents)),
             'metadata' => $this->metadata,
             'notes' => $this->notes,
         ];

@@ -50,6 +50,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('public/paypal/webhooks', [PublicDonationController::class, 'paypalWebhook'])
         ->middleware('throttle:120,1')
         ->name('public.paypal.webhooks');
+    Route::get('public/donations/{donation}/documents/{document}/download', [PublicDonationController::class, 'downloadDocument'])
+        ->middleware([SetLocale::class, 'throttle:20,1'])
+        ->name('public.donation-documents.download');
     Route::post('public/momo/callbacks/{hash}', [PublicDonationController::class, 'momoCallback'])
         ->middleware('throttle:120,1')
         ->name('public.momo.callbacks');
@@ -222,6 +225,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->middlewareFor(['index', 'show'], 'can:contact_messages.view')
             ->middlewareFor('update', 'can:contact_messages.update')
             ->middlewareFor('destroy', 'can:contact_messages.archive');
+        Route::get('donations/{donation}/documents/{document}/download', [DonationController::class, 'downloadDocument'])
+            ->middleware('can:donations.view')
+            ->name('donations.documents.download');
 
         Route::apiResource('donations', DonationController::class)
             ->middlewareFor(['index', 'show'], 'can:donations.view')
