@@ -165,6 +165,7 @@ export interface PublicDonationIntentResponse {
     uuid: string;
     reference_number: string;
     status: string;
+    documents?: DonationDocumentRecord[];
   };
   payment_provider: {
     key: string;
@@ -178,6 +179,17 @@ export interface PublicDonationIntentResponse {
   status: string;
   checkout_url?: string | null;
   expires_at?: string | null;
+}
+
+export interface DonationDocumentRecord {
+  uuid: string;
+  document_number: string;
+  type: string;
+  status?: string;
+  locale: string;
+  title: string;
+  issued_at?: string | null;
+  download_url: string;
 }
 
 export interface AuthResponse {
@@ -320,6 +332,118 @@ export interface ApplicationRecord {
   updated_at: string;
 }
 
+export interface DonationManagementRecord {
+  id: number;
+  uuid: string;
+  reference_number: string;
+  amount: string;
+  currency: string;
+  method: string;
+  method_label: string | null;
+  provider: string | null;
+  provider_reference: string | null;
+  status: string;
+  status_label: string | null;
+  donated_at: string | null;
+  confirmed_at: string | null;
+  receipt_available: boolean;
+  notes?: string | null;
+  donor?: {
+    id: number | null;
+    uuid: string | null;
+    name: string | null;
+    email: string | null;
+    type: string | null;
+    type_label: string | null;
+    status: string | null;
+  } | null;
+  fund?: {
+    id: number | null;
+    uuid: string | null;
+    code: string | null;
+    name: string | null;
+    currency: string | null;
+    status: string | null;
+  } | null;
+  allocation_summary: {
+    count: number;
+    allocated_amount: string;
+    unallocated_amount: string;
+    currency: string;
+  };
+  payment_summary: {
+    intents_count: number;
+    transactions_count: number;
+    latest_intent?: {
+      uuid: string;
+      intent_reference: string;
+      provider?: string | null;
+      status: string;
+      amount: string;
+      currency: string;
+      expires_at?: string | null;
+    } | null;
+    latest_transaction?: {
+      uuid: string;
+      transaction_reference?: string | null;
+      provider?: string | null;
+      type: string;
+      status: string;
+      amount: string;
+      currency: string;
+      processed_at?: string | null;
+    } | null;
+  };
+  allocations?: Array<{
+    id: number;
+    uuid: string;
+    allocation_reference: string;
+    amount: string;
+    currency: string;
+    status: string;
+    status_label: string | null;
+    allocated_at: string | null;
+    educational_need?: {
+      id: number;
+      uuid: string;
+      type: string;
+      title: string;
+      beneficiary?: {
+        uuid: string;
+        internal_id: string | null;
+        display_name: string;
+      } | null;
+    } | null;
+  }>;
+  transactions?: Array<{
+    uuid: string;
+    transaction_reference?: string | null;
+    provider_transaction_id?: string | null;
+    type: string;
+    status: string;
+    amount: string;
+    currency: string;
+    processed_at?: string | null;
+    provider?: string | null;
+  }>;
+  documents?: DonationDocumentRecord[];
+  permissions: {
+    can_view: boolean;
+    can_create: boolean;
+    can_update: boolean;
+    can_approve: boolean;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DonationManagementSummary {
+  total_count: number;
+  status_counts: Record<string, number>;
+  currency_totals: Record<string, { count: number; amount: string }>;
+  provider_counts: Record<string, number>;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   meta: {
@@ -336,6 +460,18 @@ export interface PaginatedResponse<T> {
     prev: string | null;
     next: string | null;
   };
+}
+
+export interface DonationListParams {
+  status?: string;
+  search?: string;
+  provider?: string;
+  method?: string;
+  currency?: string;
+  page?: number;
+  per_page?: number;
+  sort?: string;
+  direction?: 'asc' | 'desc';
 }
 
 export async function apiListApplications(params: {
@@ -368,6 +504,47 @@ export async function apiListApplications(params: {
 
 export async function apiGetApplication(uuid: string): Promise<ApplicationRecord> {
   return apiGet<ApplicationRecord>(`/applications/${uuid}`);
+}
+
+export async function apiListDonations(params: DonationListParams): Promise<PaginatedResponse<DonationManagementRecord> & {
+  summary: DonationManagementSummary;
+  filters: Record<string, string | number>;
+}> {
+  const qs = new URLSearchParams();
+  if (params.status) qs.set('status', params.status);
+  if (params.search) qs.set('search', params.search);
+  if (params.provider) qs.set('provider', params.provider);
+  if (params.method) qs.set('method', params.method);
+  if (params.currency) qs.set('currency', params.currency);
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page));
+  if (params.sort) qs.set('sort', params.sort);
+  if (params.direction) qs.set('direction', params.direction);
+  const query = qs.toString();
+
+  const response = await fetch(`${API_BASE_URL}/donations${query ? `?${query}` : ''}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch donations.');
+
+  return {
+    data: (envelope.data as DonationManagementRecord[]) ?? [],
+    meta: envelope.meta as PaginatedResponse<DonationManagementRecord>['meta'],
+    links: envelope.links as PaginatedResponse<DonationManagementRecord>['links'],
+    summary: (envelope.summary as DonationManagementSummary) ?? {
+      total_count: 0,
+      status_counts: {},
+      currency_totals: {},
+      provider_counts: {},
+    },
+    filters: (envelope.filters as Record<string, string | number>) ?? {},
+  };
+}
+
+export async function apiGetDonation(uuid: string): Promise<DonationManagementRecord> {
+  return apiGet<DonationManagementRecord>(`/donations/${uuid}`);
 }
 
 export async function apiDownloadApplicationPdf(uuid: string): Promise<Blob> {

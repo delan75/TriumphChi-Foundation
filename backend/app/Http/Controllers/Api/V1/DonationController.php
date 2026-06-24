@@ -8,9 +8,12 @@ use App\Http\Requests\StoreDonationRequest;
 use App\Http\Resources\DonationManagementResource;
 use App\Http\Resources\DonationResource;
 use App\Models\Donation;
+use App\Models\DonationDocument;
+use App\Services\DonationDocumentService;
 use App\Services\FundingTransactionService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class DonationController extends Controller
 {
@@ -39,12 +42,15 @@ class DonationController extends Controller
         return DonationResource::make($funding->createDonation($request->validated()));
     }
 
-    public function show(Donation $donation)
+    public function show(Donation $donation, DonationDocumentService $documents)
     {
+        $documents->ensureIssuedDocuments($donation, app()->getLocale());
+
         $donation->load([
             'donor',
             'fund',
             'allocations.educationalNeed.beneficiary',
+            'documents',
             'paymentIntents.provider',
             'paymentTransactions.provider',
         ]);
@@ -66,6 +72,24 @@ class DonationController extends Controller
         return response()->noContent();
     }
 
+    public function downloadDocument(Donation $donation, DonationDocument $document, DonationDocumentService $documents)
+    {
+        abort_unless($document->donation_id === $donation->id, 404);
+        abort_unless(($donation->status->value ?? $donation->status) === 'confirmed', 404);
+        abort_unless($document->status === 'issued', 404);
+
+        $documents->ensureIssuedDocuments($donation, $document->locale);
+        $document->refresh();
+
+        return Pdf::view('pdf.donation_document', [
+            'donation' => $donation->loadMissing(['donor', 'fund']),
+            'document' => $document,
+        ])
+            ->format('A4')
+            ->margins(8, 8, 8, 8)
+            ->name($document->document_number.'.pdf');
+    }
+
     private function managementQuery(array $filters)
     {
         return $this->filteredDonationQuery($filters)
@@ -75,7 +99,7 @@ class DonationController extends Controller
                 'paymentIntents.provider:id,key,name',
                 'paymentTransactions.provider:id,key,name',
             ])
-            ->withCount(['allocations', 'paymentIntents', 'paymentTransactions'])
+            ->withCount(['allocations', 'paymentIntents', 'paymentTransactions', 'documents'])
             ->withSum('allocations as allocated_amount', 'amount');
     }
 

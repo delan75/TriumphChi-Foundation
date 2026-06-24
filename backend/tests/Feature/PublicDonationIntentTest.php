@@ -207,12 +207,15 @@ class PublicDonationIntentTest extends TestCase
             'https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER-123/capture' => Http::response($this->paypalCapturePayload(), 201),
         ]);
 
-        $this->postJson("/api/v1/public/donation-intents/{$intent->uuid}/paypal/capture", [
+        $response = $this->postJson("/api/v1/public/donation-intents/{$intent->uuid}/paypal/capture", [
             'order_id' => 'ORDER-123',
-        ])
-            ->assertOk()
+        ]);
+
+        $response->assertOk()
             ->assertJsonPath('data.status', 'completed')
-            ->assertJsonPath('data.donation.status', 'confirmed');
+            ->assertJsonPath('data.donation.status', 'confirmed')
+            ->assertJsonCount(2, 'data.donation.documents')
+            ->assertJsonPath('data.donation.documents.0.download_url', fn ($value) => str_contains($value, '/api/v1/public/donations/'));
 
         $intent->refresh();
 
@@ -224,6 +227,18 @@ class PublicDonationIntentTest extends TestCase
             'provider_transaction_id' => 'CAPTURE-123',
             'type' => 'paypal_capture',
             'status' => 'completed',
+        ]);
+        $this->assertDatabaseHas('donation_documents', [
+            'donation_id' => $intent->donation_id,
+            'type' => 'receipt',
+            'locale' => 'en',
+            'status' => 'issued',
+        ]);
+        $this->assertDatabaseHas('donation_documents', [
+            'donation_id' => $intent->donation_id,
+            'type' => 'invoice',
+            'locale' => 'en',
+            'status' => 'issued',
         ]);
     }
 

@@ -31,7 +31,9 @@ class DonationManagementResource extends JsonResource
             'status_label' => $this->localizedLabel('donation_statuses', $status),
             'donated_at' => $this->donated_at,
             'confirmed_at' => $this->confirmed_at,
-            'receipt_available' => filled($this->receipt_path),
+            'receipt_available' => filled($this->receipt_path)
+                || ((int) ($this->documents_count ?? 0) > 0)
+                || ($this->relationLoaded('documents') && $this->documents->contains('type', 'receipt')),
             'notes' => $this->notes,
             'donor' => $this->whenLoaded('donor', fn () => [
                 'id' => $this->donor?->id,
@@ -94,6 +96,7 @@ class DonationManagementResource extends JsonResource
                 'processed_at' => $transaction->processed_at,
                 'provider' => $transaction->provider?->key,
             ])->values()),
+            'documents' => $this->whenLoaded('documents', fn () => DonationDocumentResource::collection($this->documents)),
             'permissions' => [
                 'can_view' => $request->user()?->can('donations.view') ?? false,
                 'can_create' => $request->user()?->can('donations.create') ?? false,

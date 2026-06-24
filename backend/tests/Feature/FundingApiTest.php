@@ -186,6 +186,7 @@ class FundingApiTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('data.uuid', $donation->uuid)
+            ->assertJsonPath('data.receipt_available', true)
             ->assertJsonPath('data.allocation_summary.count', 1)
             ->assertJsonPath('data.allocation_summary.allocated_amount', '30000.00')
             ->assertJsonPath('data.allocation_summary.unallocated_amount', '30000.00')
@@ -194,7 +195,23 @@ class FundingApiTest extends TestCase
             ->assertJsonPath('data.allocations.0.educational_need.beneficiary', null)
             ->assertJsonPath('data.payment_summary.latest_intent.intent_reference', 'PINT-DON-MGMT-001')
             ->assertJsonPath('data.payment_summary.latest_transaction.transaction_reference', 'PTXN-DON-MGMT-001')
+            ->assertJsonCount(2, 'data.documents')
+            ->assertJsonPath('data.documents.0.download_url', fn ($value) => str_contains($value, '/api/v1/donations/'))
             ->assertJsonMissingPath('data.transactions.0.raw_payload');
+
+        $this->assertDatabaseHas('donation_documents', [
+            'donation_id' => $donation->id,
+            'type' => 'receipt',
+            'locale' => 'en',
+            'status' => 'issued',
+        ]);
+
+        $this->assertDatabaseHas('donation_documents', [
+            'donation_id' => $donation->id,
+            'type' => 'invoice',
+            'locale' => 'en',
+            'status' => 'issued',
+        ]);
 
         $this->givePermissions($user, 'beneficiaries.view');
 

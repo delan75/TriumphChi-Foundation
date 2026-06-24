@@ -33,6 +33,7 @@ import {
   type PublicDonationConfig,
   type PublicDonationIntentResponse,
   type PublicDonationProvider,
+  type DonationDocumentRecord,
   apiGetDonationIntentStatus,
 } from '../../../lib/api';
 import { Locale } from '../../../lib/i18n';
@@ -346,6 +347,7 @@ function DonationCard({
   const [momoSupportStatusMessage, setMomoSupportStatusMessage] = useState('');
   const [isSendingMomoSupportNote, setIsSendingMomoSupportNote] = useState(false);
   const [paypalRedirect, setPaypalRedirect] = useState<PaypalRedirectState | null>(null);
+  const [donationDocuments, setDonationDocuments] = useState<DonationDocumentRecord[]>([]);
   const [similarDonation, setSimilarDonation] = useState<SimilarDonationWarning | null>(null);
   const [createdIntentUuid, setCreatedIntentUuid] = useState<string | null>(null);
   const [createdIntentStatus, setCreatedIntentStatus] = useState<string | null>(null);
@@ -432,6 +434,7 @@ function DonationCard({
       try {
         const intent = await apiGetDonationIntentStatus(createdIntentUuid, locale);
         setCreatedIntentStatus(intent.status);
+        setDonationDocuments(intent.donation.documents ?? []);
         setMomoStatusHistory((current) => [
           ...current,
           {
@@ -551,6 +554,7 @@ function DonationCard({
     setMomoSupportMessage('');
     setMomoSupportStatusMessage('');
     setPaypalRedirect(null);
+    setDonationDocuments([]);
 
     if (selectedProvider.key === 'momo') {
       setMomoModalState('starting');
@@ -595,6 +599,7 @@ function DonationCard({
       setSimilarDonation(null);
       setCreatedIntentUuid(response.data?.uuid ?? null);
       setCreatedIntentStatus(response.data?.status ?? null);
+      setDonationDocuments(response.data?.donation.documents ?? []);
       if (selectedProvider.key === 'momo') {
         setMomoModalState(momoStateFromIntentStatus(response.data?.status));
         setMomoModalMessage(response.message || copy.momoPendingMessage);
@@ -798,6 +803,7 @@ function DonationCard({
         supportMessage={momoSupportMessage}
         supportStatusMessage={momoSupportStatusMessage}
         isSendingSupportNote={isSendingMomoSupportNote}
+        receiptHref={donationDocuments.find((document) => document.type === 'receipt')?.download_url}
         canClose={momoModalState === 'success' || momoModalState === 'failed' || momoModalState === 'pending'}
         copy={copy.momoOverlay}
         onRetry={retryMomoDonation}
