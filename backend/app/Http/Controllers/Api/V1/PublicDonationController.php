@@ -7,13 +7,18 @@ use App\Exceptions\SimilarDonationPendingException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePublicDonationIntentRequest;
 use App\Jobs\ProcessMomoCallback;
+use App\Models\Donation;
+use App\Models\DonationDocument;
 use App\Models\PaymentIntent;
+use App\Services\DonationDocumentService;
 use App\Services\Payments\MtnMomoCollectionsService;
+use App\Services\Payments\PaypalDonationProvider;
 use App\Services\PublicDonationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Response;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class PublicDonationController extends Controller
 {
@@ -54,7 +59,7 @@ class PublicDonationController extends Controller
         return $this->success(null, __('api.messages.momo_callback_received'));
     }
 
-    public function status(PaymentIntent $paymentIntent, MtnMomoCollectionsService $momo): JsonResponse
+    public function status(PaymentIntent $paymentIntent, MtnMomoCollectionsService $momo, PaypalDonationProvider $paypal): JsonResponse
     {
         if ($paymentIntent->provider?->key === 'momo' && $paymentIntent->status === 'pending') {
             try {
@@ -64,11 +69,69 @@ class PublicDonationController extends Controller
             }
         }
 
+        if ($paymentIntent->provider?->key === 'paypal' && in_array($paymentIntent->status, ['pending', 'processing'], true)) {
+            try {
+                $paymentIntent = $paypal->refreshStatus($paymentIntent);
+            } catch (PaymentProviderException) {
+                $paymentIntent->load(['donation', 'provider']);
+            }
+        }
+
         return $this->success($this->intentPayload($paymentIntent->load(['donation', 'provider'])), __('api.messages.donation_intent_status_retrieved'));
+    }
+
+    public function capturePaypal(PaymentIntent $paymentIntent, Request $request, PaypalDonationProvider $paypal): JsonResponse
+    {
+        try {
+            $paymentIntent = $paypal->captureApprovedOrder($paymentIntent->load(['donation', 'provider']), $request->string('order_id')->toString());
+        } catch (PaymentProviderException $exception) {
+            return $this->error($exception->getMessage(), $exception->getCode() >= 400 ? $exception->getCode() : Response::HTTP_BAD_GATEWAY);
+        }
+
+        return $this->success($this->intentPayload($paymentIntent), __('api.messages.paypal_donation_verified'));
+    }
+
+    public function cancelPaypal(PaymentIntent $paymentIntent, PaypalDonationProvider $paypal): JsonResponse
+    {
+        $paymentIntent = $paypal->cancel($paymentIntent->load(['donation', 'provider']));
+
+        return $this->success($this->intentPayload($paymentIntent), __('api.messages.paypal_donation_cancelled'));
+    }
+
+    public function paypalWebhook(Request $request, PaypalDonationProvider $paypal): JsonResponse
+    {
+        try {
+            $paypal->handleWebhook($request);
+        } catch (PaymentProviderException $exception) {
+            return $this->error($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->success(null, __('api.messages.paypal_webhook_received'));
+    }
+
+    public function downloadDocument(Donation $donation, DonationDocument $document, DonationDocumentService $documents)
+    {
+        abort_unless($document->donation_id === $donation->id, 404);
+        abort_unless(($donation->status->value ?? $donation->status) === 'confirmed', 404);
+
+        $documents->ensureIssuedDocuments($donation, $document->locale);
+        $document->refresh();
+
+        return Pdf::view('pdf.donation_document', [
+            'donation' => $donation->loadMissing(['donor', 'fund']),
+            'document' => $document,
+        ])
+            ->format('A4')
+            ->margins(8, 8, 8, 8)
+            ->name($document->document_number.'.pdf');
     }
 
     private function intentPayload(PaymentIntent $intent): array
     {
+        $intent->donation->loadMissing(['donor', 'fund']);
+        $documents = app(DonationDocumentService::class)
+            ->ensureIssuedDocuments($intent->donation, app()->getLocale());
+
         return [
             'uuid' => $intent->uuid,
             'intent_reference' => $intent->intent_reference,
@@ -76,6 +139,18 @@ class PublicDonationController extends Controller
                 'uuid' => $intent->donation->uuid,
                 'reference_number' => $intent->donation->reference_number,
                 'status' => $intent->donation->status->value ?? $intent->donation->status,
+                'documents' => $documents->map(fn (DonationDocument $document) => [
+                    'uuid' => $document->uuid,
+                    'document_number' => $document->document_number,
+                    'type' => $document->type,
+                    'title' => $document->title,
+                    'locale' => $document->locale,
+                    'issued_at' => $document->issued_at,
+                    'download_url' => route('api.v1.public.donation-documents.download', [
+                        'donation' => $intent->donation->uuid,
+                        'document' => $document->uuid,
+                    ]),
+                ])->values(),
             ],
             'payment_provider' => [
                 'key' => $intent->provider->key,

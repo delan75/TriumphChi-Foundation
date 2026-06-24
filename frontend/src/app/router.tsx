@@ -7,6 +7,7 @@ import { StaffProfilePage } from '../features/staff/StaffProfilePage';
 import { StaffSettingsPage } from '../features/staff/StaffSettingsPage';
 import { ApplicationsPage } from '../features/applications/ApplicationsPage';
 import { BeneficiariesPage } from '../features/beneficiaries/BeneficiariesPage';
+import { ContactMessagesPage } from '../features/contact-messages/ContactMessagesPage';
 import { FundingPage } from '../features/funding/FundingPage';
 import { ReportsPage } from '../features/reports/ReportsPage';
 import { LoginPage } from '../features/auth/LoginPage';
@@ -15,6 +16,7 @@ import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '../features/auth/ResetPasswordPage';
 import { OAuthCallbackPage } from '../features/auth/OAuthCallbackPage';
 import { VerifyAccountPage } from '../features/auth/VerifyAccountPage';
+import { PaypalDonationReturnPage } from '../features/public/donate/PaypalDonationReturnPage';
 import { NotFoundPage } from '../features/errors/NotFoundPage';
 import { LocaleRecoveryWrapper } from '../features/errors/LocaleRecoveryWrapper';
 import { buildAuthPath, isAuthenticated, resolvePostAuthPath } from '../lib/auth';
@@ -44,9 +46,12 @@ export const router = createBrowserRouter([
               { path: 'applications', element: <ApplicationsPage /> },
               { path: 'beneficiaries', element: <BeneficiariesPage /> },
               { path: 'funding', element: <FundingPage /> },
+              { path: 'contacts', element: <ContactMessagesPage /> },
               { path: 'reports', element: <ReportsPage /> },
             ],
           },
+          { path: 'donate/paypal/return', element: <PaypalDonationReturnPageWrapper mode="return" /> },
+          { path: 'donate/paypal/cancel', element: <PaypalDonationReturnPageWrapper mode="cancel" /> },
           { path: ':pageSlug', element: <PublicPage /> },
           { path: '*', element: <NotFoundPageWrapper /> },
         ],
@@ -202,6 +207,13 @@ function OAuthCallbackPageWrapper() {
   const activeLocale = isLocale(locale) ? locale : 'en';
 
   return <OAuthCallbackPage locale={activeLocale} />;
+}
+
+function PaypalDonationReturnPageWrapper({ mode }: { mode: 'return' | 'cancel' }) {
+  const { locale = 'en' } = useParams();
+  const activeLocale = isLocale(locale) ? locale : 'en';
+
+  return <PaypalDonationReturnPage locale={activeLocale} mode={mode} />;
 }
 
 function NotFoundPageWrapper() {

@@ -36,11 +36,23 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         ->middleware([SetLocale::class, 'throttle:30,1'])
         ->name('public.donation-config');
     Route::post('public/donation-intents', [PublicDonationController::class, 'storeIntent'])
-        ->middleware([SetLocale::class, 'throttle:5,1'])
+        ->middleware([SetLocale::class, 'throttle:10,1'])
         ->name('public.donation-intents.store');
     Route::get('public/donation-intents/{paymentIntent}/status', [PublicDonationController::class, 'status'])
         ->middleware([SetLocale::class, 'throttle:20,1'])
         ->name('public.donation-intents.status');
+    Route::post('public/donation-intents/{paymentIntent}/paypal/capture', [PublicDonationController::class, 'capturePaypal'])
+        ->middleware([SetLocale::class, 'throttle:10,1'])
+        ->name('public.donation-intents.paypal.capture');
+    Route::post('public/donation-intents/{paymentIntent}/paypal/cancel', [PublicDonationController::class, 'cancelPaypal'])
+        ->middleware([SetLocale::class, 'throttle:10,1'])
+        ->name('public.donation-intents.paypal.cancel');
+    Route::post('public/paypal/webhooks', [PublicDonationController::class, 'paypalWebhook'])
+        ->middleware('throttle:120,1')
+        ->name('public.paypal.webhooks');
+    Route::get('public/donations/{donation}/documents/{document}/download', [PublicDonationController::class, 'downloadDocument'])
+        ->middleware([SetLocale::class, 'throttle:20,1'])
+        ->name('public.donation-documents.download');
     Route::post('public/momo/callbacks/{hash}', [PublicDonationController::class, 'momoCallback'])
         ->middleware('throttle:120,1')
         ->name('public.momo.callbacks');
@@ -203,6 +215,35 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->middlewareFor('store', 'can:donors.create')
             ->middlewareFor('update', 'can:donors.update')
             ->middlewareFor('destroy', 'can:donors.delete');
+
+        Route::get('contact-messages/{contactMessage}/attachments/{attachment}/download', [ContactMessageController::class, 'downloadAttachment'])
+            ->middleware('can:contact_messages.attachments.view')
+            ->name('contact-messages.attachments.download');
+
+        Route::get('contact-messages/assignable-users', [ContactMessageController::class, 'assignableUsers'])
+            ->middleware('can:contact_messages.update')
+            ->name('contact-messages.assignable-users');
+
+        Route::patch('contact-messages/{contactMessage}/assignment', [ContactMessageController::class, 'assign'])
+            ->middleware('can:contact_messages.update')
+            ->name('contact-messages.assignment');
+
+        Route::post('contact-messages/{contactMessage}/forward', [ContactMessageController::class, 'forward'])
+            ->middleware('can:contact_messages.update')
+            ->name('contact-messages.forward');
+
+        Route::apiResource('contact-messages', ContactMessageController::class)
+            ->only(['index', 'show', 'update', 'destroy'])
+            ->middlewareFor(['index', 'show'], 'can:contact_messages.view')
+            ->middlewareFor('update', 'can:contact_messages.update')
+            ->middlewareFor('destroy', 'can:contact_messages.archive');
+        Route::get('donations/{donation}/documents/{document}/download', [DonationController::class, 'downloadDocument'])
+            ->middleware('can:donations.view')
+            ->name('donations.documents.download');
+
+        Route::post('donations/{donation}/payment-status', [DonationController::class, 'refreshPaymentStatus'])
+            ->middleware('can:donations.approve')
+            ->name('donations.payment-status.refresh');
 
         Route::apiResource('donations', DonationController::class)
             ->middlewareFor(['index', 'show'], 'can:donations.view')

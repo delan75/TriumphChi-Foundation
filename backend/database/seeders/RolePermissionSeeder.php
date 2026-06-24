@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Collection;
 use RuntimeException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -48,6 +47,10 @@ class RolePermissionSeeder extends Seeder
                 'schools.create',
                 'schools.update',
                 'donors.view',
+                'contact_messages.view',
+                'contact_messages.update',
+                'contact_messages.archive',
+                'contact_messages.attachments.view',
                 'donations.view',
                 'funds.view',
                 'allocations.view',
@@ -69,12 +72,12 @@ class RolePermissionSeeder extends Seeder
             $role->syncPermissions($permissions->only($rolePermissions)->values());
         }
 
-        $this->seedSuperAdministrator($permissions);
+        $this->seedSuperAdministrator();
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 
-    private function seedSuperAdministrator(Collection $permissions): void
+    private function seedSuperAdministrator(): void
     {
         $password = env('SUPER_ADMIN_PASSWORD');
 
@@ -104,7 +107,7 @@ class RolePermissionSeeder extends Seeder
         ])->save();
 
         $admin->syncRoles(['super_administrator']);
-        $admin->syncPermissions($permissions->values());
+        $admin->syncPermissions([]);
         $admin->authProviders()->firstOrCreate(
             ['provider' => 'local'],
             ['linked_at' => now()],
@@ -138,6 +141,12 @@ class RolePermissionSeeder extends Seeder
                 'donors.create',
                 'donors.update',
                 'donors.delete',
+            ],
+            'contact_messages' => [
+                'contact_messages.view',
+                'contact_messages.update',
+                'contact_messages.archive',
+                'contact_messages.attachments.view',
             ],
             'donations' => [
                 'donations.view',

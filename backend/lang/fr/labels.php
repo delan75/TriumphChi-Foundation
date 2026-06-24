@@ -44,6 +44,7 @@ return [
         'pending' => 'En attente',
         'confirmed' => 'Confirmé',
         'failed' => 'Échoué',
+        'cancelled' => 'Annulé',
         'refunded' => 'Remboursé',
     ],
 
@@ -118,6 +119,72 @@ return [
         'foundation' => 'Fondation',
     ],
 
+    'donor_statuses' => [
+        'active' => 'Actif',
+        'inactive' => 'Inactif',
+        'blocked' => 'Bloqué',
+    ],
+
+    'contact_reasons' => [
+        'general' => 'Général',
+        'sponsorship' => 'Parrainage',
+        'assistance' => 'Assistance',
+        'school' => 'École',
+        'volunteer' => 'Bénévolat',
+        'partnership' => 'Partenariat',
+        'church' => 'Église',
+        'corporate' => 'Organisation',
+    ],
+
+    'contact_message_statuses' => [
+        'new' => 'Nouveau',
+        'reviewing' => 'En revue',
+        'replied' => 'Répondu',
+        'archived' => 'Archivé',
+        'spam' => 'Spam',
+    ],
+
+    'payment_intent_statuses' => [
+        'draft' => 'Brouillon',
+        'pending' => 'En attente',
+        'processing' => 'En traitement',
+        'completed' => 'Terminé',
+        'failed' => 'Échoué',
+        'cancelled' => 'Annulé',
+        'expired' => 'Expiré',
+    ],
+
+    'payment_transaction_statuses' => [
+        'pending' => 'En attente',
+        'processing' => 'En traitement',
+        'completed' => 'Terminé',
+        'failed' => 'Échoué',
+        'cancelled' => 'Annulé',
+        'refunded' => 'Remboursé',
+    ],
+
+    'payment_transaction_types' => [
+        'payment' => 'Paiement',
+        'request_to_pay' => 'Demande de paiement',
+        'status_check' => 'Vérification de statut',
+        'callback' => 'Notification',
+        'paypal_order' => 'Commande PayPal',
+        'paypal_capture' => 'Capture PayPal',
+        'order_create' => 'Création de commande',
+    ],
+
+    'donation_document_types' => [
+        'receipt' => 'Reçu',
+        'invoice' => 'Facture',
+        'tax_certificate' => 'Certificat fiscal',
+    ],
+
+    'donation_document_statuses' => [
+        'issued' => 'Émis',
+        'voided' => 'Annulé',
+        'draft' => 'Brouillon',
+    ],
+
     'sponsorship_types' => [
         'program' => 'Parrainage de programme',
         'full' => 'Parrainage complet',
@@ -152,6 +219,10 @@ return [
         'donors.create' => 'Créer des donateurs',
         'donors.update' => 'Mettre à jour les donateurs',
         'donors.delete' => 'Supprimer les donateurs',
+        'contact_messages.view' => 'Voir les messages de contact',
+        'contact_messages.update' => 'Mettre à jour les messages de contact',
+        'contact_messages.archive' => 'Archiver les messages de contact',
+        'contact_messages.attachments.view' => 'Voir les fichiers joints aux messages de contact',
         'donations.view' => 'Voir les dons',
         'donations.create' => 'Créer des dons',
         'donations.update' => 'Mettre à jour les dons',
@@ -168,6 +239,7 @@ return [
         'impact_updates.view' => 'Voir les nouvelles d\'impact',
         'impact_updates.create' => 'Créer des nouvelles d\'impact',
         'impact_updates.publish' => 'Publier les nouvelles d\'impact',
+        'reports.view' => 'Voir les rapports',
         'users.view' => 'Voir les utilisateurs',
         'users.create' => 'Créer des utilisateurs',
         'users.update' => 'Mettre à jour les utilisateurs',

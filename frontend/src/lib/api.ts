@@ -165,6 +165,7 @@ export interface PublicDonationIntentResponse {
     uuid: string;
     reference_number: string;
     status: string;
+    documents?: DonationDocumentRecord[];
   };
   payment_provider: {
     key: string;
@@ -178,6 +179,17 @@ export interface PublicDonationIntentResponse {
   status: string;
   checkout_url?: string | null;
   expires_at?: string | null;
+}
+
+export interface DonationDocumentRecord {
+  uuid: string;
+  document_number: string;
+  type: string;
+  status?: string;
+  locale: string;
+  title: string;
+  issued_at?: string | null;
+  download_url: string;
 }
 
 export interface AuthResponse {
@@ -320,6 +332,190 @@ export interface ApplicationRecord {
   updated_at: string;
 }
 
+export interface DonationManagementRecord {
+  id: number;
+  uuid: string;
+  reference_number: string;
+  amount: string;
+  currency: string;
+  method: string;
+  method_label: string | null;
+  provider: string | null;
+  provider_reference: string | null;
+  status: string;
+  status_label: string | null;
+  donated_at: string | null;
+  confirmed_at: string | null;
+  receipt_available: boolean;
+  notes?: string | null;
+  donor?: {
+    id: number | null;
+    uuid: string | null;
+    name: string | null;
+    email: string | null;
+    type: string | null;
+    type_label: string | null;
+    status: string | null;
+  } | null;
+  fund?: {
+    id: number | null;
+    uuid: string | null;
+    code: string | null;
+    name: string | null;
+    currency: string | null;
+    status: string | null;
+  } | null;
+  allocation_summary: {
+    count: number;
+    allocated_amount: string;
+    unallocated_amount: string;
+    currency: string;
+  };
+  payment_summary: {
+    intents_count: number;
+    transactions_count: number;
+    latest_intent?: {
+      uuid: string;
+      intent_reference: string;
+      provider?: string | null;
+      status: string;
+      amount: string;
+      currency: string;
+      expires_at?: string | null;
+    } | null;
+    latest_transaction?: {
+      uuid: string;
+      transaction_reference?: string | null;
+      provider?: string | null;
+      type: string;
+      status: string;
+      amount: string;
+      currency: string;
+      processed_at?: string | null;
+    } | null;
+  };
+  allocations?: Array<{
+    id: number;
+    uuid: string;
+    allocation_reference: string;
+    amount: string;
+    currency: string;
+    status: string;
+    status_label: string | null;
+    allocated_at: string | null;
+    educational_need?: {
+      id: number;
+      uuid: string;
+      type: string;
+      title: string;
+      beneficiary?: {
+        uuid: string;
+        internal_id: string | null;
+        display_name: string;
+      } | null;
+    } | null;
+  }>;
+  transactions?: Array<{
+    uuid: string;
+    transaction_reference?: string | null;
+    provider_transaction_id?: string | null;
+    type: string;
+    status: string;
+    amount: string;
+    currency: string;
+    processed_at?: string | null;
+    provider?: string | null;
+  }>;
+  documents?: DonationDocumentRecord[];
+  permissions: {
+    can_view: boolean;
+    can_create: boolean;
+    can_update: boolean;
+    can_approve: boolean;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DonationManagementSummary {
+  total_count: number;
+  status_counts: Record<string, number>;
+  currency_totals: Record<string, { count: number; amount: string }>;
+  provider_counts: Record<string, number>;
+}
+
+export interface ContactMessageAttachmentRecord {
+  id: number;
+  original_name: string;
+  mime_type: string;
+  size_bytes: number;
+  scan_status: string;
+  download_url?: string | null;
+}
+
+export interface ContactMessageRecord {
+  id: number;
+  uuid: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  reason: string;
+  reason_label?: string | null;
+  subject?: string | null;
+  message: string;
+  locale: string;
+  status: string;
+  status_label?: string | null;
+  ip_address?: string | null;
+  user_agent?: string | null;
+  staff_notes?: string | null;
+  attachments_count: number;
+  has_attachments: boolean;
+  attachments?: ContactMessageAttachmentRecord[];
+  handler?: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+  responded_at?: string | null;
+  reviewed_at?: string | null;
+  archived_at?: string | null;
+  created_at: string;
+  updated_at: string;
+  permissions: {
+    can_view: boolean;
+    can_update: boolean;
+    can_archive: boolean;
+    can_view_attachments: boolean;
+  };
+}
+
+export interface ContactMessageSummary {
+  total_count: number;
+  status_counts: Record<string, number>;
+  reason_counts: Record<string, number>;
+  attachments_count: number;
+}
+
+export interface ContactMessageListParams {
+  status?: string;
+  reason?: string;
+  search?: string;
+  has_attachments?: boolean;
+  created_from?: string;
+  created_to?: string;
+  page?: number;
+  per_page?: number;
+  sort?: string;
+  direction?: 'asc' | 'desc';
+}
+
+export interface ContactMessageAssignee {
+  id: number;
+  name: string;
+  email: string;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   meta: {
@@ -336,6 +532,18 @@ export interface PaginatedResponse<T> {
     prev: string | null;
     next: string | null;
   };
+}
+
+export interface DonationListParams {
+  status?: string;
+  search?: string;
+  provider?: string;
+  method?: string;
+  currency?: string;
+  page?: number;
+  per_page?: number;
+  sort?: string;
+  direction?: 'asc' | 'desc';
 }
 
 export async function apiListApplications(params: {
@@ -368,6 +576,186 @@ export async function apiListApplications(params: {
 
 export async function apiGetApplication(uuid: string): Promise<ApplicationRecord> {
   return apiGet<ApplicationRecord>(`/applications/${uuid}`);
+}
+
+export async function apiListDonations(params: DonationListParams): Promise<PaginatedResponse<DonationManagementRecord> & {
+  summary: DonationManagementSummary;
+  filters: Record<string, string | number>;
+}> {
+  const qs = new URLSearchParams();
+  if (params.status) qs.set('status', params.status);
+  if (params.search) qs.set('search', params.search);
+  if (params.provider) qs.set('provider', params.provider);
+  if (params.method) qs.set('method', params.method);
+  if (params.currency) qs.set('currency', params.currency);
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page));
+  if (params.sort) qs.set('sort', params.sort);
+  if (params.direction) qs.set('direction', params.direction);
+  const query = qs.toString();
+
+  const response = await fetch(`${API_BASE_URL}/donations${query ? `?${query}` : ''}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch donations.');
+
+  return {
+    data: (envelope.data as DonationManagementRecord[]) ?? [],
+    meta: envelope.meta as PaginatedResponse<DonationManagementRecord>['meta'],
+    links: envelope.links as PaginatedResponse<DonationManagementRecord>['links'],
+    summary: (envelope.summary as DonationManagementSummary) ?? {
+      total_count: 0,
+      status_counts: {},
+      currency_totals: {},
+      provider_counts: {},
+    },
+    filters: (envelope.filters as Record<string, string | number>) ?? {},
+  };
+}
+
+export async function apiGetDonation(uuid: string): Promise<DonationManagementRecord> {
+  const response = await fetch(`${API_BASE_URL}/donations/${uuid}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, `Failed to fetch donation ${uuid}.`);
+
+  return (envelope.data ?? envelope) as DonationManagementRecord;
+}
+
+export async function apiListContactMessages(params: ContactMessageListParams): Promise<PaginatedResponse<ContactMessageRecord> & {
+  summary: ContactMessageSummary;
+  filters: Record<string, string | number | boolean>;
+}> {
+  const qs = new URLSearchParams();
+  if (params.status) qs.set('status', params.status);
+  if (params.reason) qs.set('reason', params.reason);
+  if (params.search) qs.set('search', params.search);
+  if (params.has_attachments !== undefined) qs.set('has_attachments', String(params.has_attachments));
+  if (params.created_from) qs.set('created_from', params.created_from);
+  if (params.created_to) qs.set('created_to', params.created_to);
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page));
+  if (params.sort) qs.set('sort', params.sort);
+  if (params.direction) qs.set('direction', params.direction);
+  const query = qs.toString();
+
+  const response = await fetch(`${API_BASE_URL}/contact-messages${query ? `?${query}` : ''}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch contact inquiries.');
+
+  return {
+    data: (envelope.data as ContactMessageRecord[]) ?? [],
+    meta: envelope.meta as PaginatedResponse<ContactMessageRecord>['meta'],
+    links: envelope.links as PaginatedResponse<ContactMessageRecord>['links'],
+    summary: (envelope.summary as ContactMessageSummary) ?? {
+      total_count: 0,
+      status_counts: {},
+      reason_counts: {},
+      attachments_count: 0,
+    },
+    filters: (envelope.filters as Record<string, string | number | boolean>) ?? {},
+  };
+}
+
+export async function apiGetContactMessage(uuid: string): Promise<ContactMessageRecord> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/${uuid}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, `Failed to fetch contact inquiry ${uuid}.`);
+
+  return (envelope.data ?? envelope) as ContactMessageRecord;
+}
+
+export async function apiUpdateContactMessage(
+  uuid: string,
+  payload: { status: string; staff_notes?: string | null },
+): Promise<ContactMessageRecord> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/${uuid}`, {
+    method: 'PATCH',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to update contact inquiry.');
+
+  return (envelope.data ?? envelope) as ContactMessageRecord;
+}
+
+export async function apiAssignContactMessage(
+  uuid: string,
+  assignedTo: number | null,
+): Promise<ContactMessageRecord> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/${uuid}/assignment`, {
+    method: 'PATCH',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify({ assigned_to: assignedTo }),
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to assign contact inquiry.');
+
+  return (envelope.data ?? envelope) as ContactMessageRecord;
+}
+
+export async function apiForwardContactMessage(
+  uuid: string,
+  payload: { to_email: string; note?: string; mark_as_replied?: boolean },
+): Promise<ContactMessageRecord> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/${uuid}/forward`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to forward contact inquiry.');
+
+  return (envelope.data ?? envelope) as ContactMessageRecord;
+}
+
+export async function apiDeleteContactMessage(uuid: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/${uuid}`, {
+    method: 'DELETE',
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    await parseJsonEnvelope(response, 'Failed to archive contact inquiry.');
+  }
+}
+
+export async function apiListContactAssignees(): Promise<ContactMessageAssignee[]> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/assignable-users`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch assignable staff.');
+
+  return (envelope.data ?? []) as ContactMessageAssignee[];
+}
+
+export async function apiRefreshDonationPaymentStatus(uuid: string): Promise<DonationManagementRecord> {
+  const response = await fetch(`${API_BASE_URL}/donations/${uuid}/payment-status`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, `Failed to refresh donation ${uuid}.`);
+
+  return (envelope.data ?? envelope) as DonationManagementRecord;
 }
 
 export async function apiDownloadApplicationPdf(uuid: string): Promise<Blob> {
@@ -619,6 +1007,52 @@ export async function apiGetDonationIntentStatus(
   locale: string,
 ): Promise<PublicDonationIntentResponse> {
   return apiPublicGet<PublicDonationIntentResponse>(`/public/donation-intents/${uuid}/status`, locale);
+}
+
+export async function apiCapturePaypalDonationIntent(
+  uuid: string,
+  orderId: string,
+  locale: string,
+): Promise<{ message: string; data?: PublicDonationIntentResponse }> {
+  const response = await fetch(`${API_BASE_URL}/public/donation-intents/${uuid}/paypal/capture`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    },
+    credentials: 'omit',
+    body: JSON.stringify({ order_id: orderId }),
+  });
+
+  const data = await parseJsonEnvelope(response, 'We could not verify your PayPal donation. Please try again.');
+
+  return {
+    message: String(data.message ?? 'PayPal donation verified successfully.'),
+    data: data.data as PublicDonationIntentResponse | undefined,
+  };
+}
+
+export async function apiCancelPaypalDonationIntent(
+  uuid: string,
+  locale: string,
+): Promise<{ message: string; data?: PublicDonationIntentResponse }> {
+  const response = await fetch(`${API_BASE_URL}/public/donation-intents/${uuid}/paypal/cancel`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+    },
+    credentials: 'omit',
+  });
+
+  const data = await parseJsonEnvelope(response, 'We could not update your PayPal donation. Please try again.');
+
+  return {
+    message: String(data.message ?? 'PayPal donation cancelled.'),
+    data: data.data as PublicDonationIntentResponse | undefined,
+  };
 }
 
 export async function apiGlobalSearch(query: string, limit = 8): Promise<GlobalSearchResponse> {

@@ -68,6 +68,11 @@ class Donation extends Model
         return $this->hasMany(PaymentTransaction::class);
     }
 
+    public function documents()
+    {
+        return $this->hasMany(DonationDocument::class);
+    }
+
     public function referenceColumn(): string
     {
         return 'reference_number';

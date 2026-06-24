@@ -45,7 +45,7 @@ return [
             'name' => 'PayPal',
             'method' => 'paypal',
             'category' => 'wallet',
-            'enabled' => true,
+            'enabled' => (bool) env('PAYPAL_ENABLED', false),
             'currencies' => ['USD', 'GBP', 'EUR', 'CAD', 'AUD'],
             'country_codes' => ['*'],
         ],

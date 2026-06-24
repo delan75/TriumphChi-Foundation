@@ -5,10 +5,14 @@ namespace App\Services;
 use App\Http\Resources\Concerns\LocalizesResourceLabels;
 use App\Models\Application;
 use App\Models\Beneficiary;
+use App\Models\ContactMessage;
 use App\Models\Donation;
+use App\Models\DonationDocument;
 use App\Models\Donor;
 use App\Models\Fund;
 use App\Models\Payment;
+use App\Models\PaymentIntent;
+use App\Models\PaymentTransaction;
 use App\Models\School;
 use App\Models\Sponsorship;
 use App\Models\User;
@@ -215,6 +219,47 @@ class GlobalSearchService
                     ]),
             ],
             [
+                'resource' => 'contact_messages',
+                'permission' => 'contact_messages.view',
+                'module' => 'contacts',
+                'module_path' => '/staff/contacts',
+                'search' => fn (string $term, int $limit): Collection => ContactMessage::query()
+                    ->with(['handler:id,name,email'])
+                    ->withCount('attachments')
+                    ->where(function (Builder $query) use ($term): void {
+                        $this->whereAnyLike($query, [
+                            'name',
+                            'email',
+                            'phone',
+                            'reason',
+                            'subject',
+                            'message',
+                            'status',
+                        ], $term);
+
+                        $query->orWhereHas('handler', function (Builder $handlerQuery) use ($term): void {
+                            $this->whereAnyLike($handlerQuery, ['name', 'email'], $term);
+                        });
+                    })
+                    ->latest()
+                    ->limit($limit)
+                    ->get()
+                    ->map(fn (ContactMessage $message): array => [
+                        'id' => $message->uuid,
+                        'reference' => $message->email,
+                        'title' => $message->name,
+                        'subtitle' => $this->joinSummary([
+                            $this->localizedLabel('contact_message_statuses', $message->status),
+                            $this->localizedLabel('contact_reasons', $message->reason),
+                            $message->subject,
+                            $message->handler?->name,
+                            $message->attachments_count ? $message->attachments_count.' files' : null,
+                        ]),
+                        'status' => $message->status,
+                        'status_label' => $this->localizedLabel('contact_message_statuses', $message->status),
+                    ]),
+            ],
+            [
                 'resource' => 'donations',
                 'permission' => 'donations.view',
                 'module' => 'funding',
@@ -247,6 +292,131 @@ class GlobalSearchService
                         ]),
                         'status' => $this->normalizedLabelValue($donation->status),
                         'status_label' => $this->localizedLabel('donation_statuses', $donation->status),
+                    ]),
+            ],
+            [
+                'resource' => 'payment_intents',
+                'permission' => 'donations.view',
+                'module' => 'funding',
+                'module_path' => '/staff/funding',
+                'search' => fn (string $term, int $limit): Collection => PaymentIntent::query()
+                    ->with(['donation.donor', 'provider'])
+                    ->where(function (Builder $query) use ($term): void {
+                        $this->whereAnyLike($query, [
+                            'intent_reference',
+                            'provider_intent_id',
+                            'frequency',
+                            'purpose',
+                            'status',
+                            'currency',
+                        ], $term);
+
+                        $query->orWhereHas('donation', function (Builder $donationQuery) use ($term): void {
+                            $this->whereAnyLike($donationQuery, ['reference_number', 'provider_reference'], $term);
+                        });
+
+                        $query->orWhereHas('donation.donor', function (Builder $donorQuery) use ($term): void {
+                            $this->whereAnyLike($donorQuery, ['name', 'email'], $term);
+                        });
+                    })
+                    ->latest()
+                    ->limit($limit)
+                    ->get()
+                    ->map(fn (PaymentIntent $intent): array => [
+                        'id' => $intent->uuid,
+                        'reference' => $intent->intent_reference,
+                        'title' => $intent->donation?->donor?->name ?: $intent->provider?->name ?: __('api.search.fallbacks.payment_intent'),
+                        'subtitle' => $this->joinSummary([
+                            $this->moneyLabel($intent->amount, $intent->currency),
+                            $this->localizedLabel('payment_intent_statuses', $intent->status),
+                            $this->localizedLabel('donation_frequencies', $intent->frequency),
+                            $this->localizedLabel('donation_purposes', $intent->purpose),
+                            $intent->donation?->reference_number,
+                        ]),
+                        'status' => $intent->status,
+                        'status_label' => $this->localizedLabel('payment_intent_statuses', $intent->status),
+                    ]),
+            ],
+            [
+                'resource' => 'payment_transactions',
+                'permission' => 'payments.view',
+                'module' => 'funding',
+                'module_path' => '/staff/funding',
+                'search' => fn (string $term, int $limit): Collection => PaymentTransaction::query()
+                    ->with(['donation.donor', 'provider', 'intent'])
+                    ->where(function (Builder $query) use ($term): void {
+                        $this->whereAnyLike($query, [
+                            'transaction_reference',
+                            'provider_transaction_id',
+                            'type',
+                            'status',
+                            'currency',
+                        ], $term);
+
+                        $query->orWhereHas('donation', function (Builder $donationQuery) use ($term): void {
+                            $this->whereAnyLike($donationQuery, ['reference_number', 'provider_reference'], $term);
+                        });
+
+                        $query->orWhereHas('intent', function (Builder $intentQuery) use ($term): void {
+                            $this->whereAnyLike($intentQuery, ['intent_reference', 'provider_intent_id'], $term);
+                        });
+                    })
+                    ->latest('processed_at')
+                    ->limit($limit)
+                    ->get()
+                    ->map(fn (PaymentTransaction $transaction): array => [
+                        'id' => $transaction->uuid,
+                        'reference' => $transaction->transaction_reference,
+                        'title' => $transaction->provider_transaction_id ?: $transaction->donation?->reference_number ?: __('api.search.fallbacks.payment_transaction'),
+                        'subtitle' => $this->joinSummary([
+                            $this->moneyLabel($transaction->amount, $transaction->currency),
+                            $this->localizedLabel('payment_transaction_statuses', $transaction->status),
+                            $this->localizedLabel('payment_transaction_types', $transaction->type),
+                            $transaction->provider?->name,
+                        ]),
+                        'status' => $transaction->status,
+                        'status_label' => $this->localizedLabel('payment_transaction_statuses', $transaction->status),
+                    ]),
+            ],
+            [
+                'resource' => 'donation_documents',
+                'permission' => 'donations.view',
+                'module' => 'funding',
+                'module_path' => '/staff/funding',
+                'search' => fn (string $term, int $limit): Collection => DonationDocument::query()
+                    ->with(['donation.donor'])
+                    ->where(function (Builder $query) use ($term): void {
+                        $this->whereAnyLike($query, [
+                            'document_number',
+                            'type',
+                            'status',
+                            'locale',
+                            'title',
+                        ], $term);
+
+                        $query->orWhereHas('donation', function (Builder $donationQuery) use ($term): void {
+                            $this->whereAnyLike($donationQuery, ['reference_number', 'provider_reference'], $term);
+                        });
+
+                        $query->orWhereHas('donation.donor', function (Builder $donorQuery) use ($term): void {
+                            $this->whereAnyLike($donorQuery, ['name', 'email'], $term);
+                        });
+                    })
+                    ->latest('issued_at')
+                    ->limit($limit)
+                    ->get()
+                    ->map(fn (DonationDocument $document): array => [
+                        'id' => $document->uuid,
+                        'reference' => $document->document_number,
+                        'title' => $document->title,
+                        'subtitle' => $this->joinSummary([
+                            $this->localizedLabel('donation_document_types', $document->type),
+                            $this->localizedLabel('donation_document_statuses', $document->status),
+                            $document->donation?->reference_number,
+                            $document->donation?->donor?->name,
+                        ]),
+                        'status' => $document->status,
+                        'status_label' => $this->localizedLabel('donation_document_statuses', $document->status),
                     ]),
             ],
             [

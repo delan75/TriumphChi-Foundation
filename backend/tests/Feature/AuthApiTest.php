@@ -304,6 +304,8 @@ class AuthApiTest extends TestCase
         $this->assertTrue($admin->can('beneficiaries.delete'));
         $this->assertTrue($admin->can('permissions.manage'));
         $this->assertTrue($admin->can('future.permission.added.later'));
+        $this->assertTrue($admin->getDirectPermissions()->isEmpty());
+        $this->assertTrue($admin->roles()->firstOrFail()->hasPermissionTo('contact_messages.view'));
         $this->assertTrue($admin->isActive());
         $this->assertNotNull($admin->email_verified_at);
         $this->assertDatabaseHas('user_auth_providers', [
