@@ -240,6 +240,60 @@ class PublicDonationIntentTest extends TestCase
             'locale' => 'en',
             'status' => 'issued',
         ]);
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() === 'https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER-123/capture'
+                && $request->method() === 'POST'
+                && $request->body() === '{}';
+        });
+    }
+
+    public function test_public_paypal_capture_uses_stored_order_when_return_token_is_missing(): void
+    {
+        $intent = $this->createPendingPaypalIntent();
+
+        Http::fake([
+            'https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER-123/capture' => Http::response($this->paypalCapturePayload(), 201),
+        ]);
+
+        $this->postJson("/api/v1/public/donation-intents/{$intent->uuid}/paypal/capture", [
+            'order_id' => '',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'completed')
+            ->assertJsonPath('data.donation.status', 'confirmed');
+
+        $this->assertDatabaseHas('payment_transactions', [
+            'payment_intent_id' => $intent->id,
+            'provider_transaction_id' => 'CAPTURE-123',
+            'type' => 'paypal_capture',
+            'status' => 'completed',
+        ]);
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() === 'https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER-123/capture'
+                && $request->method() === 'POST';
+        });
+    }
+
+    public function test_public_paypal_capture_rejects_mismatched_return_order_id(): void
+    {
+        $intent = $this->createPendingPaypalIntent();
+
+        $this->postJson("/api/v1/public/donation-intents/{$intent->uuid}/paypal/capture", [
+            'order_id' => 'WRONG-ORDER',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonPath('message', __('api.errors.paypal_order_mismatch'));
+
+        $this->assertDatabaseHas('payment_intents', [
+            'id' => $intent->id,
+            'status' => 'pending',
+        ]);
+        $this->assertDatabaseHas('donations', [
+            'id' => $intent->donation_id,
+            'status' => 'pending',
+        ]);
     }
 
     public function test_public_paypal_capture_rejects_amount_mismatch(): void
