@@ -36,6 +36,9 @@ return [
         'attachment_too_large' => 'Le fichier joint est trop volumineux. Veuillez joindre un fichier plus léger.',
         'too_many_attachments' => 'Veuillez joindre moins de fichiers.',
         'consent_required' => 'Veuillez confirmer que nous pouvons répondre à votre message.',
+        'assignable_users_retrieved' => 'Personnel assignable récupéré.',
+        'assigned' => 'Assignation de la demande de contact mise à jour.',
+        'forwarded' => 'Demande de contact envoyée avec succès.',
     ],
 
     'application' => [

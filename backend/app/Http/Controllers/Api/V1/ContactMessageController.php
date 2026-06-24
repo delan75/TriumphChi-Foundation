@@ -3,20 +3,39 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AssignContactMessageRequest;
+use App\Http\Requests\ForwardContactMessageRequest;
 use App\Http\Requests\ListContactMessageRequest;
 use App\Http\Requests\StoreContactMessageRequest;
 use App\Http\Requests\UpdateContactMessageRequest;
 use App\Http\Resources\ContactMessageResource;
+use App\Mail\ContactMessageForwarded;
 use App\Models\ContactMessage;
 use App\Models\ContactMessageAttachment;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ContactMessageController extends Controller
 {
+    public function assignableUsers(): JsonResponse
+    {
+        $this->authorizeMessage('contact_messages.update');
+
+        $users = User::query()
+            ->select(['id', 'name', 'email'])
+            ->where('status', User::STATUS_ACTIVE)
+            ->orderBy('name')
+            ->limit(100)
+            ->get();
+
+        return $this->success($users, __('api.contact.assignable_users_retrieved'));
+    }
+
     public function index(ListContactMessageRequest $request)
     {
         $filters = $request->validated();
@@ -93,6 +112,58 @@ class ContactMessageController extends Controller
             'attachments',
             'handler:id,name,email',
         ]));
+    }
+
+    public function assign(AssignContactMessageRequest $request, ContactMessage $contactMessage)
+    {
+        $assignedTo = $request->validated('assigned_to');
+
+        $contactMessage->forceFill([
+            'handled_by' => $assignedTo,
+            'status' => $assignedTo && $contactMessage->status === 'new' ? 'reviewing' : $contactMessage->status,
+            'reviewed_at' => $assignedTo ? ($contactMessage->reviewed_at ?? now()) : $contactMessage->reviewed_at,
+        ])->save();
+
+        return $this->success(
+            ContactMessageResource::make($contactMessage->fresh(['attachments', 'handler:id,name,email'])),
+            __('api.contact.assigned'),
+        );
+    }
+
+    public function forward(ForwardContactMessageRequest $request, ContactMessage $contactMessage)
+    {
+        $validated = $request->validated();
+        $user = $request->user();
+
+        $contactMessage->loadMissing(['attachments', 'handler:id,name,email']);
+
+        Mail::to($validated['to_email'])
+            ->send(new ContactMessageForwarded(
+                $contactMessage,
+                $validated['note'] ?? null,
+                $user,
+            ));
+
+        $status = (bool) ($validated['mark_as_replied'] ?? false) ? 'replied' : $contactMessage->status;
+        $status = $status === 'new' ? 'reviewing' : $status;
+
+        $contactMessage->forceFill([
+            'status' => $status,
+            'handled_by' => $contactMessage->handled_by ?: $user?->id,
+            'reviewed_at' => $contactMessage->reviewed_at ?? now(),
+            'responded_at' => $status === 'replied' ? ($contactMessage->responded_at ?? now()) : $contactMessage->responded_at,
+            'staff_notes' => $this->forwardingStaffNotes(
+                $contactMessage->staff_notes,
+                $validated['to_email'],
+                $validated['note'] ?? null,
+                $user?->name,
+            ),
+        ])->save();
+
+        return $this->success(
+            ContactMessageResource::make($contactMessage->fresh(['attachments', 'handler:id,name,email'])),
+            __('api.contact.forwarded'),
+        );
     }
 
     public function update(UpdateContactMessageRequest $request, ContactMessage $contactMessage)
@@ -191,5 +262,17 @@ class ContactMessageController extends Controller
     private function authorizeMessage(string $permission): void
     {
         abort_unless(request()->user()?->can($permission), 403);
+    }
+
+    private function forwardingStaffNotes(?string $existingNotes, string $toEmail, ?string $note, ?string $forwardedBy): string
+    {
+        $forwardedBy = $forwardedBy ?: 'Staff member';
+        $entry = "Forwarded to {$toEmail} by {$forwardedBy} on ".now()->toDayDateTimeString().'.';
+
+        if (filled($note)) {
+            $entry .= "\nNote: {$note}";
+        }
+
+        return Str::limit(trim(collect([$existingNotes, $entry])->filter()->implode("\n\n")), 3000, '');
     }
 }

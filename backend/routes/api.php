@@ -220,6 +220,18 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->middleware('can:contact_messages.attachments.view')
             ->name('contact-messages.attachments.download');
 
+        Route::get('contact-messages/assignable-users', [ContactMessageController::class, 'assignableUsers'])
+            ->middleware('can:contact_messages.update')
+            ->name('contact-messages.assignable-users');
+
+        Route::patch('contact-messages/{contactMessage}/assignment', [ContactMessageController::class, 'assign'])
+            ->middleware('can:contact_messages.update')
+            ->name('contact-messages.assignment');
+
+        Route::post('contact-messages/{contactMessage}/forward', [ContactMessageController::class, 'forward'])
+            ->middleware('can:contact_messages.update')
+            ->name('contact-messages.forward');
+
         Route::apiResource('contact-messages', ContactMessageController::class)
             ->only(['index', 'show', 'update', 'destroy'])
             ->middlewareFor(['index', 'show'], 'can:contact_messages.view')
