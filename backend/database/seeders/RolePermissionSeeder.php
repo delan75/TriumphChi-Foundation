@@ -48,6 +48,10 @@ class RolePermissionSeeder extends Seeder
                 'schools.create',
                 'schools.update',
                 'donors.view',
+                'contact_messages.view',
+                'contact_messages.update',
+                'contact_messages.archive',
+                'contact_messages.attachments.view',
                 'donations.view',
                 'funds.view',
                 'allocations.view',
@@ -138,6 +142,12 @@ class RolePermissionSeeder extends Seeder
                 'donors.create',
                 'donors.update',
                 'donors.delete',
+            ],
+            'contact_messages' => [
+                'contact_messages.view',
+                'contact_messages.update',
+                'contact_messages.archive',
+                'contact_messages.attachments.view',
             ],
             'donations' => [
                 'donations.view',

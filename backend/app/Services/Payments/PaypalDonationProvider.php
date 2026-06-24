@@ -30,7 +30,7 @@ class PaypalDonationProvider implements PaymentProviderInterface
                 'PayPal-Request-Id' => "order-{$intent->uuid}",
                 'Prefer' => 'return=representation',
             ])
-            ->post('/v2/checkout/orders', $payload);
+            ->post("/v2/checkout/orders/{$intent->provider_intent_id}/capture", []);
 
         Log::info('PayPal create order response received.', [
             'status' => $response->status(),
@@ -138,11 +138,24 @@ class PaypalDonationProvider implements PaymentProviderInterface
     {
         $this->assertConfigured();
 
+        // 🚨 Log 1: Trace what incoming orderId we are trying to match against our DB intent
+        Log::info('PayPal capture requested.', [
+            'intent_uuid' => $intent->uuid,
+            'db_provider_intent_id' => $intent->provider_intent_id,
+            'incoming_order_id' => $orderId,
+        ]);
+
         if (! $intent->provider_intent_id || ! hash_equals($intent->provider_intent_id, (string) $orderId)) {
+            Log::warning('PayPal capture aborted: Order ID mismatch.', [
+                'intent_uuid' => $intent->uuid,
+                'expected' => $intent->provider_intent_id,
+                'actual' => $orderId,
+            ]);
             throw new PaymentProviderException(__('api.errors.paypal_order_mismatch'));
         }
 
         if (($intent->donation->status->value ?? $intent->donation->status) === 'confirmed') {
+            Log::info('PayPal capture skipped: Donation already confirmed.', ['intent_uuid' => $intent->uuid]);
             return $intent->load(['donation', 'provider']);
         }
 
@@ -169,6 +182,12 @@ class PaypalDonationProvider implements PaymentProviderInterface
             ],
         ]);
 
+        // 🚨 Log 2: Log immediately before hitting PayPal's API
+        Log::info('Sending capture request to PayPal.', [
+            'intent_uuid' => $intent->uuid,
+            'paypal_order_id' => $intent->provider_intent_id,
+        ]);
+
         $response = Http::baseUrl($this->baseUrl())
             ->timeout($this->timeout())
             ->withToken($this->accessToken())
@@ -178,7 +197,23 @@ class PaypalDonationProvider implements PaymentProviderInterface
             ])
             ->post("/v2/checkout/orders/{$intent->provider_intent_id}/capture");
 
+        // 🚨 Log 3: Log the raw API response meta details immediately
+        Log::info('PayPal capture response received.', [
+            'status' => $response->status(),
+            'intent_uuid' => $intent->uuid,
+            'paypal_debug_id' => $response->header('PayPal-Debug-Id'),
+            'is_successful' => $response->successful(),
+        ]);
+
         if (! $response->successful()) {
+            // 🚨 Log 4: Detailed warning log containing the raw error payload from PayPal
+            Log::warning('PayPal API capture endpoint failed.', [
+                'status' => $response->status(),
+                'intent_uuid' => $intent->uuid,
+                'paypal_debug_id' => $response->header('PayPal-Debug-Id'),
+                'provider_body' => $this->safeResponseBody($response),
+            ]);
+
             $this->markFailed($intent, 'paypal_capture', $intent->provider_intent_id, [
                 'http_status' => $response->status(),
                 'provider_body' => $this->safeResponseBody($response),
@@ -558,6 +593,16 @@ class PaypalDonationProvider implements PaymentProviderInterface
     {
         $currency = (string) ($amount['currency_code'] ?? '');
         $value = (string) ($amount['value'] ?? '');
+
+        // 🚨 DEBUG LOG: Inspect exactly what is arriving here
+        Log::debug('PayPal Capture Validation Check', [
+            'intent_uuid'     => $intent->uuid,
+            'intent_currency' => $intent->currency,
+            'intent_amount'   => $this->decimalAmount($intent->amount),
+            'parsed_currency' => $currency,
+            'parsed_value'    => $value,
+            'raw_amount_arg'  => $amount,
+        ]);
 
         if ($currency !== $intent->currency || abs((float) $this->decimalAmount($intent->amount) - (float) $this->decimalAmount($value)) > 0.009) {
             $this->markFailed($intent, 'paypal_capture_validation', $intent->provider_intent_id, [

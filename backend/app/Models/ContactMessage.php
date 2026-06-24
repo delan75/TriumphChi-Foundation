@@ -22,18 +22,29 @@ class ContactMessage extends Model
         'status',
         'ip_address',
         'user_agent',
+        'staff_notes',
+        'handled_by',
         'responded_at',
+        'reviewed_at',
+        'archived_at',
     ];
 
     protected function casts(): array
     {
         return [
             'responded_at' => 'datetime',
+            'reviewed_at' => 'datetime',
+            'archived_at' => 'datetime',
         ];
     }
 
     public function attachments()
     {
         return $this->hasMany(ContactMessageAttachment::class);
+    }
+
+    public function handler()
+    {
+        return $this->belongsTo(User::class, 'handled_by');
     }
 }
