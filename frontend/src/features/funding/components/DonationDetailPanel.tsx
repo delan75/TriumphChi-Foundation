@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { RefreshCcw, X } from 'lucide-react';
 import { DashboardPanel } from '../../../components/staff/DashboardPanel';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
 import type { DonationManagementRecord } from '../../../lib/api';
@@ -11,13 +11,30 @@ interface DonationDetailPanelProps {
   locale: Locale;
   donation: DonationManagementRecord | null;
   isLoading: boolean;
+  isRefreshingPaymentStatus: boolean;
+  onRefreshPaymentStatus: (uuid: string) => void;
   onClose: () => void;
 }
 
-export function DonationDetailPanel({ copy, locale, donation, isLoading, onClose }: DonationDetailPanelProps) {
+export function DonationDetailPanel({
+  copy,
+  locale,
+  donation,
+  isLoading,
+  isRefreshingPaymentStatus,
+  onRefreshPaymentStatus,
+  onClose,
+}: DonationDetailPanelProps) {
   if (!donation && !isLoading) {
     return null;
   }
+
+  const canRefreshPaypalStatus = Boolean(
+    donation
+      && donation.provider === 'paypal'
+      && donation.permissions.can_approve
+      && ['pending', 'processing'].includes(donation.status),
+  );
 
   return (
     /* 1. Made the parent element sticky */
@@ -59,6 +76,26 @@ export function DonationDetailPanel({ copy, locale, donation, isLoading, onClose
               </div>
             </div>
           </div>
+
+          {canRefreshPaypalStatus && donation ? (
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-sm font-black text-amber-950">{copy.paymentReviewTitle}</p>
+                  <p className="mt-1 text-sm leading-6 text-amber-900">{copy.paymentReviewBody}</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={isRefreshingPaymentStatus}
+                  onClick={() => onRefreshPaymentStatus(donation.uuid)}
+                  className="focus-ring inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-amber-700 px-4 text-sm font-black text-white transition hover:bg-amber-900 disabled:cursor-wait disabled:opacity-70"
+                >
+                  <RefreshCcw className={`h-4 w-4 ${isRefreshingPaymentStatus ? 'animate-spin' : ''}`} aria-hidden="true" />
+                  {isRefreshingPaymentStatus ? copy.refreshingPaymentStatus : copy.refreshPaymentStatus}
+                </button>
+              </div>
+            </div>
+          ) : null}
 
           <DashboardPanel title={copy.latestIntent} bodyClassName="p-4">
             {/* Add optional chaining here */}

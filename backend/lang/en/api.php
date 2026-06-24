@@ -79,6 +79,7 @@ return [
         'donation_config_retrieved' => 'Donation options retrieved successfully.',
         'donation_intent_created' => 'Thank you. Your donation has been prepared securely.',
         'donation_intent_status_retrieved' => 'Donation status retrieved successfully.',
+        'donation_payment_status_refreshed' => 'Donation payment status checked successfully.',
         'momo_account_holder_status_retrieved' => 'MoMo account holder status retrieved successfully.',
         'momo_callback_received' => 'MoMo callback received.',
         'paypal_donation_verified' => 'PayPal donation verified successfully.',

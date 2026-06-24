@@ -16,9 +16,10 @@ interface PaypalDonationReturnPageProps {
   mode: 'return' | 'cancel';
 }
 
-type VerificationState = 'verifying' | 'completed' | 'failed' | 'cancelled';
+type VerificationState = 'verifying' | 'completed' | 'failed' | 'cancelled' | 'reviewing';
 
 const maxStatusChecks = 8;
+const statusCheckIntervalMs = 5000;
 
 export function PaypalDonationReturnPage({ locale, mode }: PaypalDonationReturnPageProps) {
   const copy = paypalReturnCopy[locale];
@@ -32,10 +33,75 @@ export function PaypalDonationReturnPage({ locale, mode }: PaypalDonationReturnP
   const [message, setMessage] = useState(mode === 'cancel' ? copy.cancelChecking : copy.verifyingBody);
   const [intent, setIntent] = useState<PublicDonationIntentResponse | null>(null);
   const [checks, setChecks] = useState(0);
+  const [isManualChecking, setIsManualChecking] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     let timer: number | undefined;
+
+    function applyStatus(nextIntent: PublicDonationIntentResponse, source: string): boolean {
+      setIntent(nextIntent);
+
+      if (nextIntent.donation.status === 'confirmed' || nextIntent.status === 'completed') {
+        setState('completed');
+        setMessage(copy.completedBody);
+        trackPaypalEvent('paypal_completed', { intentUuid, source });
+        return true;
+      }
+
+      if (nextIntent.donation.status === 'failed' || nextIntent.status === 'failed') {
+        setState('failed');
+        setMessage(copy.failedBody);
+        trackPaypalEvent('paypal_failed', { intentUuid, source });
+        return true;
+      }
+
+      if (nextIntent.donation.status === 'pending' || nextIntent.status === 'processing') {
+        setMessage(copy.reviewingBody);
+      }
+
+      return false;
+    }
+
+    function scheduleStatusCheck(attempt: number) {
+      setChecks(attempt);
+      const delay = attempt === 1 ? 0 : statusCheckIntervalMs;
+
+      timer = window.setTimeout(async () => {
+        if (cancelled) {
+          return;
+        }
+
+        try {
+          const status = await apiGetDonationIntentStatus(intentUuid, locale);
+
+          if (cancelled) {
+            return;
+          }
+
+          if (applyStatus(status, 'status_poll')) {
+            return;
+          }
+
+          if (attempt >= maxStatusChecks) {
+            setState('reviewing');
+            setMessage(copy.notConfirmedBody);
+            trackPaypalEvent('paypal_review_pending', { intentUuid, reason: 'status_timeout' });
+            return;
+          }
+
+          scheduleStatusCheck(attempt + 1);
+        } catch (error) {
+          if (cancelled) {
+            return;
+          }
+
+          setState('failed');
+          setMessage(error instanceof Error ? error.message : copy.failedBody);
+          trackPaypalEvent('paypal_failed', { intentUuid, reason: 'status_error' });
+        }
+      }, delay);
+    }
 
     async function verify() {
       if (!intentUuid) {
@@ -69,57 +135,17 @@ export function PaypalDonationReturnPage({ locale, mode }: PaypalDonationReturnP
         setIntent(capture.data ?? null);
         trackPaypalEvent('paypal_verified', { intentUuid, status: capture.data?.status });
 
-        if (capture.data?.donation.status === 'confirmed' || capture.data?.status === 'completed') {
-          setState('completed');
-          setMessage(copy.completedBody);
-          trackPaypalEvent('paypal_completed', { intentUuid });
+        if (!capture.data) {
+          setState('failed');
+          setMessage(copy.failedBody);
           return;
         }
 
-        let attempts = 1;
-        setChecks(attempts);
-        timer = window.setInterval(async () => {
-          attempts += 1;
-          setChecks(attempts);
+        if (applyStatus(capture.data, 'capture')) {
+          return;
+        }
 
-          try {
-            const status = await apiGetDonationIntentStatus(intentUuid, locale);
-
-            if (cancelled) {
-              return;
-            }
-
-            setIntent(status);
-
-            if (status.donation.status === 'confirmed' || status.status === 'completed') {
-              setState('completed');
-              setMessage(copy.completedBody);
-              trackPaypalEvent('paypal_completed', { intentUuid });
-              window.clearInterval(timer);
-              return;
-            }
-
-            if (status.donation.status === 'failed' || status.status === 'failed') {
-              setState('failed');
-              setMessage(copy.failedBody);
-              trackPaypalEvent('paypal_failed', { intentUuid });
-              window.clearInterval(timer);
-              return;
-            }
-
-            if (attempts >= maxStatusChecks) {
-              setState('failed');
-              setMessage(copy.notConfirmedBody);
-              trackPaypalEvent('paypal_failed', { intentUuid, reason: 'status_timeout' });
-              window.clearInterval(timer);
-            }
-          } catch (error) {
-            setState('failed');
-            setMessage(error instanceof Error ? error.message : copy.failedBody);
-            trackPaypalEvent('paypal_failed', { intentUuid, reason: 'status_error' });
-            window.clearInterval(timer);
-          }
-        }, 3000);
+        scheduleStatusCheck(1);
       } catch (error) {
         if (cancelled) {
           return;
@@ -136,19 +162,55 @@ export function PaypalDonationReturnPage({ locale, mode }: PaypalDonationReturnP
     return () => {
       cancelled = true;
       if (timer) {
-        window.clearInterval(timer);
+        window.clearTimeout(timer);
       }
     };
   }, [copy, intentUuid, locale, mode, orderId]);
 
+  async function checkAgain() {
+    if (!intentUuid) {
+      return;
+    }
+
+    setIsManualChecking(true);
+
+    try {
+      const status = await apiGetDonationIntentStatus(intentUuid, locale);
+      setIntent(status);
+
+      if (status.donation.status === 'confirmed' || status.status === 'completed') {
+        setState('completed');
+        setMessage(copy.completedBody);
+        trackPaypalEvent('paypal_completed', { intentUuid, source: 'manual_check' });
+        return;
+      }
+
+      if (status.donation.status === 'failed' || status.status === 'failed') {
+        setState('failed');
+        setMessage(copy.failedBody);
+        trackPaypalEvent('paypal_failed', { intentUuid, source: 'manual_check' });
+        return;
+      }
+
+      setState('reviewing');
+      setMessage(copy.notConfirmedBody);
+      trackPaypalEvent('paypal_review_pending', { intentUuid, source: 'manual_check' });
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : copy.failedBody);
+    } finally {
+      setIsManualChecking(false);
+    }
+  }
+
   const isWorking = state === 'verifying';
   const Icon = state === 'completed' ? CheckCircle2 : state === 'failed' || state === 'cancelled' ? CircleAlert : Loader2;
+  const isProblemState = state === 'failed' || state === 'cancelled';
 
   return (
     <section className="min-h-[70dvh] bg-foundation-50">
       <div className="mx-auto grid min-h-[70dvh] max-w-4xl place-items-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="w-full overflow-hidden rounded-md border border-foundation-100 bg-white shadow-xl shadow-foundation-950/10">
-          <div className={cn('px-6 py-8 text-center text-white', state === 'failed' || state === 'cancelled' ? 'bg-red-950' : 'bg-foundation-900')}>
+          <div className={cn('px-6 py-8 text-center text-white', isProblemState ? 'bg-red-950' : 'bg-foundation-900')}>
             <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border border-white/20 bg-white/10">
               <Icon className={cn('h-10 w-10', isWorking ? 'animate-spin text-white' : 'text-foundation-100')} aria-hidden="true" />
             </div>
@@ -201,6 +263,18 @@ export function PaypalDonationReturnPage({ locale, mode }: PaypalDonationReturnP
             ) : null}
 
             <div className="grid gap-3 sm:grid-cols-2">
+              {state === 'reviewing' ? (
+                <button
+                  type="button"
+                  onClick={() => void checkAgain()}
+                  disabled={isManualChecking}
+                  className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-700 px-5 text-sm font-black text-white transition hover:bg-foundation-900 disabled:cursor-wait disabled:opacity-70"
+                >
+                  <Loader2 className={cn('h-4 w-4', isManualChecking ? 'animate-spin' : '')} aria-hidden="true" />
+                  {isManualChecking ? copy.checkingAgainLabel : copy.checkAgainLabel}
+                </button>
+              ) : null}
+
               {state === 'failed' || state === 'cancelled' ? (
                 <Link
                   to={`/${locale}${donatePage.path[locale]}`}
@@ -215,7 +289,7 @@ export function PaypalDonationReturnPage({ locale, mode }: PaypalDonationReturnP
                 to={`/${locale}${state === 'completed' ? impactPage.path[locale] : donatePage.path[locale]}`}
                 className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-foundation-200 bg-white px-5 text-sm font-black text-foundation-900 transition hover:bg-foundation-50"
               >
-                {state === 'completed' ? copy.viewImpactLabel : copy.chooseAnotherLabel}
+                {state === 'completed' ? copy.viewImpactLabel : state === 'reviewing' ? copy.continueBrowsingLabel : copy.chooseAnotherLabel}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
@@ -248,6 +322,10 @@ function titleForState(state: VerificationState, copy: PaypalReturnCopy) {
     return copy.failedTitle;
   }
 
+  if (state === 'reviewing') {
+    return copy.reviewingTitle;
+  }
+
   return copy.verifyingTitle;
 }
 
@@ -264,6 +342,8 @@ function trackPaypalEvent(name: string, details: Record<string, unknown> = {}) {
 interface PaypalReturnCopy {
   verifyingTitle: string;
   verifyingBody: string;
+  reviewingTitle: string;
+  reviewingBody: string;
   completedTitle: string;
   completedBody: string;
   failedTitle: string;
@@ -279,6 +359,9 @@ interface PaypalReturnCopy {
   statusChecksLabel: string;
   tryAgainLabel: string;
   chooseAnotherLabel: string;
+  checkAgainLabel: string;
+  checkingAgainLabel: string;
+  continueBrowsingLabel: string;
   viewImpactLabel: string;
   documentsTitle: string;
 }
@@ -287,11 +370,13 @@ const paypalReturnCopy = {
   en: {
     verifyingTitle: 'Verifying your donation...',
     verifyingBody: 'Please wait while we confirm your PayPal payment securely.',
+    reviewingTitle: 'Donation Under Review',
+    reviewingBody: 'PayPal has accepted the payment request and is completing a review. We will keep this donation open while confirmation is finalized.',
     completedTitle: 'Donation Received',
     completedBody: 'Thank you for supporting our mission. Your donation has been confirmed.',
     failedTitle: 'Payment Not Completed',
     failedBody: 'Your donation could not be confirmed.',
-    notConfirmedBody: 'We could not confirm the donation yet. Please try again or choose another giving channel.',
+    notConfirmedBody: 'PayPal is still reviewing this payment. You do not need to give again unless PayPal later reports that the payment was not completed.',
     cancelledTitle: 'Payment Cancelled',
     cancelledBody: 'The PayPal payment was cancelled before the donation was completed.',
     cancelChecking: 'Please wait while we update this donation request.',
@@ -302,17 +387,22 @@ const paypalReturnCopy = {
     statusChecksLabel: 'Verification checks',
     tryAgainLabel: 'Try Again',
     chooseAnotherLabel: 'Choose Another Channel',
+    checkAgainLabel: 'Check Again',
+    checkingAgainLabel: 'Checking...',
+    continueBrowsingLabel: 'Continue Browsing',
     viewImpactLabel: 'View Impact',
     documentsTitle: 'Receipt and invoice',
   },
   fr: {
     verifyingTitle: 'Verification de votre don...',
     verifyingBody: 'Veuillez patienter pendant que nous confirmons votre paiement PayPal de maniere securisee.',
+    reviewingTitle: 'Don en cours de verification',
+    reviewingBody: 'PayPal a accepte la demande de paiement et finalise une verification. Nous garderons ce don ouvert jusqu a la confirmation finale.',
     completedTitle: 'Don recu',
     completedBody: 'Merci de soutenir notre mission. Votre don a ete confirme.',
     failedTitle: 'Paiement non termine',
     failedBody: 'Votre don n a pas pu etre confirme.',
-    notConfirmedBody: 'Nous ne pouvons pas encore confirmer le don. Veuillez reessayer ou choisir un autre canal.',
+    notConfirmedBody: 'PayPal verifie encore ce paiement. Vous n avez pas besoin de donner a nouveau sauf si PayPal indique plus tard que le paiement n a pas ete termine.',
     cancelledTitle: 'Paiement annule',
     cancelledBody: 'Le paiement PayPal a ete annule avant la fin du don.',
     cancelChecking: 'Veuillez patienter pendant que nous mettons a jour cette demande de don.',
@@ -323,6 +413,9 @@ const paypalReturnCopy = {
     statusChecksLabel: 'Verifications',
     tryAgainLabel: 'Reessayer',
     chooseAnotherLabel: 'Choisir un autre canal',
+    checkAgainLabel: 'Verifier encore',
+    checkingAgainLabel: 'Verification...',
+    continueBrowsingLabel: 'Continuer',
     viewImpactLabel: 'Voir l impact',
     documentsTitle: 'Reçu et facture',
   },
