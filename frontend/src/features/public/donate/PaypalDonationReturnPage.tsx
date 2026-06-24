@@ -59,13 +59,7 @@ export function PaypalDonationReturnPage({ locale, mode }: PaypalDonationReturnP
           return;
         }
 
-        if (!orderId) {
-          setState('failed');
-          setMessage(copy.missingOrder);
-          return;
-        }
-
-        trackPaypalEvent('paypal_returned', { intentUuid });
+        trackPaypalEvent('paypal_returned', { intentUuid, hasOrderId: orderId !== '' });
         const capture = await apiCapturePaypalDonationIntent(intentUuid, orderId, locale);
 
         if (cancelled) {
@@ -279,7 +273,6 @@ interface PaypalReturnCopy {
   cancelledBody: string;
   cancelChecking: string;
   missingIntent: string;
-  missingOrder: string;
   referenceLabel: string;
   amountLabel: string;
   statusLabel: string;
@@ -303,7 +296,6 @@ const paypalReturnCopy = {
     cancelledBody: 'The PayPal payment was cancelled before the donation was completed.',
     cancelChecking: 'Please wait while we update this donation request.',
     missingIntent: 'This PayPal return link is missing the donation reference.',
-    missingOrder: 'This PayPal return link is missing the PayPal order reference.',
     referenceLabel: 'Reference',
     amountLabel: 'Amount',
     statusLabel: 'Status',
@@ -325,7 +317,6 @@ const paypalReturnCopy = {
     cancelledBody: 'Le paiement PayPal a ete annule avant la fin du don.',
     cancelChecking: 'Veuillez patienter pendant que nous mettons a jour cette demande de don.',
     missingIntent: 'Ce lien de retour PayPal ne contient pas la reference du don.',
-    missingOrder: 'Ce lien de retour PayPal ne contient pas la reference de commande PayPal.',
     referenceLabel: 'Reference',
     amountLabel: 'Montant',
     statusLabel: 'Statut',

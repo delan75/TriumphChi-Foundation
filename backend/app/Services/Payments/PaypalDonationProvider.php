@@ -138,8 +138,24 @@ class PaypalDonationProvider implements PaymentProviderInterface
     {
         $this->assertConfigured();
 
-        if (! $intent->provider_intent_id || ! hash_equals($intent->provider_intent_id, (string) $orderId)) {
-            throw new PaymentProviderException(__('api.errors.paypal_order_mismatch'));
+        $incomingOrderId = trim((string) $orderId);
+        $resolvedOrderId = $incomingOrderId !== '' ? $incomingOrderId : (string) $intent->provider_intent_id;
+
+        Log::info('PayPal capture requested.', [
+            'intent_uuid' => $intent->uuid,
+            'db_provider_intent_id' => $intent->provider_intent_id,
+            'incoming_order_id' => $incomingOrderId,
+            'order_id_source' => $incomingOrderId !== '' ? 'paypal_return_token' : 'stored_intent',
+        ]);
+
+        if (! $intent->provider_intent_id || ! hash_equals($intent->provider_intent_id, $resolvedOrderId)) {
+            Log::warning('PayPal capture aborted: Order ID mismatch.', [
+                'intent_uuid' => $intent->uuid,
+                'expected' => $intent->provider_intent_id,
+                'actual' => $incomingOrderId,
+            ]);
+
+            throw new PaymentProviderException(__('api.errors.paypal_order_mismatch'), 422);
         }
 
         if (($intent->donation->status->value ?? $intent->donation->status) === 'confirmed') {
@@ -157,7 +173,7 @@ class PaypalDonationProvider implements PaymentProviderInterface
             'payment_intent_id' => $intent->id,
             'donation_id' => $intent->donation_id,
             'payment_provider_id' => $intent->payment_provider_id,
-            'provider_transaction_id' => $intent->provider_intent_id,
+            'provider_transaction_id' => $resolvedOrderId,
             'type' => 'paypal_capture',
             'status' => 'processing',
             'amount' => $intent->amount,
@@ -165,7 +181,8 @@ class PaypalDonationProvider implements PaymentProviderInterface
             'raw_payload' => [
                 'operation' => 'capture_order',
                 'provider' => 'paypal',
-                'order_id' => $intent->provider_intent_id,
+                'order_id' => $resolvedOrderId,
+                'order_id_source' => $incomingOrderId !== '' ? 'paypal_return_token' : 'stored_intent',
             ],
         ]);
 
@@ -176,10 +193,11 @@ class PaypalDonationProvider implements PaymentProviderInterface
                 'PayPal-Request-Id' => "capture-{$intent->uuid}",
                 'Prefer' => 'return=representation',
             ])
-            ->post("/v2/checkout/orders/{$intent->provider_intent_id}/capture");
+            ->withBody('{}', 'application/json')
+            ->post("/v2/checkout/orders/{$resolvedOrderId}/capture");
 
         if (! $response->successful()) {
-            $this->markFailed($intent, 'paypal_capture', $intent->provider_intent_id, [
+            $this->markFailed($intent, 'paypal_capture', $resolvedOrderId, [
                 'http_status' => $response->status(),
                 'provider_body' => $this->safeResponseBody($response),
             ], $transaction);
@@ -503,10 +521,22 @@ class PaypalDonationProvider implements PaymentProviderInterface
     private function webhookSignatureIsValid(Request $request): bool
     {
         if (! (bool) config('paypal.verify_webhooks', true)) {
+            if (app()->environment('production')) {
+                Log::critical('PayPal webhook verification is disabled in production.', [
+                    'transmission_id' => $request->header('PAYPAL-TRANSMISSION-ID'),
+                ]);
+
+                return false;
+            }
+
             return true;
         }
 
         if (! config('paypal.webhook_id')) {
+            Log::warning('PayPal webhook verification failed because webhook id is not configured.', [
+                'transmission_id' => $request->header('PAYPAL-TRANSMISSION-ID'),
+            ]);
+
             return false;
         }
 
@@ -523,7 +553,18 @@ class PaypalDonationProvider implements PaymentProviderInterface
                 'webhook_event' => $request->all(),
             ]);
 
-        return $response->ok() && $response->json('verification_status') === 'SUCCESS';
+        $isValid = $response->ok() && $response->json('verification_status') === 'SUCCESS';
+
+        if (! $isValid) {
+            Log::warning('PayPal webhook signature verification failed.', [
+                'status' => $response->status(),
+                'verification_status' => $response->json('verification_status'),
+                'transmission_id' => $request->header('PAYPAL-TRANSMISSION-ID'),
+                'paypal_debug_id' => $response->header('PayPal-Debug-Id'),
+            ]);
+        }
+
+        return $isValid;
     }
 
     private function accessToken(): string
