@@ -138,23 +138,10 @@ class PaypalDonationProvider implements PaymentProviderInterface
     {
         $this->assertConfigured();
 
-        // 🚨 Log 1: Trace what incoming orderId we are trying to match against our DB intent
-        Log::info('PayPal capture requested.', [
-            'intent_uuid' => $intent->uuid,
-            'db_provider_intent_id' => $intent->provider_intent_id,
-            'incoming_order_id' => $orderId,
-        ]);
-
-        if (! $intent->provider_intent_id || ! hash_equals($intent->provider_intent_id, (string) $orderId)) {
-            Log::warning('PayPal capture aborted: Order ID mismatch.', [
-                'intent_uuid' => $intent->uuid,
-                'expected' => $intent->provider_intent_id,
-                'actual' => $orderId,
-            ]);
-            throw new PaymentProviderException(__('api.errors.paypal_order_mismatch'));
         $incomingOrderId = trim((string) $orderId);
         $resolvedOrderId = $incomingOrderId !== '' ? $incomingOrderId : (string) $intent->provider_intent_id;
 
+        // 🚨 Log 1: Trace what incoming orderId we are trying to match against our DB intent
         Log::info('PayPal capture requested.', [
             'intent_uuid' => $intent->uuid,
             'db_provider_intent_id' => $intent->provider_intent_id,
@@ -204,7 +191,7 @@ class PaypalDonationProvider implements PaymentProviderInterface
         // 🚨 Log 2: Log immediately before hitting PayPal's API
         Log::info('Sending capture request to PayPal.', [
             'intent_uuid' => $intent->uuid,
-            'paypal_order_id' => $intent->provider_intent_id,
+            'paypal_order_id' => $resolvedOrderId,
         ]);
 
         $response = Http::baseUrl($this->baseUrl())
@@ -234,7 +221,6 @@ class PaypalDonationProvider implements PaymentProviderInterface
                 'provider_body' => $this->safeResponseBody($response),
             ]);
 
-            $this->markFailed($intent, 'paypal_capture', $intent->provider_intent_id, [
             $this->markFailed($intent, 'paypal_capture', $resolvedOrderId, [
                 'http_status' => $response->status(),
                 'provider_body' => $this->safeResponseBody($response),
