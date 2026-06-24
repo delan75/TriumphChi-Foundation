@@ -20,8 +20,10 @@ export function DonationDetailPanel({ copy, locale, donation, isLoading, onClose
   }
 
   return (
-    <aside className="rounded-md border border-ink-100 bg-white shadow-sm">
-      <header className="flex items-start justify-between gap-4 border-b border-ink-100 px-5 py-4">
+    /* 1. Made the parent element sticky */
+    <aside className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-md border border-ink-100 bg-white shadow-sm">
+      {/* 2. Kept the header non-scrollable at the top */}
+      <header className="flex shrink-0 items-start justify-between gap-4 border-b border-ink-100 px-5 py-4">
         <div>
           <p className="text-xs font-bold uppercase text-foundation-600">{copy.detailTitle}</p>
           <h2 className="mt-1 text-lg font-bold text-ink-900">{donation?.reference_number ?? copy.loading}</h2>
@@ -37,13 +39,13 @@ export function DonationDetailPanel({ copy, locale, donation, isLoading, onClose
       </header>
 
       {isLoading ? (
-        <div className="grid gap-3 p-5" aria-hidden="true">
+        <div className="grid gap-3 overflow-y-auto p-5" aria-hidden="true">
           {Array.from({ length: 5 }).map((_, index) => (
             <div key={index} className="h-16 animate-pulse rounded-md bg-ink-100" />
           ))}
         </div>
       ) : donation ? (
-        <div className="grid gap-5 p-5">
+        <div className="grid gap-5 overflow-y-auto p-5">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             <DetailStat label={copy.amount} value={formatMoney(donation.amount, donation.currency, locale)} />
             <DetailStat label={copy.donor} value={donation.donor?.name ?? '-'} />

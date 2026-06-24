@@ -544,7 +544,14 @@ export async function apiListDonations(params: DonationListParams): Promise<Pagi
 }
 
 export async function apiGetDonation(uuid: string): Promise<DonationManagementRecord> {
-  return apiGet<DonationManagementRecord>(`/donations/${uuid}`);
+  const response = await fetch(`${API_BASE_URL}/donations/${uuid}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, `Failed to fetch donation ${uuid}.`);
+
+  return (envelope.data ?? envelope) as DonationManagementRecord;
 }
 
 export async function apiDownloadApplicationPdf(uuid: string): Promise<Blob> {
