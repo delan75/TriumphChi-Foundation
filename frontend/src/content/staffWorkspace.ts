@@ -29,6 +29,7 @@ export interface StaffWorkspaceCopy {
       applications: string;
       beneficiaries: string;
       funding: string;
+      contacts: string;
       reports: string;
       profile: string;
       settings: string;
@@ -128,6 +129,7 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
         applications: 'Applications',
         beneficiaries: 'Beneficiaries',
         funding: 'Funding',
+        contacts: 'Contact Inquiries',
         reports: 'Reports',
         profile: 'Profile',
         settings: 'Settings',
@@ -255,6 +257,7 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
         applications: 'Demandes',
         beneficiaries: 'Beneficiaires',
         funding: 'Financement',
+        contacts: 'Messages de contact',
         reports: 'Rapports',
         profile: 'Profil',
         settings: 'Parametres',

@@ -444,6 +444,78 @@ export interface DonationManagementSummary {
   provider_counts: Record<string, number>;
 }
 
+export interface ContactMessageAttachmentRecord {
+  id: number;
+  original_name: string;
+  mime_type: string;
+  size_bytes: number;
+  scan_status: string;
+  download_url?: string | null;
+}
+
+export interface ContactMessageRecord {
+  id: number;
+  uuid: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  reason: string;
+  reason_label?: string | null;
+  subject?: string | null;
+  message: string;
+  locale: string;
+  status: string;
+  status_label?: string | null;
+  ip_address?: string | null;
+  user_agent?: string | null;
+  staff_notes?: string | null;
+  attachments_count: number;
+  has_attachments: boolean;
+  attachments?: ContactMessageAttachmentRecord[];
+  handler?: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+  responded_at?: string | null;
+  reviewed_at?: string | null;
+  archived_at?: string | null;
+  created_at: string;
+  updated_at: string;
+  permissions: {
+    can_view: boolean;
+    can_update: boolean;
+    can_archive: boolean;
+    can_view_attachments: boolean;
+  };
+}
+
+export interface ContactMessageSummary {
+  total_count: number;
+  status_counts: Record<string, number>;
+  reason_counts: Record<string, number>;
+  attachments_count: number;
+}
+
+export interface ContactMessageListParams {
+  status?: string;
+  reason?: string;
+  search?: string;
+  has_attachments?: boolean;
+  created_from?: string;
+  created_to?: string;
+  page?: number;
+  per_page?: number;
+  sort?: string;
+  direction?: 'asc' | 'desc';
+}
+
+export interface ContactMessageAssignee {
+  id: number;
+  name: string;
+  email: string;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   meta: {
@@ -552,6 +624,126 @@ export async function apiGetDonation(uuid: string): Promise<DonationManagementRe
   const envelope = await parseJsonEnvelope(response, `Failed to fetch donation ${uuid}.`);
 
   return (envelope.data ?? envelope) as DonationManagementRecord;
+}
+
+export async function apiListContactMessages(params: ContactMessageListParams): Promise<PaginatedResponse<ContactMessageRecord> & {
+  summary: ContactMessageSummary;
+  filters: Record<string, string | number | boolean>;
+}> {
+  const qs = new URLSearchParams();
+  if (params.status) qs.set('status', params.status);
+  if (params.reason) qs.set('reason', params.reason);
+  if (params.search) qs.set('search', params.search);
+  if (params.has_attachments !== undefined) qs.set('has_attachments', String(params.has_attachments));
+  if (params.created_from) qs.set('created_from', params.created_from);
+  if (params.created_to) qs.set('created_to', params.created_to);
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page));
+  if (params.sort) qs.set('sort', params.sort);
+  if (params.direction) qs.set('direction', params.direction);
+  const query = qs.toString();
+
+  const response = await fetch(`${API_BASE_URL}/contact-messages${query ? `?${query}` : ''}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch contact inquiries.');
+
+  return {
+    data: (envelope.data as ContactMessageRecord[]) ?? [],
+    meta: envelope.meta as PaginatedResponse<ContactMessageRecord>['meta'],
+    links: envelope.links as PaginatedResponse<ContactMessageRecord>['links'],
+    summary: (envelope.summary as ContactMessageSummary) ?? {
+      total_count: 0,
+      status_counts: {},
+      reason_counts: {},
+      attachments_count: 0,
+    },
+    filters: (envelope.filters as Record<string, string | number | boolean>) ?? {},
+  };
+}
+
+export async function apiGetContactMessage(uuid: string): Promise<ContactMessageRecord> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/${uuid}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, `Failed to fetch contact inquiry ${uuid}.`);
+
+  return (envelope.data ?? envelope) as ContactMessageRecord;
+}
+
+export async function apiUpdateContactMessage(
+  uuid: string,
+  payload: { status: string; staff_notes?: string | null },
+): Promise<ContactMessageRecord> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/${uuid}`, {
+    method: 'PATCH',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to update contact inquiry.');
+
+  return (envelope.data ?? envelope) as ContactMessageRecord;
+}
+
+export async function apiAssignContactMessage(
+  uuid: string,
+  assignedTo: number | null,
+): Promise<ContactMessageRecord> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/${uuid}/assignment`, {
+    method: 'PATCH',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify({ assigned_to: assignedTo }),
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to assign contact inquiry.');
+
+  return (envelope.data ?? envelope) as ContactMessageRecord;
+}
+
+export async function apiForwardContactMessage(
+  uuid: string,
+  payload: { to_email: string; note?: string; mark_as_replied?: boolean },
+): Promise<ContactMessageRecord> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/${uuid}/forward`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to forward contact inquiry.');
+
+  return (envelope.data ?? envelope) as ContactMessageRecord;
+}
+
+export async function apiDeleteContactMessage(uuid: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/${uuid}`, {
+    method: 'DELETE',
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    await parseJsonEnvelope(response, 'Failed to archive contact inquiry.');
+  }
+}
+
+export async function apiListContactAssignees(): Promise<ContactMessageAssignee[]> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/assignable-users`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch assignable staff.');
+
+  return (envelope.data ?? []) as ContactMessageAssignee[];
 }
 
 export async function apiRefreshDonationPaymentStatus(uuid: string): Promise<DonationManagementRecord> {

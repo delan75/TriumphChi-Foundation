@@ -36,6 +36,9 @@ return [
         'attachment_too_large' => 'The attached file is too large. Please attach a smaller file.',
         'too_many_attachments' => 'Please attach fewer files.',
         'consent_required' => 'Please confirm that we may respond to your message.',
+        'assignable_users_retrieved' => 'Assignable staff retrieved.',
+        'assigned' => 'Contact inquiry assignment updated.',
+        'forwarded' => 'Contact inquiry sent successfully.',
     ],
 
     'application' => [

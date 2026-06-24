@@ -7,6 +7,7 @@ import { StaffProfilePage } from '../features/staff/StaffProfilePage';
 import { StaffSettingsPage } from '../features/staff/StaffSettingsPage';
 import { ApplicationsPage } from '../features/applications/ApplicationsPage';
 import { BeneficiariesPage } from '../features/beneficiaries/BeneficiariesPage';
+import { ContactMessagesPage } from '../features/contact-messages/ContactMessagesPage';
 import { FundingPage } from '../features/funding/FundingPage';
 import { ReportsPage } from '../features/reports/ReportsPage';
 import { LoginPage } from '../features/auth/LoginPage';
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
               { path: 'applications', element: <ApplicationsPage /> },
               { path: 'beneficiaries', element: <BeneficiariesPage /> },
               { path: 'funding', element: <FundingPage /> },
+              { path: 'contacts', element: <ContactMessagesPage /> },
               { path: 'reports', element: <ReportsPage /> },
             ],
           },
