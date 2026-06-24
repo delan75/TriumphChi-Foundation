@@ -81,6 +81,12 @@ interface SimilarDonationWarning {
 
 type MomoModalState = 'hidden' | 'starting' | 'checking' | 'success' | 'failed' | 'pending';
 
+interface PaypalRedirectState {
+  checkoutUrl: string;
+  amount: string;
+  currency: string;
+}
+
 interface MomoStatusHistoryItem {
   attempt: number;
   status: string;
@@ -339,6 +345,7 @@ function DonationCard({
   const [momoSupportMessage, setMomoSupportMessage] = useState('');
   const [momoSupportStatusMessage, setMomoSupportStatusMessage] = useState('');
   const [isSendingMomoSupportNote, setIsSendingMomoSupportNote] = useState(false);
+  const [paypalRedirect, setPaypalRedirect] = useState<PaypalRedirectState | null>(null);
   const [similarDonation, setSimilarDonation] = useState<SimilarDonationWarning | null>(null);
   const [createdIntentUuid, setCreatedIntentUuid] = useState<string | null>(null);
   const [createdIntentStatus, setCreatedIntentStatus] = useState<string | null>(null);
@@ -543,10 +550,19 @@ function DonationCard({
     setMomoStatusHistory([]);
     setMomoSupportMessage('');
     setMomoSupportStatusMessage('');
+    setPaypalRedirect(null);
 
     if (selectedProvider.key === 'momo') {
       setMomoModalState('starting');
       trackDonationEvent('momo_overlay_opened', {
+        amount: state.amount,
+        currency: state.currency,
+        provider: selectedProvider.key,
+      });
+    }
+
+    if (selectedProvider.key === 'paypal') {
+      trackDonationEvent('paypal_checkout_started', {
         amount: state.amount,
         currency: state.currency,
         provider: selectedProvider.key,
@@ -600,10 +616,30 @@ function DonationCard({
       }
 
       if (response.data?.checkout_url) {
-        window.location.assign(response.data.checkout_url);
+        const checkoutUrl = response.data.checkout_url;
+
+        if (selectedProvider.key === 'paypal') {
+          setPaypalRedirect({
+            checkoutUrl,
+            amount: formatDonationAmountOnly(amountNumber || 0, locale),
+            currency: state.currency,
+          });
+          trackDonationEvent('paypal_redirected', {
+            intentUuid: response.data.uuid,
+            amount: state.amount,
+            currency: state.currency,
+          });
+          window.setTimeout(() => {
+            window.location.assign(checkoutUrl);
+          }, 700);
+          return;
+        }
+
+        window.location.assign(checkoutUrl);
       }
     } catch (error) {
       setMomoPollingAttempt(0);
+      setPaypalRedirect(null);
       setStatusKind('error');
       if (error instanceof ApiRequestError && error.status === 409 && error.code === 'similar_donation_pending') {
         setMomoModalState('hidden');
@@ -773,6 +809,16 @@ function DonationCard({
           setMomoSupportStatusMessage('');
         }}
         onSendSupportNote={() => void sendMomoSupportNote()}
+      />
+      <PaypalRedirectOverlay
+        isOpen={Boolean(paypalRedirect)}
+        title={copy.paypalRedirectTitle}
+        body={copy.paypalRedirectBody}
+        secureNote={copy.paypalRedirectSecureNote}
+        amount={paypalRedirect?.amount ?? ''}
+        currency={paypalRedirect?.currency ?? state.currency}
+        amountLabel={copy.summaryAmount}
+        providerLabel={copy.summaryProvider}
       />
       <form
         onSubmit={handleSubmit}
@@ -1004,6 +1050,70 @@ function DonationCard({
       </div>
       </form>
     </>
+  );
+}
+
+function PaypalRedirectOverlay({
+  isOpen,
+  title,
+  body,
+  secureNote,
+  amount,
+  currency,
+  amountLabel,
+  providerLabel,
+}: {
+  isOpen: boolean;
+  title: string;
+  body: string;
+  secureNote: string;
+  amount: string;
+  currency: string;
+  amountLabel: string;
+  providerLabel: string;
+}) {
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[120] grid min-h-dvh place-items-center bg-ink-950/80 px-4 py-8 backdrop-blur-md"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="paypal-redirect-title"
+      aria-describedby="paypal-redirect-body"
+    >
+      <div className="w-full max-w-lg overflow-hidden rounded-md border border-white/10 bg-white shadow-2xl shadow-ink-950/30">
+        <div className="bg-foundation-900 px-6 py-8 text-center text-white">
+          <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-white/20 bg-white/10">
+            <Loader2 className="h-8 w-8 animate-spin" aria-hidden="true" />
+          </div>
+          <p className="mt-4 text-xs font-black uppercase tracking-wide text-foundation-100">PayPal</p>
+          <h2 id="paypal-redirect-title" className="mt-2 text-2xl font-black leading-tight">
+            {title}
+          </h2>
+          <p id="paypal-redirect-body" className="mx-auto mt-3 max-w-md text-sm leading-6 text-foundation-50" aria-live="polite">
+            {body}
+          </p>
+        </div>
+        <div className="grid gap-4 p-5">
+          <div className="grid gap-3 rounded-md border border-foundation-100 bg-foundation-50 p-4 sm:grid-cols-2">
+            <div>
+              <p className="text-xs font-black uppercase text-foundation-700">{amountLabel}</p>
+              <p className="mt-1 text-lg font-black text-ink-900">{amount} {currency}</p>
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase text-foundation-700">{providerLabel}</p>
+              <p className="mt-1 text-lg font-black text-ink-900">PayPal</p>
+            </div>
+          </div>
+          <p className="rounded-md border border-ink-100 bg-white px-4 py-3 text-sm font-bold leading-6 text-ink-600">
+            {secureNote}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1565,6 +1675,9 @@ interface DonateCopy {
   fixErrorsMessage: string;
   intentCreatedMessage: string;
   redirectingMessage: string;
+  paypalRedirectTitle: string;
+  paypalRedirectBody: string;
+  paypalRedirectSecureNote: string;
   submitErrorMessage: string;
   momoPendingMessage: string;
   momoSuccessMessage: string;
@@ -1757,6 +1870,9 @@ const donateCopy = {
     fixErrorsMessage: 'Please review the highlighted details before continuing.',
     intentCreatedMessage: 'Thank you. Your donation has been prepared securely.',
     redirectingMessage: 'Thank you. Redirecting you to complete your gift.',
+    paypalRedirectTitle: 'Redirecting to PayPal',
+    paypalRedirectBody: 'You will be securely redirected to PayPal to complete your donation.',
+    paypalRedirectSecureNote: 'After PayPal sends you back, we will verify the donation with PayPal before showing confirmation.',
     submitErrorMessage: 'We could not prepare your donation. Please try again.',
     momoPendingMessage: 'MoMo has been prompted. Please check your phone and approve the payment request.',
     momoSuccessMessage: 'Thank you. Your MoMo donation has been confirmed.',
@@ -1969,6 +2085,9 @@ const donateCopy = {
     fixErrorsMessage: 'Veuillez verifier les informations indiquees avant de continuer.',
     intentCreatedMessage: 'Merci. Votre don a ete prepare de maniere securisee.',
     redirectingMessage: 'Merci. Redirection pour terminer votre don.',
+    paypalRedirectTitle: 'Redirection vers PayPal',
+    paypalRedirectBody: 'Vous serez redirige vers PayPal de maniere securisee pour terminer votre don.',
+    paypalRedirectSecureNote: 'Apres votre retour depuis PayPal, nous verifierons le don avec PayPal avant de confirmer.',
     submitErrorMessage: 'Nous n avons pas pu preparer votre don. Veuillez reessayer.',
     momoPendingMessage: 'MoMo a ete lance. Veuillez verifier votre telephone et approuver la demande de paiement.',
     momoSuccessMessage: 'Merci. Votre don MoMo a ete confirme.',

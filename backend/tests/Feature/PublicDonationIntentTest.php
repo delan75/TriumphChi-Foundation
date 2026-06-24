@@ -21,6 +21,8 @@ class PublicDonationIntentTest extends TestCase
 
     public function test_public_donation_config_returns_provider_agnostic_options(): void
     {
+        $this->enableDonationProvider('paypal');
+
         $this->getJson('/api/v1/public/donation-config')
             ->assertOk()
             ->assertJsonPath('data.default_currency', 'USD')
@@ -132,6 +134,8 @@ class PublicDonationIntentTest extends TestCase
 
     public function test_public_donation_intent_rejects_provider_currency_mismatch(): void
     {
+        $this->enableDonationProvider('paypal');
+
         $this->postJson('/api/v1/public/donation-intents', [
             'frequency' => 'one_time',
             'currency' => 'XAF',
@@ -147,6 +151,140 @@ class PublicDonationIntentTest extends TestCase
         ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('payment_provider');
+    }
+
+    public function test_public_paypal_donation_intent_creates_order_and_returns_approval_url(): void
+    {
+        $this->configurePaypal();
+
+        Http::fake([
+            'https://api-m.sandbox.paypal.com/v1/oauth2/token' => Http::response(['access_token' => 'paypal-token', 'expires_in' => 3600], 200),
+            'https://api-m.sandbox.paypal.com/v2/checkout/orders' => Http::response($this->paypalOrderPayload(), 201),
+        ]);
+
+        $this->postJson('/api/v1/public/donation-intents', $this->paypalPayload())
+            ->assertCreated()
+            ->assertJsonPath('data.payment_provider.key', 'paypal')
+            ->assertJsonPath('data.status', 'pending')
+            ->assertJsonPath('data.checkout_url', 'https://www.sandbox.paypal.com/checkoutnow?token=ORDER-123');
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() === 'https://api-m.sandbox.paypal.com/v2/checkout/orders'
+                && $request->hasHeader('Authorization', 'Bearer paypal-token')
+                && $request->hasHeader('PayPal-Request-Id')
+                && $request['intent'] === 'CAPTURE'
+                && $request['purchase_units'][0]['amount']['currency_code'] === 'USD'
+                && $request['purchase_units'][0]['amount']['value'] === '25.00';
+        });
+
+        $intent = PaymentIntent::firstOrFail();
+
+        $this->assertSame('ORDER-123', $intent->provider_intent_id);
+        $this->assertSame('ORDER-123', $intent->metadata['paypal_order_id']);
+        $this->assertDatabaseHas('payment_transactions', [
+            'payment_intent_id' => $intent->id,
+            'provider_transaction_id' => 'ORDER-123',
+            'type' => 'paypal_order',
+            'status' => 'pending',
+        ]);
+    }
+
+    public function test_public_paypal_capture_verifies_amount_and_confirms_donation(): void
+    {
+        $intent = $this->createPendingPaypalIntent();
+
+        Http::fake([
+            'https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER-123/capture' => Http::response($this->paypalCapturePayload(), 201),
+        ]);
+
+        $this->postJson("/api/v1/public/donation-intents/{$intent->uuid}/paypal/capture", [
+            'order_id' => 'ORDER-123',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'completed')
+            ->assertJsonPath('data.donation.status', 'confirmed');
+
+        $intent->refresh();
+
+        $this->assertSame('completed', $intent->status);
+        $this->assertSame('confirmed', $intent->donation->refresh()->status->value);
+        $this->assertSame('CAPTURE-123', $intent->donation->provider_reference);
+        $this->assertDatabaseHas('payment_transactions', [
+            'payment_intent_id' => $intent->id,
+            'provider_transaction_id' => 'CAPTURE-123',
+            'type' => 'paypal_capture',
+            'status' => 'completed',
+        ]);
+    }
+
+    public function test_public_paypal_capture_rejects_amount_mismatch(): void
+    {
+        $intent = $this->createPendingPaypalIntent();
+
+        Http::fake([
+            'https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER-123/capture' => Http::response($this->paypalCapturePayload([
+                'amount' => ['currency_code' => 'USD', 'value' => '5.00'],
+            ]), 201),
+        ]);
+
+        $this->postJson("/api/v1/public/donation-intents/{$intent->uuid}/paypal/capture", [
+            'order_id' => 'ORDER-123',
+        ])
+            ->assertStatus(422);
+
+        $this->assertDatabaseHas('payment_intents', ['id' => $intent->id, 'status' => 'failed']);
+        $this->assertDatabaseHas('donations', ['id' => $intent->donation_id, 'status' => 'failed']);
+    }
+
+    public function test_public_paypal_cancel_marks_pending_donation_cancelled(): void
+    {
+        $intent = $this->createPendingPaypalIntent();
+
+        $this->postJson("/api/v1/public/donation-intents/{$intent->uuid}/paypal/cancel")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'cancelled')
+            ->assertJsonPath('data.donation.status', 'cancelled');
+    }
+
+    public function test_public_paypal_webhook_confirms_capture_once_when_signature_is_valid(): void
+    {
+        $intent = $this->createPendingPaypalIntent();
+
+        Http::fake([
+            'https://api-m.sandbox.paypal.com/v1/notifications/verify-webhook-signature' => Http::response(['verification_status' => 'SUCCESS'], 200),
+        ]);
+
+        $payload = $this->paypalWebhookPayload($intent->provider_intent_id);
+
+        $this->withPaypalWebhookHeaders()
+            ->postJson('/api/v1/public/paypal/webhooks', $payload)
+            ->assertOk();
+
+        $this->withPaypalWebhookHeaders()
+            ->postJson('/api/v1/public/paypal/webhooks', $payload)
+            ->assertOk();
+
+        $intent->refresh();
+
+        $this->assertSame('completed', $intent->status);
+        $this->assertSame('confirmed', $intent->donation->refresh()->status->value);
+        $this->assertDatabaseCount('payment_transactions', 3);
+        $this->assertSame(1, \App\Models\PaymentTransaction::query()->where('type', 'paypal_webhook')->count());
+    }
+
+    public function test_public_paypal_webhook_rejects_invalid_signature(): void
+    {
+        $this->createPendingPaypalIntent();
+
+        Http::fake([
+            'https://api-m.sandbox.paypal.com/v1/notifications/verify-webhook-signature' => Http::response(['verification_status' => 'FAILURE'], 200),
+        ]);
+
+        $this->withPaypalWebhookHeaders()
+            ->postJson('/api/v1/public/paypal/webhooks', $this->paypalWebhookPayload('ORDER-123'))
+            ->assertBadRequest();
+
+        $this->assertDatabaseMissing('donations', ['status' => 'confirmed']);
     }
 
     public function test_public_momo_donation_intent_starts_request_to_pay_with_server_reference(): void
@@ -407,6 +545,52 @@ class PublicDonationIntentTest extends TestCase
         ]);
     }
 
+    private function configurePaypal(): void
+    {
+        Cache::flush();
+        $this->enableDonationProvider('paypal');
+
+        config([
+            'paypal.base_url' => 'https://api-m.sandbox.paypal.com',
+            'paypal.client_id' => 'paypal-client-id',
+            'paypal.client_secret' => 'paypal-client-secret',
+            'paypal.webhook_id' => 'WH-123',
+            'paypal.verify_webhooks' => true,
+        ]);
+    }
+
+    private function enableDonationProvider(string $key): void
+    {
+        $providers = collect(config('donations.providers'))
+            ->map(function (array $provider) use ($key): array {
+                if (($provider['key'] ?? null) === $key) {
+                    $provider['enabled'] = true;
+                }
+
+                return $provider;
+            })
+            ->all();
+
+        config(['donations.providers' => $providers]);
+    }
+
+    private function createPendingPaypalIntent(): PaymentIntent
+    {
+        $this->configurePaypal();
+
+        Http::fake([
+            'https://api-m.sandbox.paypal.com/v1/oauth2/token' => Http::response(['access_token' => 'paypal-token', 'expires_in' => 3600], 200),
+            'https://api-m.sandbox.paypal.com/v2/checkout/orders' => Http::response($this->paypalOrderPayload(), 201),
+        ]);
+
+        $this->postJson('/api/v1/public/donation-intents', $this->paypalPayload())
+            ->assertCreated();
+
+        Http::fake([]);
+
+        return PaymentIntent::firstOrFail()->load(['donation', 'provider']);
+    }
+
     private function actingAsPaymentViewer(): User
     {
         Permission::firstOrCreate(['name' => 'payments.view', 'guard_name' => 'web'], ['group' => 'payments']);
@@ -442,6 +626,97 @@ class PublicDonationIntentTest extends TestCase
             'anonymous' => false,
             'payment_consent' => true,
         ];
+    }
+
+    private function paypalPayload(array $overrides = []): array
+    {
+        return array_replace_recursive([
+            'frequency' => 'one_time',
+            'currency' => 'USD',
+            'amount' => 25,
+            'purpose' => 'greatest_need',
+            'payment_provider' => 'paypal',
+            'donor' => [
+                'name' => 'Grace Donor',
+                'email' => 'grace@example.com',
+                'phone' => '+237600000000',
+                'country' => 'CM',
+            ],
+            'anonymous' => false,
+            'client_reference' => 'paypal-client-reference',
+        ], $overrides);
+    }
+
+    private function paypalOrderPayload(array $overrides = []): array
+    {
+        return array_replace_recursive([
+            'id' => 'ORDER-123',
+            'status' => 'CREATED',
+            'links' => [
+                [
+                    'href' => 'https://www.sandbox.paypal.com/checkoutnow?token=ORDER-123',
+                    'rel' => 'approve',
+                    'method' => 'GET',
+                ],
+            ],
+        ], $overrides);
+    }
+
+    private function paypalCapturePayload(array $captureOverrides = []): array
+    {
+        return [
+            'id' => 'ORDER-123',
+            'status' => 'COMPLETED',
+            'purchase_units' => [
+                [
+                    'reference_id' => PaymentIntent::first()?->uuid ?? 'intent-uuid',
+                    'payments' => [
+                        'captures' => [
+                            array_replace_recursive([
+                                'id' => 'CAPTURE-123',
+                                'status' => 'COMPLETED',
+                                'amount' => [
+                                    'currency_code' => 'USD',
+                                    'value' => '25.00',
+                                ],
+                            ], $captureOverrides),
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    private function paypalWebhookPayload(string $orderId): array
+    {
+        return [
+            'id' => 'WH-EVENT-123',
+            'event_type' => 'PAYMENT.CAPTURE.COMPLETED',
+            'resource' => [
+                'id' => 'CAPTURE-123',
+                'status' => 'COMPLETED',
+                'amount' => [
+                    'currency_code' => 'USD',
+                    'value' => '25.00',
+                ],
+                'supplementary_data' => [
+                    'related_ids' => [
+                        'order_id' => $orderId,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    private function withPaypalWebhookHeaders(): self
+    {
+        return $this->withHeaders([
+            'PAYPAL-AUTH-ALGO' => 'SHA256withRSA',
+            'PAYPAL-CERT-URL' => 'https://api-m.sandbox.paypal.com/certs/test',
+            'PAYPAL-TRANSMISSION-ID' => 'transmission-id',
+            'PAYPAL-TRANSMISSION-SIG' => 'signature',
+            'PAYPAL-TRANSMISSION-TIME' => now()->toISOString(),
+        ]);
     }
 
     private function cardPayload(array $overrides = []): array

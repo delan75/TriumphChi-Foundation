@@ -44,6 +44,7 @@ return [
         'pending' => 'En attente',
         'confirmed' => 'Confirmé',
         'failed' => 'Échoué',
+        'cancelled' => 'Annulé',
         'refunded' => 'Remboursé',
     ],
 
