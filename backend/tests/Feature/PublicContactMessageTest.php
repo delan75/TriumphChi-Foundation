@@ -172,6 +172,9 @@ class PublicContactMessageTest extends TestCase
 
     public function test_public_contact_message_rejects_draft_paths_outside_expected_folder(): void
     {
+        Storage::fake('local');
+        Storage::disk('local')->put('drafts/contact-messages/file.pdf', 'dummy');
+
         $this->postJson('/api/v1/public/contact-messages', [
             'name' => 'Path Sender',
             'email' => 'path@example.org',
@@ -192,6 +195,12 @@ class PublicContactMessageTest extends TestCase
 
     public function test_public_contact_message_accepts_draft_paths_inside_expected_folder(): void
     {
+        Storage::fake('local');
+
+        $path = 'drafts/contact-messages/file.pdf';
+        Storage::disk('local')->put($path, 'dummy pdf content');
+        Storage::disk('local')->assertExists($path);
+
         $this->postJson('/api/v1/public/contact-messages', [
             'name' => 'Valid Path Sender',
             'email' => 'valid-path@example.org',
@@ -200,7 +209,7 @@ class PublicContactMessageTest extends TestCase
             'consent' => true,
             'draft_attachments' => [
                 [
-                    'path' => 'drafts/contact-messages/file.pdf',
+                    'path' => $path,
                     'original_name' => 'file.pdf',
                     'size' => 100,
                     'mime_type' => 'application/pdf',
