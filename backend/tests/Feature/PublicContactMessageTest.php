@@ -61,6 +61,33 @@ class PublicContactMessageTest extends TestCase
         Storage::disk('local')->assertExists($attachment->path);
     }
 
+    public function test_public_contact_message_requires_mandatory_fields(): void
+    {
+        $basePayload = [
+            'name' => 'Grace Talla',
+            'email' => 'grace@example.org',
+            'phone' => '+237 600 000 000',
+            'reason' => 'assistance',
+            'message' => 'Please help us understand how to request school assistance.',
+            'consent' => '1',
+        ];
+
+        foreach (['name', 'email', 'reason', 'message', 'consent'] as $requiredField) {
+            $payload = $basePayload;
+            unset($payload[$requiredField]);
+
+            $response = $this->withHeader('Accept-Language', 'fr')
+                ->post('/api/v1/public/contact-messages', $payload, [
+                    'Accept' => 'application/json',
+                ]);
+
+            $response->assertStatus(422)
+                ->assertJsonValidationErrors([$requiredField]);
+        }
+
+        $this->assertDatabaseCount('contact_messages', 0);
+    }
+
     public function test_public_contact_draft_attachment_rejects_unsafe_attachment(): void
     {
         Storage::fake('local');
