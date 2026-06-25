@@ -51,6 +51,7 @@ export function BeneficiaryProfilePanel({ copy, locale, beneficiary, isLoading, 
   return (
     <DashboardPanel
       title={copy.profile.title}
+      className="min-w-0"
       action={
         beneficiary ? (
           <button
@@ -152,8 +153,9 @@ function OverviewTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRe
       </div>
 
       <div className="rounded-md border border-ink-100 bg-white p-4">
-        <div className="grid gap-2 sm:grid-cols-3">
-          <Fact label={copy.profile.gender} value={beneficiary.gender ?? '-'} />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <Fact label={copy.profile.gender} value={displayValue(beneficiary.gender)} />
+          <Fact label={copy.profile.sourceApplication} value={beneficiary.application?.application_number ?? '-'} />
           <Fact label={copy.profile.region} value={beneficiary.region?.name ?? '-'} />
           <Fact label={copy.profile.village} value={beneficiary.village?.name ?? '-'} />
           <Fact label={copy.profile.guardian} value={beneficiary.guardian_name ?? '-'} />
@@ -322,11 +324,23 @@ function Metric({ label, value, subValue }: { label: string; value: string; subV
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <p className="text-xs font-bold uppercase text-ink-400">{label}</p>
-      <p className="mt-1 text-sm font-bold text-ink-900">{value}</p>
+    <div className="rounded-md border border-ink-100 bg-ink-50 px-3 py-3">
+      <p className="text-[11px] font-black uppercase leading-none text-ink-400">{label}</p>
+      <p className="mt-2 break-words text-sm font-black leading-5 text-ink-900">{value}</p>
     </div>
   );
+}
+
+function displayValue(value: string | null | undefined) {
+  if (!value) {
+    return '-';
+  }
+
+  return value
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function EmptyPanel({ icon: Icon, text }: { icon: LucideIcon; text: string }) {

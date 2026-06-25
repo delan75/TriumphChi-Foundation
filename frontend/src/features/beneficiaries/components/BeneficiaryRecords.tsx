@@ -59,6 +59,7 @@ export function BeneficiaryRecords({
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <Compact label={copy.table.application} value={beneficiary.application?.application_number ?? '-'} />
               <Compact label={copy.table.school} value={beneficiary.school?.name ?? '-'} />
               <Compact label={copy.table.classLevel} value={beneficiary.education_level ?? '-'} />
               <Compact
@@ -74,12 +75,14 @@ export function BeneficiaryRecords({
         ))}
       </div>
 
-      <div className="hidden overflow-hidden rounded-md border border-ink-100 bg-white lg:block">
-        <table className="min-w-full divide-y divide-ink-100">
+      <div className="hidden rounded-md border border-ink-100 bg-white lg:block">
+        <div className="overflow-x-auto">
+          <table className="min-w-[1180px] divide-y divide-ink-100">
           <thead className="bg-ink-50">
             <tr>
               {[
                 copy.table.reference,
+                copy.table.application,
                 copy.table.name,
                 copy.table.age,
                 copy.table.school,
@@ -103,6 +106,7 @@ export function BeneficiaryRecords({
                 className={selectedUuid === beneficiary.uuid ? 'bg-foundation-50/60' : 'transition hover:bg-foundation-50/40'}
               >
                 <td className="px-4 py-4 text-sm font-bold text-ink-900">{beneficiary.internal_id}</td>
+                <td className="px-4 py-4 text-sm font-semibold text-ink-600">{beneficiary.application?.application_number ?? '-'}</td>
                 <td className="px-4 py-4">
                   <div className="flex items-start gap-3">
                     <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-foundation-50 text-foundation-700">
@@ -146,7 +150,8 @@ export function BeneficiaryRecords({
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </>
   );

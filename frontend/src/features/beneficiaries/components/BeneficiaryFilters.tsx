@@ -22,8 +22,8 @@ export function BeneficiaryFilters({ copy, filters, onChange }: BeneficiaryFilte
 
   return (
     <section className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
-      <div className="grid gap-3 xl:grid-cols-[minmax(240px,1.5fr)_repeat(6,minmax(130px,1fr))_auto]">
-        <label className="relative block">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-8">
+        <label className="relative block min-w-0 sm:col-span-2 lg:col-span-4 2xl:col-span-2">
           <span className="sr-only">{copy.filters.search}</span>
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" aria-hidden="true" />
           <input
@@ -93,7 +93,7 @@ export function BeneficiaryFilters({ copy, filters, onChange }: BeneficiaryFilte
         <button
           type="button"
           onClick={() => onChange({ page: 1, per_page: filters.per_page, sort: filters.sort, direction: filters.direction })}
-          className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-ink-200 px-3 text-sm font-bold text-ink-700 transition hover:bg-ink-50 xl:mt-5"
+          className="focus-ring inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-md border border-ink-200 px-3 text-sm font-bold text-ink-700 transition hover:bg-ink-50 lg:mt-5"
         >
           <X className="h-4 w-4" aria-hidden="true" />
           {copy.filters.reset}
@@ -115,7 +115,7 @@ function Select({
   children: ReactNode;
 }) {
   return (
-    <label className="block">
+    <label className="block min-w-0">
       <span className="mb-1 block text-xs font-bold uppercase text-ink-400">{label}</span>
       <select
         value={value}

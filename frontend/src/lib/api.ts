@@ -330,6 +330,13 @@ export interface ApplicationRecord {
   reviewed_at: string | null;
   created_at: string;
   updated_at: string;
+  beneficiary?: {
+    uuid: string;
+    internal_id: string;
+    display_name: string;
+    status: string;
+    status_label: string | null;
+  } | null;
 }
 
 export interface BeneficiaryRecord {

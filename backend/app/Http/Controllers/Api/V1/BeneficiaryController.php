@@ -41,10 +41,7 @@ class BeneficiaryController extends Controller
     {
         $this->authorize('create', Beneficiary::class);
 
-        return BeneficiaryResource::make(
-            Beneficiary::create($request->validated())
-                ->load(['application', 'region', 'village', 'school.region', 'school.village', 'needs'])
-        );
+        return $this->error(__('api.beneficiaries.create_from_application'), 422);
     }
 
     public function show(Beneficiary $beneficiary)
