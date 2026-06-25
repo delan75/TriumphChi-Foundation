@@ -149,6 +149,29 @@ class PublicContactMessageTest extends TestCase
             ->assertJsonValidationErrors('draft_attachments.0.path');
     }
 
+    public function test_public_contact_message_accepts_draft_paths_inside_expected_folder(): void
+    {
+        $this->postJson('/api/v1/public/contact-messages', [
+            'name' => 'Valid Path Sender',
+            'email' => 'valid-path@example.org',
+            'reason' => 'general',
+            'message' => 'This message has enough characters.',
+            'consent' => true,
+            'draft_attachments' => [
+                [
+                    'path' => 'drafts/contact-messages/file.pdf',
+                    'original_name' => 'file.pdf',
+                    'size' => 100,
+                    'mime_type' => 'application/pdf',
+                ],
+            ],
+        ])->assertCreated()
+            ->assertJsonPath('data.attachments_count', 1);
+
+        $this->assertDatabaseCount('contact_messages', 1);
+        $this->assertDatabaseCount('contact_message_attachments', 1);
+    }
+
     private function postDraftAttachment(UploadedFile $file)
     {
         return $this->post('/api/v1/public/contact-messages/draft-attachments', [
