@@ -129,6 +129,20 @@ class PublicContactMessageTest extends TestCase
             ->assertJsonValidationErrors('message');
     }
 
+    public function test_public_contact_message_rejects_message_exceeding_maximum_length(): void
+    {
+        $this->post('/api/v1/public/contact-messages', [
+            'name' => 'Long Message',
+            'email' => 'long@example.org',
+            'reason' => 'general',
+            'message' => str_repeat('a', 5001),
+            'consent' => '1',
+        ], [
+            'Accept' => 'application/json',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('message');
+    }
+
     public function test_public_contact_message_rejects_draft_paths_outside_expected_folder(): void
     {
         $this->postJson('/api/v1/public/contact-messages', [
