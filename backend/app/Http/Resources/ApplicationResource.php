@@ -30,6 +30,13 @@ class ApplicationResource extends JsonResource
             'region' => RegionResource::make($this->whenLoaded('region')),
             'village' => VillageResource::make($this->whenLoaded('village')),
             'school' => SchoolResource::make($this->whenLoaded('school')),
+            'beneficiary' => $this->whenLoaded('beneficiary', fn () => $this->beneficiary ? [
+                'uuid' => $this->beneficiary->uuid,
+                'internal_id' => $this->beneficiary->internal_id,
+                'display_name' => trim($this->beneficiary->first_name.' '.$this->beneficiary->last_name),
+                'status' => $this->normalizedLabelValue($this->beneficiary->status),
+                'status_label' => $this->localizedLabel('beneficiary_statuses', $this->normalizedLabelValue($this->beneficiary->status)),
+            ] : null),
             'submitted_by' => $this->submitted_by,
             'needs_assessment' => $this->needs_assessment,
             'household_income_range' => $this->household_income_range,

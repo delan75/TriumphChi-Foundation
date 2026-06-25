@@ -53,6 +53,10 @@ return [
         'invalid_transition' => 'This status transition is not permitted for the current application state.',
     ],
 
+    'beneficiaries' => [
+        'create_from_application' => 'Beneficiaries are created from accepted applications. Please accept an application to open a beneficiary case.',
+    ],
+
     'lookup' => [
         'suggestions' => 'Suggestions retrieved.',
     ],

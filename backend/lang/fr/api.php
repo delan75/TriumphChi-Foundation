@@ -53,6 +53,10 @@ return [
         'invalid_transition' => 'Cette transition de statut n\'est pas autorisée pour l\'état actuel de la demande.',
     ],
 
+    'beneficiaries' => [
+        'create_from_application' => 'Les bénéficiaires sont créés à partir des demandes acceptées. Veuillez accepter une demande pour ouvrir un dossier bénéficiaire.',
+    ],
+
     'lookup' => [
         'suggestions' => 'Suggestions récupérées.',
     ],

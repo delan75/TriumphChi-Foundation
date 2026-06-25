@@ -94,10 +94,11 @@ export function BeneficiariesPage() {
         }}
       />
 
-      <div className="grid gap-6 2xl:grid-cols-[minmax(0,1.45fr)_minmax(420px,0.55fr)]">
+      <div className="grid min-w-0 gap-6 2xl:grid-cols-[minmax(0,1.45fr)_minmax(420px,0.55fr)]">
         <DashboardPanel
           title={copy.table.title}
           description={copy.table.description}
+          className="min-w-0"
           action={pagination ? (
             <PaginationControls
               copy={copy}
