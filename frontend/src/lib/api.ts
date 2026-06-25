@@ -332,6 +332,138 @@ export interface ApplicationRecord {
   updated_at: string;
 }
 
+export interface BeneficiaryRecord {
+  id: number;
+  uuid: string;
+  internal_id: string;
+  display_name: string;
+  status: string;
+  status_label: string | null;
+  first_name: string;
+  last_name: string;
+  gender: string | null;
+  date_of_birth: string | null;
+  age: number | null;
+  guardian_name: string | null;
+  guardian_phone: string | null;
+  region: { id: number; name: string; code?: string | null } | null;
+  village: { id: number; name: string } | null;
+  education_level: string | null;
+  admission_date: string | null;
+  graduation_date: string | null;
+  funding_progress: string | number | null;
+  application?: ApplicationRecord | null;
+  school: {
+    id: number;
+    uuid: string;
+    code: string | null;
+    name: string;
+    region?: { id: number; name: string } | null;
+    village?: { id: number; name: string } | null;
+  } | null;
+  needs?: Array<{
+    id: number;
+    uuid: string;
+    type: string;
+    title: string;
+    description?: string | null;
+    amount_required: string;
+    amount_funded: string;
+    funding_percentage: number;
+    status: string;
+    status_label: string | null;
+    academic_year: string;
+    funding_starts_at?: string | null;
+    funding_ends_at?: string | null;
+  }>;
+  case_summary: {
+    needs_count: number;
+    sponsor_count: number;
+    payments_count: number;
+    impact_updates_count: number;
+    latest_update_at?: string | null;
+  };
+  funding_summary: {
+    amount_required: string;
+    amount_funded: string;
+    funding_gap: string;
+    payments_total: string;
+    currency: string;
+    funding_percentage: number;
+    has_funding_gap: boolean;
+  };
+  sponsorships?: Array<{
+    uuid: string;
+    reference: string;
+    type: string;
+    status: string;
+    status_label: string | null;
+    pledged_amount: string;
+    currency: string;
+    billing_frequency?: string | null;
+    starts_at?: string | null;
+    ends_at?: string | null;
+    donor?: { uuid: string; name: string | null; email: string | null } | null;
+  }>;
+  payments?: Array<{
+    uuid: string;
+    reference: string;
+    payee_name: string;
+    amount: string;
+    currency: string;
+    method: string;
+    status: string;
+    status_label: string | null;
+    payment_date?: string | null;
+    fund?: { uuid: string; name: string; code?: string | null } | null;
+  }>;
+  support_history?: Array<{
+    type: string;
+    title: string;
+    description?: string | null;
+    happened_at?: string | null;
+    actor?: string | null;
+  }>;
+  permissions: {
+    can_view: boolean;
+    can_create: boolean;
+    can_update: boolean;
+    can_delete: boolean;
+    can_view_funding: boolean;
+    can_record_payments: boolean;
+    can_publish_updates: boolean;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BeneficiarySummary {
+  total_count: number;
+  status_counts: Record<string, number>;
+  active_support_count: number;
+  awaiting_sponsorship_count: number;
+  graduated_count: number;
+  funding_gap_count: number;
+  sponsored_count: number;
+  school_changes_count: number;
+}
+
+export interface BeneficiaryListParams {
+  status?: string;
+  search?: string;
+  school_id?: number;
+  region_id?: number;
+  gender?: string;
+  sponsor_status?: 'sponsored' | 'unsponsored';
+  funding_status?: 'funded' | 'funding_gap';
+  academic_year?: string;
+  education_level?: string;
+  page?: number;
+  per_page?: number;
+  sort?: string;
+  direction?: 'asc' | 'desc';
+}
+
 export interface DonationManagementRecord {
   id: number;
   uuid: string;
@@ -576,6 +708,62 @@ export async function apiListApplications(params: {
 
 export async function apiGetApplication(uuid: string): Promise<ApplicationRecord> {
   return apiGet<ApplicationRecord>(`/applications/${uuid}`);
+}
+
+export async function apiListBeneficiaries(params: BeneficiaryListParams): Promise<PaginatedResponse<BeneficiaryRecord> & {
+  summary: BeneficiarySummary;
+  filters: Record<string, string | number>;
+}> {
+  const qs = new URLSearchParams();
+  if (params.status) qs.set('status', params.status);
+  if (params.search) qs.set('search', params.search);
+  if (params.school_id) qs.set('school_id', String(params.school_id));
+  if (params.region_id) qs.set('region_id', String(params.region_id));
+  if (params.gender) qs.set('gender', params.gender);
+  if (params.sponsor_status) qs.set('sponsor_status', params.sponsor_status);
+  if (params.funding_status) qs.set('funding_status', params.funding_status);
+  if (params.academic_year) qs.set('academic_year', params.academic_year);
+  if (params.education_level) qs.set('education_level', params.education_level);
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page));
+  if (params.sort) qs.set('sort', params.sort);
+  if (params.direction) qs.set('direction', params.direction);
+  const query = qs.toString();
+
+  const response = await fetch(`${API_BASE_URL}/beneficiaries${query ? `?${query}` : ''}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch beneficiaries.');
+
+  return {
+    data: (envelope.data as BeneficiaryRecord[]) ?? [],
+    meta: envelope.meta as PaginatedResponse<BeneficiaryRecord>['meta'],
+    links: envelope.links as PaginatedResponse<BeneficiaryRecord>['links'],
+    summary: (envelope.summary as BeneficiarySummary) ?? {
+      total_count: 0,
+      status_counts: {},
+      active_support_count: 0,
+      awaiting_sponsorship_count: 0,
+      graduated_count: 0,
+      funding_gap_count: 0,
+      sponsored_count: 0,
+      school_changes_count: 0,
+    },
+    filters: (envelope.filters as Record<string, string | number>) ?? {},
+  };
+}
+
+export async function apiGetBeneficiary(uuid: string): Promise<BeneficiaryRecord> {
+  const response = await fetch(`${API_BASE_URL}/beneficiaries/${uuid}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, `Failed to fetch beneficiary ${uuid}.`);
+
+  return (envelope.data ?? envelope) as BeneficiaryRecord;
 }
 
 export async function apiListDonations(params: DonationListParams): Promise<PaginatedResponse<DonationManagementRecord> & {
