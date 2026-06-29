@@ -1,8 +1,8 @@
 import type { LucideIcon } from 'lucide-react';
-import { BarChart3, ClipboardCheck, HandCoins, Inbox, Settings2, ShieldCheck, UserRound, UsersRound } from 'lucide-react';
+import { BarChart3, ClipboardCheck, HandCoins, Inbox, Settings2, ShieldCheck, UserCog, UserRound, UsersRound } from 'lucide-react';
 
 export interface StaffNavigationItem {
-  key: 'dashboard' | 'applications' | 'beneficiaries' | 'funding' | 'contacts' | 'reports' | 'profile' | 'settings';
+  key: 'dashboard' | 'applications' | 'beneficiaries' | 'funding' | 'contacts' | 'reports' | 'users' | 'profile' | 'settings';
   icon: LucideIcon;
   path: string;
   permission?: string;
@@ -50,6 +50,13 @@ export const staffNavigation: StaffNavigationItem[] = [
     path: '/staff/reports',
     permission: 'impact_updates.view',
     group: 'operations',
+  },
+  {
+    key: 'users',
+    icon: UserCog,
+    path: '/staff/users',
+    permission: 'users.view',
+    group: 'account',
   },
   {
     key: 'profile',

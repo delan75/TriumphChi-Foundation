@@ -78,6 +78,7 @@ return [
             'payment_intents' => 'Payment requests',
             'payment_transactions' => 'Provider transactions',
             'donation_documents' => 'Donation documents',
+            'users' => 'Users',
             'funds' => 'Funds',
             'payments' => 'Payments',
             'sponsorships' => 'Sponsorships',
@@ -86,6 +87,20 @@ return [
 
     'dashboard' => [
         'retrieved' => 'Dashboard summary retrieved successfully.',
+    ],
+
+    'users' => [
+        'retrieved' => 'Users retrieved successfully.',
+        'retrieved_single' => 'User retrieved successfully.',
+        'created' => 'User account created successfully.',
+        'updated' => 'User account updated successfully.',
+        'access_options_retrieved' => 'User access options retrieved successfully.',
+        'access_updated' => 'User access updated successfully.',
+        'activated' => 'User account activated successfully.',
+        'suspended' => 'User account suspended successfully.',
+        'archived' => 'User account archived successfully.',
+        'sessions_terminated' => 'User sessions terminated successfully.',
+        'self_management_blocked' => 'Use your own account settings for this action. Management actions cannot be applied to your own account here.',
     ],
 
     'messages' => [

@@ -125,6 +125,16 @@ return [
         'blocked' => 'Blocked',
     ],
 
+    'user_statuses' => [
+        'invited' => 'Invited',
+        'pending' => 'Pending verification',
+        'active' => 'Active',
+        'suspended' => 'Suspended',
+        'disabled' => 'Disabled',
+        'archived' => 'Archived',
+        'locked' => 'Locked',
+    ],
+
     'contact_reasons' => [
         'general' => 'General',
         'sponsorship' => 'Sponsorship',
@@ -244,6 +254,11 @@ return [
         'users.create' => 'Create users',
         'users.update' => 'Update users',
         'users.delete' => 'Delete users',
+        'users.access.manage' => 'Manage user access',
+        'users.activate' => 'Activate users',
+        'users.suspend' => 'Suspend users',
+        'users.archive' => 'Archive users',
+        'users.sessions.manage' => 'Terminate user sessions',
         'roles.manage' => 'Manage roles',
         'permissions.manage' => 'Manage permissions',
         'audit_logs.view' => 'View audit logs',
