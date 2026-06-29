@@ -61,6 +61,33 @@ class PublicContactMessageTest extends TestCase
         Storage::disk('local')->assertExists($attachment->path);
     }
 
+    public function test_public_contact_message_requires_mandatory_fields(): void
+    {
+        $basePayload = [
+            'name' => 'Grace Talla',
+            'email' => 'grace@example.org',
+            'phone' => '+237 600 000 000',
+            'reason' => 'assistance',
+            'message' => 'Please help us understand how to request school assistance.',
+            'consent' => '1',
+        ];
+
+        foreach (['name', 'email', 'reason', 'message', 'consent'] as $requiredField) {
+            $payload = $basePayload;
+            unset($payload[$requiredField]);
+
+            $response = $this->withHeader('Accept-Language', 'fr')
+                ->post('/api/v1/public/contact-messages', $payload, [
+                    'Accept' => 'application/json',
+                ]);
+
+            $response->assertStatus(422)
+                ->assertJsonValidationErrors([$requiredField]);
+        }
+
+        $this->assertDatabaseCount('contact_messages', 0);
+    }
+
     public function test_public_contact_draft_attachment_rejects_unsafe_attachment(): void
     {
         Storage::fake('local');
@@ -129,8 +156,25 @@ class PublicContactMessageTest extends TestCase
             ->assertJsonValidationErrors('message');
     }
 
+    public function test_public_contact_message_rejects_message_exceeding_maximum_length(): void
+    {
+        $this->post('/api/v1/public/contact-messages', [
+            'name' => 'Long Message',
+            'email' => 'long@example.org',
+            'reason' => 'general',
+            'message' => str_repeat('a', 5001),
+            'consent' => '1',
+        ], [
+            'Accept' => 'application/json',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('message');
+    }
+
     public function test_public_contact_message_rejects_draft_paths_outside_expected_folder(): void
     {
+        Storage::fake('local');
+        Storage::disk('local')->put('drafts/contact-messages/file.pdf', 'dummy');
+
         $this->postJson('/api/v1/public/contact-messages', [
             'name' => 'Path Sender',
             'email' => 'path@example.org',
@@ -147,6 +191,35 @@ class PublicContactMessageTest extends TestCase
             ],
         ])->assertUnprocessable()
             ->assertJsonValidationErrors('draft_attachments.0.path');
+    }
+
+    public function test_public_contact_message_accepts_draft_paths_inside_expected_folder(): void
+    {
+        Storage::fake('local');
+
+        $path = 'drafts/contact-messages/file.pdf';
+        Storage::disk('local')->put($path, 'dummy pdf content');
+        Storage::disk('local')->assertExists($path);
+
+        $this->postJson('/api/v1/public/contact-messages', [
+            'name' => 'Valid Path Sender',
+            'email' => 'valid-path@example.org',
+            'reason' => 'general',
+            'message' => 'This message has enough characters.',
+            'consent' => true,
+            'draft_attachments' => [
+                [
+                    'path' => $path,
+                    'original_name' => 'file.pdf',
+                    'size' => 100,
+                    'mime_type' => 'application/pdf',
+                ],
+            ],
+        ])->assertCreated()
+            ->assertJsonPath('data.attachments_count', 1);
+
+        $this->assertDatabaseCount('contact_messages', 1);
+        $this->assertDatabaseCount('contact_message_attachments', 1);
     }
 
     private function postDraftAttachment(UploadedFile $file)

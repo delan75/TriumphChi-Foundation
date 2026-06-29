@@ -315,7 +315,7 @@ const programsCopy = {
     heroAlt: 'Children in a rural Cameroon classroom.',
     supportCta: 'Support a child',
     applyCta: 'Apply for assistance',
-    sectionOneEyebrow: 'Education is more than one need',
+    sectionOneEyebrow: 'Education addresses more than one need
     sectionOneTitle: 'A child rarely leaves school because of one problem.',
     sectionOneBody:
       'Education can be interrupted by unpaid fees, missing learning materials, examination costs, distance, family hardship, or the loss of a parent. Our work responds to these challenges through practical support, community relationships, and continued encouragement.',
