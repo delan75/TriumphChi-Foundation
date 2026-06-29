@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPublicUuid;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -11,18 +13,24 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
+    use HasPublicUuid;
     use HasApiTokens;
     use HasRoles;
     use Notifiable;
 
+    public const STATUS_INVITED = 'invited';
     public const STATUS_ACTIVE = 'active';
     public const STATUS_PENDING = 'pending';
     public const STATUS_SUSPENDED = 'suspended';
     public const STATUS_DISABLED = 'disabled';
+    public const STATUS_ARCHIVED = 'archived';
+    public const STATUS_LOCKED = 'locked';
 
     protected string $guard_name = 'web';
 
     protected $fillable = [
+        'uuid',
+        'employee_number',
         'name',
         'email',
         'phone',
@@ -44,6 +52,16 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_login_at'     => 'datetime',
             'password'          => 'hashed',
         ];
+    }
+
+    public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class)->latest('created_at');
     }
 
     /**

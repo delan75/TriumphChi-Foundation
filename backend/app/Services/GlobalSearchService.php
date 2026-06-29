@@ -260,6 +260,47 @@ class GlobalSearchService
                     ]),
             ],
             [
+                'resource' => 'users',
+                'permission' => 'users.view',
+                'module' => 'users',
+                'module_path' => '/staff/users',
+                'search' => fn (string $term, int $limit): Collection => User::query()
+                    ->with(['profile', 'roles'])
+                    ->where(function (Builder $query) use ($term): void {
+                        $this->whereAnyLike($query, [
+                            'name',
+                            'email',
+                            'phone',
+                            'employee_number',
+                            'status',
+                        ], $term);
+
+                        $query->orWhereHas('profile', function (Builder $profileQuery) use ($term): void {
+                            $this->whereAnyLike($profileQuery, ['department', 'position', 'office_location'], $term);
+                        });
+
+                        $query->orWhereHas('roles', function (Builder $roleQuery) use ($term): void {
+                            $this->whereAnyLike($roleQuery, ['name', 'label'], $term);
+                        });
+                    })
+                    ->latest()
+                    ->limit($limit)
+                    ->get()
+                    ->map(fn (User $managedUser): array => [
+                        'id' => $managedUser->uuid,
+                        'reference' => $managedUser->employee_number,
+                        'title' => $managedUser->name,
+                        'subtitle' => $this->joinSummary([
+                            $this->localizedLabel('user_statuses', $managedUser->status),
+                            $managedUser->profile?->department,
+                            $managedUser->profile?->position,
+                            $managedUser->roles->pluck('label')->filter()->first() ?: $managedUser->roles->pluck('name')->first(),
+                        ]),
+                        'status' => $managedUser->status,
+                        'status_label' => $this->localizedLabel('user_statuses', $managedUser->status),
+                    ]),
+            ],
+            [
                 'resource' => 'donations',
                 'permission' => 'donations.view',
                 'module' => 'funding',

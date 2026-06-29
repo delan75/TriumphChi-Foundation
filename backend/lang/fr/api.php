@@ -78,6 +78,7 @@ return [
             'payment_intents' => 'Demandes de paiement',
             'payment_transactions' => 'Transactions du fournisseur',
             'donation_documents' => 'Documents de don',
+            'users' => 'Utilisateurs',
             'funds' => 'Fonds',
             'payments' => 'Paiements',
             'sponsorships' => 'Parrainages',
@@ -86,6 +87,20 @@ return [
 
     'dashboard' => [
         'retrieved' => 'RÃ©sumÃ© du tableau de bord rÃ©cupÃ©rÃ© avec succÃ¨s.',
+    ],
+
+    'users' => [
+        'retrieved' => 'Utilisateurs recuperes avec succes.',
+        'retrieved_single' => 'Utilisateur recupere avec succes.',
+        'created' => 'Compte utilisateur cree avec succes.',
+        'updated' => 'Compte utilisateur mis a jour avec succes.',
+        'access_options_retrieved' => 'Options d acces utilisateur recuperees avec succes.',
+        'access_updated' => 'Acces utilisateur mis a jour avec succes.',
+        'activated' => 'Compte utilisateur active avec succes.',
+        'suspended' => 'Compte utilisateur suspendu avec succes.',
+        'archived' => 'Compte utilisateur archive avec succes.',
+        'sessions_terminated' => 'Sessions utilisateur terminees avec succes.',
+        'self_management_blocked' => 'Utilisez les parametres de votre propre compte pour cette action. Ces actions de gestion ne peuvent pas etre appliquees a votre propre compte ici.',
     ],
 
     'messages' => [
