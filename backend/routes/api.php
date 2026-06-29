@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\V1\SchoolController;
 use App\Http\Controllers\Api\V1\SponsorshipController;
 use App\Http\Controllers\Api\V1\SocialiteController;
 use App\Http\Controllers\Api\V1\ContactMessageDraftAttachmentController;
+use App\Http\Controllers\Api\V1\UserManagementController;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Support\Facades\Route;
 
@@ -180,6 +181,36 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('global-search', GlobalSearchController::class)
             ->name('global-search');
+
+        Route::get('users/access-options', [UserManagementController::class, 'accessOptions'])
+            ->middleware('can:users.view')
+            ->name('users.access-options');
+
+        Route::patch('users/{user}/access', [UserManagementController::class, 'updateAccess'])
+            ->middleware('can:users.access.manage')
+            ->name('users.access');
+
+        Route::post('users/{user}/activate', [UserManagementController::class, 'activate'])
+            ->middleware('can:users.activate')
+            ->name('users.activate');
+
+        Route::post('users/{user}/suspend', [UserManagementController::class, 'suspend'])
+            ->middleware('can:users.suspend')
+            ->name('users.suspend');
+
+        Route::post('users/{user}/archive', [UserManagementController::class, 'archive'])
+            ->middleware('can:users.archive')
+            ->name('users.archive');
+
+        Route::post('users/{user}/terminate-sessions', [UserManagementController::class, 'terminateSessions'])
+            ->middleware('can:users.sessions.manage')
+            ->name('users.terminate-sessions');
+
+        Route::apiResource('users', UserManagementController::class)
+            ->only(['index', 'show', 'store', 'update'])
+            ->middlewareFor(['index', 'show'], 'can:users.view')
+            ->middlewareFor('store', 'can:users.create')
+            ->middlewareFor('update', 'can:users.update');
 
         Route::get('payment-providers/momo/account-holder-status', [MomoDiagnosticsController::class, 'accountHolderStatus'])
             ->middleware('can:payments.view')
