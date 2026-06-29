@@ -21,6 +21,116 @@ export interface AuthUser {
   permissions?: string[];
 }
 
+export interface ManagedUserProfile {
+  department?: string | null;
+  position?: string | null;
+  employment_type?: string | null;
+  office_location?: string | null;
+  joined_foundation_at?: string | null;
+  bio?: string | null;
+  skills?: string[];
+  languages?: string[];
+  certifications?: string[];
+  emergency_contact_name?: string | null;
+  emergency_contact_phone?: string | null;
+}
+
+export interface ManagedUserRecord {
+  id: number;
+  uuid: string;
+  employee_number?: string | null;
+  name: string;
+  email: string;
+  phone?: string | null;
+  preferred_locale?: string | null;
+  status: string;
+  status_label?: string | null;
+  email_verified_at?: string | null;
+  registered_via?: string | null;
+  registration_source?: string | null;
+  last_login_at?: string | null;
+  profile?: ManagedUserProfile | null;
+  auth_providers?: Array<{
+    provider: string;
+    provider_email?: string | null;
+    linked_at?: string | null;
+    last_used_at?: string | null;
+  }>;
+  roles: Array<{ name: string; label: string }>;
+  direct_permissions: string[];
+  permissions: string[];
+  sessions?: Array<{
+    id: number;
+    name: string;
+    last_used_at?: string | null;
+    expires_at?: string | null;
+    created_at?: string | null;
+  }>;
+  activity?: Array<{
+    id: number;
+    action: string;
+    metadata?: Record<string, unknown> | null;
+    ip_address?: string | null;
+    created_at?: string | null;
+  }>;
+  permissions_context: {
+    can_view: boolean;
+    can_create: boolean;
+    can_update: boolean;
+    can_manage_access: boolean;
+    can_activate: boolean;
+    can_suspend: boolean;
+    can_archive: boolean;
+    can_terminate_sessions: boolean;
+    is_self: boolean;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ManagedUserSummary {
+  total_count: number;
+  status_counts: Record<string, number>;
+  active_count: number;
+  invited_count: number;
+  suspended_count: number;
+  locked_count: number;
+}
+
+export interface ManagedUserListParams {
+  search?: string;
+  status?: string;
+  role?: string;
+  department?: string;
+  position?: string;
+  page?: number;
+  per_page?: number;
+  sort?: string;
+  direction?: 'asc' | 'desc';
+}
+
+export interface ManagedUserPayload {
+  name?: string;
+  email?: string;
+  phone?: string | null;
+  employee_number?: string | null;
+  preferred_locale?: string;
+  status?: string;
+  roles?: string[];
+  direct_permissions?: string[];
+  profile?: ManagedUserProfile;
+}
+
+export interface UserAccessOptions {
+  roles: Array<{ name: string; label: string; permissions: string[] }>;
+  permission_groups: Array<{
+    group: string;
+    label: string;
+    permissions: Array<{ name: string; label: string }>;
+  }>;
+  statuses: Array<{ value: string; label: string }>;
+}
+
 export interface GlobalSearchResult {
   id: string;
   reference?: string | null;
@@ -939,6 +1049,138 @@ export async function apiListContactAssignees(): Promise<ContactMessageAssignee[
   const envelope = await parseJsonEnvelope(response, 'Failed to fetch assignable staff.');
 
   return (envelope.data ?? []) as ContactMessageAssignee[];
+}
+
+export async function apiListManagedUsers(params: ManagedUserListParams): Promise<PaginatedResponse<ManagedUserRecord> & {
+  summary: ManagedUserSummary;
+  filters: Record<string, string | number>;
+}> {
+  const qs = new URLSearchParams();
+  if (params.search) qs.set('search', params.search);
+  if (params.status) qs.set('status', params.status);
+  if (params.role) qs.set('role', params.role);
+  if (params.department) qs.set('department', params.department);
+  if (params.position) qs.set('position', params.position);
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page));
+  if (params.sort) qs.set('sort', params.sort);
+  if (params.direction) qs.set('direction', params.direction);
+  const query = qs.toString();
+
+  const response = await fetch(`${API_BASE_URL}/users${query ? `?${query}` : ''}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch users.');
+
+  return {
+    data: (envelope.data as ManagedUserRecord[]) ?? [],
+    meta: envelope.meta as PaginatedResponse<ManagedUserRecord>['meta'],
+    links: envelope.links as PaginatedResponse<ManagedUserRecord>['links'],
+    summary: (envelope.summary as ManagedUserSummary) ?? {
+      total_count: 0,
+      status_counts: {},
+      active_count: 0,
+      invited_count: 0,
+      suspended_count: 0,
+      locked_count: 0,
+    },
+    filters: (envelope.filters as Record<string, string | number>) ?? {},
+  };
+}
+
+export async function apiGetManagedUser(uuid: string): Promise<ManagedUserRecord> {
+  const response = await fetch(`${API_BASE_URL}/users/${uuid}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, `Failed to fetch user ${uuid}.`);
+
+  return (envelope.data ?? envelope) as ManagedUserRecord;
+}
+
+export async function apiCreateManagedUser(payload: ManagedUserPayload): Promise<ManagedUserRecord> {
+  const response = await fetch(`${API_BASE_URL}/users`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to create user account.');
+
+  return (envelope.data ?? envelope) as ManagedUserRecord;
+}
+
+export async function apiUpdateManagedUser(uuid: string, payload: ManagedUserPayload): Promise<ManagedUserRecord> {
+  const response = await fetch(`${API_BASE_URL}/users/${uuid}`, {
+    method: 'PATCH',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to update user account.');
+
+  return (envelope.data ?? envelope) as ManagedUserRecord;
+}
+
+export async function apiGetUserAccessOptions(): Promise<UserAccessOptions> {
+  const response = await fetch(`${API_BASE_URL}/users/access-options`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch user access options.');
+
+  return (envelope.data ?? envelope) as UserAccessOptions;
+}
+
+export async function apiUpdateManagedUserAccess(
+  uuid: string,
+  payload: { roles: string[]; direct_permissions?: string[] },
+): Promise<ManagedUserRecord> {
+  const response = await fetch(`${API_BASE_URL}/users/${uuid}/access`, {
+    method: 'PATCH',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to update user access.');
+
+  return (envelope.data ?? envelope) as ManagedUserRecord;
+}
+
+export async function apiTransitionManagedUserStatus(
+  uuid: string,
+  action: 'activate' | 'suspend' | 'archive',
+  note?: string,
+): Promise<ManagedUserRecord> {
+  const response = await fetch(`${API_BASE_URL}/users/${uuid}/${action}`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify({ note }),
+  });
+
+  const envelope = await parseJsonEnvelope(response, `Failed to ${action} user account.`);
+
+  return (envelope.data ?? envelope) as ManagedUserRecord;
+}
+
+export async function apiTerminateManagedUserSessions(uuid: string): Promise<ManagedUserRecord> {
+  const response = await fetch(`${API_BASE_URL}/users/${uuid}/terminate-sessions`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to terminate user sessions.');
+
+  return (envelope.data ?? envelope) as ManagedUserRecord;
 }
 
 export async function apiRefreshDonationPaymentStatus(uuid: string): Promise<DonationManagementRecord> {

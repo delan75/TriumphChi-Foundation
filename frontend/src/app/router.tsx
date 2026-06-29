@@ -10,6 +10,7 @@ import { BeneficiariesPage } from '../features/beneficiaries/BeneficiariesPage';
 import { ContactMessagesPage } from '../features/contact-messages/ContactMessagesPage';
 import { FundingPage } from '../features/funding/FundingPage';
 import { ReportsPage } from '../features/reports/ReportsPage';
+import { UsersPage } from '../features/users/UsersPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
               { path: 'funding', element: <FundingPage /> },
               { path: 'contacts', element: <ContactMessagesPage /> },
               { path: 'reports', element: <ReportsPage /> },
+              { path: 'users', element: <UsersPage /> },
             ],
           },
           { path: 'donate/paypal/return', element: <PaypalDonationReturnPageWrapper mode="return" /> },
