@@ -255,9 +255,9 @@ export function StaffDashboardPage() {
             <DashboardPanel title={copy.activitySectionTitle}>
                 {activity.length ? (
                   <div className="space-y-3">
-                    {activity.slice(0, 6).map((item) => (
+                    {activity.slice(0, 6).map((item, index) => (
                       <Link
-                        key={`${item.key}-${item.reference ?? item.title}`}
+                        key={`${item.id ?? item.reference ?? item.key}-${item.occurred_at ?? item.happened_at ?? index}`}
                         to={`/${activeLocale}${item.path}`}
                         className="focus-ring flex items-start justify-between gap-4 rounded-md border border-ink-100 bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:border-foundation-100 hover:shadow-sm"
                       >
@@ -270,11 +270,11 @@ export function StaffDashboardPage() {
                               </span>
                             ) : null}
                           </div>
-                          <p className="mt-1 text-sm leading-6 text-ink-500">{item.description}</p>
+                          <p className="mt-1 text-sm leading-6 text-ink-500">{item.subtitle ?? item.description}</p>
                         </div>
                         <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-400">
                           <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
-                          {formatRelativeTime(item.happened_at, activeLocale)}
+                          {formatRelativeTime(item.occurred_at ?? item.happened_at, activeLocale)}
                         </span>
                       </Link>
                     ))}
