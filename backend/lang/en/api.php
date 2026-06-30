@@ -67,6 +67,7 @@ return [
             'donation' => 'Donation record',
             'payment_intent' => 'Payment request',
             'payment_transaction' => 'Provider transaction',
+            'blog_post' => 'Blog post',
         ],
         'groups' => [
             'applications' => 'Applications',
@@ -82,6 +83,7 @@ return [
             'funds' => 'Funds',
             'payments' => 'Payments',
             'sponsorships' => 'Sponsorships',
+            'blog_posts' => 'Blog posts',
         ],
     ],
 
@@ -97,6 +99,29 @@ return [
         'template_unavailable' => 'This report is not available for your account.',
         'format_unavailable' => 'This report format is not available for the selected report.',
         'filter_unavailable' => 'This filter is not available from the current data.',
+    ],
+
+    'blog' => [
+        'public_posts_retrieved' => 'Blog articles retrieved successfully.',
+        'public_post_retrieved' => 'Blog article retrieved successfully.',
+        'posts_retrieved' => 'Blog posts retrieved successfully.',
+        'post_retrieved' => 'Blog post retrieved successfully.',
+        'post_created' => 'Blog post created successfully.',
+        'post_updated' => 'Blog post updated successfully.',
+        'post_status_updated' => 'Blog post status updated successfully.',
+        'post_deleted' => 'Blog post deleted successfully.',
+        'post_not_found' => 'Blog article not found.',
+        'options_retrieved' => 'Blog options retrieved successfully.',
+        'categories_retrieved' => 'Blog categories retrieved successfully.',
+        'category_created' => 'Blog category created successfully.',
+        'category_updated' => 'Blog category updated successfully.',
+        'category_deleted' => 'Blog category deleted successfully.',
+        'category_in_use' => 'This category is linked to blog posts and cannot be deleted.',
+        'tags_retrieved' => 'Blog tags retrieved successfully.',
+        'tag_created' => 'Blog tag created successfully.',
+        'tag_updated' => 'Blog tag updated successfully.',
+        'tag_deleted' => 'Blog tag deleted successfully.',
+        'publish_forbidden' => 'You do not have permission to publish blog posts.',
     ],
 
     'users' => [

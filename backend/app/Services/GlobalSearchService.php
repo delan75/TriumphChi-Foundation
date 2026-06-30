@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Resources\Concerns\LocalizesResourceLabels;
 use App\Models\Application;
 use App\Models\Beneficiary;
+use App\Models\BlogPost;
 use App\Models\ContactMessage;
 use App\Models\Donation;
 use App\Models\DonationDocument;
@@ -298,6 +299,38 @@ class GlobalSearchService
                         ]),
                         'status' => $managedUser->status,
                         'status_label' => $this->localizedLabel('user_statuses', $managedUser->status),
+                    ]),
+            ],
+            [
+                'resource' => 'blog_posts',
+                'permission' => 'blog_posts.view',
+                'module' => 'blog',
+                'module_path' => '/staff/blog',
+                'search' => fn (string $term, int $limit): Collection => BlogPost::query()
+                    ->with(['category', 'author'])
+                    ->where(function (Builder $query) use ($term): void {
+                        $query
+                            ->where('reference', 'like', '%'.$term.'%')
+                            ->orWhere('status', 'like', '%'.$term.'%')
+                            ->orWhere('title->en', 'like', '%'.$term.'%')
+                            ->orWhere('title->fr', 'like', '%'.$term.'%')
+                            ->orWhere('excerpt->en', 'like', '%'.$term.'%')
+                            ->orWhere('excerpt->fr', 'like', '%'.$term.'%');
+                    })
+                    ->latest()
+                    ->limit($limit)
+                    ->get()
+                    ->map(fn (BlogPost $post): array => [
+                        'id' => $post->uuid,
+                        'reference' => $post->reference,
+                        'title' => $post->title[app()->getLocale()] ?? $post->title['en'] ?? __('api.search.fallbacks.blog_post'),
+                        'subtitle' => $this->joinSummary([
+                            $this->localizedLabel('blog_post_statuses', $post->status),
+                            $post->category?->name[app()->getLocale()] ?? $post->category?->name['en'] ?? null,
+                            $post->author?->name,
+                        ]),
+                        'status' => $post->status,
+                        'status_label' => $this->localizedLabel('blog_post_statuses', $post->status),
                     ]),
             ],
             [
