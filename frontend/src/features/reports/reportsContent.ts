@@ -128,6 +128,9 @@ export interface ReportsCopy {
   notice: {
     title: string;
     body: string;
+    close: string;
+    countdown: string;
+    paused: string;
   };
   categories: ReportCategory[];
   quickReports: QuickReport[];
@@ -230,6 +233,9 @@ export const reportsContent: Record<Locale, ReportsCopy> = {
     notice: {
       title: 'Report request queued',
       body: 'You can continue working while the report is prepared.',
+      close: 'Close response',
+      countdown: 'Closing in',
+      paused: 'Paused while viewing',
     },
     categories: enCategories,
     quickReports: [
@@ -336,6 +342,9 @@ export const reportsContent: Record<Locale, ReportsCopy> = {
     notice: {
       title: 'Demande de rapport en file',
       body: 'Vous pouvez continuer pendant la preparation du rapport.',
+      close: 'Fermer la reponse',
+      countdown: 'Fermeture dans',
+      paused: 'En pause pendant la consultation',
     },
     categories: frCategories,
     quickReports: [

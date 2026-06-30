@@ -2,9 +2,9 @@ import { CalendarPlus, FileText, RefreshCcw, Save, Search, Sparkles } from 'luci
 import { useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DashboardPanel } from '../../components/staff/DashboardPanel';
+import { DashboardResponseModal } from '../../components/staff/DashboardResponseModal';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { StatusBadge } from '../../components/ui/StatusBadge';
-import { cn } from '../../components/ui/cn';
 import { readStoredAuthUser } from '../../lib/auth';
 import { isLocale } from '../../lib/i18n';
 import { CustomReportBuilder } from './components/CustomReportBuilder';
@@ -25,7 +25,7 @@ export function ReportsPage() {
   const canViewReports = hasAnyPermission(permissions, ['reports.view', 'impact_updates.view']);
   const [activeCategory, setActiveCategory] = useState<ReportCategoryKey>('all');
   const [search, setSearch] = useState('');
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ title: string; message: string } | null>(null);
   const libraryRef = useRef<HTMLDivElement | null>(null);
   const savedRef = useRef<HTMLDivElement | null>(null);
   const scheduledRef = useRef<HTMLDivElement | null>(null);
@@ -64,8 +64,10 @@ export function ReportsPage() {
   }, [activeCategory, copy.templates, permissions, search]);
 
   const showNotice = (label: string) => {
-    setNotice(label);
-    window.setTimeout(() => setNotice(null), 4200);
+    setNotice({
+      title: copy.notice.title,
+      message: `${label} - ${copy.notice.body}`,
+    });
   };
 
   if (!canViewReports) {
@@ -114,12 +116,15 @@ export function ReportsPage() {
         }
       />
 
-      {notice ? (
-        <div className="rounded-md border border-emerald-100 bg-emerald-50 p-4" role="status">
-          <p className="text-sm font-black text-emerald-800">{copy.notice.title}</p>
-          <p className="mt-1 text-sm leading-6 text-emerald-700">{notice} - {copy.notice.body}</p>
-        </div>
-      ) : null}
+      <DashboardResponseModal
+        isOpen={Boolean(notice)}
+        title={notice?.title ?? ''}
+        message={notice?.message ?? ''}
+        closeLabel={copy.notice.close}
+        countdownLabel={copy.notice.countdown}
+        pausedLabel={copy.notice.paused}
+        onClose={() => setNotice(null)}
+      />
 
       <DashboardPanel title={copy.sections.summary} description={copy.sections.summaryDescription} bodyClassName="p-4">
         <ReportCategoryCards
