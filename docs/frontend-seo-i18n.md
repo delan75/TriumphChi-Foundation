@@ -21,6 +21,11 @@ The public site uses:
 - `frontend/src/features/public/contact/ContactPage.tsx` for the custom Contact page, including a mobile-first public form, safeguarding notice, and internal links to related public pages
 - `frontend/src/lib/seo.ts` for schema and URL helpers
 - `frontend/src/lib/i18n.ts` for supported locales and UI messages
+- `frontend/public/robots.txt` for crawl directives that keep authenticated, auth, and API-style paths out of search
+- `frontend/public/sitemap.xml` for the current localized public route inventory with `hreflang` alternates
+- `frontend/public/og/triumphchi-foundation.jpg` as the default Open Graph and Twitter preview image
+
+The SEO component now emits richer social metadata, including `og:site_name`, `og:locale`, alternate Open Graph locales, image dimensions, image alt text, Twitter image metadata, theme color, and application name. Public JSON-LD uses a graph that can include Organization, WebSite, WebPage, BreadcrumbList, FAQPage, and DonateAction where appropriate.
 
 ## Localized Routes
 
@@ -85,11 +90,17 @@ The Sponsor a Child page should explain sponsorship as covenant-driven education
 
 The Contact page should guide donors, families, schools, churches, volunteers, and partners toward the right next step while avoiding sensitive beneficiary details in public form submissions.
 
+## Current SPA Limitations
+
+This remains a client-rendered Vite SPA. The app updates metadata after React mounts, which is acceptable for many modern crawlers but is weaker than SSR or prerendering for first-response HTML. The base `index.html` includes a conservative default metadata set so social crawlers and simple bots receive meaningful tags before the route-specific metadata is applied.
+
+Authenticated staff routes set `noindex,nofollow` at the shell level so private workspace screens do not inherit public page metadata during navigation.
+
 ## Future Improvements
 
 - Add server-side rendering or static prerendering for stronger SEO indexing.
-- Generate `sitemap.xml` and `robots.txt` from the public page registry.
+- Generate `sitemap.xml` and `robots.txt` from the public page registry instead of maintaining the static public files by hand.
 - Add article-level schema for blog and news entries.
 - Add consent-aware media metadata for public success stories.
-- Add `noindex` metadata for private portal and staff routes.
+- Consider `react-helmet-async` when prerendering, SSR, or nested route metadata become a priority. The current manual SEO layer is kept small and dependency-free, but Helmet would reduce DOM reconciliation code and make SSR migration cleaner.
 
