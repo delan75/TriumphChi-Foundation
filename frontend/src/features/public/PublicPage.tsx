@@ -13,6 +13,7 @@ import { ContactPage } from './contact/ContactPage';
 import { PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
 import { ImpactPage } from './impact/ImpactPage';
 import { DonatePage } from './donate/DonatePage';
+import { BlogIndexPage } from './blog/BlogIndexPage';
 import { NotFoundPage } from '../errors/NotFoundPage';
 import defaultPageHeroImage from '../../assets/landing/rural_kids.jpg';
 
@@ -59,6 +60,10 @@ export function PublicPage() {
 
   if (page.key === 'privacy') {
     return <PrivacyPolicyPage locale={activeLocale} page={page} />;
+  }
+
+  if (page.key === 'blog') {
+    return <BlogIndexPage locale={activeLocale} page={page} />;
   }
 
   const ctaPage = page.cta ? getPageByKey(page.cta.page) : undefined;
