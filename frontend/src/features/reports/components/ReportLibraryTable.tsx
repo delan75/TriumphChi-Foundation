@@ -9,7 +9,7 @@ export function ReportLibraryTable({
 }: {
   copy: ReportsCopy;
   reports: ReportTemplate[];
-  onAction: (label: string) => void;
+  onAction: (report: ReportTemplate, action: 'view' | 'generate') => void;
 }) {
   if (!reports.length) {
     return <p className="rounded-md border border-dashed border-ink-200 p-5 text-sm text-ink-500">{copy.table.empty}</p>;
@@ -50,7 +50,7 @@ export function ReportLibraryTable({
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => onAction(`${copy.actions.view}: ${report.name}`)}
+                    onClick={() => onAction(report, 'view')}
                     className="focus-ring inline-flex min-h-10 items-center gap-2 rounded-md border border-ink-200 px-3 text-xs font-black text-ink-700 transition hover:bg-ink-50"
                   >
                     <Eye className="h-4 w-4" aria-hidden="true" />
@@ -58,7 +58,7 @@ export function ReportLibraryTable({
                   </button>
                   <button
                     type="button"
-                    onClick={() => onAction(`${report.format}: ${report.name}`)}
+                    onClick={() => onAction(report, 'generate')}
                     className="focus-ring inline-flex min-h-10 items-center gap-2 rounded-md bg-foundation-600 px-3 text-xs font-black text-white transition hover:bg-foundation-900"
                   >
                     {report.format === 'Excel' ? <FileSpreadsheet className="h-4 w-4" aria-hidden="true" /> : <Download className="h-4 w-4" aria-hidden="true" />}

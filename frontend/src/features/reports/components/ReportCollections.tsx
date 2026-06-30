@@ -11,6 +11,10 @@ export function SavedReportsPanel({
   reports: SavedReport[];
   onDownload: (label: string) => void;
 }) {
+  if (!reports.length) {
+    return <p className="rounded-md border border-dashed border-ink-200 p-5 text-sm text-ink-500">{copy.table.empty}</p>;
+  }
+
   return (
     <div className="grid gap-3">
       {reports.map((report) => (
@@ -41,7 +45,11 @@ export function SavedReportsPanel({
   );
 }
 
-export function ScheduledReportsPanel({ reports }: { reports: ScheduledReport[] }) {
+export function ScheduledReportsPanel({ copy, reports }: { copy: ReportsCopy; reports: ScheduledReport[] }) {
+  if (!reports.length) {
+    return <p className="rounded-md border border-dashed border-ink-200 p-5 text-sm text-ink-500">{copy.table.empty}</p>;
+  }
+
   return (
     <div className="grid gap-3">
       {reports.map((report) => (

@@ -89,6 +89,16 @@ return [
         'retrieved' => 'Dashboard summary retrieved successfully.',
     ],
 
+    'reports' => [
+        'dashboard_retrieved' => 'Report center retrieved successfully.',
+        'queue_retrieved' => 'Report queue retrieved successfully.',
+        'request_queued' => 'Report request queued.',
+        'request_invalid' => 'The report request could not be queued.',
+        'template_unavailable' => 'This report is not available for your account.',
+        'format_unavailable' => 'This report format is not available for the selected report.',
+        'filter_unavailable' => 'This filter is not available from the current data.',
+    ],
+
     'users' => [
         'retrieved' => 'Users retrieved successfully.',
         'retrieved_single' => 'User retrieved successfully.',
