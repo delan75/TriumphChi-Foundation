@@ -939,6 +939,128 @@ export interface PaginatedResponse<T> {
   };
 }
 
+export type LocalizedText = Partial<Record<'en' | 'fr', string | null>>;
+
+export interface BlogCategoryRecord {
+  id: number;
+  uuid: string;
+  name: LocalizedText;
+  label: string;
+  slug: LocalizedText;
+  current_slug?: string | null;
+  description?: LocalizedText | null;
+  current_description?: string | null;
+  color?: string | null;
+  sort_order?: number;
+  is_active: boolean;
+  posts_count?: number;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface BlogTagRecord {
+  id: number;
+  uuid: string;
+  name: LocalizedText;
+  label: string;
+  slug: LocalizedText;
+  current_slug?: string | null;
+  description?: LocalizedText | null;
+  current_description?: string | null;
+  is_active: boolean;
+  posts_count?: number;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface BlogPostRecord {
+  id: number;
+  uuid: string;
+  reference: string;
+  title: LocalizedText;
+  current_title: string;
+  slug: LocalizedText;
+  current_slug: string;
+  excerpt?: LocalizedText | null;
+  current_excerpt?: string | null;
+  body: LocalizedText;
+  current_body: string;
+  status: 'draft' | 'review' | 'published' | 'archived';
+  status_label?: string | null;
+  is_featured: boolean;
+  featured_image_path?: string | null;
+  featured_image_alt?: LocalizedText | null;
+  current_featured_image_alt?: string | null;
+  seo_title?: LocalizedText | null;
+  current_seo_title?: string | null;
+  seo_description?: LocalizedText | null;
+  current_seo_description?: string | null;
+  reading_minutes: number;
+  published_at?: string | null;
+  archived_at?: string | null;
+  category?: BlogCategoryRecord | null;
+  tags?: BlogTagRecord[];
+  author?: { id: number; name: string; email?: string | null } | null;
+  publisher?: { id: number; name: string } | null;
+  permissions?: {
+    can_view: boolean;
+    can_create: boolean;
+    can_update: boolean;
+    can_publish: boolean;
+    can_delete: boolean;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BlogPostSummary {
+  total_count: number;
+  status_counts: Record<string, number>;
+  draft_count: number;
+  review_count: number;
+  published_count: number;
+  archived_count: number;
+}
+
+export interface BlogPostListParams {
+  status?: string;
+  search?: string;
+  featured?: boolean;
+  page?: number;
+  per_page?: number;
+  sort?: string;
+  direction?: 'asc' | 'desc';
+}
+
+export interface PublicBlogPostListParams {
+  category?: string;
+  tag?: string;
+  search?: string;
+  page?: number;
+  per_page?: number;
+}
+
+export interface BlogPostPayload {
+  title: LocalizedText;
+  slug?: LocalizedText;
+  excerpt?: LocalizedText;
+  body: LocalizedText;
+  status?: 'draft' | 'review' | 'published' | 'archived';
+  blog_category_id?: number | null;
+  tag_ids?: number[];
+  is_featured?: boolean;
+  featured_image_path?: string | null;
+  featured_image_alt?: LocalizedText;
+  seo_title?: LocalizedText;
+  seo_description?: LocalizedText;
+}
+
+export interface BlogOptionsResponse {
+  categories: BlogCategoryRecord[];
+  tags: BlogTagRecord[];
+  statuses?: Array<{ value: string; label: string }>;
+}
+
 export interface DonationListParams {
   status?: string;
   search?: string;
@@ -1690,6 +1812,113 @@ export async function apiGlobalSearch(query: string, limit = 8): Promise<GlobalS
   return apiGet(`/global-search?${params.toString()}`);
 }
 
+export async function apiPublicListBlogPosts(
+  params: PublicBlogPostListParams,
+  locale: string,
+): Promise<PaginatedResponse<BlogPostRecord>> {
+  const query = buildQueryString(params);
+  const response = await fetch(`${API_BASE_URL}/public/blog-posts${query ? `?${query}` : ''}`, {
+    headers: {
+      Accept: 'application/json',
+      'Accept-Language': locale,
+    },
+    credentials: 'omit',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch blog posts.');
+
+  return {
+    data: (envelope.data as BlogPostRecord[]) ?? [],
+    meta: envelope.meta as PaginatedResponse<BlogPostRecord>['meta'],
+    links: envelope.links as PaginatedResponse<BlogPostRecord>['links'],
+  };
+}
+
+export async function apiPublicGetBlogPost(slug: string, locale: string): Promise<BlogPostRecord> {
+  return apiPublicGet<BlogPostRecord>(`/public/blog-posts/${encodeURIComponent(slug)}`, locale);
+}
+
+export async function apiPublicGetBlogOptions(locale: string): Promise<BlogOptionsResponse> {
+  return apiPublicGet<BlogOptionsResponse>('/public/blog/options', locale);
+}
+
+export async function apiListBlogPosts(params: BlogPostListParams): Promise<PaginatedResponse<BlogPostRecord> & {
+  summary: BlogPostSummary;
+}> {
+  const query = buildQueryString(params);
+  const response = await fetch(`${API_BASE_URL}/blog-posts${query ? `?${query}` : ''}`, {
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to fetch blog posts.');
+
+  return {
+    data: (envelope.data as BlogPostRecord[]) ?? [],
+    meta: envelope.meta as PaginatedResponse<BlogPostRecord>['meta'],
+    links: envelope.links as PaginatedResponse<BlogPostRecord>['links'],
+    summary: (envelope.summary as BlogPostSummary) ?? {
+      total_count: 0,
+      status_counts: {},
+      draft_count: 0,
+      review_count: 0,
+      published_count: 0,
+      archived_count: 0,
+    },
+  };
+}
+
+export async function apiGetBlogPost(uuid: string): Promise<BlogPostRecord> {
+  return apiGet<BlogPostRecord>(`/blog-posts/${uuid}`);
+}
+
+export async function apiGetBlogOptions(): Promise<BlogOptionsResponse> {
+  return apiGet<BlogOptionsResponse>('/blog/options');
+}
+
+export async function apiCreateBlogPost(payload: BlogPostPayload): Promise<BlogPostRecord> {
+  const response = await fetch(`${API_BASE_URL}/blog-posts`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  return parseJsonResponse<BlogPostRecord>(response, 'Failed to create blog post.');
+}
+
+export async function apiUpdateBlogPost(uuid: string, payload: BlogPostPayload): Promise<BlogPostRecord> {
+  const response = await fetch(`${API_BASE_URL}/blog-posts/${uuid}`, {
+    method: 'PUT',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  return parseJsonResponse<BlogPostRecord>(response, 'Failed to update blog post.');
+}
+
+export async function apiTransitionBlogPostStatus(uuid: string, status: string): Promise<BlogPostRecord> {
+  const response = await fetch(`${API_BASE_URL}/blog-posts/${uuid}/status`, {
+    method: 'PATCH',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify({ status }),
+  });
+
+  return parseJsonResponse<BlogPostRecord>(response, 'Failed to update blog post status.');
+}
+
+export async function apiDeleteBlogPost(uuid: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/blog-posts/${uuid}`, {
+    method: 'DELETE',
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  await parseJsonEnvelope(response, 'Failed to delete blog post.');
+}
+
 export async function apiForgotPassword(email: string): Promise<{ message: string }> {
   const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
     method: 'POST',
@@ -1930,6 +2159,20 @@ function readRequestLocale(): string | null {
   } catch {
     return null;
   }
+}
+
+function buildQueryString(params: Record<string, string | number | boolean | null | undefined>): string {
+  const query = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') {
+      return;
+    }
+
+    query.set(key, String(value));
+  });
+
+  return query.toString();
 }
 
 async function parseJsonResponse<T>(response: Response, fallbackMessage: string): Promise<T> {
