@@ -7,6 +7,7 @@ use App\Models\BlogPost;
 use App\Models\BlogTag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
@@ -129,8 +130,8 @@ class BlogApiTest extends TestCase
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $user = User::create([
-            'name' => 'Blog Tester '.Str()->random(6),
-            'email' => Str()->random(8).'@example.org',
+            'name' => 'Blog Tester '.Str::random(6),
+            'email' => Str::random(8).'@example.org',
             'password' => 'secret-password',
             'preferred_locale' => 'en',
             'status' => User::STATUS_ACTIVE,
