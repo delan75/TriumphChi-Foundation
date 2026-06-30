@@ -125,7 +125,15 @@ class FundingApiTest extends TestCase
             ->assertJsonPath('summary.total_count', 1)
             ->assertJsonPath('summary.status_counts.confirmed', 1)
             ->assertJsonPath('summary.currency_totals.XAF.amount', '25000.00')
-            ->assertJsonPath('summary.provider_counts.paypal', 1);
+            ->assertJsonPath('summary.provider_counts.paypal', 1)
+            ->assertJsonPath('summary.source_distribution.0.source', 'paypal')
+            ->assertJsonPath('summary.source_distribution.0.currency', 'XAF')
+            ->assertJsonPath('summary.source_distribution.0.amount', '25000.00');
+
+        $this->assertContains('momo', $response->json('summary.filter_options.providers'));
+        $this->assertContains('paypal', $response->json('summary.filter_options.providers'));
+        $this->assertContains('XAF', $response->json('summary.filter_options.currencies'));
+        $this->assertContains('CM', array_column($response->json('summary.filter_options.countries'), 'value'));
     }
 
     public function test_donation_management_show_returns_traceability_without_raw_provider_payload_or_child_leakage(): void
@@ -584,6 +592,10 @@ class FundingApiTest extends TestCase
             'status' => DonationStatus::Confirmed,
             'donated_at' => now(),
             'confirmed_at' => now(),
+            'metadata' => [
+                'country' => 'CM',
+                'source' => 'test_suite',
+            ],
         ], $overrides));
     }
 }

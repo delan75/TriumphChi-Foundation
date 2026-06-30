@@ -7,6 +7,7 @@ import { cn } from '../../components/ui/cn';
 import { staffDashboardText } from '../../content/staffDashboard';
 import { readStoredAuthUser } from '../../lib/auth';
 import { isLocale, type Locale } from '../../lib/i18n';
+import { MonthlyOperationsChart } from './components/MonthlyOperationsChart';
 import { useDashboardSummary } from './useDashboardSummary';
 
 type MetricTone = 'info' | 'warning' | 'success';
@@ -44,6 +45,7 @@ export function StaffDashboardPage() {
   const queues = summary?.priority_queues ?? [];
   const activity = summary?.recent_activity ?? [];
   const quickActions = summary?.quick_actions ?? [];
+  const monthlyActivity = summary?.charts?.monthly_activity ?? [];
   const accessibleModules = summary?.snapshot.accessible_modules ?? [];
 
   const directPermissions = user?.permissions?.length ?? 0;
@@ -176,6 +178,8 @@ export function StaffDashboardPage() {
               )}
             </div>
           </section>
+
+          <MonthlyOperationsChart copy={copy} locale={activeLocale} data={monthlyActivity} />
 
           <section className="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
             <DashboardPanel

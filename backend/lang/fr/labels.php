@@ -97,6 +97,7 @@ return [
         'paypal' => 'PayPal',
         'momo' => 'MoMo',
         'bank_transfer' => 'Virement bancaire',
+        'manual' => 'Hors ligne / Manuel',
     ],
 
     'school_verification_statuses' => [
