@@ -39,6 +39,10 @@ export interface ContactMessagesCopy {
   actions: string;
   detailTitle: string;
   close: string;
+  preview: string;
+  previewTitle: string;
+  previewDescription: string;
+  closePreview: string;
   noSelection: string;
   message: string;
   contactDetails: string;
@@ -108,6 +112,10 @@ export const contactMessagesContent: Record<Locale, ContactMessagesCopy> = {
     actions: 'Actions',
     detailTitle: 'Inquiry details',
     close: 'Close details',
+    preview: 'Preview inquiry',
+    previewTitle: 'Inquiry preview',
+    previewDescription: 'Complete contact inquiry details for review, assignment, or forwarding.',
+    closePreview: 'Close preview',
     noSelection: 'Select an inquiry to review the message, assign ownership, or forward it.',
     message: 'Message',
     contactDetails: 'Contact details',
@@ -190,6 +198,10 @@ export const contactMessagesContent: Record<Locale, ContactMessagesCopy> = {
     actions: 'Actions',
     detailTitle: 'Details de la demande',
     close: 'Fermer les details',
+    preview: 'Apercu de la demande',
+    previewTitle: 'Apercu complet',
+    previewDescription: 'Details complets de la demande pour la revue, l assignation ou le transfert.',
+    closePreview: 'Fermer l apercu',
     noSelection: 'Selectionnez une demande pour lire le message, assigner le suivi ou le transferer.',
     message: 'Message',
     contactDetails: 'Coordonnees',

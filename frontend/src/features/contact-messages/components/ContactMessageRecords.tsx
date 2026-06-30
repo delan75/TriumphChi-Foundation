@@ -59,12 +59,13 @@ export function ContactMessageRecords({ copy, locale, messages, isLoading, onOpe
         ))}
       </div>
 
-      <div className="hidden overflow-hidden rounded-md border border-ink-100 bg-white md:block">
-        <table className="min-w-full divide-y divide-ink-100">
+      <div className="hidden min-w-0 rounded-md border border-ink-100 bg-white md:block">
+        <div className="overflow-x-auto">
+          <table className="min-w-[980px] divide-y divide-ink-100">
           <thead className="bg-ink-50">
             <tr>
               {[copy.contact, copy.reason, copy.assignedTo, copy.attachments, copy.received, copy.actions].map((heading) => (
-                <th key={heading} scope="col" className="px-4 py-3 text-left text-xs font-bold uppercase text-ink-500">
+                <th key={heading} scope="col" className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase text-ink-500">
                   {heading}
                 </th>
               ))}
@@ -73,14 +74,14 @@ export function ContactMessageRecords({ copy, locale, messages, isLoading, onOpe
           <tbody className="divide-y divide-ink-100 bg-white">
             {messages.map((message) => (
               <tr key={message.uuid} className="transition hover:bg-foundation-50/40">
-                <td className="px-4 py-4">
-                  <div className="flex items-start gap-3">
+                <td className="w-[340px] px-4 py-4 align-top">
+                  <div className="flex min-w-0 items-start gap-3">
                     <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-foundation-50 text-foundation-700">
                       <Mail className="h-5 w-5" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-black text-ink-900">{message.name}</p>
-                      <p className="mt-1 text-xs text-ink-500">{message.email}</p>
+                      <p className="truncate text-sm font-black text-ink-900">{message.name}</p>
+                      <p className="mt-1 truncate text-xs text-ink-500">{message.email}</p>
                       {message.subject ? <p className="mt-1 max-w-sm truncate text-xs font-semibold text-ink-700">{message.subject}</p> : null}
                       <div className="mt-2">
                         <StatusBadge label={message.status_label ?? copy.statuses[message.status] ?? message.status} tone={contactStatusTone(message.status)} />
@@ -88,16 +89,16 @@ export function ContactMessageRecords({ copy, locale, messages, isLoading, onOpe
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-4 text-sm text-ink-600">{message.reason_label ?? copy.reasons[message.reason] ?? message.reason}</td>
-                <td className="px-4 py-4 text-sm text-ink-600">{message.handler?.name ?? copy.unassigned}</td>
-                <td className="px-4 py-4 text-sm text-ink-600">
+                <td className="w-[180px] px-4 py-4 align-top text-sm font-semibold text-ink-600">{message.reason_label ?? copy.reasons[message.reason] ?? message.reason}</td>
+                <td className="w-[180px] px-4 py-4 align-top text-sm text-ink-600">{message.handler?.name ?? copy.unassigned}</td>
+                <td className="w-[120px] px-4 py-4 align-top text-sm text-ink-600">
                   <span className="inline-flex items-center gap-2">
                     <Paperclip className="h-4 w-4 text-ink-400" aria-hidden="true" />
                     {message.attachments_count ?? 0}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-sm text-ink-600">{formatContactDate(message.created_at, locale)}</td>
-                <td className="px-4 py-4">
+                <td className="w-[160px] px-4 py-4 align-top text-sm text-ink-600">{formatContactDate(message.created_at, locale)}</td>
+                <td className="w-[120px] px-4 py-4 align-top">
                   <button
                     type="button"
                     onClick={() => onOpen(message.uuid)}
@@ -111,6 +112,7 @@ export function ContactMessageRecords({ copy, locale, messages, isLoading, onOpe
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </>
   );
