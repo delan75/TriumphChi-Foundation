@@ -322,11 +322,23 @@ export interface DashboardQuickAction {
   visible?: boolean;
 }
 
+export interface DashboardMonthlyActivityPoint {
+  key: string;
+  label: string;
+  applications_count: number;
+  donations_count: number;
+  donations_amount: string;
+  donations_amounts?: Record<string, string>;
+}
+
 export interface DashboardSummaryResponse {
   metrics: DashboardMetric[];
   priority_queues: DashboardQueue[];
   recent_activity: DashboardActivityItem[];
   quick_actions: DashboardQuickAction[];
+  charts?: {
+    monthly_activity: DashboardMonthlyActivityPoint[];
+  };
   snapshot: {
     accessible_modules: string[];
     generated_at: string;
@@ -821,6 +833,20 @@ export interface DonationManagementSummary {
   status_counts: Record<string, number>;
   currency_totals: Record<string, { count: number; amount: string }>;
   provider_counts: Record<string, number>;
+  source_distribution?: Array<{
+    source: string;
+    source_label: string;
+    currency: string;
+    count: number;
+    amount: string;
+  }>;
+  filter_options?: {
+    statuses: string[];
+    providers: string[];
+    currencies: string[];
+    countries: Array<{ value: string; label: string }>;
+    regions?: Array<{ value: string; label: string; code?: string | null }>;
+  };
 }
 
 export interface ContactMessageAttachmentRecord {
@@ -917,8 +943,11 @@ export interface DonationListParams {
   status?: string;
   search?: string;
   provider?: string;
+  source?: string;
   method?: string;
   currency?: string;
+  country?: string;
+  region_id?: number;
   page?: number;
   per_page?: number;
   sort?: string;
@@ -1021,8 +1050,11 @@ export async function apiListDonations(params: DonationListParams): Promise<Pagi
   if (params.status) qs.set('status', params.status);
   if (params.search) qs.set('search', params.search);
   if (params.provider) qs.set('provider', params.provider);
+  if (params.source) qs.set('source', params.source);
   if (params.method) qs.set('method', params.method);
   if (params.currency) qs.set('currency', params.currency);
+  if (params.country) qs.set('country', params.country);
+  if (params.region_id) qs.set('region_id', String(params.region_id));
   if (params.page) qs.set('page', String(params.page));
   if (params.per_page) qs.set('per_page', String(params.per_page));
   if (params.sort) qs.set('sort', params.sort);
@@ -1045,6 +1077,14 @@ export async function apiListDonations(params: DonationListParams): Promise<Pagi
       status_counts: {},
       currency_totals: {},
       provider_counts: {},
+      source_distribution: [],
+      filter_options: {
+        statuses: [],
+        providers: [],
+        currencies: [],
+        countries: [],
+        regions: [],
+      },
     },
     filters: (envelope.filters as Record<string, string | number>) ?? {},
   };

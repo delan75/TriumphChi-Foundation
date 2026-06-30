@@ -12,8 +12,19 @@ import {
   ShieldCheck,
   Target,
 } from 'lucide-react';
-import { buildOrganizationSchema, buildWebSiteSchema, JsonLdGraph, localizedUrl } from '../lib/seo';
+import {
+  absoluteUrl,
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildJsonLdGraph,
+  buildOrganizationSchema,
+  buildWebSiteSchema,
+  JsonLdGraph,
+  localizedUrl,
+} from '../lib/seo';
 import { Locale } from '../lib/i18n';
+import { siteConfig } from '../lib/site';
+import { publicFaqSections } from './publicFaqs';
 
 export type PublicPageKey =
   | 'home'
@@ -402,22 +413,39 @@ export function getPageByKey(key: PublicPageKey): PublicPageDefinition {
 
 export function buildPublicPageSchema(page: PublicPageDefinition, locale: Locale): JsonLdGraph {
   const url = localizedUrl(locale, page.path[locale]);
+  const homePage = getPageByKey('home');
+  const faqSection = page.key in publicFaqSections ? publicFaqSections[page.key as keyof typeof publicFaqSections] : undefined;
+  const breadcrumbs =
+    page.key === 'home'
+      ? [{ name: homePage.label[locale], url }]
+      : [
+          { name: homePage.label[locale], url: localizedUrl(locale, homePage.path[locale]) },
+          { name: page.label[locale], url },
+        ];
 
-  return {
-    '@context': 'https://schema.org',
-    '@graph': [
+  return buildJsonLdGraph([
       buildOrganizationSchema(locale),
       buildWebSiteSchema(locale),
       {
         '@type': page.schemaType === 'DonateAction' ? 'WebPage' : page.schemaType,
         '@id': `${url}#webpage`,
         url,
-        name: page.title[locale],
-        description: page.description[locale],
+        name: page.seoTitle?.[locale] ?? page.title[locale],
+        headline: page.title[locale],
+        description: page.seoDescription?.[locale] ?? page.description[locale],
         inLanguage: locale,
         isPartOf: { '@id': 'https://triumphchi.org/#website' },
         about: { '@id': 'https://triumphchi.org/#organization' },
+        primaryImageOfPage: {
+          '@type': 'ImageObject',
+          url: absoluteUrl(siteConfig.defaultImage),
+          width: siteConfig.defaultImageWidth,
+          height: siteConfig.defaultImageHeight,
+          caption: siteConfig.defaultImageAlt,
+        },
       },
+      buildBreadcrumbSchema(breadcrumbs),
+      faqSection ? buildFaqSchema(faqSection.items[locale]) : undefined,
       ...(page.schemaType === 'DonateAction'
         ? [
             {
@@ -428,7 +456,6 @@ export function buildPublicPageSchema(page: PublicPageDefinition, locale: Locale
             },
           ]
         : []),
-    ],
-  };
+    ]);
 }
 

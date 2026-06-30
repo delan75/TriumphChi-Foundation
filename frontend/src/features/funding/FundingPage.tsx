@@ -11,6 +11,7 @@ import { DonationDetailPanel } from './components/DonationDetailPanel';
 import { DonationFilters } from './components/DonationFilters';
 import { DonationRecords } from './components/DonationRecords';
 import { DonationSummaryCards } from './components/DonationSummaryCards';
+import { FundingSourceDistributionChart } from './components/FundingSourceDistributionChart';
 import { fundingContent, type FundingCopy } from './fundingContent';
 import { useDonation, useDonations, useRefreshDonationPaymentStatus } from './useDonations';
 
@@ -77,10 +78,18 @@ export function FundingPage() {
       <DonationFilters
         copy={copy}
         filters={filters}
+        summary={donationsQuery.data?.summary}
         onChange={(nextFilters) => {
           setFilters(nextFilters);
           setSelectedDonationUuid(null);
         }}
+      />
+
+      <FundingSourceDistributionChart
+        copy={copy}
+        locale={activeLocale}
+        summary={donationsQuery.data?.summary}
+        selectedCurrency={filters.currency}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.55fr)]">

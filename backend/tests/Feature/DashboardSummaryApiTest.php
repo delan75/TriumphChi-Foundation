@@ -70,6 +70,15 @@ class DashboardSummaryApiTest extends TestCase
         $this->assertSame('application', $activity['icon']);
         $this->assertSame($activity['happened_at'], $activity['occurred_at']);
         $this->assertSame('/staff/applications?search='.$seed['application']->application_number, $activity['path']);
+
+        $response->assertJsonCount(12, 'data.charts.monthly_activity');
+
+        $currentMonth = collect($response->json('data.charts.monthly_activity'))
+            ->firstWhere('key', now()->format('Y-m'));
+
+        $this->assertNotNull($currentMonth);
+        $this->assertSame(1, $currentMonth['applications_count']);
+        $this->assertArrayHasKey('donations_amounts', $currentMonth);
     }
 
     public function test_dashboard_summary_localizes_queue_labels(): void
