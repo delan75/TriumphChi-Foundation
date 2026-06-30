@@ -89,6 +89,16 @@ return [
         'retrieved' => 'RÃ©sumÃ© du tableau de bord rÃ©cupÃ©rÃ© avec succÃ¨s.',
     ],
 
+    'reports' => [
+        'dashboard_retrieved' => 'Centre des rapports recupere avec succes.',
+        'queue_retrieved' => 'File des rapports recuperee avec succes.',
+        'request_queued' => 'Demande de rapport ajoutee a la file.',
+        'request_invalid' => 'La demande de rapport ne peut pas etre ajoutee a la file.',
+        'template_unavailable' => 'Ce rapport n est pas disponible pour votre compte.',
+        'format_unavailable' => 'Ce format n est pas disponible pour le rapport selectionne.',
+        'filter_unavailable' => 'Ce filtre n est pas disponible avec les donnees actuelles.',
+    ],
+
     'users' => [
         'retrieved' => 'Utilisateurs recuperes avec succes.',
         'retrieved_single' => 'Utilisateur recupere avec succes.',

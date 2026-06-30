@@ -22,6 +22,7 @@ export interface ReportCategory {
 
 export interface QuickReport {
   key: string;
+  templateKey?: string;
   title: string;
   description: string;
   category: ReportCategoryKey;
@@ -36,6 +37,7 @@ export interface ReportTemplate {
   categoryLabel: string;
   lastGenerated: string;
   format: string;
+  formats?: string[];
   permissions: string[];
 }
 
@@ -86,6 +88,8 @@ export interface ReportsCopy {
     savedDescription: string;
     scheduled: string;
     scheduledDescription: string;
+    queue: string;
+    queueDescription: string;
   };
   filters: {
     search: string;
@@ -110,6 +114,8 @@ export interface ReportsCopy {
     download: string;
     buildReport: string;
     clear: string;
+    openQueue: string;
+    closeQueue: string;
   };
   builder: {
     dataset: string;
@@ -118,12 +124,18 @@ export interface ReportsCopy {
     sort: string;
     output: string;
     region: string;
+    school: string;
     academicYear: string;
     supportStatus: string;
     fundingStatus: string;
     ascending: string;
     descending: string;
     selectedFields: string;
+    noOptions: string;
+  };
+  queue: {
+    queued: string;
+    readyUntil: string;
   };
   notice: {
     title: string;
@@ -191,6 +203,8 @@ export const reportsContent: Record<Locale, ReportsCopy> = {
       savedDescription: 'Reusable reports for board, donor, finance, and program review.',
       scheduled: 'Scheduled Reports',
       scheduledDescription: 'Recurring reports prepared for the right team at the right time.',
+      queue: 'Report Queue',
+      queueDescription: 'Track requested reports and preparation progress.',
     },
     filters: {
       search: 'Search',
@@ -215,6 +229,8 @@ export const reportsContent: Record<Locale, ReportsCopy> = {
       download: 'Download',
       buildReport: 'Build Report',
       clear: 'Clear',
+      openQueue: 'Report Queue',
+      closeQueue: 'Close queue',
     },
     builder: {
       dataset: 'Dataset',
@@ -223,12 +239,18 @@ export const reportsContent: Record<Locale, ReportsCopy> = {
       sort: 'Sort',
       output: 'Output',
       region: 'Region',
+      school: 'School',
       academicYear: 'Academic Year',
       supportStatus: 'Support Status',
       fundingStatus: 'Funding Status',
       ascending: 'Ascending',
       descending: 'Descending',
       selectedFields: 'Selected fields',
+      noOptions: 'No available options',
+    },
+    queue: {
+      queued: 'Queued',
+      readyUntil: 'Ready until',
     },
     notice: {
       title: 'Report request queued',
@@ -300,6 +322,8 @@ export const reportsContent: Record<Locale, ReportsCopy> = {
       savedDescription: 'Rapports reutilisables pour la direction, les donateurs, la finance et les programmes.',
       scheduled: 'Rapports planifies',
       scheduledDescription: 'Rapports recurrents prepares pour la bonne equipe au bon moment.',
+      queue: 'File des rapports',
+      queueDescription: 'Suivez les rapports demandes et leur progression.',
     },
     filters: {
       search: 'Recherche',
@@ -324,6 +348,8 @@ export const reportsContent: Record<Locale, ReportsCopy> = {
       download: 'Telecharger',
       buildReport: 'Creer le rapport',
       clear: 'Effacer',
+      openQueue: 'File des rapports',
+      closeQueue: 'Fermer la file',
     },
     builder: {
       dataset: 'Donnees',
@@ -332,12 +358,18 @@ export const reportsContent: Record<Locale, ReportsCopy> = {
       sort: 'Tri',
       output: 'Sortie',
       region: 'Region',
+      school: 'Ecole',
       academicYear: 'Annee scolaire',
       supportStatus: 'Statut de soutien',
       fundingStatus: 'Statut de financement',
       ascending: 'Ascendant',
       descending: 'Descendant',
       selectedFields: 'Champs selectionnes',
+      noOptions: 'Aucune option disponible',
+    },
+    queue: {
+      queued: 'Mise en file',
+      readyUntil: 'Disponible jusqu au',
     },
     notice: {
       title: 'Demande de rapport en file',

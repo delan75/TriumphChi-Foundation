@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\V1\PublicImpactController;
 use App\Http\Controllers\Api\V1\PublicApplicationController;
 use App\Http\Controllers\Api\V1\PublicApplicationTrackingController;
 use App\Http\Controllers\Api\V1\PublicLookupController;
+use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SchoolController;
 use App\Http\Controllers\Api\V1\SponsorshipController;
 use App\Http\Controllers\Api\V1\SocialiteController;
@@ -181,6 +182,18 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('global-search', GlobalSearchController::class)
             ->name('global-search');
+
+        Route::get('reports/dashboard', [ReportController::class, 'dashboard'])
+            ->middleware('can:reports.view')
+            ->name('reports.dashboard');
+
+        Route::get('reports/queue', [ReportController::class, 'queue'])
+            ->middleware('can:reports.view')
+            ->name('reports.queue');
+
+        Route::post('reports/generate', [ReportController::class, 'generate'])
+            ->middleware('can:reports.view')
+            ->name('reports.generate');
 
         Route::get('users/access-options', [UserManagementController::class, 'accessOptions'])
             ->middleware('can:users.view')

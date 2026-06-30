@@ -9,7 +9,7 @@ export function QuickReportsGrid({
 }: {
   copy: ReportsCopy;
   reports: QuickReport[];
-  onGenerate: (label: string) => void;
+  onGenerate: (report: QuickReport) => void;
 }) {
   if (!reports.length) {
     return <p className="text-sm text-ink-500">{copy.table.empty}</p>;
@@ -32,7 +32,7 @@ export function QuickReportsGrid({
           <p className="mt-2 min-h-12 text-sm leading-6 text-ink-500">{report.description}</p>
           <button
             type="button"
-            onClick={() => onGenerate(report.title)}
+            onClick={() => onGenerate(report)}
             className="focus-ring mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-foundation-600 px-4 text-sm font-black text-white transition hover:bg-foundation-900"
           >
             {copy.actions.generate}

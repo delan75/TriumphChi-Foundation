@@ -195,6 +195,77 @@ return [
         'draft' => 'Brouillon',
     ],
 
+    'report_request_statuses' => [
+        'queued' => 'En file',
+        'processing' => 'En traitement',
+        'completed' => 'Prêt',
+        'failed' => 'Échoué',
+        'expired' => 'Expiré',
+    ],
+
+    'report_categories' => [
+        'applications' => 'Demandes',
+        'beneficiaries' => 'Bénéficiaires',
+        'schools' => 'Écoles',
+        'donations' => 'Dons',
+        'funding' => 'Financement',
+        'payments' => 'Paiements',
+        'impact' => 'Impact',
+    ],
+
+    'report_category_descriptions' => [
+        'applications' => 'Pipeline des demandes et progression des revues.',
+        'beneficiaries' => 'Enfants recevant un soutien éducatif.',
+        'schools' => 'Écoles, régions et soutien aux élèves.',
+        'donations' => 'Dons et contributions des donateurs.',
+        'funding' => 'Écarts de financement, allocations et soldes.',
+        'payments' => 'Paiements scolaires et audit des paiements.',
+        'impact' => 'Mises à jour d impact et résumés des résultats.',
+    ],
+
+    'report_funding_statuses' => [
+        'funding_gap' => 'Écart de financement',
+        'partially_funded' => 'Partiellement financé',
+        'fully_funded' => 'Entièrement financé',
+    ],
+
+    'report_templates' => [
+        'beneficiary_summary' => 'Résumé des bénéficiaires',
+        'funding_gap' => 'Rapport des écarts de financement',
+        'school_payments' => 'Paiements scolaires',
+        'application_pipeline' => 'Pipeline des demandes',
+        'donor_contributions' => 'Contributions des donateurs',
+        'impact_summary' => 'Résumé annuel de l impact',
+        'schools_by_region' => 'Écoles par région',
+        'payment_audit' => 'Audit des paiements',
+    ],
+
+    'quick_reports' => [
+        'applications_awaiting_review' => 'Demandes en attente de revue',
+        'children_awaiting_funding' => 'Enfants en attente de financement',
+        'upcoming_school_payments' => 'Paiements scolaires à venir',
+        'donations_this_month' => 'Dons reçus ce mois',
+        'outstanding_needs' => 'Besoins éducatifs ouverts',
+        'beneficiaries_by_school' => 'Bénéficiaires par école',
+    ],
+
+    'quick_report_descriptions' => [
+        'applications_awaiting_review' => 'Demandes attendant une décision.',
+        'children_awaiting_funding' => 'Besoins approuvés pas encore financés.',
+        'upcoming_school_payments' => 'Paiements scolaires dus bientôt.',
+        'donations_this_month' => 'Dons confirmés par canal et devise.',
+        'outstanding_needs' => 'Frais, examens, livres, uniformes et matériels ouverts.',
+        'beneficiaries_by_school' => 'Enfants soutenus regroupés par école.',
+    ],
+
+    'report_insights' => [
+        'review' => 'Demandes en attente de revue',
+        'gaps' => 'Bénéficiaires avec écarts',
+        'payments' => 'Paiements dus cette semaine',
+        'schools' => 'Écoles en attente de paiement',
+        'donations' => 'Dons confirmés ce mois',
+    ],
+
     'sponsorship_types' => [
         'program' => 'Parrainage de programme',
         'full' => 'Parrainage complet',

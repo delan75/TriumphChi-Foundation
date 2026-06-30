@@ -155,6 +155,94 @@ export interface UserAccessOptions {
   statuses: Array<{ value: string; label: string }>;
 }
 
+export interface ReportOptionRecord {
+  value: string;
+  label: string;
+  code?: string | null;
+  count?: number;
+}
+
+export interface ReportCategoryRecord {
+  key: string;
+  label: string;
+  available: number;
+  description: string;
+}
+
+export interface ReportTemplateRecord {
+  key: string;
+  name: string;
+  category: string;
+  format: string;
+  formats: string[];
+  permissions: string[];
+  last_generated?: string | null;
+}
+
+export interface QuickReportRecord {
+  key: string;
+  template_key: string;
+  title: string;
+  description: string;
+  category: string;
+  permission: string;
+  severity: 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+}
+
+export interface ReportInsightRecord {
+  key: string;
+  label: string;
+  value: string;
+  tone: 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+  path: string;
+  permission: string;
+}
+
+export interface ReportRequestRecord {
+  uuid: string;
+  template_key: string;
+  title: string;
+  category: string;
+  format: string;
+  status: string;
+  status_label?: string | null;
+  progress: number;
+  filters: Record<string, string>;
+  fields: string[];
+  queued_at?: string | null;
+  started_at?: string | null;
+  completed_at?: string | null;
+  failed_at?: string | null;
+  expires_at?: string | null;
+}
+
+export interface ReportFilterOptions {
+  regions: ReportOptionRecord[];
+  schools: ReportOptionRecord[];
+  academic_years: ReportOptionRecord[];
+  support_statuses: ReportOptionRecord[];
+  funding_statuses: ReportOptionRecord[];
+}
+
+export interface ReportDashboardResponse {
+  categories: ReportCategoryRecord[];
+  quick_reports: QuickReportRecord[];
+  templates: ReportTemplateRecord[];
+  insights: ReportInsightRecord[];
+  filter_options: ReportFilterOptions;
+  queue: ReportRequestRecord[];
+  saved_reports: ReportRequestRecord[];
+  scheduled_reports: Array<Record<string, unknown>>;
+}
+
+export interface ReportGeneratePayload {
+  template_key: string;
+  format: string;
+  filters?: Record<string, string>;
+  fields?: string[];
+  source?: string;
+}
+
 export interface GlobalSearchResult {
   id: string;
   reference?: string | null;
@@ -1452,6 +1540,25 @@ export async function apiGetCurrentUser(): Promise<AuthUser> {
 
 export async function apiGetDashboardSummary(): Promise<DashboardSummaryResponse> {
   return apiGet('/dashboard/summary');
+}
+
+export async function apiGetReportDashboard(): Promise<ReportDashboardResponse> {
+  return apiGet('/reports/dashboard');
+}
+
+export async function apiGetReportQueue(): Promise<ReportRequestRecord[]> {
+  return apiGet('/reports/queue');
+}
+
+export async function apiGenerateReport(payload: ReportGeneratePayload): Promise<ReportRequestRecord> {
+  const response = await fetch(`${API_BASE_URL}/reports/generate`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  return parseJsonResponse<ReportRequestRecord>(response, 'Failed to queue report request.');
 }
 
 export async function apiGetDonationConfig(locale: string): Promise<PublicDonationConfig> {
