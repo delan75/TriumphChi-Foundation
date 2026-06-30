@@ -265,10 +265,16 @@ class DashboardSummaryService
                     ->limit(4)
                     ->get()
                     ->map(fn (Application $application) => [
+                        'id' => $application->uuid,
                         'key' => 'application',
+                        'type' => 'application',
+                        'icon' => 'application',
                         'reference' => $application->application_number,
                         'title' => $application->applicant_name,
+                        'subtitle' => $application->application_number,
+                        'event' => $this->localizedLabel('application_statuses', $application->status),
                         'description' => $this->localizedLabel('application_statuses', $application->status),
+                        'occurred_at' => $application->updated_at?->toISOString(),
                         'happened_at' => $application->updated_at?->toISOString(),
                         'path' => '/staff/applications?search='.$application->application_number,
                     ])
@@ -282,10 +288,16 @@ class DashboardSummaryService
                     ->limit(4)
                     ->get()
                     ->map(fn (Beneficiary $beneficiary) => [
+                        'id' => $beneficiary->uuid,
                         'key' => 'beneficiary',
+                        'type' => 'beneficiary',
+                        'icon' => 'beneficiary',
                         'reference' => $beneficiary->internal_id,
                         'title' => trim($beneficiary->first_name.' '.$beneficiary->last_name),
+                        'subtitle' => $beneficiary->internal_id,
+                        'event' => $this->localizedLabel('beneficiary_statuses', $beneficiary->status),
                         'description' => $this->localizedLabel('beneficiary_statuses', $beneficiary->status),
+                        'occurred_at' => $beneficiary->updated_at?->toISOString(),
                         'happened_at' => $beneficiary->updated_at?->toISOString(),
                         'path' => '/staff/beneficiaries?search='.$beneficiary->internal_id,
                     ])
@@ -300,10 +312,16 @@ class DashboardSummaryService
                     ->limit(4)
                     ->get()
                     ->map(fn (Donation $donation) => [
+                        'id' => $donation->uuid,
                         'key' => 'donation',
+                        'type' => 'donation',
+                        'icon' => 'donation',
                         'reference' => $donation->reference_number,
                         'title' => $donation->donor?->name ?: $donation->reference_number,
+                        'subtitle' => $donation->reference_number,
+                        'event' => $this->localizedLabel('donation_statuses', $donation->status),
                         'description' => $this->localizedLabel('donation_statuses', $donation->status),
+                        'occurred_at' => $donation->updated_at?->toISOString(),
                         'happened_at' => $donation->updated_at?->toISOString(),
                         'path' => '/staff/funding?search='.$donation->reference_number,
                     ])
@@ -317,10 +335,16 @@ class DashboardSummaryService
                     ->limit(4)
                     ->get()
                     ->map(fn (Payment $payment) => [
+                        'id' => $payment->uuid,
                         'key' => 'payment',
+                        'type' => 'payment',
+                        'icon' => 'payment',
                         'reference' => $payment->payment_reference,
                         'title' => $payment->payee_name,
+                        'subtitle' => $payment->payment_reference,
+                        'event' => $this->localizedLabel('payment_statuses', $payment->status),
                         'description' => $this->localizedLabel('payment_statuses', $payment->status),
+                        'occurred_at' => $payment->updated_at?->toISOString(),
                         'happened_at' => $payment->updated_at?->toISOString(),
                         'path' => '/staff/funding?search='.$payment->payment_reference,
                     ])
@@ -341,21 +365,25 @@ class DashboardSummaryService
                 'key' => 'applications_review',
                 'permission' => 'applications.view',
                 'path' => '/staff/applications?status=submitted,verification_pending,review_pending',
+                'visible' => true,
             ],
             [
                 'key' => 'beneficiaries_open',
                 'permission' => 'beneficiaries.view',
                 'path' => '/staff/beneficiaries',
+                'visible' => true,
             ],
             [
                 'key' => 'funding_open',
                 'permission' => 'funds.view',
                 'path' => '/staff/funding',
+                'visible' => true,
             ],
             [
                 'key' => 'reports_open',
                 'permission' => 'impact_updates.view',
                 'path' => '/staff/reports',
+                'visible' => true,
             ],
         ])->filter(fn (array $action) => $user->can($action['permission']))->values();
     }
