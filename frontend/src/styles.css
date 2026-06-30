@@ -164,6 +164,65 @@ textarea {
   animation: loading-sheen 1.6s ease-in-out infinite;
 }
 
+.staff-profile-hero {
+  background:
+    radial-gradient(circle at top left, rgba(215, 243, 234, 0.22), transparent 34rem),
+    linear-gradient(135deg, #12372f 0%, #135c47 52%, #0f6f56 100%);
+  color: #ffffff;
+}
+
+.staff-profile-avatar {
+  background-color: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+}
+
+.staff-profile-chip {
+  background-color: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.staff-profile-hero-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.staff-profile-hero-muted,
+.staff-profile-hero-label {
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.staff-profile-hero-fact {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.staff-profile-hero-value {
+  color: #ffffff;
+}
+
+.profile-stat-card {
+  background-color: #ffffff;
+  border-color: #e7edf2;
+  border-left-color: #0f6f56;
+  color: #111827;
+}
+
+.profile-stat-label {
+  color: #475569;
+}
+
+.profile-stat-value {
+  color: #0f172a;
+}
+
+.profile-stat-icon {
+  background-color: #f3fbf8;
+  color: #135c47;
+  box-shadow: inset 0 0 0 1px #d7f3ea;
+}
+
 @keyframes rise-in {
   from {
     opacity: 0;

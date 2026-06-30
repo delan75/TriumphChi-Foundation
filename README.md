@@ -4,7 +4,7 @@ TriumphChi Foundation supports orphaned and vulnerable children in rural Cameroo
 
 The public website tells the foundation story, protects child dignity, explains the mission, and helps supporters, schools, churches, families, and communities connect with the work.
 
-The internal system manages the full beneficiary lifecycle, from application intake and verification through sponsorship, school payments, active support, reporting, and completion.
+The internal system manages the full beneficiary lifecycle, from application intake and verification through beneficiary case management, educational needs, sponsorship, donations, school payments, active support, reporting, and completion.
 
 ## Product Direction
 
@@ -19,7 +19,7 @@ Application
   -> Verification
   -> Review
   -> Accepted
-  -> Sponsored
+  -> Beneficiary Created
   -> Active Support
   -> Graduated / Completed
 ```
@@ -35,7 +35,7 @@ The platform uses a decoupled architecture.
 - Frontend: React, TypeScript, Vite, TanStack Query, Tailwind CSS
 - API versioning: `/api/v1`
 
-Roles are bundles of permissions. APIs authorize permissions, not role names. Policies handle record-level rules such as future field officer region ownership.
+Roles are bundles of permissions. APIs authorize permissions, not role names. Policies handle record-level rules. The frontend hides or shows workspace actions based on permissions, while the backend remains the source of truth.
 
 ## API Responses
 
@@ -47,6 +47,8 @@ return $this->error('Error message', 400);
 ```
 
 Responses include `success` boolean, `message` string, and `data` field. CORS is configured for local development with credentials support.
+
+API localization is handled through request locale resolution and `Accept-Language`. Fixed labels such as statuses, validation messages, and API messages are translated through Laravel language files. Translatable public content can use database-backed translation tables when it becomes CMS-driven.
 
 ## Authentication
 
@@ -65,6 +67,42 @@ OAuth endpoints:
 
 Email/password registration creates a pending account until email verification. Verification supports signed email links and OTP codes. Email OTP is available by default; SMS and WhatsApp OTP channels can be enabled through configured provider webhooks. Pending users can correct a mistyped email or phone number before verification without creating a duplicate account. Login returns a 30-day Sanctum token with an expiry timestamp and rotates existing tokens for the same device. Socialite runs in stateless mode and never returns Sanctum tokens through browser query strings.
 
+Authenticated profile responses are served from `/api/v1/auth/me` and include identity, profile, roles, permissions, connected providers, token sessions, and recent account activity.
+
+## Authenticated Workspace
+
+The staff workspace is an operational application, not a documentation area. It includes:
+
+- Dashboard summary with permission-aware metrics, queues, quick actions, recent activity, and global search
+- Applications intake and review workflows
+- Beneficiary case management with source application traceability
+- Funding and donations management
+- Public contact message management, assignment, and forwarding
+- User management with roles, permissions, profile details, status, and access control
+- Profile, security, preferences, and activity views
+
+The global search API is permission-aware. Users can search broadly, but the API only returns resources their permissions allow them to see.
+
+## Beneficiary Case Management
+
+Beneficiaries are created from accepted applications. A beneficiary record represents the active education support case and connects:
+
+- Source application
+- Child profile and guardian contact
+- School, region, and village
+- Educational needs
+- Allocations, payments, and funding progress
+- Sponsorship relationships
+- Documents, support history, mentorship, and impact updates
+
+The beneficiary table separates three concepts:
+
+- Case status: whether the child is currently in the foundation support lifecycle
+- Funding: whether approved educational needs are financially covered
+- Sponsorship: whether sponsorship commitments are attached to the beneficiary
+
+A beneficiary can be fully funded without an individual sponsor if support came from general donations or designated funds.
+
 ## Public Contact Messages
 
 Public contact form submissions are handled through `POST /api/v1/public/contact-messages`.
@@ -79,6 +117,20 @@ Public contact form submissions are handled through `POST /api/v1/public/contact
 - Contact details sourced from environment configuration
 - Private upload disk configurable via `PRIVATE_UPLOAD_DISK`
 
+Staff can review, assign, resolve, and forward contact inquiries from the authenticated workspace.
+
+## Donations and Payments
+
+Public donations are handled through donation intents and payment providers. The backend owns provider creation, verification, status polling, and reconciliation. The frontend never marks a donation successful based only on a provider redirect.
+
+Current provider work includes:
+
+- MTN MoMo Collections with country and currency capability checks, pending-payment polling, callback readiness, status checks, and private diagnostic logging
+- PayPal Orders API with backend order creation, redirect approval flow, capture verification, webhook reconciliation, and pending-review handling
+- Bank transfer and other giving channels represented as provider options for future expansion
+
+Donation receipts and related documents are generated and attached server-side when payment status allows it.
+
 ## Frontend Ownership
 
 React is the product frontend for core workflows:
@@ -92,6 +144,8 @@ React is the product frontend for core workflows:
 - Allocations
 - Funding dashboard
 - Reports
+- Users and access management
+- Contact message management
 
 These areas need workflow-specific UX, mobile support, localization, and future public or portal access.
 

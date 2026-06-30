@@ -128,7 +128,12 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        return AuthUserResource::make($request->user());
+        return AuthUserResource::make($request->user()->load([
+            'profile',
+            'authProviders',
+            'tokens',
+            'auditLogs' => fn ($query) => $query->limit(20),
+        ]));
     }
 
     public function logout(Request $request)

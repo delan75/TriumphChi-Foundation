@@ -59,6 +59,17 @@ class DashboardSummaryApiTest extends TestCase
         $this->assertNotContains('funding', $moduleKeys);
 
         $this->assertSame($seed['application']->application_number, $response->json('data.priority_queues.0.items.0.reference'));
+
+        $activity = collect($response->json('data.recent_activity'))
+            ->firstWhere('reference', $seed['application']->application_number);
+
+        $this->assertNotNull($activity);
+        $this->assertSame($seed['application']->uuid, $activity['id']);
+        $this->assertSame('application', $activity['type']);
+        $this->assertSame('application', $activity['key']);
+        $this->assertSame('application', $activity['icon']);
+        $this->assertSame($activity['happened_at'], $activity['occurred_at']);
+        $this->assertSame('/staff/applications?search='.$seed['application']->application_number, $activity['path']);
     }
 
     public function test_dashboard_summary_localizes_queue_labels(): void

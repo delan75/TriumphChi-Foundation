@@ -48,6 +48,7 @@ class BeneficiaryResource extends JsonResource
             'funding_progress' => $this->funding_progress,
             'application' => ApplicationResource::make($this->whenLoaded('application')),
             'school' => SchoolResource::make($this->whenLoaded('school')),
+            'current_need' => $this->when($this->relationLoaded('needs'), fn () => $this->currentNeedSummary($needs)),
             'needs' => EducationalNeedResource::collection($this->whenLoaded('needs')),
             'case_summary' => [
                 'needs_count' => (int) ($this->needs_count ?? $needs->count()),
@@ -117,6 +118,47 @@ class BeneficiaryResource extends JsonResource
                 'can_record_payments' => $request->user()?->can('payments.create') ?? false,
                 'can_publish_updates' => $request->user()?->can('impact_updates.publish') ?? false,
             ],
+        ];
+    }
+
+    private function currentNeedSummary($needs): ?array
+    {
+        $need = $needs
+            ->sortBy(function ($need): array {
+                $statusPriority = match ($need->status) {
+                    'open' => 0,
+                    'partially_funded' => 1,
+                    'approved' => 2,
+                    'funded' => 3,
+                    'paid' => 4,
+                    default => 5,
+                };
+
+                return [
+                    $statusPriority,
+                    -1 * max((float) $need->amount_required - (float) $need->amount_funded, 0),
+                    -1 * (optional($need->updated_at)->timestamp ?? 0),
+                ];
+            })
+            ->first();
+
+        if (! $need) {
+            return null;
+        }
+
+        $status = $this->normalizedLabelValue($need->status);
+        $gap = max((float) $need->amount_required - (float) $need->amount_funded, 0);
+
+        return [
+            'uuid' => $need->uuid,
+            'type' => $need->type,
+            'title' => $need->title,
+            'status' => $status,
+            'status_label' => $this->localizedLabel('need_statuses', $status),
+            'amount_required' => number_format((float) $need->amount_required, 2, '.', ''),
+            'amount_funded' => number_format((float) $need->amount_funded, 2, '.', ''),
+            'funding_gap' => number_format($gap, 2, '.', ''),
+            'academic_year' => $need->academic_year,
         ];
     }
 

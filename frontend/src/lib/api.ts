@@ -10,6 +10,8 @@ export interface TokenResponse {
 
 export interface AuthUser {
   id: number;
+  uuid?: string;
+  employee_number?: string | null;
   name: string;
   email: string;
   phone?: string | null;
@@ -17,6 +19,28 @@ export interface AuthUser {
   status?: string;
   email_verified_at?: string | null;
   last_login_at?: string | null;
+  registered_via?: string | null;
+  profile?: ManagedUserProfile | null;
+  auth_providers?: Array<{
+    provider: string;
+    provider_email?: string | null;
+    linked_at?: string | null;
+    last_used_at?: string | null;
+  }>;
+  sessions?: Array<{
+    id: number;
+    name: string;
+    last_used_at?: string | null;
+    expires_at?: string | null;
+    created_at?: string | null;
+  }>;
+  activity?: Array<{
+    id: number;
+    action: string;
+    metadata?: Record<string, unknown> | null;
+    ip_address?: string | null;
+    created_at?: string | null;
+  }>;
   roles?: string[];
   permissions?: string[];
 }
@@ -189,10 +213,16 @@ export interface DashboardQueue {
 }
 
 export interface DashboardActivityItem {
+  id?: string | null;
   key: string;
+  type?: string | null;
+  icon?: string | null;
   reference?: string | null;
   title: string;
+  subtitle?: string | null;
+  event?: string | null;
   description: string;
+  occurred_at?: string | null;
   happened_at?: string | null;
   path: string;
 }
@@ -201,6 +231,7 @@ export interface DashboardQuickAction {
   key: string;
   permission: string;
   path: string;
+  visible?: boolean;
 }
 
 export interface DashboardSummaryResponse {
@@ -477,6 +508,17 @@ export interface BeneficiaryRecord {
     name: string;
     region?: { id: number; name: string } | null;
     village?: { id: number; name: string } | null;
+  } | null;
+  current_need?: {
+    uuid: string;
+    type: string;
+    title: string;
+    status: string;
+    status_label: string | null;
+    amount_required: string;
+    amount_funded: string;
+    funding_gap: string;
+    academic_year: string;
   } | null;
   needs?: Array<{
     id: number;
