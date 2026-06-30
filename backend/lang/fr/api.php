@@ -67,6 +67,7 @@ return [
             'donation' => 'Enregistrement de don',
             'payment_intent' => 'Demande de paiement',
             'payment_transaction' => 'Transaction du fournisseur',
+            'blog_post' => 'Article du blog',
         ],
         'groups' => [
             'applications' => 'Demandes',
@@ -82,6 +83,7 @@ return [
             'funds' => 'Fonds',
             'payments' => 'Paiements',
             'sponsorships' => 'Parrainages',
+            'blog_posts' => 'Articles du blog',
         ],
     ],
 
@@ -97,6 +99,29 @@ return [
         'template_unavailable' => 'Ce rapport n est pas disponible pour votre compte.',
         'format_unavailable' => 'Ce format n est pas disponible pour le rapport selectionne.',
         'filter_unavailable' => 'Ce filtre n est pas disponible avec les donnees actuelles.',
+    ],
+
+    'blog' => [
+        'public_posts_retrieved' => 'Articles du blog recuperes avec succes.',
+        'public_post_retrieved' => 'Article du blog recupere avec succes.',
+        'posts_retrieved' => 'Publications du blog recuperees avec succes.',
+        'post_retrieved' => 'Publication du blog recuperee avec succes.',
+        'post_created' => 'Publication du blog creee avec succes.',
+        'post_updated' => 'Publication du blog mise a jour avec succes.',
+        'post_status_updated' => 'Statut de la publication mis a jour avec succes.',
+        'post_deleted' => 'Publication du blog supprimee avec succes.',
+        'post_not_found' => 'Article du blog introuvable.',
+        'options_retrieved' => 'Options du blog recuperees avec succes.',
+        'categories_retrieved' => 'Categories du blog recuperees avec succes.',
+        'category_created' => 'Categorie du blog creee avec succes.',
+        'category_updated' => 'Categorie du blog mise a jour avec succes.',
+        'category_deleted' => 'Categorie du blog supprimee avec succes.',
+        'category_in_use' => 'Cette categorie est liee a des publications et ne peut pas etre supprimee.',
+        'tags_retrieved' => 'Etiquettes du blog recuperees avec succes.',
+        'tag_created' => 'Etiquette du blog creee avec succes.',
+        'tag_updated' => 'Etiquette du blog mise a jour avec succes.',
+        'tag_deleted' => 'Etiquette du blog supprimee avec succes.',
+        'publish_forbidden' => 'Vous n avez pas la permission de publier les articles du blog.',
     ],
 
     'users' => [

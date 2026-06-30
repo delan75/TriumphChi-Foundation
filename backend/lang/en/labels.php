@@ -204,6 +204,13 @@ return [
         'expired' => 'Expired',
     ],
 
+    'blog_post_statuses' => [
+        'draft' => 'Draft',
+        'review' => 'In review',
+        'published' => 'Published',
+        'archived' => 'Archived',
+    ],
+
     'report_categories' => [
         'applications' => 'Applications',
         'beneficiaries' => 'Beneficiaries',
@@ -322,6 +329,13 @@ return [
         'impact_updates.create' => 'Create impact updates',
         'impact_updates.publish' => 'Publish impact updates',
         'reports.view' => 'View reports',
+        'blog_posts.view' => 'View blog posts',
+        'blog_posts.create' => 'Create blog posts',
+        'blog_posts.update' => 'Update blog posts',
+        'blog_posts.publish' => 'Publish blog posts',
+        'blog_posts.delete' => 'Delete blog posts',
+        'blog_categories.manage' => 'Manage blog categories',
+        'blog_tags.manage' => 'Manage blog tags',
         'users.view' => 'View users',
         'users.create' => 'Create users',
         'users.update' => 'Update users',

@@ -58,6 +58,9 @@ class RolePermissionSeeder extends Seeder
                 'impact_updates.view',
                 'impact_updates.create',
                 'reports.view',
+                'blog_posts.view',
+                'blog_posts.create',
+                'blog_posts.update',
             ],
             'administrator' => $permissions->keys()->reject(fn (string $name) => $name === 'permissions.manage')->all(),
             'super_administrator' => $permissions->keys()->all(),
@@ -176,6 +179,15 @@ class RolePermissionSeeder extends Seeder
             ],
             'reports' => [
                 'reports.view',
+            ],
+            'blog' => [
+                'blog_posts.view',
+                'blog_posts.create',
+                'blog_posts.update',
+                'blog_posts.publish',
+                'blog_posts.delete',
+                'blog_categories.manage',
+                'blog_tags.manage',
             ],
             'users' => [
                 'users.view',

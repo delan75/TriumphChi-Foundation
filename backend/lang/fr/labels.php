@@ -204,6 +204,13 @@ return [
         'expired' => 'Expiré',
     ],
 
+    'blog_post_statuses' => [
+        'draft' => 'Brouillon',
+        'review' => 'En revue',
+        'published' => 'Publie',
+        'archived' => 'Archive',
+    ],
+
     'report_categories' => [
         'applications' => 'Demandes',
         'beneficiaries' => 'Bénéficiaires',
@@ -322,6 +329,13 @@ return [
         'impact_updates.create' => 'Créer des nouvelles d\'impact',
         'impact_updates.publish' => 'Publier les nouvelles d\'impact',
         'reports.view' => 'Voir les rapports',
+        'blog_posts.view' => 'Voir les articles du blog',
+        'blog_posts.create' => 'Creer des articles du blog',
+        'blog_posts.update' => 'Mettre a jour les articles du blog',
+        'blog_posts.publish' => 'Publier les articles du blog',
+        'blog_posts.delete' => 'Supprimer les articles du blog',
+        'blog_categories.manage' => 'Gerer les categories du blog',
+        'blog_tags.manage' => 'Gerer les etiquettes du blog',
         'users.view' => 'Voir les utilisateurs',
         'users.create' => 'Créer des utilisateurs',
         'users.update' => 'Mettre à jour les utilisateurs',
