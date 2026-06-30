@@ -21,7 +21,7 @@ class BeneficiaryController extends Controller
         $direction = $filters['direction'] ?? 'desc';
 
         $beneficiaries = $this->filteredQuery($filters)
-            ->with(['application', 'region', 'village', 'school.region', 'school.village'])
+            ->with(['application', 'region', 'village', 'school.region', 'school.village', 'needs'])
             ->withCount(['needs', 'sponsorships', 'payments', 'impactUpdates'])
             ->withSum('needs as needs_amount_required_sum', 'amount_required')
             ->withSum('needs as needs_amount_funded_sum', 'amount_funded')

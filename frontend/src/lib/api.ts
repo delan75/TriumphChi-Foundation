@@ -509,6 +509,17 @@ export interface BeneficiaryRecord {
     region?: { id: number; name: string } | null;
     village?: { id: number; name: string } | null;
   } | null;
+  current_need?: {
+    uuid: string;
+    type: string;
+    title: string;
+    status: string;
+    status_label: string | null;
+    amount_required: string;
+    amount_funded: string;
+    funding_gap: string;
+    academic_year: string;
+  } | null;
   needs?: Array<{
     id: number;
     uuid: string;
