@@ -12,6 +12,7 @@ interface BlogEditorPanelProps {
   isWorking: boolean;
   error?: string | null;
   canPublish: boolean;
+  surface?: 'panel' | 'plain';
   onClose: () => void;
   onSubmit: (payload: BlogPostPayload) => Promise<void>;
 }
@@ -24,7 +25,7 @@ const allowedMediaExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg', 'mp4', 'web
 const imageAccept = allowedImageExtensions.map((extension) => `.${extension}`).join(',');
 const mediaAccept = allowedMediaExtensions.map((extension) => `.${extension}`).join(',');
 
-export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, canPublish, onClose, onSubmit }: BlogEditorPanelProps) {
+export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, canPublish, surface = 'panel', onClose, onSubmit }: BlogEditorPanelProps) {
   const [activeLocale, setActiveLocale] = useState<LocaleKey>('en');
   const [title, setTitle] = useState<LocalizedText>(emptyLocalized);
   const [slug, setSlug] = useState<LocalizedText>(emptyLocalized);
@@ -172,12 +173,7 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
     }
   }
 
-  return (
-    <DashboardPanel
-      title={mode === 'create' ? copy.form.titleCreate : copy.form.titleEdit}
-      className="min-w-0"
-      bodyClassName="min-w-0"
-    >
+  const form = (
       <form className="space-y-5" onSubmit={handleSubmit}>
         {error ? <div className="rounded-md border border-red-100 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</div> : null}
 
@@ -406,6 +402,19 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
           </button>
         </div>
       </form>
+  );
+
+  if (surface === 'plain') {
+    return form;
+  }
+
+  return (
+    <DashboardPanel
+      title={mode === 'create' ? copy.form.titleCreate : copy.form.titleEdit}
+      className="min-w-0"
+      bodyClassName="min-w-0"
+    >
+      {form}
     </DashboardPanel>
   );
 }
