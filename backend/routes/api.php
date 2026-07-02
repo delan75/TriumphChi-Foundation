@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AllocationController;
 use App\Http\Controllers\Api\V1\ApplicationController;
 use App\Http\Controllers\Api\V1\BlogCategoryController;
+use App\Http\Controllers\Api\V1\BlogMediaController;
 use App\Http\Controllers\Api\V1\BlogPostController;
 use App\Http\Controllers\Api\V1\BlogTagController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -345,6 +346,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('blog/options', [BlogPostController::class, 'options'])
             ->middleware('can:blog_posts.view')
             ->name('blog.options');
+
+        Route::post('blog-media', [BlogMediaController::class, 'store'])
+            ->name('blog-media.store');
 
         Route::patch('blog-posts/{blogPost}/status', [BlogPostController::class, 'transition'])
             ->middleware('can:blog_posts.publish')

@@ -7,6 +7,8 @@ use App\Models\BlogPost;
 use App\Models\BlogTag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
@@ -82,10 +84,21 @@ class BlogApiTest extends TestCase
             'tag_ids' => [$tag->id],
             'status' => 'review',
             'is_featured' => true,
+            'featured_image_path' => '/images/exam-support-day.jpg',
+            'media' => [
+                [
+                    'url' => '/images/classroom-reading-circle.jpg',
+                    'position' => 1,
+                    'layout' => 'inset',
+                    'caption' => ['en' => 'A reading circle during school support.'],
+                ],
+            ],
         ])->assertCreated()
             ->assertJsonPath('data.status', 'review')
             ->assertJsonPath('data.slug.en', 'why-exam-fees-matter')
-            ->assertJsonPath('data.category.id', $category->id);
+            ->assertJsonPath('data.category.id', $category->id)
+            ->assertJsonPath('data.current_featured_image_alt', 'Why Exam Fees Matter')
+            ->assertJsonPath('data.current_media.0.alt', 'Classroom Reading Circle');
 
         $uuid = $response->json('data.uuid');
 
@@ -97,7 +110,8 @@ class BlogApiTest extends TestCase
 
         $this->getJson('/api/v1/public/blog-posts/why-exam-fees-matter')
             ->assertOk()
-            ->assertJsonPath('data.current_title', 'Why Exam Fees Matter');
+            ->assertJsonPath('data.current_title', 'Why Exam Fees Matter')
+            ->assertJsonPath('data.current_media.0.layout', 'inset');
     }
 
     public function test_global_search_respects_blog_post_permission(): void
@@ -125,6 +139,23 @@ class BlogApiTest extends TestCase
             ->assertJsonFragment(['resource' => 'blog_posts']);
     }
 
+    public function test_staff_can_upload_scanned_blog_media_with_permissions(): void
+    {
+        Storage::fake('public');
+        Sanctum::actingAs($this->user(['blog_posts.create']));
+
+        $this->post('/api/v1/blog-media', [
+            'media' => [UploadedFile::fake()->createWithContent('school-reading-circle.png', $this->smallPng())],
+        ], ['Accept' => 'application/json'])->assertCreated()
+            ->assertJsonPath('data.media.0.type', 'image')
+            ->assertJsonPath('data.media.0.title.en', 'School Reading Circle')
+            ->assertJsonPath('data.media.0.alt.en', 'School Reading Circle');
+
+        $this->post('/api/v1/blog-media', [
+            'media' => [UploadedFile::fake()->create('dump.sql', 4, 'text/plain')],
+        ], ['Accept' => 'application/json'])->assertStatus(422);
+    }
+
     private function user(array $permissions = []): User
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
@@ -145,5 +176,13 @@ class BlogApiTest extends TestCase
         $user->givePermissionTo($permissions);
 
         return $user;
+    }
+
+    private function smallPng(): string
+    {
+        return base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
+            true,
+        );
     }
 }

@@ -122,7 +122,14 @@ return [
         'tag_updated' => 'Blog tag updated successfully.',
         'tag_deleted' => 'Blog tag deleted successfully.',
         'publish_forbidden' => 'You do not have permission to publish blog posts.',
-    ],
+        'media_uploaded' => 'Blog media uploaded successfully.',
+        'blocked_media' => 'The selected file cannot be accepted for safety reasons.',
+        'invalid_image_media' => 'One selected image could not be read. Please choose a valid image.',
+        'suspicious_media' => 'One selected file name looks unsafe. Please rename or remove it and try again.',
+        'unsafe_media' => 'One selected file looks unsafe. Please remove it and try again.',
+        'unreadable_media' => 'One selected file could not be read. Please remove it and try again.',
+        'unsupported_media' => 'This media type is not supported. Please choose a safe image or video file.',
+     ],
 
     'users' => [
         'retrieved' => 'Users retrieved successfully.',
