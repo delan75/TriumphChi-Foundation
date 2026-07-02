@@ -74,7 +74,7 @@ class BlogPost extends Model
 
     public function tags()
     {
-        return $this->belongsToMany(BlogTag::class)->withTimestamps();
+        return $this->belongsToMany(BlogTag::class, 'blog_post_tag')->withTimestamps();
     }
 
     public function scopePublished(Builder $query): Builder

@@ -26,10 +26,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('contact_messages', function (Blueprint $table): void {
+            $table->dropForeign(['handled_by']);
             $table->dropIndex(['handled_by', 'status']);
             $table->dropIndex(['reviewed_at', 'status']);
-            $table->dropConstrainedForeignId('handled_by');
-            $table->dropColumn(['staff_notes', 'reviewed_at', 'archived_at']);
+            $table->dropColumn(['handled_by', 'staff_notes', 'reviewed_at', 'archived_at']);
         });
     }
 };

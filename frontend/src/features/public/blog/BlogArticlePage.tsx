@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
 import { getPageByKey } from '../../../content/publicPages';
-import { apiPublicGetBlogPost, type BlogPostRecord } from '../../../lib/api';
+import { apiPublicGetBlogPost, type BlogPostCurrentMediaRecord, type BlogPostRecord } from '../../../lib/api';
 import type { Locale } from '../../../lib/i18n';
 import {
   absoluteUrl,
@@ -69,7 +69,7 @@ export function BlogArticlePage({ locale }: BlogArticlePageProps) {
               alt=""
               className="h-full w-full object-cover opacity-55 saturate-[0.68]"
               loading="eager"
-              fetchpriority="high"
+              {...({ fetchpriority: 'high' } as Record<string, string>)}
               decoding="async"
             />
             <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(8,36,31,0.96),rgba(8,36,31,0.74)_50%,rgba(8,36,31,0.42))]" />
@@ -116,13 +116,7 @@ export function BlogArticlePage({ locale }: BlogArticlePageProps) {
         {article ? (
           <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:px-8 lg:py-14">
             <div className="min-w-0">
-              <div className="prose prose-ink max-w-none">
-                {paragraphs(article.current_body).map((paragraph, index) => (
-                  <p key={`${article.uuid}-${index}`} className="mb-5 text-lg leading-8 text-ink-700">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
+              <ArticleBody article={article} />
             </div>
 
             <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
@@ -152,6 +146,75 @@ export function BlogArticlePage({ locale }: BlogArticlePageProps) {
         ) : null}
       </article>
     </>
+  );
+}
+
+function ArticleBody({ article }: { article: BlogPostRecord }) {
+  const textBlocks = paragraphs(article.current_body);
+  const media = [...(article.current_media ?? [])].sort((left, right) => left.position - right.position);
+  const beforeFirst = media.filter((item) => item.position <= 0);
+  const afterEnd = media.filter((item) => item.position > textBlocks.length);
+
+  return (
+    <div className="prose prose-ink max-w-none">
+      {beforeFirst.map((item, index) => (
+        <ArticleMediaFigure key={`${article.uuid}-media-before-${index}`} media={item} />
+      ))}
+
+      {textBlocks.map((paragraph, index) => (
+        <div key={`${article.uuid}-${index}`}>
+          <p className="mb-5 text-lg leading-8 text-ink-700">{paragraph}</p>
+          {media
+            .filter((item) => item.position === index + 1)
+            .map((item, mediaIndex) => (
+              <ArticleMediaFigure key={`${article.uuid}-media-${index}-${mediaIndex}`} media={item} />
+            ))}
+        </div>
+      ))}
+
+      {afterEnd.map((item, index) => (
+        <ArticleMediaFigure key={`${article.uuid}-media-after-${index}`} media={item} />
+      ))}
+    </div>
+  );
+}
+
+function ArticleMediaFigure({ media }: { media: BlogPostCurrentMediaRecord }) {
+  return (
+    <figure
+      className={cn(
+        'my-8 overflow-hidden rounded-md border border-foundation-100 bg-foundation-950 shadow-sm',
+        media.layout === 'inset' ? 'mx-auto max-w-2xl' : '',
+        media.layout === 'side' ? 'lg:float-right lg:mb-5 lg:ml-8 lg:mt-1 lg:w-[46%]' : '',
+      )}
+    >
+      <div className="relative">
+        {media.type === 'video' ? (
+          <video
+            src={media.url}
+            className="max-h-[520px] w-full bg-ink-950 object-cover"
+            controls
+            preload="metadata"
+            aria-label={media.alt || media.title || 'Blog video'}
+          />
+        ) : (
+          <img
+            src={media.url}
+            alt={media.alt || media.title || ''}
+            className="max-h-[520px] w-full object-cover opacity-90 saturate-[0.78]"
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(18,55,47,0.08),rgba(18,55,47,0.38))]" />
+      </div>
+      {media.caption || media.credit ? (
+        <figcaption className="bg-white px-4 py-3 text-sm leading-6 text-ink-600">
+          {media.caption ? <span>{media.caption}</span> : null}
+          {media.credit ? <span className="font-bold text-ink-400"> {media.credit}</span> : null}
+        </figcaption>
+      ) : null}
+    </figure>
   );
 }
 
@@ -204,7 +267,10 @@ function formatDate(value?: string | null, locale: Locale | string = 'en'): stri
 
 function buildArticleSchema(article: BlogPostRecord, locale: Locale, path: Record<Locale, string>) {
   const url = localizedUrl(locale, path[locale]);
-  const image = absoluteUrl(article.featured_image_path || defaultBlogImage);
+  const image = [
+    absoluteUrl(article.featured_image_path || defaultBlogImage),
+    ...(article.current_media ?? []).filter((item) => item.type !== 'video').map((item) => absoluteUrl(item.url)),
+  ];
   const blogPage = getPageByKey('blog');
   const homePage = getPageByKey('home');
 

@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent, type Dispatch, type FormEvent, type SetStateAction } from 'react';
 import { DashboardPanel } from '../../../components/staff/DashboardPanel';
-import type { BlogOptionsResponse, BlogPostPayload, BlogPostRecord, LocalizedText } from '../../../lib/api';
+import { apiUploadBlogMedia, type BlogOptionsResponse, type BlogPostMediaRecord, type BlogPostPayload, type BlogPostRecord, type LocalizedText } from '../../../lib/api';
+import { slugify } from '../../../lib/slugify';
 import type { BlogCopy } from '../blogContent';
 
 interface BlogEditorPanelProps {
@@ -18,6 +19,10 @@ interface BlogEditorPanelProps {
 type LocaleKey = 'en' | 'fr';
 
 const emptyLocalized: LocalizedText = { en: '', fr: '' };
+const allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
+const allowedMediaExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg', 'mp4', 'webm', 'mov'];
+const imageAccept = allowedImageExtensions.map((extension) => `.${extension}`).join(',');
+const mediaAccept = allowedMediaExtensions.map((extension) => `.${extension}`).join(',');
 
 export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, canPublish, onClose, onSubmit }: BlogEditorPanelProps) {
   const [activeLocale, setActiveLocale] = useState<LocaleKey>('en');
@@ -33,6 +38,13 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
   const [tagIds, setTagIds] = useState<number[]>([]);
   const [status, setStatus] = useState<BlogPostPayload['status']>('draft');
   const [isFeatured, setIsFeatured] = useState(false);
+  const [media, setMedia] = useState<BlogPostMediaRecord[]>([]);
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [autoSlug, setAutoSlug] = useState<Record<LocaleKey, boolean>>({
+    en: mode === 'create',
+    fr: mode === 'create',
+  });
 
   useEffect(() => {
     setTitle({ en: post?.title.en ?? '', fr: post?.title.fr ?? '' });
@@ -47,6 +59,7 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
     setTagIds(post?.tags?.map((tag) => tag.id) ?? []);
     setStatus(post?.status ?? 'draft');
     setIsFeatured(Boolean(post?.is_featured));
+    setMedia(post?.media ?? []);
   }, [post]);
 
   const availableStatuses = useMemo(() => {
@@ -73,7 +86,90 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
       tag_ids: tagIds,
       status,
       is_featured: isFeatured,
+      media: media
+        .filter((item) => item.url?.trim())
+        .map((item, index) => ({
+          type: item.type ?? 'image',
+          url: item.url.trim(),
+          title: cleanLocalized(item.title ?? {}),
+          alt: cleanLocalized(item.alt ?? {}),
+          caption: cleanLocalized(item.caption ?? {}),
+          credit: item.credit?.trim() || null,
+          position: Number.isFinite(Number(item.position)) ? Number(item.position) : index,
+          layout: item.layout ?? 'full',
+        })),
     });
+  }
+
+  async function handleFeaturedUpload(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = '';
+
+    if (!files.length) {
+      return;
+    }
+
+    setUploadError(null);
+    setIsUploadingMedia(true);
+
+    if (!isAllowedMediaName(files[0].name, allowedImageExtensions)) {
+      setUploadError(`${files[0].name} cannot be selected as a featured image.`);
+      setIsUploadingMedia(false);
+      return;
+    }
+
+    try {
+      const [uploaded] = await apiUploadBlogMedia([files[0]]);
+
+      if (uploaded) {
+        setImagePath(uploaded.url);
+        setImageAlt(uploaded.alt ?? uploaded.title ?? {});
+      }
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : 'Unable to upload media.');
+    } finally {
+      setIsUploadingMedia(false);
+    }
+  }
+
+  async function handleArticleMediaUpload(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = '';
+
+    if (!files.length) {
+      return;
+    }
+
+    const blocked = files.find((file) => !isAllowedMediaName(file.name));
+
+    if (blocked) {
+      setUploadError(`${blocked.name} cannot be selected for blog media.`);
+      return;
+    }
+
+    setUploadError(null);
+    setIsUploadingMedia(true);
+
+    try {
+      const uploaded = await apiUploadBlogMedia(files);
+      setMedia((current) => [
+        ...current,
+        ...uploaded.map((item, index) => ({
+          type: item.type,
+          url: item.url,
+          title: item.title,
+          alt: item.alt,
+          caption: item.caption,
+          credit: item.credit,
+          position: current.length + index,
+          layout: item.layout ?? 'full',
+        })),
+      ]);
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : 'Unable to upload media.');
+    } finally {
+      setIsUploadingMedia(false);
+    }
   }
 
   return (
@@ -100,8 +196,25 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
           ))}
         </div>
 
-        <TextInput label={copy.form.title} value={title[activeLocale] ?? ''} required={activeLocale === 'en'} onChange={(value) => setTitle((current) => ({ ...current, [activeLocale]: value }))} />
-        <TextInput label={copy.form.slug} value={slug[activeLocale] ?? ''} onChange={(value) => setSlug((current) => ({ ...current, [activeLocale]: value }))} />
+        <TextInput
+          label={copy.form.title}
+          value={title[activeLocale] ?? ''}
+          required={activeLocale === 'en'}
+          onChange={(value) => {
+            setTitle((current) => ({ ...current, [activeLocale]: value }));
+            if (autoSlug[activeLocale]) {
+              setSlug((current) => ({ ...current, [activeLocale]: slugify(value) }));
+            }
+          }}
+        />
+        <TextInput
+          label={copy.form.slug}
+          value={slug[activeLocale] ?? ''}
+          onChange={(value) => {
+            setAutoSlug((current) => ({ ...current, [activeLocale]: false }));
+            setSlug((current) => ({ ...current, [activeLocale]: value }));
+          }}
+        />
         <TextArea label={copy.form.excerpt} value={excerpt[activeLocale] ?? ''} rows={3} onChange={(value) => setExcerpt((current) => ({ ...current, [activeLocale]: value }))} />
         <TextArea label={copy.form.body} value={body[activeLocale] ?? ''} rows={10} required={activeLocale === 'en'} onChange={(value) => setBody((current) => ({ ...current, [activeLocale]: value }))} />
 
@@ -167,8 +280,112 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
           {copy.form.featured}
         </label>
 
-        <TextInput label={copy.form.imagePath} value={imagePath} onChange={setImagePath} />
+        <div className="rounded-md border border-ink-100 bg-ink-50 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase text-ink-500">{copy.form.imagePath}</p>
+              <p className="mt-1 text-xs font-semibold text-ink-500">{imagePath || copy.form.mediaHelp}</p>
+            </div>
+            <label className="focus-within:ring-2 focus-within:ring-foundation-500 inline-flex min-h-10 cursor-pointer items-center rounded-md bg-white px-3 text-xs font-black text-foundation-800 shadow-sm transition hover:bg-foundation-50">
+              {isUploadingMedia ? copy.form.uploadingMedia : copy.form.uploadMedia}
+              <input
+                type="file"
+                accept={imageAccept}
+                className="sr-only"
+                disabled={isUploadingMedia}
+                onChange={handleFeaturedUpload}
+              />
+            </label>
+          </div>
+        </div>
         <TextInput label={copy.form.imageAlt} value={imageAlt[activeLocale] ?? ''} onChange={(value) => setImageAlt((current) => ({ ...current, [activeLocale]: value }))} />
+
+        <fieldset className="rounded-md border border-ink-100 bg-ink-50 p-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <legend className="text-xs font-black uppercase text-ink-500">{copy.form.media}</legend>
+              <p className="mt-1 text-xs font-semibold text-ink-500">{copy.form.mediaHelp}</p>
+            </div>
+            <label className="focus-within:ring-2 focus-within:ring-foundation-500 inline-flex min-h-9 cursor-pointer items-center rounded-md bg-white px-3 text-xs font-black text-foundation-800 shadow-sm transition hover:bg-foundation-50">
+              {isUploadingMedia ? copy.form.uploadingMedia : copy.form.uploadMedia}
+              <input
+                type="file"
+                accept={mediaAccept}
+                multiple
+                className="sr-only"
+                disabled={isUploadingMedia}
+                onChange={handleArticleMediaUpload}
+              />
+            </label>
+          </div>
+          {uploadError ? <p className="mt-3 rounded-md border border-red-100 bg-red-50 p-3 text-sm font-bold text-red-700">{uploadError}</p> : null}
+
+          <div className="mt-3 space-y-3">
+            {media.map((item, index) => (
+              <div key={`${index}-${item.url}`} className="rounded-md border border-ink-100 bg-white p-3 shadow-sm">
+                <div className="grid gap-3 sm:grid-cols-[1fr_120px_120px]">
+                  <div className="min-w-0 rounded-md border border-ink-100 bg-ink-50 px-3 py-2">
+                    <p className="text-xs font-black uppercase text-ink-500">{copy.form.mediaUrl}</p>
+                    <p className="mt-1 truncate text-sm font-semibold text-ink-700">{item.url}</p>
+                  </div>
+                  <TextInput
+                    label={copy.form.mediaPosition}
+                    value={String(item.position ?? index)}
+                    onChange={(value) => updateMedia(index, (current) => ({ ...current, position: Number(value) }), setMedia)}
+                  />
+                  <label className="block">
+                    <span className="text-xs font-black uppercase text-ink-500">{copy.form.mediaLayout}</span>
+                    <select
+                      value={item.layout ?? 'full'}
+                      onChange={(event) => updateMedia(index, (current) => ({ ...current, layout: event.target.value as BlogPostMediaRecord['layout'] }), setMedia)}
+                      className="focus-ring mt-1 h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800"
+                    >
+                      <option value="full">Full</option>
+                      <option value="inset">Inset</option>
+                      <option value="side">Side</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <TextInput
+                    label={copy.form.mediaTitle}
+                    value={item.title?.[activeLocale] ?? ''}
+                    onChange={(value) => updateMedia(index, (current) => ({
+                      ...current,
+                      title: { ...(current.title ?? {}), [activeLocale]: value },
+                      alt: current.alt?.[activeLocale] ? current.alt : { ...(current.alt ?? {}), [activeLocale]: value },
+                    }), setMedia)}
+                  />
+                  <TextInput
+                    label={copy.form.mediaAlt}
+                    value={item.alt?.[activeLocale] ?? ''}
+                    onChange={(value) => updateMedia(index, (current) => ({ ...current, alt: { ...(current.alt ?? {}), [activeLocale]: value } }), setMedia)}
+                  />
+                  <TextInput
+                    label={copy.form.mediaCaption}
+                    value={item.caption?.[activeLocale] ?? ''}
+                    onChange={(value) => updateMedia(index, (current) => ({ ...current, caption: { ...(current.caption ?? {}), [activeLocale]: value } }), setMedia)}
+                  />
+                  <TextInput
+                    label={copy.form.mediaCredit}
+                    value={item.credit ?? ''}
+                    onChange={(value) => updateMedia(index, (current) => ({ ...current, credit: value }), setMedia)}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setMedia((current) => current.filter((_, currentIndex) => currentIndex !== index))}
+                  className="focus-ring mt-3 min-h-9 rounded-md border border-red-200 px-3 text-xs font-black text-red-700 transition hover:bg-red-50"
+                >
+                  {copy.form.removeMedia}
+                </button>
+              </div>
+            ))}
+          </div>
+        </fieldset>
+
         <TextInput label={copy.form.seoTitle} value={seoTitle[activeLocale] ?? ''} onChange={(value) => setSeoTitle((current) => ({ ...current, [activeLocale]: value }))} />
         <TextArea label={copy.form.seoDescription} value={seoDescription[activeLocale] ?? ''} rows={3} onChange={(value) => setSeoDescription((current) => ({ ...current, [activeLocale]: value }))} />
 
@@ -249,4 +466,23 @@ function cleanLocalized(value: LocalizedText): LocalizedText {
     en: value.en?.trim() || '',
     fr: value.fr?.trim() || null,
   };
+}
+
+function updateMedia(
+  index: number,
+  update: (item: BlogPostMediaRecord) => BlogPostMediaRecord,
+  setMedia: Dispatch<SetStateAction<BlogPostMediaRecord[]>>,
+) {
+  setMedia((current) => current.map((item, currentIndex) => (currentIndex === index ? update(item) : item)));
+}
+
+function isAllowedMediaName(fileName: string, allowedExtensions = allowedMediaExtensions): boolean {
+  const parts = fileName.toLowerCase().split('.').filter(Boolean);
+  const extension = parts[parts.length - 1];
+
+  if (!extension || !allowedExtensions.includes(extension)) {
+    return false;
+  }
+
+  return !parts.slice(0, -1).some((part) => ['sql', 'exe', 'php', 'js', 'bat', 'cmd', 'ps1', 'sh', 'vbs'].includes(part));
 }

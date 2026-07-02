@@ -223,11 +223,22 @@ class BlogPostController extends Controller
 
     private function preparePostPayload(array $payload, ?BlogPost $post = null, ?int $userId = null): array
     {
+        $media = $payload['media'] ?? ($post?->metadata['media'] ?? []);
+        unset($payload['media']);
+
         $payload['slug'] = $this->localizedSlugs($payload['slug'] ?? [], $payload['title'], $post?->id);
         $payload['reading_minutes'] = $this->readingMinutes($payload['body']);
         $payload['author_id'] = $post?->author_id ?? $userId;
         $payload['status'] = $payload['status'] ?? $post?->status ?? BlogPost::STATUS_DRAFT;
         $payload['is_featured'] = $payload['is_featured'] ?? false;
+        $payload['featured_image_alt'] = $this->withAltFallback(
+            $payload['featured_image_alt'] ?? [],
+            $payload['title'] ?? ($post?->title ?? []),
+            $payload['featured_image_path'] ?? $post?->featured_image_path,
+        );
+        $payload['metadata'] = array_merge($post?->metadata ?? [], [
+            'media' => $this->normalizeMedia($media, $payload['title'] ?? ($post?->title ?? [])),
+        ]);
 
         if ($payload['status'] === BlogPost::STATUS_PUBLISHED) {
             $payload['published_by'] = $userId;
@@ -240,6 +251,74 @@ class BlogPostController extends Controller
         }
 
         return $payload;
+    }
+
+    private function normalizeMedia(array $items, array $postTitle): array
+    {
+        return collect($items)
+            ->filter(fn ($item) => is_array($item) && filled($item['url'] ?? null))
+            ->map(function (array $item, int $index) use ($postTitle) {
+                $url = trim((string) ($item['url'] ?? ''));
+                $title = $this->localizedText($item['title'] ?? []);
+                $fallbackTitle = $this->titleFromPath($url) ?: $this->localizedText($postTitle);
+
+                if (! filled($title['en'] ?? null)) {
+                    $title['en'] = $fallbackTitle['en'] ?? null;
+                }
+
+                if (! filled($title['fr'] ?? null)) {
+                    $title['fr'] = $fallbackTitle['fr'] ?? ($title['en'] ?? null);
+                }
+
+                $type = $item['type'] ?? 'image';
+
+                return [
+                    'type' => in_array($type, ['image', 'video'], true) ? $type : 'image',
+                    'url' => $url,
+                    'title' => $title,
+                    'alt' => $this->withAltFallback($item['alt'] ?? [], $title, $url),
+                    'caption' => $this->localizedText($item['caption'] ?? []),
+                    'credit' => filled($item['credit'] ?? null) ? trim((string) $item['credit']) : null,
+                    'position' => (int) ($item['position'] ?? $index),
+                    'layout' => in_array($item['layout'] ?? 'full', ['full', 'inset', 'side'], true) ? $item['layout'] : 'full',
+                ];
+            })
+            ->sortBy('position')
+            ->values()
+            ->all();
+    }
+
+    private function withAltFallback(array $alt, array $title, ?string $path = null): array
+    {
+        $alt = $this->localizedText($alt);
+        $title = $this->localizedText($title);
+        $pathTitle = $path ? $this->titleFromPath($path) : [];
+
+        foreach (['en', 'fr'] as $locale) {
+            if (! filled($alt[$locale] ?? null)) {
+                $alt[$locale] = $title[$locale] ?? $pathTitle[$locale] ?? $title['en'] ?? $pathTitle['en'] ?? null;
+            }
+        }
+
+        return $alt;
+    }
+
+    private function localizedText(array $value): array
+    {
+        return collect(['en', 'fr'])->mapWithKeys(fn (string $locale) => [
+            $locale => filled($value[$locale] ?? null) ? trim((string) $value[$locale]) : null,
+        ])->all();
+    }
+
+    private function titleFromPath(string $path): array
+    {
+        $basename = pathinfo(parse_url($path, PHP_URL_PATH) ?: $path, PATHINFO_FILENAME);
+        $title = Str::headline(str_replace(['-', '_'], ' ', $basename));
+
+        return [
+            'en' => $title ?: null,
+            'fr' => $title ?: null,
+        ];
     }
 
     private function localizedSlugs(array $slugs, array $titles, ?int $ignoreId = null): array

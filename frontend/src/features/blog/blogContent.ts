@@ -70,6 +70,19 @@ export interface BlogCopy {
     featured: string;
     imagePath: string;
     imageAlt: string;
+    media: string;
+    addMedia: string;
+    uploadMedia: string;
+    uploadingMedia: string;
+    mediaHelp: string;
+    removeMedia: string;
+    mediaUrl: string;
+    mediaTitle: string;
+    mediaAlt: string;
+    mediaCaption: string;
+    mediaCredit: string;
+    mediaPosition: string;
+    mediaLayout: string;
     seoTitle: string;
     seoDescription: string;
   };
@@ -147,6 +160,19 @@ export const blogContent: Record<Locale, BlogCopy> = {
       featured: 'Feature on blog page',
       imagePath: 'Featured image path',
       imageAlt: 'Image description',
+      media: 'Article media rows',
+      addMedia: 'Add media row',
+      uploadMedia: 'Select media files',
+      uploadingMedia: 'Uploading...',
+      mediaHelp: 'Upload safe images or videos. Alt text is generated from the file name and can be edited.',
+      removeMedia: 'Remove',
+      mediaUrl: 'Image URL or path',
+      mediaTitle: 'Image title',
+      mediaAlt: 'Alt text',
+      mediaCaption: 'Caption',
+      mediaCredit: 'Credit',
+      mediaPosition: 'After paragraph',
+      mediaLayout: 'Layout',
       seoTitle: 'SEO title',
       seoDescription: 'SEO description',
     },
@@ -227,6 +253,19 @@ export const blogContent: Record<Locale, BlogCopy> = {
       featured: 'Mettre en avant',
       imagePath: 'Chemin de l image',
       imageAlt: 'Description de l image',
+      media: 'Images dans l article',
+      addMedia: 'Ajouter une image',
+      uploadMedia: 'Selectionner des medias',
+      uploadingMedia: 'Televersement...',
+      mediaHelp: 'Ajoutez des images ou videos sures. Le texte alternatif est genere puis modifiable.',
+      removeMedia: 'Retirer',
+      mediaUrl: 'URL ou chemin',
+      mediaTitle: 'Titre image',
+      mediaAlt: 'Texte alternatif',
+      mediaCaption: 'Legende',
+      mediaCredit: 'Credit',
+      mediaPosition: 'Apres paragraphe',
+      mediaLayout: 'Mise en page',
       seoTitle: 'Titre SEO',
       seoDescription: 'Description SEO',
     },

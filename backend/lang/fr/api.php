@@ -122,6 +122,13 @@ return [
         'tag_updated' => 'Etiquette du blog mise a jour avec succes.',
         'tag_deleted' => 'Etiquette du blog supprimee avec succes.',
         'publish_forbidden' => 'Vous n avez pas la permission de publier les articles du blog.',
+        'media_uploaded' => 'Media du blog televerse avec succes.',
+        'blocked_media' => 'Le fichier selectionne ne peut pas etre accepte pour des raisons de securite.',
+        'invalid_image_media' => 'Une image selectionnee n a pas pu etre lue. Choisissez une image valide.',
+        'suspicious_media' => 'Le nom d un fichier selectionne semble dangereux. Renommez-le ou retirez-le.',
+        'unsafe_media' => 'Un fichier selectionne semble dangereux. Retirez-le et reessayez.',
+        'unreadable_media' => 'Un fichier selectionne n a pas pu etre lu. Retirez-le et reessayez.',
+        'unsupported_media' => 'Ce type de media n est pas pris en charge. Choisissez une image ou une video sure.',
     ],
 
     'users' => [

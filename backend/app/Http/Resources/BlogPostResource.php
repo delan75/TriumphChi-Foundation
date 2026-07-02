@@ -33,6 +33,8 @@ class BlogPostResource extends JsonResource
             'current_seo_title' => $this->localized($this->seo_title, $locale) ?: $this->localized($this->title, $locale),
             'seo_description' => $this->seo_description,
             'current_seo_description' => $this->localized($this->seo_description, $locale) ?: $this->localized($this->excerpt, $locale),
+            'media' => $this->metadata['media'] ?? [],
+            'current_media' => $this->localizedMedia($this->metadata['media'] ?? [], $locale),
             'reading_minutes' => $this->reading_minutes,
             'published_at' => $this->published_at,
             'archived_at' => $this->archived_at,
@@ -62,5 +64,23 @@ class BlogPostResource extends JsonResource
     private function localized(?array $value, string $locale): ?string
     {
         return $value[$locale] ?? $value['en'] ?? collect($value)->filter()->first();
+    }
+
+    private function localizedMedia(array $items, string $locale): array
+    {
+        return collect($items)
+            ->map(fn (array $item) => [
+                'type' => $item['type'] ?? 'image',
+                'url' => $item['url'] ?? null,
+                'title' => $this->localized($item['title'] ?? null, $locale),
+                'alt' => $this->localized($item['alt'] ?? null, $locale),
+                'caption' => $this->localized($item['caption'] ?? null, $locale),
+                'credit' => $item['credit'] ?? null,
+                'position' => (int) ($item['position'] ?? 0),
+                'layout' => $item['layout'] ?? 'full',
+            ])
+            ->filter(fn (array $item) => filled($item['url']))
+            ->values()
+            ->all();
     }
 }
