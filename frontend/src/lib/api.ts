@@ -995,6 +995,8 @@ export interface BlogPostRecord {
   current_seo_title?: string | null;
   seo_description?: LocalizedText | null;
   current_seo_description?: string | null;
+  media?: BlogPostMediaRecord[];
+  current_media?: BlogPostCurrentMediaRecord[];
   reading_minutes: number;
   published_at?: string | null;
   archived_at?: string | null;
@@ -1013,6 +1015,35 @@ export interface BlogPostRecord {
   updated_at: string;
 }
 
+export interface BlogPostMediaRecord {
+  type?: 'image' | 'video';
+  url: string;
+  title?: LocalizedText | null;
+  alt?: LocalizedText | null;
+  caption?: LocalizedText | null;
+  credit?: string | null;
+  position?: number;
+  layout?: 'full' | 'inset' | 'side';
+}
+
+export interface BlogPostCurrentMediaRecord {
+  type?: 'image' | 'video';
+  url: string;
+  title?: string | null;
+  alt?: string | null;
+  caption?: string | null;
+  credit?: string | null;
+  position: number;
+  layout: 'full' | 'inset' | 'side';
+}
+
+export interface BlogMediaUploadRecord extends BlogPostMediaRecord {
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+}
+
 export interface BlogPostSummary {
   total_count: number;
   status_counts: Record<string, number>;
@@ -1023,6 +1054,7 @@ export interface BlogPostSummary {
 }
 
 export interface BlogPostListParams {
+  [key: string]: string | number | boolean | null | undefined;
   status?: string;
   search?: string;
   featured?: boolean;
@@ -1033,6 +1065,7 @@ export interface BlogPostListParams {
 }
 
 export interface PublicBlogPostListParams {
+  [key: string]: string | number | boolean | null | undefined;
   category?: string;
   tag?: string;
   search?: string;
@@ -1053,6 +1086,7 @@ export interface BlogPostPayload {
   featured_image_alt?: LocalizedText;
   seo_title?: LocalizedText;
   seo_description?: LocalizedText;
+  media?: BlogPostMediaRecord[];
 }
 
 export interface BlogOptionsResponse {
@@ -1919,6 +1953,24 @@ export async function apiDeleteBlogPost(uuid: string): Promise<void> {
   await parseJsonEnvelope(response, 'Failed to delete blog post.');
 }
 
+export async function apiUploadBlogMedia(files: File[]): Promise<BlogMediaUploadRecord[]> {
+  const body = new FormData();
+
+  files.forEach((file) => body.append('media[]', file));
+
+  const response = await fetch(`${API_BASE_URL}/blog-media`, {
+    method: 'POST',
+    headers: buildHeaders(),
+    credentials: 'include',
+    body,
+  });
+
+  const envelope = await parseJsonEnvelope(response, 'Failed to upload blog media.');
+  const data = (envelope.data ?? envelope) as { media?: BlogMediaUploadRecord[] };
+
+  return data.media ?? [];
+}
+
 export async function apiForgotPassword(email: string): Promise<{ message: string }> {
   const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
     method: 'POST',
@@ -2161,7 +2213,7 @@ function readRequestLocale(): string | null {
   }
 }
 
-function buildQueryString(params: Record<string, string | number | boolean | null | undefined>): string {
+function buildQueryString(params: object): string {
   const query = new URLSearchParams();
 
   Object.entries(params).forEach(([key, value]) => {
@@ -2206,4 +2258,79 @@ async function parseJsonEnvelope(response: Response, fallbackMessage: string): P
   }
 
   return data;
+}
+
+export interface BlogCategoryPayload {
+  name: LocalizedText;
+  slug: LocalizedText;
+  description?: LocalizedText;
+}
+
+export interface BlogTagPayload {
+  name: LocalizedText;
+  slug: LocalizedText;
+}
+
+export async function apiCreateBlogCategory(payload: BlogCategoryPayload): Promise<BlogCategoryRecord> {
+  const response = await fetch(`${API_BASE_URL}/blog-categories`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  return parseJsonResponse<BlogCategoryRecord>(response, 'Failed to create blog category.');
+}
+
+export async function apiUpdateBlogCategory(uuid: string, payload: BlogCategoryPayload): Promise<BlogCategoryRecord> {
+  const response = await fetch(`${API_BASE_URL}/blog-categories/${uuid}`, {
+    method: 'PUT',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  return parseJsonResponse<BlogCategoryRecord>(response, 'Failed to update blog category.');
+}
+
+export async function apiDeleteBlogCategory(uuid: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/blog-categories/${uuid}`, {
+    method: 'DELETE',
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  await parseJsonEnvelope(response, 'Failed to delete blog category.');
+}
+
+export async function apiCreateBlogTag(payload: BlogTagPayload): Promise<BlogTagRecord> {
+  const response = await fetch(`${API_BASE_URL}/blog-tags`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  return parseJsonResponse<BlogTagRecord>(response, 'Failed to create blog tag.');
+}
+
+export async function apiUpdateBlogTag(uuid: string, payload: BlogTagPayload): Promise<BlogTagRecord> {
+  const response = await fetch(`${API_BASE_URL}/blog-tags/${uuid}`, {
+    method: 'PUT',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  return parseJsonResponse<BlogTagRecord>(response, 'Failed to update blog tag.');
+}
+
+export async function apiDeleteBlogTag(uuid: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/blog-tags/${uuid}`, {
+    method: 'DELETE',
+    headers: buildHeaders(),
+    credentials: 'include',
+  });
+
+  await parseJsonEnvelope(response, 'Failed to delete blog tag.');
 }
