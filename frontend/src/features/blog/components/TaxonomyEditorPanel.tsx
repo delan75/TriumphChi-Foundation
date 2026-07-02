@@ -15,11 +15,12 @@ interface TaxonomyEditorPanelProps {
   item: TaxonomyItem | null;
   isWorking: boolean;
   error?: string | null;
+  surface?: 'panel' | 'plain';
   onClose: () => void;
   onSubmit: (payload: { name: LocalizedText; slug: LocalizedText }) => Promise<void>;
 }
 
-export function TaxonomyEditorPanel({ title, mode, item, isWorking, error, onClose, onSubmit }: TaxonomyEditorPanelProps) {
+export function TaxonomyEditorPanel({ title, mode, item, isWorking, error, surface = 'panel', onClose, onSubmit }: TaxonomyEditorPanelProps) {
   const [activeLocale, setActiveLocale] = useState<LocaleKey>('en');
   const [name, setName] = useState<LocalizedText>(emptyLocalized);
   const [slug, setSlug] = useState<LocalizedText>(emptyLocalized);
@@ -42,12 +43,7 @@ export function TaxonomyEditorPanel({ title, mode, item, isWorking, error, onClo
     });
   }
 
-  return (
-    <DashboardPanel
-      title={mode === 'create' ? `Create ${title}` : `Edit ${title}`}
-      className="min-w-0"
-      bodyClassName="min-w-0"
-    >
+  const form = (
       <form className="space-y-5" onSubmit={handleSubmit}>
         {error ? <div className="rounded-md border border-red-100 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</div> : null}
 
@@ -103,6 +99,19 @@ export function TaxonomyEditorPanel({ title, mode, item, isWorking, error, onClo
           </button>
         </div>
       </form>
+  );
+
+  if (surface === 'plain') {
+    return form;
+  }
+
+  return (
+    <DashboardPanel
+      title={mode === 'create' ? `Create ${title}` : `Edit ${title}`}
+      className="min-w-0"
+      bodyClassName="min-w-0"
+    >
+      {form}
     </DashboardPanel>
   );
 }

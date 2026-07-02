@@ -2,10 +2,11 @@ import { FilePlus2, RefreshCcw } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DashboardPanel } from '../../components/staff/DashboardPanel';
+import { DashboardFormModal } from '../../components/staff/DashboardFormModal';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { cn } from '../../components/ui/cn';
 import { readStoredAuthUser } from '../../lib/auth';
-import type { BlogPostListParams, BlogPostPayload } from '../../lib/api';
+import type { BlogCategoryPayload, BlogPostListParams, BlogPostPayload, BlogTagPayload } from '../../lib/api';
 import { isLocale } from '../../lib/i18n';
 import { BlogDetailPanel } from './components/BlogDetailPanel';
 import { BlogEditorPanel } from './components/BlogEditorPanel';
@@ -80,6 +81,8 @@ export function BlogManagementPage() {
   const posts = postsQuery.data?.data ?? [];
   const pagination = postsQuery.data?.meta;
   const selectedPost = postQuery.data ?? null;
+  const taxonomyItems = activeTab === 'categories' ? (optionsQuery.data?.categories ?? []) : (optionsQuery.data?.tags ?? []);
+  const selectedTaxonomyItem = taxonomyItems.find((item) => item.uuid === selectedTaxonomyUuid) ?? null;
   const isWorking = createPost.isPending || updatePost.isPending || transitionPost.isPending;
   const isTaxonomyWorking = createCategory.isPending || updateCategory.isPending || deleteCategory.isPending || createTag.isPending || updateTag.isPending || deleteTag.isPending;
 
@@ -110,7 +113,7 @@ export function BlogManagementPage() {
     }
   }
 
-  async function handleCreateTaxonomy(payload: any) {
+  async function handleCreateTaxonomy(payload: BlogCategoryPayload | BlogTagPayload) {
     setMutationError(null);
     try {
       if (activeTab === 'categories') {
@@ -124,7 +127,7 @@ export function BlogManagementPage() {
     }
   }
 
-  async function handleUpdateTaxonomy(payload: any) {
+  async function handleUpdateTaxonomy(payload: BlogCategoryPayload | BlogTagPayload) {
     if (!selectedTaxonomyUuid) return;
     setMutationError(null);
     try {
@@ -292,43 +295,29 @@ export function BlogManagementPage() {
               )}
             </DashboardPanel>
 
-            {formMode ? (
-              <BlogEditorPanel
-                copy={copy}
-                mode={formMode}
-                post={formMode === 'edit' ? selectedPost : null}
-                options={optionsQuery.data}
-                isWorking={isWorking}
-                error={mutationError}
-                canPublish={canPublish}
-                onClose={() => setFormMode(null)}
-                onSubmit={formMode === 'create' ? handleCreate : handleUpdate}
-              />
-            ) : (
-              <BlogDetailPanel
-                copy={copy}
-                locale={activeLocale}
-                post={selectedPost}
-                isLoading={postQuery.isLoading}
-                isWorking={isWorking}
-                canUpdate={canUpdate}
-                canPublish={canPublish}
-                onClose={() => setSelectedPostUuid(null)}
-                onEdit={() => {
-                  setMutationError(null);
-                  setFormMode('edit');
-                }}
-                onTransition={async (status) => {
-                  if (!selectedPost) return;
-                  setMutationError(null);
-                  try {
-                    await transitionPost.mutateAsync({ uuid: selectedPost.uuid, status });
-                  } catch (error) {
-                    setMutationError(error instanceof Error ? error.message : 'Unable to update post status.');
-                  }
-                }}
-              />
-            )}
+            <BlogDetailPanel
+              copy={copy}
+              locale={activeLocale}
+              post={selectedPost}
+              isLoading={postQuery.isLoading}
+              isWorking={isWorking}
+              canUpdate={canUpdate}
+              canPublish={canPublish}
+              onClose={() => setSelectedPostUuid(null)}
+              onEdit={() => {
+                setMutationError(null);
+                setFormMode('edit');
+              }}
+              onTransition={async (status) => {
+                if (!selectedPost) return;
+                setMutationError(null);
+                try {
+                  await transitionPost.mutateAsync({ uuid: selectedPost.uuid, status });
+                } catch (error) {
+                  setMutationError(error instanceof Error ? error.message : 'Unable to update post status.');
+                }
+              }}
+            />
           </div>
         </>
       )}
@@ -363,7 +352,7 @@ export function BlogManagementPage() {
       )}
 
       {(activeTab === 'categories' || activeTab === 'tags') && (
-        <div className="grid min-w-0 gap-6 lg:grid-cols-2">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <DashboardPanel title={activeTab === 'categories' ? 'Categories' : 'Tags'} className="min-w-0" bodyClassName="p-4">
             <TaxonomyRecords
               title={activeTab === 'categories' ? 'Category' : 'Tag'}
@@ -379,24 +368,77 @@ export function BlogManagementPage() {
             />
           </DashboardPanel>
 
-          {taxonomyFormMode && (
-            <TaxonomyEditorPanel
-              title={activeTab === 'categories' ? 'Category' : 'Tag'}
-              mode={taxonomyFormMode}
-              item={
-                taxonomyFormMode === 'edit'
-                  ? ((activeTab === 'categories' ? optionsQuery.data?.categories : optionsQuery.data?.tags) ?? []).find((i) => i.uuid === selectedTaxonomyUuid) ?? null
-                  : null
-              }
-              isWorking={isTaxonomyWorking}
-              error={mutationError}
-              onClose={() => setTaxonomyFormMode(null)}
-              onSubmit={taxonomyFormMode === 'create' ? handleCreateTaxonomy : handleUpdateTaxonomy}
-            />
-          )}
+          <DashboardPanel title="Details" className="min-w-0" bodyClassName="p-4">
+            {selectedTaxonomyItem ? (
+              <div className="space-y-3">
+                <Info label="Name" value={selectedTaxonomyItem.label} />
+                <Info label="English slug" value={selectedTaxonomyItem.slug.en || '-'} />
+                <Info label="French slug" value={selectedTaxonomyItem.slug.fr || '-'} />
+              </div>
+            ) : (
+              <div className="rounded-md border border-dashed border-ink-200 bg-ink-50 p-4">
+                <p className="text-sm font-black text-ink-900">No item selected</p>
+                <p className="mt-2 text-sm leading-6 text-ink-500">Use this area for quick category or tag details. Create and edit actions open in a modal.</p>
+              </div>
+            )}
+          </DashboardPanel>
         </div>
       )}
+
+      <DashboardFormModal
+        isOpen={Boolean(formMode)}
+        title={formMode === 'create' ? copy.form.titleCreate : copy.form.titleEdit}
+        description={copy.form.mediaHelp}
+        size="xl"
+        closeLabel={copy.cancel}
+        onClose={() => setFormMode(null)}
+      >
+        {formMode === 'edit' && postQuery.isLoading ? (
+          <p className="text-sm font-bold text-ink-500">{copy.detail.loading}</p>
+        ) : (
+          <BlogEditorPanel
+            copy={copy}
+            mode={formMode ?? 'create'}
+            post={formMode === 'edit' ? selectedPost : null}
+            options={optionsQuery.data}
+            isWorking={isWorking}
+            error={mutationError}
+            canPublish={canPublish}
+            surface="plain"
+            onClose={() => setFormMode(null)}
+            onSubmit={formMode === 'create' ? handleCreate : handleUpdate}
+          />
+        )}
+      </DashboardFormModal>
+
+      <DashboardFormModal
+        isOpen={Boolean(taxonomyFormMode)}
+        title={taxonomyFormMode === 'create' ? `Create ${activeTab === 'categories' ? 'Category' : 'Tag'}` : `Edit ${activeTab === 'categories' ? 'Category' : 'Tag'}`}
+        size="md"
+        closeLabel={copy.cancel}
+        onClose={() => setTaxonomyFormMode(null)}
+      >
+        <TaxonomyEditorPanel
+          title={activeTab === 'categories' ? 'Category' : 'Tag'}
+          mode={taxonomyFormMode ?? 'create'}
+          item={taxonomyFormMode === 'edit' ? selectedTaxonomyItem : null}
+          isWorking={isTaxonomyWorking}
+          error={mutationError}
+          surface="plain"
+          onClose={() => setTaxonomyFormMode(null)}
+          onSubmit={taxonomyFormMode === 'create' ? handleCreateTaxonomy : handleUpdateTaxonomy}
+        />
+      </DashboardFormModal>
     </section>
+  );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-ink-100 bg-white p-3">
+      <p className="text-xs font-black uppercase text-ink-400">{label}</p>
+      <p className="mt-1 break-words text-sm font-black text-ink-900">{value}</p>
+    </div>
   );
 }
 
