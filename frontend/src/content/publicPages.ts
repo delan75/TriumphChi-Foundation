@@ -393,7 +393,7 @@ export const publicPages: PublicPageDefinition[] = [
 ];
 
 export const publicNavigation = publicPages.filter((page) =>
-  ['home', 'about', 'programs', 'impact', 'donate', 'apply', 'sponsor', 'contact'].includes(page.key),
+  ['home', 'about', 'programs', 'impact', 'donate', 'apply', 'blog', 'sponsor', 'contact'].includes(page.key),
 );
 
 export function getPublicPage(locale: Locale, slug?: string): PublicPageDefinition | undefined {

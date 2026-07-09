@@ -34,7 +34,7 @@ const normalizePhoneTel = (value: string): string => {
   return `+${digitsOnly}`;
 };
 
-const email = env.VITE_PUBLIC_CONTACT_EMAIL ?? 'support@triumphchi.org';
+const email = env.VITE_PUBLIC_CONTACT_EMAIL ?? 'info@triumphchi.org';
 const phoneDisplay = env.VITE_PUBLIC_CONTACT_PHONE_DISPLAY ?? '+237 000 000 000';
 const defaultPhoneTel = normalizePhoneTel('+237000000000');
 const configuredPhoneTel = normalizePhoneTel(env.VITE_PUBLIC_CONTACT_PHONE_TEL ?? phoneDisplay);
