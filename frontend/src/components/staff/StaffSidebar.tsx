@@ -16,6 +16,7 @@ interface StaffSidebarProps {
     beneficiaries: string;
     funding: string;
     contacts: string;
+    blog: string;
     reports: string;
     users: string;
     profile: string;

@@ -21,6 +21,15 @@ export interface StaffDashboardText {
   activitySectionTitle: string;
   actionsSectionTitle: string;
   overviewSectionTitle: string;
+  analyticsSectionTitle: string;
+  analyticsSectionDescription: string;
+  chartLabels: {
+    fundsRaised: string;
+    applications: string;
+    gifts: string;
+    peakMonth: string;
+    empty: string;
+  };
   metricLabels: Record<string, string>;
   queueLabels: Record<string, string>;
   queueAction: string;
@@ -62,6 +71,15 @@ export const staffDashboardText: Record<Locale, StaffDashboardText> = {
     activitySectionTitle: 'Recent activity',
     actionsSectionTitle: 'Quick actions',
     overviewSectionTitle: 'Access overview',
+    analyticsSectionTitle: 'Monthly operational trends',
+    analyticsSectionDescription: 'Compare funding and application activity across recent months.',
+    chartLabels: {
+      fundsRaised: 'Funds raised',
+      applications: 'Applications',
+      gifts: 'Gifts',
+      peakMonth: 'Peak month',
+      empty: 'No monthly trend data is available yet.',
+    },
     metricLabels: {
       applications_pending_review: 'Applications pending review',
       beneficiaries_supported: 'Beneficiaries supported',
@@ -119,6 +137,15 @@ export const staffDashboardText: Record<Locale, StaffDashboardText> = {
     activitySectionTitle: 'Activite recente',
     actionsSectionTitle: 'Actions rapides',
     overviewSectionTitle: 'Vue d acces',
+    analyticsSectionTitle: 'Tendances operationnelles mensuelles',
+    analyticsSectionDescription: 'Comparez financement et demandes sur les mois recents.',
+    chartLabels: {
+      fundsRaised: 'Fonds collectes',
+      applications: 'Demandes',
+      gifts: 'Dons',
+      peakMonth: 'Mois le plus fort',
+      empty: 'Aucune tendance mensuelle disponible pour le moment.',
+    },
     metricLabels: {
       applications_pending_review: 'Demandes en attente de revue',
       beneficiaries_supported: 'Beneficiaires suivis',

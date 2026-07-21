@@ -17,8 +17,8 @@ export function ContactMessageFilters({ copy, filters, onChange }: ContactMessag
   };
 
   return (
-    <div className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
-      <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_180px_180px_160px_auto]">
+    <div className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(240px,1fr)_180px_180px_160px_auto]">
         <label className="block">
           <span className="text-xs font-bold uppercase text-ink-500">{copy.filters.search}</span>
           <span className="relative mt-1 block">
@@ -79,7 +79,7 @@ export function ContactMessageFilters({ copy, filters, onChange }: ContactMessag
         <button
           type="button"
           onClick={() => onChange({ page: 1, per_page: filters.per_page ?? 12, sort: 'created_at', direction: 'desc' })}
-          className="focus-ring mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-ink-200 bg-white px-4 text-sm font-bold text-ink-700 transition hover:bg-ink-50 lg:mt-auto"
+          className="focus-ring mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-ink-200 bg-white px-4 text-sm font-bold text-ink-700 transition hover:bg-ink-50 sm:col-span-2 xl:col-span-1 xl:mt-auto"
         >
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
           {copy.filters.reset}

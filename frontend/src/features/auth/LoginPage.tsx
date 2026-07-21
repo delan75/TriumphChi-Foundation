@@ -324,7 +324,7 @@ const sharedLeftPanel = {
 
 const loginCopy = {
   en: {
-    title: 'Welcome Back',
+    title: 'Welcome Back | Account Access ',
     subtitle: 'Sign in to access your account and continue supporting the mission.',
     emailLabel: 'Email Address',
     passwordLabel: 'Password',
@@ -353,7 +353,7 @@ const loginCopy = {
     leftPanel: sharedLeftPanel.en,
   },
   fr: {
-    title: 'Bon retour',
+    title: 'Bon retour | Acces au compte',
     subtitle: 'Connectez-vous pour accéder à votre compte et continuer à soutenir la mission.',
     emailLabel: 'Adresse email',
     passwordLabel: 'Mot de passe',

@@ -26,6 +26,7 @@ class DashboardSummaryService
             'priority_queues' => $this->priorityQueues($user)->values(),
             'recent_activity' => $this->recentActivity($user)->values(),
             'quick_actions' => $this->quickActions($user)->values(),
+            'charts' => $this->charts($user),
             'snapshot' => [
                 'accessible_modules' => $this->accessibleModules($user)->values(),
                 'generated_at' => now()->toISOString(),
@@ -386,6 +387,48 @@ class DashboardSummaryService
                 'visible' => true,
             ],
         ])->filter(fn (array $action) => $user->can($action['permission']))->values();
+    }
+
+    private function charts(User $user): array
+    {
+        return [
+            'monthly_activity' => $this->monthlyActivity($user)->values(),
+        ];
+    }
+
+    private function monthlyActivity(User $user): Collection
+    {
+        return collect(range(11, 0))
+            ->map(function (int $monthsAgo) use ($user): array {
+                $month = now()->subMonths($monthsAgo);
+                $start = $month->copy()->startOfMonth();
+                $end = $month->copy()->endOfMonth();
+
+                $donationAmounts = $user->can('donations.view')
+                    ? Donation::query()
+                        ->select('currency')
+                        ->selectRaw('sum(amount) as amount')
+                        ->where('status', 'confirmed')
+                        ->whereBetween('confirmed_at', [$start, $end])
+                        ->groupBy('currency')
+                        ->pluck('amount', 'currency')
+                        ->map(fn ($amount) => number_format((float) $amount, 2, '.', ''))
+                        ->all()
+                    : [];
+
+                return [
+                    'key' => $month->format('Y-m'),
+                    'label' => $month->format('M Y'),
+                    'applications_count' => $user->can('applications.view')
+                        ? Application::query()->whereBetween('created_at', [$start, $end])->count()
+                        : 0,
+                    'donations_count' => $user->can('donations.view')
+                        ? Donation::query()->whereBetween('confirmed_at', [$start, $end])->count()
+                        : 0,
+                    'donations_amount' => number_format((float) array_sum($donationAmounts), 2, '.', ''),
+                    'donations_amounts' => $donationAmounts,
+                ];
+            });
     }
 
     private function accessibleModules(User $user): Collection

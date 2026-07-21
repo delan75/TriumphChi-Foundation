@@ -11,6 +11,7 @@ import { ContactMessagesPage } from '../features/contact-messages/ContactMessage
 import { FundingPage } from '../features/funding/FundingPage';
 import { ReportsPage } from '../features/reports/ReportsPage';
 import { UsersPage } from '../features/users/UsersPage';
+import { BlogManagementPage } from '../features/blog/BlogManagementPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
@@ -18,6 +19,7 @@ import { ResetPasswordPage } from '../features/auth/ResetPasswordPage';
 import { OAuthCallbackPage } from '../features/auth/OAuthCallbackPage';
 import { VerifyAccountPage } from '../features/auth/VerifyAccountPage';
 import { PaypalDonationReturnPage } from '../features/public/donate/PaypalDonationReturnPage';
+import { BlogArticlePage } from '../features/public/blog/BlogArticlePage';
 import { NotFoundPage } from '../features/errors/NotFoundPage';
 import { LocaleRecoveryWrapper } from '../features/errors/LocaleRecoveryWrapper';
 import { buildAuthPath, isAuthenticated, resolvePostAuthPath } from '../lib/auth';
@@ -48,12 +50,14 @@ export const router = createBrowserRouter([
               { path: 'beneficiaries', element: <BeneficiariesPage /> },
               { path: 'funding', element: <FundingPage /> },
               { path: 'contacts', element: <ContactMessagesPage /> },
+              { path: 'blog', element: <BlogManagementPage /> },
               { path: 'reports', element: <ReportsPage /> },
               { path: 'users', element: <UsersPage /> },
             ],
           },
           { path: 'donate/paypal/return', element: <PaypalDonationReturnPageWrapper mode="return" /> },
           { path: 'donate/paypal/cancel', element: <PaypalDonationReturnPageWrapper mode="cancel" /> },
+          { path: 'blog/:articleSlug', element: <BlogArticlePageWrapper /> },
           { path: ':pageSlug', element: <PublicPage /> },
           { path: '*', element: <NotFoundPageWrapper /> },
         ],
@@ -216,6 +220,13 @@ function PaypalDonationReturnPageWrapper({ mode }: { mode: 'return' | 'cancel' }
   const activeLocale = isLocale(locale) ? locale : 'en';
 
   return <PaypalDonationReturnPage locale={activeLocale} mode={mode} />;
+}
+
+function BlogArticlePageWrapper() {
+  const { locale = 'en' } = useParams();
+  const activeLocale = isLocale(locale) ? locale : 'en';
+
+  return <BlogArticlePage locale={activeLocale} />;
 }
 
 function NotFoundPageWrapper() {

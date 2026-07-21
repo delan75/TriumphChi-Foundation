@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+Disallow: /api/
+Disallow: /en/staff/
+Disallow: /fr/staff/
+Disallow: /en/login
+Disallow: /fr/login
+Disallow: /en/register
+Disallow: /fr/register
+Disallow: /en/forgot-password
+Disallow: /fr/forgot-password
+Disallow: /en/reset-password
+Disallow: /fr/reset-password
+Disallow: /en/verify-account
+Disallow: /fr/verify-account
+Disallow: /en/oauth/
+Disallow: /fr/oauth/
+
+Sitemap: https://triumphchi.org/sitemap.xml

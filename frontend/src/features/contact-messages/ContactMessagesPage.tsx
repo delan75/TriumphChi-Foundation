@@ -1,5 +1,5 @@
 import { RefreshCcw } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DashboardPanel } from '../../components/staff/DashboardPanel';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -36,6 +36,7 @@ export function ContactMessagesPage() {
     direction: 'desc',
   });
   const [selectedMessageUuid, setSelectedMessageUuid] = useState<string | null>(null);
+  const detailPanelRef = useRef<HTMLDivElement | null>(null);
 
   const messagesQuery = useContactMessages(filters, canViewMessages);
   const messageQuery = useContactMessage(selectedMessageUuid, canViewMessages && Boolean(selectedMessageUuid));
@@ -57,6 +58,21 @@ export function ContactMessagesPage() {
 
     return `${pagination.current_page} / ${pagination.last_page}`;
   }, [pagination]);
+
+  const openMessage = useCallback((uuid: string) => {
+    setSelectedMessageUuid(uuid);
+
+    if (typeof window === 'undefined' || !window.matchMedia('(max-width: 1279px)').matches) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      detailPanelRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }, 120);
+  }, []);
 
   if (!canViewMessages) {
     return (
@@ -97,10 +113,11 @@ export function ContactMessagesPage() {
         }}
       />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(380px,0.65fr)]">
+      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
         <DashboardPanel
           title={copy.tableTitle}
           description={copy.tableDescription}
+          className="min-w-0"
           action={pagination ? (
             <PaginationControls
               copy={copy}
@@ -111,7 +128,7 @@ export function ContactMessagesPage() {
               onNext={() => setFilters((current) => ({ ...current, page: (current.page ?? 1) + 1 }))}
             />
           ) : null}
-          bodyClassName="p-4"
+          bodyClassName="min-w-0 p-4"
         >
           {messagesQuery.isError ? (
             <div className="rounded-md border border-red-100 bg-red-50 p-4 text-sm font-semibold text-red-700">
@@ -123,33 +140,35 @@ export function ContactMessagesPage() {
               locale={activeLocale}
               messages={messages}
               isLoading={messagesQuery.isLoading}
-              onOpen={setSelectedMessageUuid}
+              onOpen={openMessage}
             />
           )}
         </DashboardPanel>
 
-        <ContactMessageDetailPanel
-          copy={copy}
-          locale={activeLocale}
-          message={selectedMessage}
-          assignees={assigneesQuery.data ?? []}
-          isLoading={messageQuery.isLoading}
-          isWorking={isWorking}
-          onAssign={async (uuid, assignedTo) => {
-            await assignMessage.mutateAsync({ uuid, assignedTo });
-          }}
-          onUpdate={async (uuid, status, staffNotes) => {
-            await updateMessage.mutateAsync({ uuid, status, staff_notes: staffNotes });
-          }}
-          onForward={async (uuid, toEmail, note, markAsReplied) => {
-            await forwardMessage.mutateAsync({ uuid, to_email: toEmail, note, mark_as_replied: markAsReplied });
-          }}
-          onArchive={async (uuid) => {
-            await archiveMessage.mutateAsync(uuid);
-            setSelectedMessageUuid(null);
-          }}
-          onClose={() => setSelectedMessageUuid(null)}
-        />
+        <div ref={detailPanelRef} className="min-w-0 scroll-mt-24">
+          <ContactMessageDetailPanel
+            copy={copy}
+            locale={activeLocale}
+            message={selectedMessage}
+            assignees={assigneesQuery.data ?? []}
+            isLoading={messageQuery.isLoading}
+            isWorking={isWorking}
+            onAssign={async (uuid, assignedTo) => {
+              await assignMessage.mutateAsync({ uuid, assignedTo });
+            }}
+            onUpdate={async (uuid, status, staffNotes) => {
+              await updateMessage.mutateAsync({ uuid, status, staff_notes: staffNotes });
+            }}
+            onForward={async (uuid, toEmail, note, markAsReplied) => {
+              await forwardMessage.mutateAsync({ uuid, to_email: toEmail, note, mark_as_replied: markAsReplied });
+            }}
+            onArchive={async (uuid) => {
+              await archiveMessage.mutateAsync(uuid);
+              setSelectedMessageUuid(null);
+            }}
+            onClose={() => setSelectedMessageUuid(null)}
+          />
+        </div>
       </div>
     </section>
   );

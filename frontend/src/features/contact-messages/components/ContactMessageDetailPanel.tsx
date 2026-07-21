@@ -1,4 +1,4 @@
-import { Download, Save, Send, X } from 'lucide-react';
+import { Download, Eye, Save, Send, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { DashboardPanel } from '../../../components/staff/DashboardPanel';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
@@ -44,6 +44,7 @@ export function ContactMessageDetailPanel({
   const [markAsReplied, setMarkAsReplied] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     setAssignedTo(message?.handler?.id ? String(message.handler.id) : '');
@@ -54,7 +55,24 @@ export function ContactMessageDetailPanel({
     setMarkAsReplied(false);
     setFeedback(null);
     setError(null);
+    setPreviewOpen(false);
   }, [message?.uuid]);
+
+  useEffect(() => {
+    if (!previewOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setPreviewOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [previewOpen]);
 
   const runAction = async (action: () => Promise<void>, success: string) => {
     setError(null);
@@ -70,28 +88,42 @@ export function ContactMessageDetailPanel({
 
   if (!message && !isLoading) {
     return (
-      <aside className="rounded-md border border-dashed border-ink-200 bg-white p-6 text-sm font-medium leading-6 text-ink-500 shadow-sm xl:sticky xl:top-24">
+      <aside className="min-w-0 rounded-md border border-dashed border-ink-200 bg-white p-6 text-sm font-medium leading-6 text-ink-500 shadow-sm xl:sticky xl:top-24">
         {copy.noSelection}
       </aside>
     );
   }
 
   return (
-    <aside className="xl:sticky xl:top-24">
-      <div className="flex max-h-none flex-col rounded-md border border-ink-100 bg-white shadow-sm xl:max-h-[calc(100vh-7rem)]">
+    <>
+      <aside className="min-w-0 xl:sticky xl:top-24">
+      <div className="flex max-h-none min-w-0 flex-col rounded-md border border-ink-100 bg-white shadow-sm xl:max-h-[calc(100vh-7rem)]">
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-ink-100 px-5 py-4">
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-bold uppercase text-foundation-600">{copy.detailTitle}</p>
-            <h2 className="mt-1 text-lg font-black text-ink-900">{message?.name ?? copy.loading}</h2>
+            <h2 className="mt-1 truncate text-lg font-black text-ink-900">{message?.name ?? copy.loading}</h2>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-md text-ink-500 transition hover:bg-ink-50 hover:text-ink-900"
-            aria-label={copy.close}
-          >
-            <X className="h-5 w-5" aria-hidden="true" />
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            {message ? (
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(true)}
+                className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-foundation-100 bg-foundation-50 px-3 text-sm font-black text-foundation-700 transition hover:bg-foundation-100"
+                aria-label={copy.preview}
+              >
+                <Eye className="h-4 w-4" aria-hidden="true" />
+                <span className="hidden sm:inline">{copy.preview}</span>
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={onClose}
+              className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-md text-ink-500 transition hover:bg-ink-50 hover:text-ink-900"
+              aria-label={copy.close}
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
         </header>
 
         {isLoading ? (
@@ -292,6 +324,16 @@ export function ContactMessageDetailPanel({
         ) : null}
       </div>
     </aside>
+
+      {message && previewOpen ? (
+        <ContactInquiryPreviewModal
+          copy={copy}
+          locale={locale}
+          message={message}
+          onClose={() => setPreviewOpen(false)}
+        />
+      ) : null}
+    </>
   );
 }
 
@@ -306,9 +348,155 @@ function DetailStat({ label, value }: { label: string; value: string | ReactNode
 
 function Line({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between gap-4">
+    <div className="grid min-w-0 gap-1 sm:grid-cols-[110px_minmax(0,1fr)]">
       <span className="text-ink-500">{label}</span>
-      <span className="text-right font-bold text-ink-900">{value}</span>
+      <span className="min-w-0 break-words font-bold text-ink-900 sm:text-right">{value}</span>
+    </div>
+  );
+}
+
+function ContactInquiryPreviewModal({
+  copy,
+  locale,
+  message,
+  onClose,
+}: {
+  copy: ContactMessagesCopy;
+  locale: Locale;
+  message: ContactMessageRecord;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-ink-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-5" role="presentation">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="contact-inquiry-preview-title"
+        className="flex h-dvh w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl sm:h-auto sm:max-h-[92vh] sm:rounded-md"
+      >
+        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-ink-100 bg-ink-50 px-5 py-4 sm:px-6">
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase text-foundation-600">{copy.preview}</p>
+            <h2 id="contact-inquiry-preview-title" className="mt-1 text-xl font-black text-ink-950">
+              {copy.previewTitle}
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-ink-600">{copy.previewDescription}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="focus-ring inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-white text-ink-500 shadow-sm transition hover:text-ink-900"
+            aria-label={copy.closePreview}
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </header>
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase text-ink-400">{copy.contact}</p>
+                  <h3 className="mt-1 break-words text-2xl font-black text-ink-950">{message.name}</h3>
+                  <p className="mt-2 break-words text-sm font-semibold text-ink-600">{message.email}</p>
+                </div>
+                <StatusBadge
+                  label={message.status_label ?? copy.statuses[message.status] ?? message.status}
+                  tone={contactStatusTone(message.status)}
+                />
+              </div>
+
+              <div className="mt-5 grid gap-3 text-sm">
+                <Line label={copy.reason} value={message.reason_label ?? copy.reasons[message.reason] ?? message.reason} />
+                <Line label={copy.received} value={formatContactDate(message.created_at, locale, true)} />
+                <Line label={copy.assignedTo} value={message.handler?.name ?? copy.unassigned} />
+                <Line label="Phone" value={message.phone ?? '-'} />
+                <Line label="Subject" value={message.subject ?? '-'} />
+                <Line label="Locale" value={message.locale.toUpperCase()} />
+              </div>
+            </section>
+
+            <section className="min-w-0 rounded-md border border-ink-100 bg-ink-50 p-4">
+              <p className="text-xs font-bold uppercase text-ink-400">{copy.message}</p>
+              <p className="mt-3 whitespace-pre-line break-words text-sm leading-7 text-ink-800">{message.message}</p>
+            </section>
+
+            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+              <p className="text-xs font-bold uppercase text-ink-400">{copy.contactDetails}</p>
+              <div className="mt-3 grid gap-3 text-sm">
+                <Line label="IP" value={message.ip_address ?? '-'} />
+                <Line label="User agent" value={message.user_agent ?? '-'} />
+                <Line label="Updated" value={formatContactDate(message.updated_at, locale, true)} />
+              </div>
+            </section>
+
+            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+              <p className="text-xs font-bold uppercase text-ink-400">{copy.activity}</p>
+              <div className="mt-3 grid gap-3 text-sm">
+                <Line label="Reviewed" value={formatContactDate(message.reviewed_at, locale, true)} />
+                <Line label="Responded" value={formatContactDate(message.responded_at, locale, true)} />
+                <Line label="Archived" value={formatContactDate(message.archived_at, locale, true)} />
+              </div>
+            </section>
+
+            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm lg:col-span-2">
+              <p className="text-xs font-bold uppercase text-ink-400">{copy.notes}</p>
+              <p className="mt-3 whitespace-pre-line break-words text-sm leading-7 text-ink-700">{message.staff_notes || '-'}</p>
+            </section>
+
+            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm lg:col-span-2">
+              <p className="text-xs font-bold uppercase text-ink-400">{copy.attachmentsTitle}</p>
+              {message.attachments?.length ? (
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  {message.attachments.map((attachment) => {
+                    const content = (
+                      <>
+                        <div className="min-w-0">
+                          <p className="break-words text-sm font-black text-ink-900">{attachment.original_name}</p>
+                          <p className="mt-1 text-xs text-ink-500">{attachment.mime_type} / {formatFileSize(attachment.size_bytes)}</p>
+                        </div>
+                        <span className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-md bg-foundation-600 px-3 text-xs font-bold text-white">
+                          <Download className="h-4 w-4" aria-hidden="true" />
+                          {copy.download}
+                        </span>
+                      </>
+                    );
+
+                    return attachment.download_url ? (
+                      <a
+                        key={attachment.id}
+                        href={attachment.download_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="focus-ring flex min-w-0 items-start justify-between gap-4 rounded-md border border-ink-100 p-3 transition hover:border-foundation-100 hover:bg-foundation-50/50"
+                      >
+                        {content}
+                      </a>
+                    ) : (
+                      <div key={attachment.id} className="flex min-w-0 items-start justify-between gap-4 rounded-md border border-ink-100 p-3">
+                        {content}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-ink-500">{copy.noAttachments}</p>
+              )}
+            </section>
+          </div>
+        </div>
+
+        <footer className="flex shrink-0 justify-end border-t border-ink-100 bg-white px-5 py-4 sm:px-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="focus-ring inline-flex min-h-11 items-center justify-center rounded-md bg-ink-900 px-5 text-sm font-black text-white transition hover:bg-ink-700"
+          >
+            {copy.closePreview}
+          </button>
+        </footer>
+      </div>
     </div>
   );
 }

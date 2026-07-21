@@ -1,18 +1,16 @@
 import { Search, X } from 'lucide-react';
-import type { DonationListParams } from '../../../lib/api';
+import type { DonationListParams, DonationManagementSummary } from '../../../lib/api';
 import type { FundingCopy } from '../fundingContent';
 
 interface DonationFiltersProps {
   copy: FundingCopy;
   filters: DonationListParams;
+  summary?: DonationManagementSummary;
   onChange: (filters: DonationListParams) => void;
 }
 
-const statuses = ['pending', 'confirmed', 'failed', 'cancelled', 'refunded'];
-const providers = ['momo', 'paypal', 'cards', 'bank_transfer', 'manual'];
-const currencies = ['XAF', 'USD', 'EUR', 'GBP'];
-
-export function DonationFilters({ copy, filters, onChange }: DonationFiltersProps) {
+export function DonationFilters({ copy, filters, summary, onChange }: DonationFiltersProps) {
+  const options = summary?.filter_options;
   const update = (key: keyof DonationListParams, value: string) => {
     onChange({ ...filters, [key]: value || undefined, page: 1 });
   };
@@ -34,9 +32,23 @@ export function DonationFilters({ copy, filters, onChange }: DonationFiltersProp
           </div>
         </div>
 
-        <SelectFilter label={copy.status} value={filters.status ?? ''} onChange={(value) => update('status', value)} emptyLabel={copy.allStatuses} options={statuses} />
-        <SelectFilter label={copy.provider} value={filters.provider ?? ''} onChange={(value) => update('provider', value)} emptyLabel={copy.allProviders} options={providers} />
-        <SelectFilter label={copy.currency} value={filters.currency ?? ''} onChange={(value) => update('currency', value)} emptyLabel={copy.allCurrencies} options={currencies} />
+        <SelectFilter label={copy.status} value={filters.status ?? ''} onChange={(value) => update('status', value)} emptyLabel={copy.allStatuses} options={options?.statuses ?? []} />
+        <SelectFilter label={copy.source} value={filters.source ?? ''} onChange={(value) => update('source', value)} emptyLabel={copy.allSources} options={options?.providers ?? []} />
+        <SelectFilter label={copy.currency} value={filters.currency ?? ''} onChange={(value) => update('currency', value)} emptyLabel={copy.allCurrencies} options={options?.currencies ?? []} />
+        <SelectFilter
+          label={copy.country}
+          value={filters.country ?? ''}
+          onChange={(value) => update('country', value)}
+          emptyLabel={copy.allCountries}
+          options={(options?.countries ?? []).map((country) => ({ value: country.value, label: country.label }))}
+        />
+        <SelectFilter
+          label={copy.region}
+          value={filters.region_id ? String(filters.region_id) : ''}
+          onChange={(value) => onChange({ ...filters, region_id: value ? Number(value) : undefined, page: 1 })}
+          emptyLabel={copy.allRegions}
+          options={(options?.regions ?? []).map((region) => ({ value: region.value, label: region.label }))}
+        />
 
         <button
           type="button"
@@ -61,7 +73,7 @@ function SelectFilter({
   label: string;
   value: string;
   emptyLabel: string;
-  options: string[];
+  options: Array<string | { value: string; label: string }>;
   onChange: (value: string) => void;
 }) {
   return (
@@ -73,9 +85,12 @@ function SelectFilter({
         className="focus-ring mt-2 min-h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold normal-case text-ink-800"
       >
         <option value="">{emptyLabel}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>{option}</option>
-        ))}
+        {options.map((option) => {
+          const value = typeof option === 'string' ? option : option.value;
+          const label = typeof option === 'string' ? option : option.label;
+
+          return <option key={value} value={value}>{label}</option>;
+        })}
       </select>
     </label>
   );

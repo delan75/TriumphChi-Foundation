@@ -97,6 +97,7 @@ return [
         'paypal' => 'PayPal',
         'momo' => 'MoMo',
         'bank_transfer' => 'Bank Transfer',
+        'manual' => 'Offline / Manual',
     ],
 
     'school_verification_statuses' => [
@@ -195,6 +196,84 @@ return [
         'draft' => 'Draft',
     ],
 
+    'report_request_statuses' => [
+        'queued' => 'Queued',
+        'processing' => 'Processing',
+        'completed' => 'Ready',
+        'failed' => 'Failed',
+        'expired' => 'Expired',
+    ],
+
+    'blog_post_statuses' => [
+        'draft' => 'Draft',
+        'review' => 'In review',
+        'published' => 'Published',
+        'archived' => 'Archived',
+    ],
+
+    'report_categories' => [
+        'applications' => 'Applications',
+        'beneficiaries' => 'Beneficiaries',
+        'schools' => 'Schools',
+        'donations' => 'Donations',
+        'funding' => 'Funding',
+        'payments' => 'Payments',
+        'impact' => 'Impact',
+    ],
+
+    'report_category_descriptions' => [
+        'applications' => 'Application pipeline and review progress.',
+        'beneficiaries' => 'Children receiving educational support.',
+        'schools' => 'Schools, regions, and student support.',
+        'donations' => 'Giving records and donor contributions.',
+        'funding' => 'Funding gaps, allocations, and balances.',
+        'payments' => 'School payments and payment audit trails.',
+        'impact' => 'Impact updates and outcome summaries.',
+    ],
+
+    'report_funding_statuses' => [
+        'funding_gap' => 'Funding Gap',
+        'partially_funded' => 'Partially Funded',
+        'fully_funded' => 'Fully Funded',
+    ],
+
+    'report_templates' => [
+        'beneficiary_summary' => 'Beneficiary Summary',
+        'funding_gap' => 'Funding Gap Report',
+        'school_payments' => 'School Payments',
+        'application_pipeline' => 'Application Pipeline',
+        'donor_contributions' => 'Donor Contributions',
+        'impact_summary' => 'Annual Impact Summary',
+        'schools_by_region' => 'Schools by Region',
+        'payment_audit' => 'Payment Audit',
+    ],
+
+    'quick_reports' => [
+        'applications_awaiting_review' => 'Applications Awaiting Review',
+        'children_awaiting_funding' => 'Children Awaiting Funding',
+        'upcoming_school_payments' => 'Upcoming School Payments',
+        'donations_this_month' => 'Donations Received This Month',
+        'outstanding_needs' => 'Outstanding Educational Needs',
+        'beneficiaries_by_school' => 'Beneficiaries by School',
+    ],
+
+    'quick_report_descriptions' => [
+        'applications_awaiting_review' => 'Requests waiting for review decisions.',
+        'children_awaiting_funding' => 'Approved needs not yet fully funded.',
+        'upcoming_school_payments' => 'School payments due soon.',
+        'donations_this_month' => 'Confirmed gifts grouped by channel and currency.',
+        'outstanding_needs' => 'Open fees, exams, books, uniforms, and materials.',
+        'beneficiaries_by_school' => 'Children receiving support grouped by school.',
+    ],
+
+    'report_insights' => [
+        'review' => 'Applications awaiting review',
+        'gaps' => 'Beneficiaries with funding gaps',
+        'payments' => 'Payments due this week',
+        'schools' => 'Schools awaiting payment',
+        'donations' => 'Confirmed donations this month',
+    ],
+
     'sponsorship_types' => [
         'full' => 'Full sponsorship',
         'partial' => 'Partial sponsorship',
@@ -250,6 +329,13 @@ return [
         'impact_updates.create' => 'Create impact updates',
         'impact_updates.publish' => 'Publish impact updates',
         'reports.view' => 'View reports',
+        'blog_posts.view' => 'View blog posts',
+        'blog_posts.create' => 'Create blog posts',
+        'blog_posts.update' => 'Update blog posts',
+        'blog_posts.publish' => 'Publish blog posts',
+        'blog_posts.delete' => 'Delete blog posts',
+        'blog_categories.manage' => 'Manage blog categories',
+        'blog_tags.manage' => 'Manage blog tags',
         'users.view' => 'View users',
         'users.create' => 'Create users',
         'users.update' => 'Update users',

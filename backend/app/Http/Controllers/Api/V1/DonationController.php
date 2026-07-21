@@ -9,11 +9,14 @@ use App\Http\Resources\DonationManagementResource;
 use App\Http\Resources\DonationResource;
 use App\Models\Donation;
 use App\Models\DonationDocument;
+use App\Models\Region;
 use App\Services\DonationDocumentService;
 use App\Services\DonationPaymentReconciliationService;
 use App\Services\FundingTransactionService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Str;
 use Spatie\LaravelPdf\Facades\Pdf;
 
 class DonationController extends Controller
@@ -22,7 +25,7 @@ class DonationController extends Controller
     {
         $filters = $request->validated();
         $query = $this->managementQuery($filters);
-        $summary = $this->summaryFor($this->filteredDonationQuery($filters));
+        $summary = $this->summaryFor($this->filteredDonationQuery($filters), $this->filteredDonationQuery([]));
         $sort = $filters['sort'] ?? 'created_at';
         $direction = $filters['direction'] ?? 'desc';
 
@@ -138,17 +141,24 @@ class DonationController extends Controller
             })
             ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('status', $status))
             ->when($filters['provider'] ?? null, fn ($query, string $provider) => $query->where('provider', $provider))
+            ->when($filters['source'] ?? null, fn ($query, string $source) => $query->where('provider', $source))
             ->when($filters['method'] ?? null, fn ($query, string $method) => $query->where('method', $method))
             ->when($filters['currency'] ?? null, fn ($query, string $currency) => $query->where('currency', strtoupper($currency)))
+            ->when($filters['country'] ?? null, fn ($query, string $country) => $query->where('metadata->country', strtoupper($country)))
+            ->when($filters['region_id'] ?? null, fn ($query, int $regionId) => $query->whereHas(
+                'allocations.educationalNeed.beneficiary',
+                fn ($beneficiaryQuery) => $beneficiaryQuery->where('region_id', $regionId),
+            ))
             ->when($filters['fund_id'] ?? null, fn ($query, int $fundId) => $query->where('fund_id', $fundId))
             ->when($filters['donor_id'] ?? null, fn ($query, int $donorId) => $query->where('donor_id', $donorId))
             ->when($filters['donated_from'] ?? null, fn ($query, string $date) => $query->where('donated_at', '>=', Carbon::parse($date)->startOfDay()))
             ->when($filters['donated_to'] ?? null, fn ($query, string $date) => $query->where('donated_at', '<=', Carbon::parse($date)->endOfDay()));
     }
 
-    private function summaryFor($query): array
+    private function summaryFor($query, $optionsQuery = null): array
     {
         $base = clone $query;
+        $optionsQuery ??= clone $query;
         $statusCounts = (clone $query)
             ->select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
@@ -175,11 +185,94 @@ class DonationController extends Controller
             ->map(fn ($value) => (int) $value)
             ->all();
 
+        $sourceDistribution = (clone $query)
+            ->select('provider', 'currency', DB::raw('count(*) as count'), DB::raw('sum(amount) as amount'))
+            ->whereNotNull('provider')
+            ->groupBy('provider', 'currency')
+            ->orderByDesc(DB::raw('sum(amount)'))
+            ->get()
+            ->map(function ($row) {
+                $source = $row->provider ?: 'unknown';
+
+                return [
+                    'source' => $source,
+                    'source_label' => Lang::has("labels.payment_providers.{$source}")
+                        ? __("labels.payment_providers.{$source}")
+                        : Str::of($source)->replace('_', ' ')->title()->toString(),
+                    'currency' => $row->currency,
+                    'count' => (int) $row->count,
+                    'amount' => number_format((float) $row->amount, 2, '.', ''),
+                ];
+            })
+            ->values()
+            ->all();
+
+        $countryExpression = DB::connection()->getDriverName() === 'sqlite'
+            ? "JSON_EXTRACT(metadata, '$.country')"
+            : "JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.country'))";
+
+        $filterStatusCounts = (clone $optionsQuery)
+            ->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->map(fn ($value) => (int) $value)
+            ->all();
+
+        $filterProviderCounts = (clone $optionsQuery)
+            ->select('provider', DB::raw('count(*) as total'))
+            ->whereNotNull('provider')
+            ->groupBy('provider')
+            ->pluck('total', 'provider')
+            ->map(fn ($value) => (int) $value)
+            ->all();
+
+        $filterCurrencyTotals = (clone $optionsQuery)
+            ->select('currency', DB::raw('sum(amount) as amount'))
+            ->groupBy('currency')
+            ->pluck('amount', 'currency')
+            ->map(fn ($value) => number_format((float) $value, 2, '.', ''))
+            ->all();
+
+        $countryOptions = (clone $optionsQuery)
+            ->selectRaw("{$countryExpression} as country")
+            ->whereNotNull('metadata')
+            ->get()
+            ->pluck('country')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->map(fn ($country) => [
+                'value' => (string) $country,
+                'label' => (string) $country,
+            ])
+            ->values()
+            ->all();
+
+        $regionOptions = Region::query()
+            ->whereHas('beneficiaries.needs.allocations.donation')
+            ->orderBy('name')
+            ->get(['id', 'name', 'code'])
+            ->map(fn (Region $region) => [
+                'value' => (string) $region->id,
+                'label' => $region->name,
+                'code' => $region->code,
+            ])
+            ->values()
+            ->all();
+
         return [
             'total_count' => (int) $base->count(),
             'status_counts' => $statusCounts,
             'currency_totals' => $currencyTotals,
             'provider_counts' => $providerCounts,
+            'source_distribution' => $sourceDistribution,
+            'filter_options' => [
+                'statuses' => array_keys($filterStatusCounts),
+                'providers' => array_keys($filterProviderCounts),
+                'currencies' => array_keys($filterCurrencyTotals),
+                'countries' => $countryOptions,
+                'regions' => $regionOptions,
+            ],
         ];
     }
 }

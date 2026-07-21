@@ -7,10 +7,16 @@ export interface FundingCopy {
   searchPlaceholder: string;
   status: string;
   provider: string;
+  source: string;
   currency: string;
+  country: string;
+  region: string;
   allStatuses: string;
   allProviders: string;
+  allSources: string;
   allCurrencies: string;
+  allCountries: string;
+  allRegions: string;
   clear: string;
   filters: string;
   summary: {
@@ -22,6 +28,11 @@ export interface FundingCopy {
   };
   tableTitle: string;
   tableDescription: string;
+  sourceDistributionTitle: string;
+  sourceDistributionDescription: string;
+  sourceDistributionEmpty: string;
+  giftLabel: string;
+  giftsLabel: string;
   donor: string;
   amount: string;
   method: string;
@@ -68,10 +79,16 @@ export const fundingContent = {
     searchPlaceholder: 'Search reference, donor, or provider reference',
     status: 'Status',
     provider: 'Provider',
+    source: 'Source',
     currency: 'Currency',
+    country: 'Country',
+    region: 'Region',
     allStatuses: 'All statuses',
     allProviders: 'All providers',
+    allSources: 'All sources',
     allCurrencies: 'All currencies',
+    allCountries: 'All countries',
+    allRegions: 'All regions',
     clear: 'Clear',
     filters: 'Filters',
     summary: {
@@ -83,6 +100,11 @@ export const fundingContent = {
     },
     tableTitle: 'Donation records',
     tableDescription: 'Open a record to inspect donor, fund, allocation, and provider transaction details.',
+    sourceDistributionTitle: 'Funding source distribution',
+    sourceDistributionDescription: 'See which giving source is generating the most funds for the selected currency.',
+    sourceDistributionEmpty: 'No source distribution is available for the current filters.',
+    giftLabel: 'gift',
+    giftsLabel: 'gifts',
     donor: 'Donor',
     amount: 'Amount',
     method: 'Method',
@@ -127,10 +149,16 @@ export const fundingContent = {
     searchPlaceholder: 'Rechercher référence, donateur ou référence prestataire',
     status: 'Statut',
     provider: 'Prestataire',
+    source: 'Source',
     currency: 'Devise',
+    country: 'Pays',
+    region: 'Region',
     allStatuses: 'Tous les statuts',
     allProviders: 'Tous les prestataires',
+    allSources: 'Toutes les sources',
     allCurrencies: 'Toutes les devises',
+    allCountries: 'Tous les pays',
+    allRegions: 'Toutes les regions',
     clear: 'Effacer',
     filters: 'Filtres',
     summary: {
@@ -142,6 +170,11 @@ export const fundingContent = {
     },
     tableTitle: 'Dossiers de dons',
     tableDescription: 'Ouvrez un dossier pour voir donateur, fonds, allocation et transaction prestataire.',
+    sourceDistributionTitle: 'Repartition des sources de dons',
+    sourceDistributionDescription: 'Voyez quelle source genere le plus de fonds pour la devise selectionnee.',
+    sourceDistributionEmpty: 'Aucune repartition disponible pour les filtres actuels.',
+    giftLabel: 'don',
+    giftsLabel: 'dons',
     donor: 'Donateur',
     amount: 'Montant',
     method: 'Methode',

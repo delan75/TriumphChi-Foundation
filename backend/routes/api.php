@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\Api\V1\AllocationController;
 use App\Http\Controllers\Api\V1\ApplicationController;
+use App\Http\Controllers\Api\V1\BlogCategoryController;
+use App\Http\Controllers\Api\V1\BlogMediaController;
+use App\Http\Controllers\Api\V1\BlogPostController;
+use App\Http\Controllers\Api\V1\BlogTagController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ContactMessageController;
 use App\Http\Controllers\Api\V1\PasswordResetController;
@@ -20,6 +24,7 @@ use App\Http\Controllers\Api\V1\PublicImpactController;
 use App\Http\Controllers\Api\V1\PublicApplicationController;
 use App\Http\Controllers\Api\V1\PublicApplicationTrackingController;
 use App\Http\Controllers\Api\V1\PublicLookupController;
+use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SchoolController;
 use App\Http\Controllers\Api\V1\SponsorshipController;
 use App\Http\Controllers\Api\V1\SocialiteController;
@@ -69,6 +74,15 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('public/lookups/{type}', [PublicLookupController::class, 'index'])
         ->middleware([SetLocale::class, 'throttle:20,1'])
         ->name('public.lookups.index');
+    Route::get('public/blog/options', [BlogPostController::class, 'publicOptions'])
+        ->middleware([SetLocale::class, 'throttle:30,1'])
+        ->name('public.blog.options');
+    Route::get('public/blog-posts', [BlogPostController::class, 'publicIndex'])
+        ->middleware([SetLocale::class, 'throttle:30,1'])
+        ->name('public.blog-posts.index');
+    Route::get('public/blog-posts/{slug}', [BlogPostController::class, 'publicShow'])
+        ->middleware([SetLocale::class, 'throttle:30,1'])
+        ->name('public.blog-posts.show');
     Route::get('public/applications/track', [PublicApplicationTrackingController::class, 'show'])
         ->middleware([SetLocale::class, 'throttle:20,1'])
         ->name('public.applications.track');
@@ -181,6 +195,18 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('global-search', GlobalSearchController::class)
             ->name('global-search');
+
+        Route::get('reports/dashboard', [ReportController::class, 'dashboard'])
+            ->middleware('can:reports.view')
+            ->name('reports.dashboard');
+
+        Route::get('reports/queue', [ReportController::class, 'queue'])
+            ->middleware('can:reports.view')
+            ->name('reports.queue');
+
+        Route::post('reports/generate', [ReportController::class, 'generate'])
+            ->middleware('can:reports.view')
+            ->name('reports.generate');
 
         Route::get('users/access-options', [UserManagementController::class, 'accessOptions'])
             ->middleware('can:users.view')
@@ -316,5 +342,32 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->middlewareFor('store', 'can:impact_updates.create')
             ->middlewareFor('update', 'can:impact_updates.publish')
             ->middlewareFor('destroy', 'can:impact_updates.publish');
+
+        Route::get('blog/options', [BlogPostController::class, 'options'])
+            ->middleware('can:blog_posts.view')
+            ->name('blog.options');
+
+        Route::post('blog-media', [BlogMediaController::class, 'store'])
+            ->name('blog-media.store');
+
+        Route::patch('blog-posts/{blogPost}/status', [BlogPostController::class, 'transition'])
+            ->middleware('can:blog_posts.publish')
+            ->name('blog-posts.status');
+
+        Route::apiResource('blog-posts', BlogPostController::class)
+            ->middlewareFor(['index', 'show'], 'can:blog_posts.view')
+            ->middlewareFor('store', 'can:blog_posts.create')
+            ->middlewareFor('update', 'can:blog_posts.update')
+            ->middlewareFor('destroy', 'can:blog_posts.delete');
+
+        Route::apiResource('blog-categories', BlogCategoryController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->middlewareFor('index', 'can:blog_posts.view')
+            ->middlewareFor(['store', 'update', 'destroy'], 'can:blog_categories.manage');
+
+        Route::apiResource('blog-tags', BlogTagController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->middlewareFor('index', 'can:blog_posts.view')
+            ->middlewareFor(['store', 'update', 'destroy'], 'can:blog_tags.manage');
     });
 });

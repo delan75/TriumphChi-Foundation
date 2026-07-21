@@ -39,6 +39,10 @@ export function PublicPageTitle({
         alt={backgroundAlt}
         className="absolute inset-0 -z-20 h-full w-full object-cover opacity-70 saturate-[0.72]"
         loading="eager"
+        decoding="async"
+        width="1600"
+        height="900"
+        {...({ fetchpriority: 'high' } as Record<string, string>)}
       />
       <div
         className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,55,47,0.98)_0%,rgba(18,55,47,0.9)_45%,rgba(18,55,47,0.68)_100%)]"
