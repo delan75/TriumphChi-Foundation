@@ -229,7 +229,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
       <section className="bg-foundation-900 text-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8 lg:py-16">
-          <div>
+          <div className="lg:sticky lg:top-24 lg:self-start">
             <p className="text-sm font-black uppercase text-foundation-100">{copy.workEyebrow}</p>
             <h2 className="mt-2 max-w-3xl text-3xl font-black leading-tight sm:text-4xl">{copy.workTitle}</h2>
             <p className="mt-3 max-w-3xl text-base leading-7 text-foundation-50">{copy.workBody}</p>
@@ -396,9 +396,11 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 function SectionIntro({ eyebrow, title, body, className }: { eyebrow: string; title: string; body: string; className?: string }) {
   return (
     <div className={cn('max-w-3xl', className)}>
-      <p className="text-sm font-black uppercase text-foundation-600">{eyebrow}</p>
-      <h2 className="mt-2 text-3xl font-black leading-tight text-ink-900 sm:text-4xl">{title}</h2>
-      <p className="mt-3 text-base leading-7 text-ink-500">{body}</p>
+      <div className="lg:sticky lg:top-24 lg:self-start">
+        <p className="text-sm font-black uppercase text-foundation-600">{eyebrow}</p>
+        <h2 className="mt-2 text-3xl font-black leading-tight text-ink-900 sm:text-4xl">{title}</h2>
+        <p className="mt-3 text-base leading-7 text-ink-500">{body}</p>
+      </div>
     </div>
   );
 }
@@ -419,7 +421,7 @@ function ImagePanel({
   return (
     <figure
       className={cn(
-        'overflow-hidden rounded-md border shadow-sm',
+        'lg:sticky lg:top-24 lg:self-start overflow-hidden rounded-md border shadow-sm',
         dark ? 'border-white/10 bg-white/5' : 'border-ink-100 bg-white',
         className,
       )}
