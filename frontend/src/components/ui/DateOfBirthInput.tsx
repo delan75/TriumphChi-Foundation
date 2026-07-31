@@ -81,7 +81,7 @@ export function validateDob(
   }
 
   // Year bounds
-  if (Number.isNaN(y) || y < MIN_YEAR || y > new Date().getFullYear() + 1) {
+  if (Number.isNaN(y) || y < MIN_YEAR || y > new Date().getFullYear()) {
     return msgs.tooOld;
   }
 
@@ -164,7 +164,6 @@ export function DateOfBirthInput({
   helpText,
   locale = 'en-GB',
 }: DateOfBirthInputProps) {
-  const isMonthFirst = locale.toLowerCase().startsWith('en-us');
   const { day: initDay, month: initMonth, year: initYear } = parseIso(value);
 
   const [day, setDay] = useState(initDay);
@@ -221,6 +220,8 @@ export function DateOfBirthInput({
     setMonth(digits);
     emit(day, digits, year);
 
+    // Auto-advance: 2 digits entered, or single leading digit > 1
+    // (months are 01-12, so 2-9 can only be single-digit months).
     if (digits.length === 2 || (digits.length === 1 && parseInt(digits, 10) > 1)) {
       yearRef.current?.focus();
       yearRef.current?.select();
@@ -268,7 +269,8 @@ export function DateOfBirthInput({
     'h-11 rounded-md border bg-white text-center text-base font-semibold text-ink-900 shadow-sm transition duration-200 focus:outline-none focus:ring-2 placeholder:text-ink-300';
   const segmentNormal = 'border-ink-200 focus:border-foundation-500 focus:ring-foundation-500/20';
   const segmentError = 'border-support-red focus:border-support-red focus:ring-support-red/20';
-  const segmentClass = cn(segmentBase, hasError || (touched && !value) ? segmentError : segmentNormal);
+  const isSegmentEmpty = !day && !month && !year;
+  const segmentClass = cn(segmentBase, hasError || (touched && isSegmentEmpty) ? segmentError : segmentNormal);
 
   return (
     <fieldset className={cn('min-w-0', className)} aria-required={required || undefined}>
