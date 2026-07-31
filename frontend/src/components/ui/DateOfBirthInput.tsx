@@ -164,7 +164,6 @@ export function DateOfBirthInput({
   helpText,
   locale = 'en-GB',
 }: DateOfBirthInputProps) {
-  const isMonthFirst = locale.toLowerCase().startsWith('en-us');
   const { day: initDay, month: initMonth, year: initYear } = parseIso(value);
 
   const [day, setDay] = useState(initDay);
