@@ -81,7 +81,7 @@ export function validateDob(
   }
 
   // Year bounds
-  if (Number.isNaN(y) || y < MIN_YEAR || y > new Date().getFullYear() + 1) {
+  if (Number.isNaN(y) || y < MIN_YEAR || y > new Date().getFullYear()) {
     return msgs.tooOld;
   }
 
