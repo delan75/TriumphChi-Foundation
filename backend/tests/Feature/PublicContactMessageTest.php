@@ -116,7 +116,7 @@ class PublicContactMessageTest extends TestCase
         $this->assertDatabaseCount('contact_message_attachments', 0);
     }
 
-    public function test_public_contact_message_accepts_text_file_with_sql_words(): void
+    public function test_public_contact_message_accepts_text_file_containing_sql_keywords(): void
     {
         Storage::fake('local');
 
