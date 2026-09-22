@@ -2238,16 +2238,22 @@ async function parseJsonResponse<T>(response: Response, fallbackMessage: string)
 }
 
 async function parseJsonEnvelope(response: Response, fallbackMessage: string): Promise<Record<string, unknown>> {
-  const data = await response.json().catch(() => ({}));
+  const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
 
   if (!response.ok) {
     if (response.status === 429) {
       throw new Error('Too many requests. Please wait a moment before trying again.');
     }
 
-    const firstError = data.errors
-      ? Object.values(data.errors as Record<string, string[]>).flat()[0]
-      : null;
+    // Safely extract the first validation error without crashing
+    let firstError: string | null = null;
+    const errorsObj = data.errors;
+    
+    if (errorsObj && typeof errorsObj === 'object') {
+      const allErrors = Object.values(errorsObj as Record<string, unknown>).flat();
+      const validError = allErrors.find((err): err is string => typeof err === 'string');
+      firstError = validError ?? null;
+    }
 
     throw new ApiRequestError(
       String(firstError ?? data.message ?? fallbackMessage),
