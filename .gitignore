@@ -28,3 +28,7 @@ backend/.phpunit.result.cache
 frontend/vite.config.js
 frontend/vite.config.d.ts
 /package-lock.json
+
+# Bundle analyzer stats
+stats.html
+dist/stats.html
