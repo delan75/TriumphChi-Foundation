@@ -32,7 +32,7 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'block min-h-12 w-full rounded-md border bg-white py-2.5 text-base text-ink-900 shadow-sm transition duration-200 focus:outline-none sm:text-sm',
+              'block min-h-12 w-full rounded-md border bg-white py-2.5 text-base text-ink-900 shadow-xs transition duration-200 focus:outline-hidden sm:text-sm',
               icon ? 'pl-10 pr-3' : 'px-3',
               error
                 ? 'border-support-red focus:border-support-red focus:ring-2 focus:ring-support-red/20'

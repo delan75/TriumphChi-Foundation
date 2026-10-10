@@ -100,7 +100,7 @@ export function AboutPage({ locale, page }: AboutPageProps) {
               const Icon = beliefIcons[index];
 
               return (
-                <article key={belief.title} className="rounded-md border border-foundation-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                <article key={belief.title} className="rounded-md border border-foundation-100 bg-white p-5 shadow-xs transition duration-200 hover:-translate-y-1 hover:shadow-lg">
                   <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
                   <h2 className="mt-4 text-lg font-black text-ink-900">{belief.title}</h2>
                   <p className="mt-2 text-sm leading-6 text-ink-500">{belief.body}</p>
@@ -228,9 +228,9 @@ function SectionIntro({ eyebrow, title, body }: { eyebrow: string; title: string
 
 function ImageStory({ image, alt, caption }: { image: string; alt: string; caption: string }) {
   return (
-    <figure className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-sm">
+    <figure className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-xs">
       <div className="relative isolate overflow-hidden">
-        <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover opacity-80 saturate-[0.74]" loading="lazy" />
+        <img src={image} alt={alt} className="aspect-4/3 w-full object-cover opacity-80 saturate-[0.74]" loading="lazy" />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(18,55,47,0.76),rgba(18,55,47,0.42)_48%,rgba(18,55,47,0.78))] mix-blend-multiply" aria-hidden="true" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_26%_18%,rgba(255,255,255,0.14),transparent_32%),linear-gradient(90deg,rgba(18,55,47,0.22),rgba(18,55,47,0.56))]" aria-hidden="true" />
       </div>
@@ -246,7 +246,7 @@ function CtaLink({ to, children, variant = 'primary' }: { to: string; children: 
       className={cn(
         'focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md px-5 text-sm font-black transition duration-200 hover:-translate-y-0.5',
         variant === 'primary'
-          ? 'bg-foundation-600 text-white shadow-sm hover:bg-foundation-900'
+          ? 'bg-foundation-600 text-white shadow-xs hover:bg-foundation-900'
           : 'border border-foundation-200 bg-white text-foundation-900 hover:bg-foundation-100',
       )}
     >

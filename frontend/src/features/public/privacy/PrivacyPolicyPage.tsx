@@ -271,7 +271,7 @@ export function PrivacyPolicyPage({ locale, page }: PrivacyPolicyPageProps) {
       <main className="bg-ink-50">
         <section className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[320px_1fr] lg:px-8 lg:py-16">
           <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-md border border-foundation-100 bg-white p-5 shadow-sm">
+            <div className="rounded-md border border-foundation-100 bg-white p-5 shadow-xs">
               <p className="text-xs font-black uppercase text-foundation-700">{updatedAt[locale]}</p>
               <h2 className="mt-3 text-xl font-black text-ink-900">{copy.tocTitle}</h2>
               <nav className="mt-5 grid gap-1" aria-label={copy.tocTitle}>
@@ -287,7 +287,7 @@ export function PrivacyPolicyPage({ locale, page }: PrivacyPolicyPageProps) {
               </nav>
             </div>
 
-            <div className="relative mt-5 overflow-hidden rounded-md border border-foundation-800 bg-foundation-950 p-5 text-white shadow-sm">
+            <div className="relative mt-5 overflow-hidden rounded-md border border-foundation-800 bg-foundation-950 p-5 text-white shadow-xs">
               <img src={careImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30 saturate-75" loading="lazy" />
               <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(18,55,47,0.98),rgba(18,55,47,0.76))]" aria-hidden="true" />
               <div className="relative">
@@ -305,7 +305,7 @@ export function PrivacyPolicyPage({ locale, page }: PrivacyPolicyPageProps) {
           </aside>
 
           <div className="min-w-0">
-            <section className="rounded-md border border-foundation-100 bg-white p-5 shadow-sm sm:p-6">
+            <section className="rounded-md border border-foundation-100 bg-white p-5 shadow-xs sm:p-6">
               <p className="text-sm font-black uppercase text-foundation-700">{copy.summaryEyebrow}</p>
               <h2 className="mt-3 text-2xl font-black text-ink-900 sm:text-3xl">{copy.summaryTitle}</h2>
               <p className="mt-4 max-w-3xl text-base leading-7 text-ink-600">{copy.summaryBody}</p>
@@ -324,7 +324,7 @@ export function PrivacyPolicyPage({ locale, page }: PrivacyPolicyPageProps) {
                 const Icon = section.icon;
 
                 return (
-                  <section key={section.id} id={section.id} className="scroll-mt-24 rounded-md border border-ink-100 bg-white p-5 shadow-sm sm:p-6">
+                  <section key={section.id} id={section.id} className="scroll-mt-24 rounded-md border border-ink-100 bg-white p-5 shadow-xs sm:p-6">
                     <div className="flex gap-4">
                       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-foundation-50 text-foundation-700">
                         <Icon className="h-5 w-5" aria-hidden="true" />
@@ -349,7 +349,7 @@ export function PrivacyPolicyPage({ locale, page }: PrivacyPolicyPageProps) {
               })}
             </div>
 
-            <section className="mt-6 rounded-md bg-foundation-900 p-5 text-white shadow-sm sm:p-6">
+            <section className="mt-6 rounded-md bg-foundation-900 p-5 text-white shadow-xs sm:p-6">
               <p className="text-sm font-black uppercase text-foundation-100">{copy.closingEyebrow}</p>
               <h2 className="mt-3 text-2xl font-black">{copy.closingTitle}</h2>
               <p className="mt-4 max-w-3xl text-sm leading-6 text-foundation-50">{copy.closingBody}</p>

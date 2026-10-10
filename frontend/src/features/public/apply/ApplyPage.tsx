@@ -261,14 +261,14 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
             <button
               type="button"
               onClick={() => setIsTrackModalOpen(true)}
-              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.18]"
+              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white/18"
             >
               <Search className="h-4 w-4" aria-hidden="true" />
               {copy.trackCta}
             </button>
             <Link
               to={`/${locale}${aboutPage.path[locale]}`}
-              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.18]"
+              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white/18"
             >
               {copy.aboutCta}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -283,7 +283,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
             <SectionIntro eyebrow={copy.introEyebrow} title={copy.introTitle} body={copy.introBody} />
             <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
               {copy.highlights.map((item) => (
-                <article key={item.title} className="rounded-md border border-ink-100 bg-ink-50 p-4 shadow-sm">
+                <article key={item.title} className="rounded-md border border-ink-100 bg-ink-50 p-4 shadow-xs">
                   <item.icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
                   <h2 className="mt-4 text-base font-black text-ink-900">{item.title}</h2>
                   <p className="mt-2 text-sm leading-6 text-ink-500">{item.body}</p>
@@ -292,7 +292,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
             </div>
           </div>
 
-          <div id="application-form" className="scroll-mt-24 rounded-md border border-ink-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
+          <div id="application-form" className="scroll-mt-24 rounded-md border border-ink-100 bg-white p-5 shadow-xs sm:p-6 lg:p-8">
             <ApplyFormHeader
               copy={copy}
               savedAt={savedAt}
@@ -347,7 +347,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
           <SectionIntro eyebrow={copy.nextStepsEyebrow} title={copy.nextStepsTitle} body={copy.nextStepsBody} />
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {copy.nextSteps.map((item, index) => (
-              <article key={item.title} className="rounded-md border border-foundation-100 bg-white p-5 shadow-sm">
+              <article key={item.title} className="rounded-md border border-foundation-100 bg-white p-5 shadow-xs">
                 <div className="flex items-center justify-between gap-3">
                   <span className="grid h-11 w-11 place-items-center rounded-md bg-foundation-600 text-white">
                     {index + 1}
@@ -364,7 +364,7 @@ export function ApplyPage({ locale, page }: ApplyPageProps) {
 
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8 lg:py-16">
-          <div className="rounded-md border border-ink-100 bg-white p-5 shadow-sm sm:p-6">
+          <div className="rounded-md border border-ink-100 bg-white p-5 shadow-xs sm:p-6">
             <p className="text-sm font-black uppercase text-foundation-600">{copy.helpEyebrow}</p>
             <h2 className="mt-2 text-3xl font-black leading-tight text-ink-900">{copy.helpTitle}</h2>
             <p className="mt-3 text-base leading-7 text-ink-500">{copy.helpBody}</p>

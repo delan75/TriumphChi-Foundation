@@ -16,7 +16,7 @@ export function DonationFilters({ copy, filters, summary, onChange }: DonationFi
   };
 
   return (
-    <section className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+    <section className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
         <div className="min-w-0 flex-1">
           <label htmlFor="donation-search" className="text-xs font-semibold uppercase text-ink-500">{copy.filters}</label>
@@ -27,7 +27,7 @@ export function DonationFilters({ copy, filters, summary, onChange }: DonationFi
               value={filters.search ?? ''}
               onChange={(event) => update('search', event.target.value)}
               placeholder={copy.searchPlaceholder}
-              className="min-h-10 flex-1 border-0 bg-transparent text-sm font-medium text-ink-900 outline-none"
+              className="min-h-10 flex-1 border-0 bg-transparent text-sm font-medium text-ink-900 outline-hidden"
             />
           </div>
         </div>

@@ -26,8 +26,8 @@ export const SelectField = React.forwardRef<HTMLSelectElement, SelectFieldProps>
             ref={ref}
             id={selectId}
             className={cn(
-              'block min-h-12 w-full appearance-none rounded-md border bg-white px-3 py-2.5 text-base text-ink-900 shadow-sm transition duration-200 focus:outline-none sm:text-sm pr-10',
-              'bg-[url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3E%3C/svg%3E")] bg-[position:right_0.5rem_center] bg-no-repeat',
+              'block min-h-12 w-full appearance-none rounded-md border bg-white px-3 py-2.5 text-base text-ink-900 shadow-xs transition duration-200 focus:outline-hidden sm:text-sm pr-10',
+              'bg-[url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3E%3C/svg%3E")] bg-position-[right_0.5rem_center] bg-no-repeat',
               error
                 ? 'border-support-red focus:border-support-red focus:ring-2 focus:ring-support-red/20'
                 : 'border-ink-200 focus:border-foundation-500 focus:ring-2 focus:ring-foundation-500/20',

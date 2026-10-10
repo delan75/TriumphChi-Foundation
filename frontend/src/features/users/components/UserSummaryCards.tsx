@@ -19,7 +19,7 @@ export function UserSummaryCards({ summary, copy }: UserSummaryCardsProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
       {cards.map((card) => (
-        <article key={card.label} className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+        <article key={card.label} className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-ink-500">{card.label}</p>

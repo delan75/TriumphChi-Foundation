@@ -44,7 +44,7 @@ export function ContactMessageSummaryCards({ summary, copy }: ContactMessageSumm
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
       {cards.map((card) => (
-        <div key={card.label} className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+        <div key={card.label} className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold text-ink-500">{card.label}</p>

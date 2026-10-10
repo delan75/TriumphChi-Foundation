@@ -231,10 +231,10 @@ export function BlogManagementPage() {
       />
 
       <div className="flex space-x-1 rounded-xl bg-ink-100 p-1 lg:w-fit">
-        <button onClick={() => setActiveTab('posts')} className={cn('w-full rounded-lg px-6 py-2.5 text-sm font-medium leading-5', activeTab === 'posts' ? 'bg-white shadow' : 'text-ink-700 hover:bg-white/[0.12] hover:text-ink-900')}>Posts</button>
-        <button onClick={() => setActiveTab('moderation')} className={cn('w-full rounded-lg px-6 py-2.5 text-sm font-medium leading-5', activeTab === 'moderation' ? 'bg-white shadow' : 'text-ink-700 hover:bg-white/[0.12] hover:text-ink-900')}>Moderation Queue</button>
-        {canManageCategories && <button onClick={() => setActiveTab('categories')} className={cn('w-full rounded-lg px-6 py-2.5 text-sm font-medium leading-5', activeTab === 'categories' ? 'bg-white shadow' : 'text-ink-700 hover:bg-white/[0.12] hover:text-ink-900')}>Categories</button>}
-        {canManageTags && <button onClick={() => setActiveTab('tags')} className={cn('w-full rounded-lg px-6 py-2.5 text-sm font-medium leading-5', activeTab === 'tags' ? 'bg-white shadow' : 'text-ink-700 hover:bg-white/[0.12] hover:text-ink-900')}>Tags</button>}
+        <button onClick={() => setActiveTab('posts')} className={cn('w-full rounded-lg px-6 py-2.5 text-sm font-medium leading-5', activeTab === 'posts' ? 'bg-white shadow-sm' : 'text-ink-700 hover:bg-white/12 hover:text-ink-900')}>Posts</button>
+        <button onClick={() => setActiveTab('moderation')} className={cn('w-full rounded-lg px-6 py-2.5 text-sm font-medium leading-5', activeTab === 'moderation' ? 'bg-white shadow-sm' : 'text-ink-700 hover:bg-white/12 hover:text-ink-900')}>Moderation Queue</button>
+        {canManageCategories && <button onClick={() => setActiveTab('categories')} className={cn('w-full rounded-lg px-6 py-2.5 text-sm font-medium leading-5', activeTab === 'categories' ? 'bg-white shadow-sm' : 'text-ink-700 hover:bg-white/12 hover:text-ink-900')}>Categories</button>}
+        {canManageTags && <button onClick={() => setActiveTab('tags')} className={cn('w-full rounded-lg px-6 py-2.5 text-sm font-medium leading-5', activeTab === 'tags' ? 'bg-white shadow-sm' : 'text-ink-700 hover:bg-white/12 hover:text-ink-900')}>Tags</button>}
       </div>
 
       {activeTab === 'posts' && (
@@ -437,7 +437,7 @@ function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-ink-100 bg-white p-3">
       <p className="text-xs font-black uppercase text-ink-400">{label}</p>
-      <p className="mt-1 break-words text-sm font-black text-ink-900">{value}</p>
+      <p className="mt-1 wrap-break-word text-sm font-black text-ink-900">{value}</p>
     </div>
   );
 }

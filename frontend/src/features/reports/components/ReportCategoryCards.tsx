@@ -37,7 +37,7 @@ export function ReportCategoryCards({
         type="button"
         onClick={() => onSelect('all')}
         className={cn(
-          'focus-ring rounded-md border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-sm',
+          'focus-ring rounded-md border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xs',
           activeCategory === 'all' ? 'border-foundation-200 bg-foundation-50' : 'border-ink-100 bg-white hover:border-foundation-100',
         )}
       >
@@ -55,7 +55,7 @@ export function ReportCategoryCards({
             key={category.key}
             onClick={() => onSelect(category.key)}
             className={cn(
-              'focus-ring rounded-md border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-sm',
+              'focus-ring rounded-md border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xs',
               activeCategory === category.key ? 'border-foundation-200 bg-foundation-50' : 'border-ink-100 bg-white hover:border-foundation-100',
             )}
           >

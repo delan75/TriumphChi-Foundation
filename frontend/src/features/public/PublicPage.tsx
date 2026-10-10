@@ -131,12 +131,12 @@ function PublicSectionGrid({ pageKey }: { pageKey: string }) {
   const { locale } = useParams();
   const activeLocale = isLocale(locale) ? locale : 'en';
   const currentPage = publicPages.find((page) => page.key === pageKey);
-  const sections = currentPage?.sections.length ? currentPage.sections : fallbackSections(activeLocale);
+  const sections = currentPage?.sections.length ? currentPage.sections : fallbackSections();
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
       {sections.map((section) => (
-        <article key={section.title[activeLocale]} className="rounded-md border border-ink-100 bg-white p-5 shadow-sm">
+        <article key={section.title[activeLocale]} className="rounded-md border border-ink-100 bg-white p-5 shadow-xs">
           <h2 className="text-base font-semibold text-ink-900">{section.title[activeLocale]}</h2>
           <p className="mt-2 text-sm leading-6 text-ink-500">{section.body[activeLocale]}</p>
         </article>
@@ -145,7 +145,7 @@ function PublicSectionGrid({ pageKey }: { pageKey: string }) {
   );
 }
 
-function fallbackSections(locale: 'en' | 'fr') {
+function fallbackSections() {
   return [
     {
       title: { en: 'SEO-ready structure', fr: 'Structure prête pour le SEO' },

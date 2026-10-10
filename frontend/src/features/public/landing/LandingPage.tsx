@@ -106,7 +106,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
         <div className="mx-auto flex min-h-[84dvh] max-w-7xl flex-col justify-end px-4 pb-10 pt-20 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
-            <p className="hero-copy hero-copy-kicker mb-4 inline-flex min-h-8 items-center rounded-md border border-white/20 bg-white/10 px-3 text-sm font-bold text-foundation-50 backdrop-blur">
+            <p className="hero-copy hero-copy-kicker mb-4 inline-flex min-h-8 items-center rounded-md border border-white/20 bg-white/10 px-3 text-sm font-bold text-foundation-50 backdrop-blur-sm">
               {copy.eyebrow}
             </p>
             <h1 className="hero-copy hero-copy-title max-w-4xl text-balance text-5xl font-black leading-[0.95] tracking-normal sm:text-6xl lg:text-7xl">
@@ -123,7 +123,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
               </Link>
               <Link
                 to={`/${locale}${applyPage.path[locale]}`}
-                className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.18]"
+                className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white/18"
               >
                 {copy.secondaryCta}
               </Link>
@@ -148,7 +148,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-16">
           <ImagePanel image={groupClassImage} alt={copy.missionVisionImageAlt} caption={copy.missionVisionCaption} className="lg:pr-8" />
-          <div className="relative z-10 self-center lg:-ml-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-white/[0.92] lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur">
+          <div className="relative z-10 self-center lg:-ml-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-white/92 lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur-sm">
             <p className="text-sm font-black uppercase text-foundation-600">{copy.missionVisionEyebrow}</p>
             <h2 className="mt-2 text-3xl font-black leading-tight text-ink-900 sm:text-4xl">{copy.missionVisionTitle}</h2>
             <div className="mt-6 inline-flex rounded-md border border-foundation-100 bg-foundation-50 p-1">
@@ -158,9 +158,9 @@ export function LandingPage({ locale, page }: LandingPageProps) {
                   type="button"
                   onClick={() => setActiveStatement(statement)}
                   className={cn(
-                    'min-h-10 rounded px-4 text-sm font-black transition duration-200',
+                    'min-h-10 rounded-sm px-4 text-sm font-black transition duration-200',
                     activeStatement === statement
-                      ? 'bg-foundation-600 text-white shadow-sm'
+                      ? 'bg-foundation-600 text-white shadow-xs'
                       : 'text-foundation-900 hover:bg-white',
                   )}
                 >
@@ -186,14 +186,14 @@ export function LandingPage({ locale, page }: LandingPageProps) {
 
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-16">
-          <div className="relative z-10 lg:-mr-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-white/[0.93] lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur">
+          <div className="relative z-10 lg:-mr-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-white/93 lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur-sm">
             <SectionIntro eyebrow={copy.whyEyebrow} title={copy.whyTitle} body={copy.whyBody} />
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {copy.needs.map((need, index) => {
                 const Icon = needIcons[index];
 
                 return (
-                  <article key={need.title} className="rounded-md border border-ink-100 bg-ink-50 p-5 shadow-sm">
+                  <article key={need.title} className="rounded-md border border-ink-100 bg-ink-50 p-5 shadow-xs">
                     <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
                     <h2 className="mt-4 text-lg font-black text-ink-900">{need.title}</h2>
                     <p className="mt-2 text-sm leading-6 text-ink-500">{need.body}</p>
@@ -209,14 +209,14 @@ export function LandingPage({ locale, page }: LandingPageProps) {
       <section className="bg-foundation-50">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-16">
           <ImagePanel image={ruralImage} alt={copy.ruralImageAlt} caption={copy.ruralCaption} className="lg:pr-8" />
-          <div className="relative z-10 self-center lg:-ml-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-foundation-50/[0.94] lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur">
+          <div className="relative z-10 self-center lg:-ml-14 lg:rounded-md lg:border lg:border-white/70 lg:bg-foundation-50/94 lg:p-6 lg:shadow-xl lg:shadow-foundation-900/10 lg:backdrop-blur-sm">
             <SectionIntro eyebrow={copy.ruralEyebrow} title={copy.ruralTitle} body={copy.ruralBody} />
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {copy.ruralPoints.map((point, index) => {
                 const Icon = communityIcons[index];
 
                 return (
-                  <div key={point} className="flex min-h-12 items-center gap-3 rounded-md border border-foundation-100 bg-white px-4 py-3 text-sm font-bold text-ink-700 shadow-sm">
+                  <div key={point} className="flex min-h-12 items-center gap-3 rounded-md border border-foundation-100 bg-white px-4 py-3 text-sm font-bold text-ink-700 shadow-xs">
                     <Icon className="h-5 w-5 shrink-0 text-foundation-600" aria-hidden="true" />
                     {point}
                   </div>
@@ -262,7 +262,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
               const Icon = supportStepIcons[index];
 
               return (
-                <article key={step.title} className="rounded-md border border-ink-100 bg-ink-50 p-5 shadow-sm">
+                <article key={step.title} className="rounded-md border border-ink-100 bg-ink-50 p-5 shadow-xs">
                   <div className="flex items-center justify-between gap-3">
                     <span className="grid h-11 w-11 place-items-center rounded-md bg-foundation-600 text-white">
                       <Icon className="h-5 w-5" aria-hidden="true" />
@@ -286,7 +286,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
               const Icon = assistanceIcons[index];
 
               return (
-                <article key={item.title} className="grid gap-3 rounded-md border border-ink-100 bg-ink-50 p-4 shadow-sm sm:grid-cols-[3rem_1fr]">
+                <article key={item.title} className="grid gap-3 rounded-md border border-ink-100 bg-ink-50 p-4 shadow-xs sm:grid-cols-[3rem_1fr]">
                   <div className="grid h-12 w-12 place-items-center rounded-md bg-foundation-600 text-white">
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </div>
@@ -299,7 +299,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
             })}
             <Link
               to={`/${locale}${applyPage.path[locale]}`}
-              className="focus-ring mt-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-sm transition duration-200 hover:bg-foundation-900 sm:justify-self-start"
+              className="focus-ring mt-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-xs transition duration-200 hover:bg-foundation-900 sm:justify-self-start"
             >
               {copy.assistanceCta}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -321,7 +321,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
       <section className="bg-ink-900 text-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-16">
           <ImagePanel image={studyImage} alt={copy.storyImageAlt} caption={copy.storyCaption} dark className="md:pr-8" />
-          <div className="relative z-10 self-center md:-ml-14 md:rounded-md md:border md:border-white/10 md:bg-ink-900/[0.86] md:p-6 md:shadow-xl md:shadow-black/20 md:backdrop-blur">
+          <div className="relative z-10 self-center md:-ml-14 md:rounded-md md:border md:border-white/10 md:bg-ink-900/86 md:p-6 md:shadow-xl md:shadow-black/20 md:backdrop-blur-sm">
             <p className="text-sm font-black uppercase text-foundation-100">{copy.storyEyebrow}</p>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">{copy.storyTitle}</h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-ink-100">{copy.storyBody}</p>
@@ -373,7 +373,7 @@ export function LandingPage({ locale, page }: LandingPageProps) {
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
                 to={`/${locale}${donatePage.path[locale]}`}
-                className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-sm transition duration-200 hover:bg-foundation-900"
+                className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-xs transition duration-200 hover:bg-foundation-900"
               >
                 {copy.finalPrimaryCta}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -421,13 +421,13 @@ function ImagePanel({
   return (
     <figure
       className={cn(
-        'lg:sticky lg:top-24 lg:self-start overflow-hidden rounded-md border shadow-sm',
+        'lg:sticky lg:top-24 lg:self-start overflow-hidden rounded-md border shadow-xs',
         dark ? 'border-white/10 bg-white/5' : 'border-ink-100 bg-white',
         className,
       )}
     >
       <div className="relative isolate overflow-hidden">
-        <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover opacity-80 saturate-[0.74]" loading="lazy" />
+        <img src={image} alt={alt} className="aspect-4/3 w-full object-cover opacity-80 saturate-[0.74]" loading="lazy" />
         <div
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(18,55,47,0.82)_0%,rgba(18,55,47,0.56)_46%,rgba(18,55,47,0.78)_100%)] mix-blend-multiply"
           aria-hidden="true"

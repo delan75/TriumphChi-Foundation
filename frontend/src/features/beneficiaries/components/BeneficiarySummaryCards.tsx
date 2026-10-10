@@ -50,7 +50,7 @@ export function BeneficiarySummaryCards({ summary, copy }: BeneficiarySummaryCar
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
       {cards.map((card) => (
-        <article key={card.label} className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+        <article key={card.label} className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-bold uppercase text-ink-400">{card.label}</p>

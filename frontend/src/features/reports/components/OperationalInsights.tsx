@@ -23,7 +23,7 @@ export function OperationalInsights({
         <Link
           key={insight.key}
           to={`/${locale}${insight.path}`}
-          className="focus-ring group rounded-md border border-ink-100 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-foundation-100 hover:shadow-md"
+          className="focus-ring group rounded-md border border-ink-100 bg-white p-4 shadow-xs transition hover:-translate-y-0.5 hover:border-foundation-100 hover:shadow-md"
         >
           <div className="flex items-start justify-between gap-3">
             <StatusBadge label={insight.value} tone={insight.tone} />

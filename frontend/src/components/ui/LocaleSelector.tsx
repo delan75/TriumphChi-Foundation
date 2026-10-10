@@ -83,7 +83,7 @@ export function LocaleSelector({ locale, currentPath, theme = 'light' }: LocaleS
         className={cn(
           "focus-ring inline-flex min-h-11 items-center gap-2 rounded-md border pl-3 pr-8 text-xs font-black transition",
           isDark
-            ? "border-white/20 bg-white/10 text-white hover:bg-white/20 backdrop-blur"
+            ? "border-white/20 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"
             : "border-ink-100 bg-white text-ink-700 hover:border-foundation-100 hover:bg-foundation-50"
         )}
         aria-label="Language selector"

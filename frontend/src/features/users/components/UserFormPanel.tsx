@@ -82,7 +82,7 @@ export function UserFormPanel({ copy, mode, user, accessOptions, isWorking, erro
             <select
               value={locale}
               onChange={(event) => setLocale(event.target.value)}
-              className="focus-ring mt-2 min-h-11 w-full rounded-md border border-ink-200 px-3 text-sm font-semibold text-ink-800 outline-none"
+              className="focus-ring mt-2 min-h-11 w-full rounded-md border border-ink-200 px-3 text-sm font-semibold text-ink-800 outline-hidden"
             >
               <option value="en">English</option>
               <option value="fr">French</option>
@@ -100,7 +100,7 @@ export function UserFormPanel({ copy, mode, user, accessOptions, isWorking, erro
             value={bio}
             onChange={(event) => setBio(event.target.value)}
             rows={4}
-            className="focus-ring mt-2 w-full rounded-md border border-ink-200 px-3 py-2 text-sm text-ink-900 outline-none"
+            className="focus-ring mt-2 w-full rounded-md border border-ink-200 px-3 py-2 text-sm text-ink-900 outline-hidden"
           />
         </label>
 
@@ -162,7 +162,7 @@ function Field({
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="focus-ring mt-2 min-h-11 w-full rounded-md border border-ink-200 px-3 text-sm text-ink-900 outline-none"
+        className="focus-ring mt-2 min-h-11 w-full rounded-md border border-ink-200 px-3 text-sm text-ink-900 outline-hidden"
       />
     </label>
   );
@@ -184,7 +184,7 @@ function Checkbox({ label, checked, onChange }: { label: string; checked: boolea
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
-        className="h-4 w-4 rounded border-ink-300 text-foundation-600"
+        className="h-4 w-4 rounded-sm border-ink-300 text-foundation-600"
       />
       <span>{label}</span>
     </label>

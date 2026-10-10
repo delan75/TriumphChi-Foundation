@@ -79,7 +79,7 @@ export function BlogIndexPage({ locale, page }: BlogIndexPageProps) {
 
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-          <div className="grid gap-4 rounded-md border border-foundation-100 bg-foundation-50 p-4 shadow-sm lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.38fr)] lg:p-5">
+          <div className="grid gap-4 rounded-md border border-foundation-100 bg-foundation-50 p-4 shadow-xs lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.38fr)] lg:p-5">
             <div>
               <p className="text-sm font-black uppercase text-foundation-700">{copy.heroEyebrow}</p>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-ink-600">
@@ -103,7 +103,7 @@ export function BlogIndexPage({ locale, page }: BlogIndexPageProps) {
           <CategoryRail copy={copy} categories={categories} selected={category} onSelect={setCategory} />
 
           {postsQuery.isLoading ? (
-            <div className="mt-8 rounded-md border border-ink-100 bg-white p-8 text-sm font-bold text-ink-500 shadow-sm">{copy.loading}</div>
+            <div className="mt-8 rounded-md border border-ink-100 bg-white p-8 text-sm font-bold text-ink-500 shadow-xs">{copy.loading}</div>
           ) : posts.length === 0 ? (
             <div className="mt-8 rounded-md border border-ink-100 bg-ink-50 p-8">
               <h2 className="text-xl font-black text-ink-900">{copy.emptyTitle}</h2>
@@ -176,7 +176,7 @@ function CategoryRail({
 
 function FeaturedArticle({ post, locale, copy }: { post: BlogPostRecord; locale: Locale; copy: (typeof publicBlogContent)['en'] }) {
   return (
-    <article className="group overflow-hidden rounded-md border border-foundation-100 bg-foundation-950 text-white shadow-sm">
+    <article className="group overflow-hidden rounded-md border border-foundation-100 bg-foundation-950 text-white shadow-xs">
       <div className="relative min-h-[420px]">
         <ArticleImage post={post} className="absolute inset-0 h-full w-full object-cover opacity-70 saturate-[0.72] transition duration-700 group-hover:scale-105" />
         <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(10,39,33,0.96),rgba(10,39,33,0.62)_48%,rgba(10,39,33,0.2))]" />
@@ -213,7 +213,7 @@ function ArticleCard({
   compact?: boolean;
 }) {
   return (
-    <article className="group grid overflow-hidden rounded-md border border-ink-100 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md sm:grid-cols-[150px_1fr]">
+    <article className="group grid overflow-hidden rounded-md border border-ink-100 bg-white shadow-xs transition duration-200 hover:-translate-y-1 hover:shadow-md sm:grid-cols-[150px_1fr]">
       <div className="relative min-h-40 overflow-hidden bg-foundation-900">
         <ArticleImage post={post} className="h-full min-h-40 w-full object-cover opacity-80 saturate-[0.75] transition duration-500 group-hover:scale-105" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,55,47,0.08),rgba(18,55,47,0.72))]" />

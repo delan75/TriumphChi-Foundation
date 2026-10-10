@@ -61,7 +61,7 @@ export function DashboardFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-ink-950/55 px-4 py-6 backdrop-blur-sm sm:px-6" role="dialog" aria-modal="true" aria-labelledby="dashboard-form-modal-title">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-ink-950/55 px-4 py-6 backdrop-blur-xs sm:px-6" role="dialog" aria-modal="true" aria-labelledby="dashboard-form-modal-title">
       <div className={cn('mx-auto min-h-full w-full', sizes[size])}>
         <div className="flex min-h-full items-start justify-center">
           <section className="w-full overflow-hidden rounded-md border border-white/20 bg-white shadow-2xl">

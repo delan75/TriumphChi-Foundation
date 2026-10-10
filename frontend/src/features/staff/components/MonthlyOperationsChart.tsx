@@ -43,7 +43,7 @@ export function MonthlyOperationsChart({
   const activePoint = points.find((point) => point.key === activeKey) ?? peak;
 
   return (
-    <section className="rounded-md border border-ink-100 bg-white p-5 shadow-sm">
+    <section className="rounded-md border border-ink-100 bg-white p-5 shadow-xs">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
@@ -70,7 +70,7 @@ export function MonthlyOperationsChart({
             <SummaryBox label={copy.chartLabels.peakMonth} value={peak ? `${peak.label} / ${formatValue(peak[metric], metric, locale, displayCurrency)}` : '-'} />
           </div>
           {activePoint ? (
-            <div className="mt-4 rounded-md border border-foundation-100 bg-foundation-50/70 p-4 shadow-sm transition duration-200">
+            <div className="mt-4 rounded-md border border-foundation-100 bg-foundation-50/70 p-4 shadow-xs transition duration-200">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-xs font-black uppercase text-foundation-700">{activePoint.label}</p>
@@ -110,7 +110,7 @@ export function MonthlyOperationsChart({
                     )}>
                       <div
                         className={cn(
-                          'w-full rounded-t-md shadow-sm transition-[height,filter,transform] duration-300 group-hover:brightness-110',
+                          'w-full rounded-t-md shadow-xs transition-[height,filter,transform] duration-300 group-hover:brightness-110',
                           isActive && 'scale-x-105 brightness-110',
                           metricStyles[metric].bar,
                         )}

@@ -49,6 +49,8 @@ export function UserDetailPanel({
     setRoles(user?.roles.map((role) => role.name) ?? []);
     setDirectPermissions(user?.direct_permissions ?? []);
     setTab('overview');
+    // Initialize for another user while preserving edits during background refetches.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.uuid]);
 
   const canMutateAccess = Boolean(user?.permissions_context.can_manage_access && !user.permissions_context.is_self);
@@ -281,7 +283,7 @@ function KeyValue({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md bg-ink-50 p-3">
       <p className="text-xs font-bold uppercase text-ink-500">{label}</p>
-      <p className="mt-1 break-words text-sm font-black text-ink-900">{value}</p>
+      <p className="mt-1 wrap-break-word text-sm font-black text-ink-900">{value}</p>
     </div>
   );
 }
@@ -313,7 +315,7 @@ function CheckboxRow({
         checked={checked}
         disabled={disabled}
         onChange={(event) => onChange(event.target.checked)}
-        className="h-4 w-4 rounded border-ink-300 text-foundation-600"
+        className="h-4 w-4 rounded-sm border-ink-300 text-foundation-600"
       />
       <span>{label}</span>
     </label>

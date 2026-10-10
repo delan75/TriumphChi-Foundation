@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Clock3, Command, Loader2, Search, X } from 'lucide-react';
 import type { Locale } from '../../lib/i18n';
-import { apiGlobalSearch, type GlobalSearchGroup, type GlobalSearchResult } from '../../lib/api';
+import { apiGlobalSearch, type GlobalSearchResult } from '../../lib/api';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { cn } from '../ui/cn';
 
@@ -172,7 +172,7 @@ export function StaffCommandSearch({
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-[110] bg-ink-900/40 p-4 backdrop-blur-sm sm:p-6">
+        <div className="fixed inset-0 z-110 bg-ink-900/40 p-4 backdrop-blur-xs sm:p-6">
           <div
             className="absolute inset-0"
             aria-hidden="true"
@@ -187,7 +187,7 @@ export function StaffCommandSearch({
                 onChange={(event) => setQuery(event.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className="min-h-11 flex-1 border-0 p-0 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none"
+                className="min-h-11 flex-1 border-0 p-0 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-hidden"
               />
               {query ? (
                 <button
@@ -285,7 +285,7 @@ export function StaffCommandSearch({
                                 <div className="flex flex-wrap items-center gap-2">
                                   <p className="text-sm font-semibold text-ink-900">{result.title}</p>
                                   {result.reference ? (
-                                    <span className="rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-ink-500 shadow-sm">
+                                    <span className="rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-ink-500 shadow-xs">
                                       {result.reference}
                                     </span>
                                   ) : null}

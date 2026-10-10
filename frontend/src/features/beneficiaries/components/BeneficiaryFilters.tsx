@@ -21,7 +21,7 @@ export function BeneficiaryFilters({ copy, filters, onChange }: BeneficiaryFilte
   };
 
   return (
-    <section className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+    <section className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
       <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-8">
         <label className="relative block min-w-0 sm:col-span-2 lg:col-span-4 2xl:col-span-2">
           <span className="sr-only">{copy.filters.search}</span>

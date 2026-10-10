@@ -26,7 +26,7 @@ export function GivingChannels({ locale, variant = 'light' }: GivingChannelsProp
           <span
             key={channel.key}
             className={cn(
-              'inline-flex min-h-9 items-center rounded-md px-3 text-xs font-black shadow-sm ring-1 ring-black/5',
+              'inline-flex min-h-9 items-center rounded-md px-3 text-xs font-black shadow-xs ring-1 ring-black/5',
               channel.className,
             )}
           >

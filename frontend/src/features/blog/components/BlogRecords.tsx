@@ -34,7 +34,7 @@ export function BlogRecords({ copy, locale, posts, selectedUuid, isLoading, canU
             type="button"
             onClick={() => onOpen(post.uuid)}
             className={cn(
-              'focus-ring rounded-md border bg-white p-4 text-left shadow-sm transition hover:border-foundation-200 hover:bg-foundation-50',
+              'focus-ring rounded-md border bg-white p-4 text-left shadow-xs transition hover:border-foundation-200 hover:bg-foundation-50',
               selectedUuid === post.uuid ? 'border-foundation-300 bg-foundation-50' : 'border-ink-100',
             )}
           >

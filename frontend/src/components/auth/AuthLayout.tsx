@@ -35,10 +35,10 @@ export function AuthLayout({
     <div className="min-h-dvh bg-white">
       {/* Mobile header */}
       {mobileHeader && (
-        <header className="sticky top-0 z-30 border-b border-white/20 bg-white/[0.92] shadow-sm backdrop-blur-xl lg:hidden">
+        <header className="sticky top-0 z-30 border-b border-white/20 bg-white/92 shadow-xs backdrop-blur-xl lg:hidden">
           <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
             <Link to={`/${locale}`} className="focus-ring flex min-h-11 items-center gap-3 rounded-md pr-2">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-foundation-600 text-white shadow-sm">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-foundation-600 text-white shadow-xs">
                 <ShieldCheck className="h-5 w-5" aria-hidden="true" />
               </span>
               <span className="min-w-0">
@@ -82,7 +82,7 @@ export function AuthLayout({
           <div className="relative flex h-full flex-col justify-between p-8">
             <div>
               <Link to={`/${locale}`} className="focus-ring inline-flex items-center gap-3 rounded-md p-2">
-                <div className="grid h-12 w-12 place-items-center rounded-md bg-white/10 text-white backdrop-blur">
+                <div className="grid h-12 w-12 place-items-center rounded-md bg-white/10 text-white backdrop-blur-sm">
                   <ShieldCheck className="h-6 w-6" aria-hidden="true" />
                 </div>
                 <div>
@@ -100,7 +100,7 @@ export function AuthLayout({
                   {leftPanelContent.highlights.map((highlight, index) => (
                     <div
                       key={highlight}
-                      className="rounded-md border border-white/10 bg-white/5 p-3 backdrop-blur-sm"
+                      className="rounded-md border border-white/10 bg-white/5 p-3 backdrop-blur-xs"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <p className="text-sm font-semibold text-white">{highlight}</p>

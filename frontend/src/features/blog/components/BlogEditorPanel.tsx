@@ -184,7 +184,7 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
               type="button"
               onClick={() => setActiveLocale(locale)}
               className={`focus-ring min-h-10 flex-1 rounded-md text-sm font-black transition ${
-                activeLocale === locale ? 'bg-white text-foundation-800 shadow-sm' : 'text-ink-500 hover:text-ink-900'
+                activeLocale === locale ? 'bg-white text-foundation-800 shadow-xs' : 'text-ink-500 hover:text-ink-900'
               }`}
             >
               {locale === 'en' ? copy.form.english : copy.form.french}
@@ -258,7 +258,7 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
                   onChange={(event) =>
                     setTagIds((current) => (event.target.checked ? [...current, tag.id] : current.filter((id) => id !== tag.id)))
                   }
-                  className="h-4 w-4 rounded border-ink-300 text-foundation-700"
+                  className="h-4 w-4 rounded-sm border-ink-300 text-foundation-700"
                 />
                 {tag.label}
               </label>
@@ -271,7 +271,7 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
             type="checkbox"
             checked={isFeatured}
             onChange={(event) => setIsFeatured(event.target.checked)}
-            className="h-4 w-4 rounded border-ink-300 text-foundation-700"
+            className="h-4 w-4 rounded-sm border-ink-300 text-foundation-700"
           />
           {copy.form.featured}
         </label>
@@ -282,7 +282,7 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
               <p className="text-xs font-black uppercase text-ink-500">{copy.form.imagePath}</p>
               <p className="mt-1 text-xs font-semibold text-ink-500">{imagePath || copy.form.mediaHelp}</p>
             </div>
-            <label className="focus-within:ring-2 focus-within:ring-foundation-500 inline-flex min-h-10 cursor-pointer items-center rounded-md bg-white px-3 text-xs font-black text-foundation-800 shadow-sm transition hover:bg-foundation-50">
+            <label className="focus-within:ring-2 focus-within:ring-foundation-500 inline-flex min-h-10 cursor-pointer items-center rounded-md bg-white px-3 text-xs font-black text-foundation-800 shadow-xs transition hover:bg-foundation-50">
               {isUploadingMedia ? copy.form.uploadingMedia : copy.form.uploadMedia}
               <input
                 type="file"
@@ -302,7 +302,7 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
               <legend className="text-xs font-black uppercase text-ink-500">{copy.form.media}</legend>
               <p className="mt-1 text-xs font-semibold text-ink-500">{copy.form.mediaHelp}</p>
             </div>
-            <label className="focus-within:ring-2 focus-within:ring-foundation-500 inline-flex min-h-9 cursor-pointer items-center rounded-md bg-white px-3 text-xs font-black text-foundation-800 shadow-sm transition hover:bg-foundation-50">
+            <label className="focus-within:ring-2 focus-within:ring-foundation-500 inline-flex min-h-9 cursor-pointer items-center rounded-md bg-white px-3 text-xs font-black text-foundation-800 shadow-xs transition hover:bg-foundation-50">
               {isUploadingMedia ? copy.form.uploadingMedia : copy.form.uploadMedia}
               <input
                 type="file"
@@ -318,7 +318,7 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
 
           <div className="mt-3 space-y-3">
             {media.map((item, index) => (
-              <div key={`${index}-${item.url}`} className="rounded-md border border-ink-100 bg-white p-3 shadow-sm">
+              <div key={`${index}-${item.url}`} className="rounded-md border border-ink-100 bg-white p-3 shadow-xs">
                 <div className="grid gap-3 sm:grid-cols-[1fr_120px_120px]">
                   <div className="min-w-0 rounded-md border border-ink-100 bg-ink-50 px-3 py-2">
                     <p className="text-xs font-black uppercase text-ink-500">{copy.form.mediaUrl}</p>

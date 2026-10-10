@@ -38,7 +38,7 @@ export function StaffSettingsPage() {
     <section className="space-y-6">
       <DashboardPanel title={copy.title} description={copy.description}>
         <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-          <article className="rounded-md border border-ink-100 bg-white p-5 shadow-sm">
+          <article className="rounded-md border border-ink-100 bg-white p-5 shadow-xs">
             <div className="flex items-start gap-4">
               <div className="grid h-12 w-12 place-items-center rounded-md bg-foundation-600 text-white">
                 <Settings2 className="h-5 w-5" aria-hidden="true" />
@@ -86,7 +86,7 @@ export function StaffSettingsPage() {
               </div>
             </div>
 
-            <div className="mt-5 rounded-md border border-foundation-100 bg-white p-4 shadow-sm">
+            <div className="mt-5 rounded-md border border-foundation-100 bg-white p-4 shadow-xs">
               <p className="text-sm font-semibold text-ink-900">{user?.preferred_locale ?? activeLocale}</p>
               <p className="mt-1 text-sm leading-6 text-ink-500">{copy.localeNote}</p>
             </div>

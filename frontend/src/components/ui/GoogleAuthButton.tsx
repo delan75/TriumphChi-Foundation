@@ -16,7 +16,7 @@ export function SocialAuthButton({ provider, className, children, ...props }: So
     <button
       type="button"
       className={cn(
-        'focus-ring flex w-full items-center justify-center gap-3 rounded-md border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-700 shadow-sm transition duration-200 hover:border-foundation-200 hover:bg-foundation-50',
+        'focus-ring flex w-full items-center justify-center gap-3 rounded-md border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-700 shadow-xs transition duration-200 hover:border-foundation-200 hover:bg-foundation-50',
         className,
       )}
       {...props}

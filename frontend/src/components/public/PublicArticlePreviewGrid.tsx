@@ -49,8 +49,8 @@ export function PublicArticlePreviewGrid({
             <article
               key={item.title}
               className={cn(
-                'group overflow-hidden rounded-md border shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md',
-                dark ? 'border-white/10 bg-white/[0.06]' : 'border-ink-100 bg-white',
+                'group overflow-hidden rounded-md border shadow-xs transition duration-200 hover:-translate-y-1 hover:shadow-md',
+                dark ? 'border-white/10 bg-white/6' : 'border-ink-100 bg-white',
               )}
             >
               <div className="relative min-h-52 overflow-hidden bg-foundation-900">
@@ -76,7 +76,7 @@ export function PublicArticlePreviewGrid({
                       </span>
                     ) : null}
                     {item.meta ? (
-                      <span className="rounded-md border border-white/25 bg-white/10 px-3 py-1 text-xs font-bold text-white backdrop-blur">
+                      <span className="rounded-md border border-white/25 bg-white/10 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
                         {item.meta}
                       </span>
                     ) : null}
