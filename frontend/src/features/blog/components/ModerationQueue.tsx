@@ -1,5 +1,4 @@
 import { CheckCircle, XCircle, Eye } from 'lucide-react';
-import { cn } from '../../../components/ui/cn';
 import type { BlogPostRecord } from '../../../lib/api';
 import type { Locale } from '../../../lib/i18n';
 
@@ -14,7 +13,7 @@ interface ModerationQueueProps {
   onReject: (uuid: string) => Promise<void>;
 }
 
-export function ModerationQueue({ locale, posts, isLoading, isWorking, canPublish, onOpen, onApprove, onReject }: ModerationQueueProps) {
+export function ModerationQueue({ posts, isLoading, isWorking, canPublish, onOpen, onApprove, onReject }: ModerationQueueProps) {
   const reviewPosts = posts.filter(post => post.status === 'review');
 
   if (isLoading) {
@@ -34,7 +33,7 @@ export function ModerationQueue({ locale, posts, isLoading, isWorking, canPublis
   return (
     <div className="space-y-4">
       {reviewPosts.map((post) => (
-        <article key={post.uuid} className="rounded-md border border-ink-200 bg-white shadow-sm transition hover:border-foundation-200 hover:shadow-md">
+        <article key={post.uuid} className="rounded-md border border-ink-200 bg-white shadow-xs transition hover:border-foundation-200 hover:shadow-md">
           <div className="p-4 sm:p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">

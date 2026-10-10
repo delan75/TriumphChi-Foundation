@@ -69,7 +69,7 @@ export function SponsorPage({ locale, page }: SponsorPageProps) {
             <CtaLink to={`/${locale}${donatePage.path[locale]}`}>{copy.primaryCta}</CtaLink>
             <a
               href="#how-sponsorship-works"
-              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.18]"
+              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white/18"
             >
               {copy.secondaryCta}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -189,7 +189,7 @@ export function SponsorPage({ locale, page }: SponsorPageProps) {
               const Icon = impactIcons[index];
 
               return (
-                <div key={item} className="flex min-h-14 items-center gap-3 rounded-md border border-foundation-100 bg-white px-4 py-3 text-sm font-black text-ink-800 shadow-sm">
+                <div key={item} className="flex min-h-14 items-center gap-3 rounded-md border border-foundation-100 bg-white px-4 py-3 text-sm font-black text-ink-800 shadow-xs">
                   <Icon className="h-5 w-5 shrink-0 text-foundation-600" aria-hidden="true" />
                   {item}
                 </div>
@@ -244,7 +244,7 @@ function SectionIntro({ eyebrow, title, body }: { eyebrow: string; title: string
 
 function InfoCard({ icon: Icon, title, body }: { icon: typeof School; title: string; body: string }) {
   return (
-    <article className="rounded-md border border-ink-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+    <article className="rounded-md border border-ink-100 bg-white p-5 shadow-xs transition duration-200 hover:-translate-y-1 hover:shadow-lg">
       <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
       <h3 className="mt-4 text-lg font-black text-ink-900">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-ink-500">{body}</p>
@@ -254,9 +254,9 @@ function InfoCard({ icon: Icon, title, body }: { icon: typeof School; title: str
 
 function ImageStory({ image, alt, caption, dark = false }: { image: string; alt: string; caption: string; dark?: boolean }) {
   return (
-    <figure className={cn('overflow-hidden rounded-md border shadow-sm', dark ? 'border-white/10 bg-white/5' : 'border-ink-100 bg-white')}>
+    <figure className={cn('overflow-hidden rounded-md border shadow-xs', dark ? 'border-white/10 bg-white/5' : 'border-ink-100 bg-white')}>
       <div className="relative isolate overflow-hidden">
-        <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover opacity-80 saturate-[0.74]" loading="lazy" />
+        <img src={image} alt={alt} className="aspect-4/3 w-full object-cover opacity-80 saturate-[0.74]" loading="lazy" />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(18,55,47,0.76),rgba(18,55,47,0.42)_48%,rgba(18,55,47,0.78))] mix-blend-multiply" aria-hidden="true" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_26%_18%,rgba(255,255,255,0.14),transparent_32%),linear-gradient(90deg,rgba(18,55,47,0.22),rgba(18,55,47,0.56))]" aria-hidden="true" />
       </div>
@@ -272,7 +272,7 @@ function CtaLink({ to, children, variant = 'primary' }: { to: string; children: 
       className={cn(
         'focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md px-5 text-sm font-black transition duration-200 hover:-translate-y-0.5',
         variant === 'primary'
-          ? 'bg-foundation-600 text-white shadow-sm hover:bg-foundation-900'
+          ? 'bg-foundation-600 text-white shadow-xs hover:bg-foundation-900'
           : 'border border-foundation-200 bg-white text-foundation-900 hover:bg-foundation-100',
       )}
     >

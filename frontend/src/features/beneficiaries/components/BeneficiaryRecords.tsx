@@ -52,7 +52,7 @@ export function BeneficiaryRecords({
               key={beneficiary.uuid}
               type="button"
               onClick={() => onOpen(beneficiary.uuid)}
-              className="focus-ring rounded-md border border-ink-100 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-foundation-100"
+              className="focus-ring rounded-md border border-ink-100 bg-white p-4 text-left shadow-xs transition hover:-translate-y-0.5 hover:border-foundation-100"
               title={`${copy.table.support}: ${beneficiary.status_label ?? beneficiary.status}. ${copy.table.funding}: ${funding.label}. ${copy.table.sponsor}: ${sponsorship.label}.`}
             >
               <div className="flex items-start justify-between gap-3">

@@ -98,7 +98,7 @@ export function ImpactPage({ locale, page }: ImpactPageProps) {
             </Link>
             <Link
               to={`/${locale}${programsPage.path[locale]}`}
-              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.18]"
+              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white/18"
             >
               {copy.programsCta}
             </Link>
@@ -124,7 +124,7 @@ export function ImpactPage({ locale, page }: ImpactPageProps) {
             <SectionIntro eyebrow={copy.numbersEyebrow} title={copy.numbersTitle} body={copy.numbersBody} />
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {copy.numbersPoints.map((point) => (
-                <div key={point} className="flex min-h-12 items-start gap-3 rounded-md border border-white bg-white px-4 py-3 text-sm leading-6 text-ink-700 shadow-sm">
+                <div key={point} className="flex min-h-12 items-start gap-3 rounded-md border border-white bg-white px-4 py-3 text-sm leading-6 text-ink-700 shadow-xs">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-foundation-600" aria-hidden="true" />
                   <span>{point}</span>
                 </div>
@@ -142,7 +142,7 @@ export function ImpactPage({ locale, page }: ImpactPageProps) {
               const Icon = supportIcons[index] ?? HeartHandshake;
 
               return (
-                <article key={area.title} className="rounded-md border border-ink-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
+                <article key={area.title} className="rounded-md border border-ink-100 bg-white p-5 shadow-xs transition duration-200 hover:-translate-y-1 hover:shadow-md">
                   <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
                   <h3 className="mt-4 text-lg font-black text-ink-900">{area.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-500">{area.body}</p>
@@ -159,7 +159,7 @@ export function ImpactPage({ locale, page }: ImpactPageProps) {
             <SectionIntro eyebrow={copy.timelineEyebrow} title={copy.timelineTitle} body={copy.timelineBody} dark />
             <div className="grid gap-3 sm:grid-cols-2">
               {copy.timelineItems.map((item) => (
-                <article key={item.title} className="rounded-md border border-white/10 bg-white/[0.06] p-5">
+                <article key={item.title} className="rounded-md border border-white/10 bg-white/6 p-5">
                   <div className="flex items-center justify-between gap-3">
                     <span className="rounded-md bg-foundation-100 px-3 py-1 text-xs font-black uppercase text-foundation-900">{item.period}</span>
                     <CalendarDays className="h-5 w-5 text-foundation-100" aria-hidden="true" />
@@ -208,7 +208,7 @@ export function ImpactPage({ locale, page }: ImpactPageProps) {
               const Icon = stewardshipIcons[index] ?? ShieldCheck;
 
               return (
-                <article key={card.title} className="rounded-md border border-white bg-white p-5 shadow-sm">
+                <article key={card.title} className="rounded-md border border-white bg-white p-5 shadow-xs">
                   <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
                   <h3 className="mt-4 text-lg font-black text-ink-900">{card.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-500">{card.body}</p>
@@ -247,13 +247,13 @@ export function ImpactPage({ locale, page }: ImpactPageProps) {
               </Link>
               <Link
                 to={`/${locale}${donatePage.path[locale]}`}
-                className="focus-ring inline-flex min-h-12 items-center justify-center rounded-md border border-white/20 bg-white/10 px-5 text-sm font-black text-white transition duration-200 hover:bg-white/[0.18]"
+                className="focus-ring inline-flex min-h-12 items-center justify-center rounded-md border border-white/20 bg-white/10 px-5 text-sm font-black text-white transition duration-200 hover:bg-white/18"
               >
                 {copy.finalSecondaryCta}
               </Link>
               <Link
                 to={`/${locale}${applyPage.path[locale]}`}
-                className="focus-ring inline-flex min-h-12 items-center justify-center rounded-md border border-white/20 bg-white/10 px-5 text-sm font-black text-white transition duration-200 hover:bg-white/[0.18]"
+                className="focus-ring inline-flex min-h-12 items-center justify-center rounded-md border border-white/20 bg-white/10 px-5 text-sm font-black text-white transition duration-200 hover:bg-white/18"
               >
                 {copy.finalTertiaryCta}
               </Link>

@@ -33,7 +33,7 @@ export function DonationSummaryCards({ summary, copy, locale }: DonationSummaryC
         const Icon = icons[index] ?? WalletCards;
 
         return (
-          <article key={card.label} className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+          <article key={card.label} className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
             <div className="flex items-center justify-between gap-3">
               <div className={cn('grid h-10 w-10 place-items-center rounded-md ring-1', cardStyles[index] ?? cardStyles[0])}>
                 <Icon className="h-5 w-5" aria-hidden="true" />

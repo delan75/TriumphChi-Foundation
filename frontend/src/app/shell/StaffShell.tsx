@@ -34,7 +34,7 @@ export function StaffShell() {
         }}
       />
       <div className="min-h-dvh bg-ink-50 text-ink-900">
-        <header className="sticky top-0 z-40 border-b border-ink-100 bg-white/95 backdrop-blur">
+        <header className="sticky top-0 z-40 border-b border-ink-100 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex min-h-16 max-w-[1600px] items-center gap-3 px-4 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -46,7 +46,7 @@ export function StaffShell() {
           </button>
 
           <div className="flex min-w-0 items-center gap-3 lg:w-72">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-foundation-600 text-white shadow-sm">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-foundation-600 text-white shadow-xs">
               <ShieldCheck className="h-5 w-5" aria-hidden="true" />
             </div>
             <div className="min-w-0">
@@ -87,7 +87,7 @@ export function StaffShell() {
 
         <div className="mx-auto flex max-w-[1600px] gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <aside className="hidden w-72 shrink-0 lg:block">
-            <div className="sticky top-24 rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+            <div className="sticky top-24 rounded-md border border-ink-100 bg-white p-4 shadow-xs">
               <StaffSidebar locale={activeLocale} user={user} labels={copy.shell.nav} />
             </div>
           </aside>
@@ -99,7 +99,7 @@ export function StaffShell() {
 
         <div
           className={cn(
-            'fixed inset-0 z-50 bg-ink-900/40 backdrop-blur-sm transition lg:hidden',
+            'fixed inset-0 z-50 bg-ink-900/40 backdrop-blur-xs transition lg:hidden',
             mobileOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
           )}
         >

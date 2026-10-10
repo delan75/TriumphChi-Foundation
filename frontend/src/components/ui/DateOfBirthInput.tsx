@@ -162,9 +162,7 @@ export function DateOfBirthInput({
   onValidate,
   className,
   helpText,
-  locale = 'en-GB',
 }: DateOfBirthInputProps) {
-  const isMonthFirst = locale.toLowerCase().startsWith('en-us');
   const { day: initDay, month: initMonth, year: initYear } = parseIso(value);
 
   const [day, setDay] = useState(initDay);
@@ -265,7 +263,7 @@ export function DateOfBirthInput({
   const describedBy = [hasError ? errorId : null, helpText ? helpId : null].filter(Boolean).join(' ') || undefined;
 
   const segmentBase =
-    'h-11 rounded-md border bg-white text-center text-base font-semibold text-ink-900 shadow-sm transition duration-200 focus:outline-none focus:ring-2 placeholder:text-ink-300';
+    'h-11 rounded-md border bg-white text-center text-base font-semibold text-ink-900 shadow-xs transition duration-200 focus:outline-hidden focus:ring-2 placeholder:text-ink-300';
   const segmentNormal = 'border-ink-200 focus:border-foundation-500 focus:ring-foundation-500/20';
   const segmentError = 'border-support-red focus:border-support-red focus:ring-support-red/20';
   const segmentClass = cn(segmentBase, hasError || (touched && !value) ? segmentError : segmentNormal);

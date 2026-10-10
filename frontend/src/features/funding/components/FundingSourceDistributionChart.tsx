@@ -32,7 +32,7 @@ export function FundingSourceDistributionChart({
   const activeSlice = slices.find((slice) => slice.source === activeSource) ?? slices[0];
 
   return (
-    <section className="rounded-md border border-ink-100 bg-white p-4 shadow-sm transition duration-200 hover:shadow-md">
+    <section className="rounded-md border border-ink-100 bg-white p-4 shadow-xs transition duration-200 hover:shadow-md">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -64,7 +64,7 @@ export function FundingSourceDistributionChart({
               onActiveSourceChange={setActiveSource}
             />
             {activeSlice ? (
-              <div className="rounded-md border border-foundation-100 bg-foundation-50/70 p-3 text-center shadow-sm">
+              <div className="rounded-md border border-foundation-100 bg-foundation-50/70 p-3 text-center shadow-xs">
                 <p className="text-xs font-black uppercase text-foundation-700">{activeSlice.source_label || activeSlice.source}</p>
                 <p className="mt-1 text-xl font-black text-ink-950">{formatMoney(activeSlice.amountValue, activeSlice.currency, locale)}</p>
                 <p className="mt-1 text-xs font-bold text-ink-500">
@@ -87,7 +87,7 @@ export function FundingSourceDistributionChart({
                   onFocus={() => setActiveSource(slice.source)}
                   onBlur={() => setActiveSource(null)}
                   className={cn(
-                    'focus-ring rounded-md border p-3 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md',
+                    'focus-ring rounded-md border p-3 text-left shadow-xs transition duration-200 hover:-translate-y-1 hover:shadow-md',
                     isActive ? 'border-foundation-200 bg-foundation-50' : 'border-ink-100 bg-ink-50/60 hover:border-foundation-100',
                   )}
                 >

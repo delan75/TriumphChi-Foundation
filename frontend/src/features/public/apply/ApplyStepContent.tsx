@@ -515,7 +515,7 @@ function ReviewStep({
           type="checkbox"
           checked={form.consent}
           onChange={(event) => updateField('consent', event.target.checked)}
-          className="mt-1 h-4 w-4 rounded border-ink-300 text-foundation-600 focus:ring-foundation-500"
+          className="mt-1 h-4 w-4 rounded-sm border-ink-300 text-foundation-600 focus:ring-foundation-500"
         />
         <span>
           {copy.consentLabel}

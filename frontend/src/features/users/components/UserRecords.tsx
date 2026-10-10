@@ -43,7 +43,7 @@ export function UserRecords({ copy, locale, users, selectedUuid, isLoading, onOp
             type="button"
             onClick={() => onOpen(user.uuid)}
             className={cn(
-              'focus-ring rounded-md border bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5',
+              'focus-ring rounded-md border bg-white p-4 text-left shadow-xs transition hover:-translate-y-0.5',
               selectedUuid === user.uuid ? 'border-foundation-300 ring-2 ring-foundation-100' : 'border-ink-100',
             )}
           >

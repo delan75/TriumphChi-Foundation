@@ -20,7 +20,7 @@ export function QuickReportsGrid({
       {reports.map((report) => (
         <article
           key={report.key}
-          className="group rounded-md border border-ink-100 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-foundation-100 hover:shadow-md"
+          className="group rounded-md border border-ink-100 bg-white p-4 shadow-xs transition hover:-translate-y-0.5 hover:border-foundation-100 hover:shadow-md"
         >
           <div className="flex items-start justify-between gap-3">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-ink-900 text-white">

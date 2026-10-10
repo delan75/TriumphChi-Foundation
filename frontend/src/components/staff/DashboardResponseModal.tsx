@@ -91,7 +91,7 @@ export function DashboardResponseModal({
             <h2 id="dashboard-response-title" className="text-sm font-black text-ink-950">
               {title}
             </h2>
-            <p className="mt-1 break-words text-sm leading-6 text-ink-600">{message}</p>
+            <p className="mt-1 wrap-break-word text-sm leading-6 text-ink-600">{message}</p>
             <p className="mt-3 text-xs font-bold uppercase text-ink-400">
               {isPaused ? pausedLabel : `${countdownLabel} ${remainingSeconds}s`}
             </p>

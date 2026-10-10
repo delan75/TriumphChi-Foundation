@@ -2088,7 +2088,7 @@ export async function apiUploadApplicationDocument(
   const env = await parseJsonEnvelope(response, 'Failed to upload document.');
   return { 
     message: String(env.message ?? 'Uploaded'), 
-    document_id: (env.data as any).document_id 
+    document_id: (env.data as { document_id: number }).document_id
   };
 }
 

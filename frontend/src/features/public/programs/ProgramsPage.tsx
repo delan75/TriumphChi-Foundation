@@ -80,7 +80,7 @@ export function ProgramsPage({ locale, page }: ProgramsPageProps) {
             </Link>
             <Link
               to={`/${locale}${applyPage.path[locale]}`}
-              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.18]"
+              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white/18"
             >
               {copy.applyCta}
             </Link>
@@ -112,7 +112,7 @@ export function ProgramsPage({ locale, page }: ProgramsPageProps) {
             {copy.supportCards.map((card, index) => {
               const Icon = supportIcons[index] ?? HeartHandshake;
               return (
-                <article key={card.title} className="rounded-md border border-white/80 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
+                <article key={card.title} className="rounded-md border border-white/80 bg-white p-5 shadow-xs transition duration-200 hover:-translate-y-1 hover:shadow-md">
                   <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
                   <h3 className="mt-4 text-lg font-black text-ink-900">{card.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-500">{card.body}</p>
@@ -204,7 +204,7 @@ export function ProgramsPage({ locale, page }: ProgramsPageProps) {
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
                 to={`/${locale}${sponsorPage.path[locale]}`}
-                className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-sm transition duration-200 hover:bg-foundation-900"
+                className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-xs transition duration-200 hover:bg-foundation-900"
               >
                 {copy.finalPrimaryCta}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />

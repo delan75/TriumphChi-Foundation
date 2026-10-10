@@ -40,7 +40,7 @@ export function ContactMessageRecords({ copy, locale, messages, isLoading, onOpe
             key={message.uuid}
             type="button"
             onClick={() => onOpen(message.uuid)}
-            className="focus-ring rounded-md border border-ink-100 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-foundation-100"
+            className="focus-ring rounded-md border border-ink-100 bg-white p-4 text-left shadow-xs transition hover:-translate-y-0.5 hover:border-foundation-100"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">

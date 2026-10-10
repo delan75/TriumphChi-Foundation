@@ -59,9 +59,9 @@ export function FaqSection({ eyebrow, title, body, items, className, surface = '
               <article
                 key={item.question}
                 className={cn(
-                  'overflow-hidden rounded-md border shadow-sm transition duration-200',
+                  'overflow-hidden rounded-md border shadow-xs transition duration-200',
                   isDark
-                    ? 'border-white/10 bg-white/[0.06] hover:bg-white/[0.09]'
+                    ? 'border-white/10 bg-white/6 hover:bg-white/9'
                     : 'border-ink-100 bg-white hover:border-foundation-100 hover:shadow-md',
                 )}
               >

@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, ReactNode, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -237,7 +237,7 @@ export function ContactPage({ locale, page }: ContactPageProps) {
             </a>
             <Link
               to={`/${locale}${applyPage.path[locale]}`}
-              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.18]"
+              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white/18"
             >
               {copy.secondaryCta}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -280,7 +280,7 @@ export function ContactPage({ locale, page }: ContactPageProps) {
               const Icon = reasonIcons[index];
 
               return (
-                <article key={reason.title} className="rounded-md border border-foundation-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                <article key={reason.title} className="rounded-md border border-foundation-100 bg-white p-5 shadow-xs transition duration-200 hover:-translate-y-1 hover:shadow-lg">
                   <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
                   <h2 className="mt-4 text-lg font-black text-ink-900">{reason.title}</h2>
                   <p className="mt-2 text-sm leading-6 text-ink-500">{reason.body}</p>
@@ -293,7 +293,7 @@ export function ContactPage({ locale, page }: ContactPageProps) {
 
       <section id="contact-form" className="scroll-mt-24 bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:py-16">
-          <div className="rounded-md border border-ink-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
+          <div className="rounded-md border border-ink-100 bg-white p-5 shadow-xs sm:p-6 lg:p-8">
             <div className="mb-8">
               <p className="text-sm font-black uppercase text-foundation-600">{copy.formEyebrow}</p>
               <h2 className="mt-2 text-3xl font-black leading-tight text-ink-900">{copy.formTitle}</h2>
@@ -392,7 +392,7 @@ export function ContactPage({ locale, page }: ContactPageProps) {
                     multiple
                     disabled={isUploading || isSubmitting}
                     onChange={handleAttachmentsChange}
-                    className="block min-h-12 w-full rounded-md border border-ink-200 bg-white px-3 py-2.5 text-base text-ink-900 shadow-sm transition duration-200 file:mr-4 file:rounded-md file:border-0 file:bg-foundation-50 file:px-3 file:py-2 file:text-sm file:font-bold file:text-foundation-700 hover:file:bg-foundation-100 focus:border-foundation-500 focus:outline-none focus:ring-2 focus:ring-foundation-500/20 disabled:opacity-50 sm:text-sm"
+                    className="block min-h-12 w-full rounded-md border border-ink-200 bg-white px-3 py-2.5 text-base text-ink-900 shadow-xs transition duration-200 file:mr-4 file:rounded-md file:border-0 file:bg-foundation-50 file:px-3 file:py-2 file:text-sm file:font-bold file:text-foundation-700 hover:file:bg-foundation-100 focus:border-foundation-500 focus:outline-hidden focus:ring-2 focus:ring-foundation-500/20 disabled:opacity-50 sm:text-sm"
                   />
                 </div>
                 {isUploading && (
@@ -404,7 +404,7 @@ export function ContactPage({ locale, page }: ContactPageProps) {
                       <li key={idx} className="flex items-center justify-between py-2 pl-3 pr-4 text-sm">
                         <div className="flex w-0 flex-1 items-center">
                           {draft.mime_type.startsWith('image/') ? (
-                            <div className="mr-3 h-8 w-8 flex-shrink-0 rounded bg-ink-100 flex items-center justify-center text-[10px] uppercase font-bold text-ink-500 overflow-hidden">
+                            <div className="mr-3 h-8 w-8 shrink-0 rounded-sm bg-ink-100 flex items-center justify-center text-[10px] uppercase font-bold text-ink-500 overflow-hidden">
                               {draft.preview_url ? (
                                 <img src={draft.preview_url} alt={draft.original_name} className="h-full w-full object-cover" />
                               ) : (
@@ -412,13 +412,13 @@ export function ContactPage({ locale, page }: ContactPageProps) {
                               )}
                             </div>
                           ) : (
-                            <svg className="mr-3 h-5 w-5 flex-shrink-0 text-ink-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <svg className="mr-3 h-5 w-5 shrink-0 text-ink-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                               <path fillRule="evenodd" d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z" clipRule="evenodd" />
                             </svg>
                           )}
                           <span className="truncate font-medium text-ink-700">{draft.original_name}</span>
                         </div>
-                        <div className="ml-4 flex-shrink-0 text-xs text-ink-500">
+                        <div className="ml-4 shrink-0 text-xs text-ink-500">
                           {(draft.size / 1024 / 1024).toFixed(2)} MB
                         </div>
                       </li>
@@ -432,7 +432,7 @@ export function ContactPage({ locale, page }: ContactPageProps) {
                   type="checkbox"
                   checked={form.consent}
                   onChange={(event) => updateField('consent', event.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-ink-300 text-foundation-600 focus:ring-foundation-500"
+                  className="mt-1 h-4 w-4 rounded-sm border-ink-300 text-foundation-600 focus:ring-foundation-500"
                   aria-invalid={Boolean(errors.consent)}
                   aria-describedby={errors.consent ? 'contact-consent-error' : undefined}
                 />
@@ -451,7 +451,7 @@ export function ContactPage({ locale, page }: ContactPageProps) {
                   type="submit"
                   disabled={isSubmitting}
                   className={cn(
-                    'focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-foundation-900 sm:justify-self-start',
+                    'focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-xs transition duration-200 hover:-translate-y-0.5 hover:bg-foundation-900 sm:justify-self-start',
                     isSubmitting && 'cursor-not-allowed opacity-60 hover:translate-y-0',
                   )}
                 >
@@ -588,45 +588,16 @@ function SectionIntro({ eyebrow, title, body }: { eyebrow: string; title: string
   );
 }
 
-function ContactItem({ icon, title, text, href }: { icon: React.ReactNode; title: string; text: string; href?: string }) {
-  return (
-    <div className="flex gap-4">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-foundation-100 text-foundation-600">
-        {icon}
-      </div>
-      <div>
-        <h3 className="font-bold text-ink-900">{title}</h3>
-        {href ? (
-          <a href={href} className="mt-1 block text-ink-600 hover:text-foundation-600">
-            {text}
-          </a>
-        ) : (
-          <p className="mt-1 text-ink-600">{text}</p>
-        )}
-      </div>
-    </div>
-  );
-}
-
 function ImageStory({ image, alt, caption }: { image: string; alt: string; caption: string }) {
   return (
-    <figure className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-sm">
+    <figure className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-xs">
       <div className="relative isolate overflow-hidden">
-        <img src={image} alt={alt} className="aspect-[4/3] w-full object-cover opacity-80 saturate-[0.74]" loading="lazy" />
+        <img src={image} alt={alt} className="aspect-4/3 w-full object-cover opacity-80 saturate-[0.74]" loading="lazy" />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(18,55,47,0.76),rgba(18,55,47,0.42)_48%,rgba(18,55,47,0.78))] mix-blend-multiply" aria-hidden="true" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_26%_18%,rgba(255,255,255,0.14),transparent_32%),linear-gradient(90deg,rgba(18,55,47,0.22),rgba(18,55,47,0.56))]" aria-hidden="true" />
       </div>
       <figcaption className="px-4 py-3 text-sm leading-6 text-ink-500">{caption}</figcaption>
     </figure>
-  );
-}
-
-function fieldClass(hasError: boolean) {
-  return cn(
-    'block min-h-12 w-full rounded-md border bg-white px-3 py-2.5 text-base text-ink-900 shadow-sm transition duration-200 focus:outline-none sm:text-sm',
-    hasError
-      ? 'border-support-red focus:border-support-red focus:ring-2 focus:ring-support-red/20'
-      : 'border-ink-200 focus:border-foundation-500 focus:ring-2 focus:ring-foundation-500/20',
   );
 }
 

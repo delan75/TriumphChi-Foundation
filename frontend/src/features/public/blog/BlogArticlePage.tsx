@@ -25,7 +25,6 @@ export function BlogArticlePage({ locale }: BlogArticlePageProps) {
   const { articleSlug = '' } = useParams();
   const copy = publicBlogContent[locale];
   const blogPage = getPageByKey('blog');
-  const homePage = getPageByKey('home');
 
   const articleQuery = useQuery({
     queryKey: ['public-blog-post', locale, articleSlug],
@@ -78,7 +77,7 @@ export function BlogArticlePage({ locale }: BlogArticlePageProps) {
           <div className="relative mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
             <Link
               to={`/${locale}${blogPage.path[locale]}`}
-              className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-white/10 px-4 text-sm font-black text-white backdrop-blur transition hover:bg-white/20"
+              className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-white/10 px-4 text-sm font-black text-white backdrop-blur-sm transition hover:bg-white/20"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               {copy.backToBlog}
@@ -100,7 +99,7 @@ export function BlogArticlePage({ locale }: BlogArticlePageProps) {
                     <span className="rounded-md bg-white px-3 py-1 text-xs font-black uppercase text-foundation-900">{article.category.label}</span>
                   ) : null}
                   {article.is_featured ? (
-                    <span className="rounded-md border border-white/20 bg-white/10 px-3 py-1 text-xs font-black uppercase text-white backdrop-blur">
+                    <span className="rounded-md border border-white/20 bg-white/10 px-3 py-1 text-xs font-black uppercase text-white backdrop-blur-sm">
                       {copy.featured}
                     </span>
                   ) : null}
@@ -130,7 +129,7 @@ export function BlogArticlePage({ locale }: BlogArticlePageProps) {
               </div>
 
               {article.tags?.length ? (
-                <div className="rounded-md border border-ink-100 bg-white p-5 shadow-sm">
+                <div className="rounded-md border border-ink-100 bg-white p-5 shadow-xs">
                   <h2 className="text-sm font-black uppercase text-ink-500">Themes</h2>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {article.tags.map((tag) => (
@@ -183,7 +182,7 @@ function ArticleMediaFigure({ media }: { media: BlogPostCurrentMediaRecord }) {
   return (
     <figure
       className={cn(
-        'my-8 overflow-hidden rounded-md border border-foundation-100 bg-foundation-950 shadow-sm',
+        'my-8 overflow-hidden rounded-md border border-foundation-100 bg-foundation-950 shadow-xs',
         media.layout === 'inset' ? 'mx-auto max-w-2xl' : '',
         media.layout === 'side' ? 'lg:float-right lg:mb-5 lg:ml-8 lg:mt-1 lg:w-[46%]' : '',
       )}

@@ -76,7 +76,7 @@ export function WorkspaceCard({
 
   if (!available) {
     return (
-      <article className="rounded-md border border-ink-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5">
+      <article className="rounded-md border border-ink-100 bg-white p-5 shadow-xs transition duration-200 hover:-translate-y-0.5">
         <div className="opacity-80">{content}</div>
       </article>
     );
@@ -86,7 +86,7 @@ export function WorkspaceCard({
     <Link
       to={to}
       className={cn(
-        'focus-ring block rounded-md border border-ink-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5',
+        'focus-ring block rounded-md border border-ink-100 bg-white p-5 shadow-xs transition duration-200 hover:-translate-y-0.5',
         toneClass.border,
       )}
     >

@@ -54,7 +54,7 @@ export function TaxonomyEditorPanel({ title, mode, item, isWorking, error, surfa
               type="button"
               onClick={() => setActiveLocale(locale)}
               className={`focus-ring min-h-10 flex-1 rounded-md text-sm font-black transition ${
-                activeLocale === locale ? 'bg-white text-foundation-800 shadow-sm' : 'text-ink-500 hover:text-ink-900'
+                activeLocale === locale ? 'bg-white text-foundation-800 shadow-xs' : 'text-ink-500 hover:text-ink-900'
               }`}
             >
               {locale === 'en' ? 'English' : 'French'}

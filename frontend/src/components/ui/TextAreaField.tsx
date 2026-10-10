@@ -40,7 +40,7 @@ export const TextAreaField = React.forwardRef<HTMLTextAreaElement, TextAreaField
             onChange={onChange}
             maxLength={maxLength}
             className={cn(
-              'block w-full rounded-md border bg-white px-3 py-2.5 text-base text-ink-900 shadow-sm transition duration-200 focus:outline-none sm:text-sm min-h-[120px] resize-y leading-6',
+              'block w-full rounded-md border bg-white px-3 py-2.5 text-base text-ink-900 shadow-xs transition duration-200 focus:outline-hidden sm:text-sm min-h-[120px] resize-y leading-6',
               error
                 ? 'border-support-red focus:border-support-red focus:ring-2 focus:ring-support-red/20'
                 : 'border-ink-200 focus:border-foundation-500 focus:ring-2 focus:ring-foundation-500/20',

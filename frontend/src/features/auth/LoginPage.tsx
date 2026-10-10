@@ -186,7 +186,7 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(event) => setRememberMe(event.target.checked)}
-                      className="h-4 w-4 rounded border-ink-300 text-foundation-600 focus:ring-foundation-500"
+                      className="h-4 w-4 rounded-sm border-ink-300 text-foundation-600 focus:ring-foundation-500"
                     />
                     <span className="ml-2">{copy.rememberMe}</span>
                   </label>
@@ -209,7 +209,7 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
                   type="submit"
                   disabled={isLoading}
                   className={cn(
-                    'focus-ring flex w-full justify-center rounded-md bg-foundation-50 px-4 py-2.5 text-sm font-semibold text-foundation-900 shadow-sm transition hover:bg-foundation-900 hover:text-white',
+                    'focus-ring flex w-full justify-center rounded-md bg-foundation-50 px-4 py-2.5 text-sm font-semibold text-foundation-900 shadow-xs transition hover:bg-foundation-900 hover:text-white',
                     isLoading && 'cursor-not-allowed opacity-50',
                   )}
                 >

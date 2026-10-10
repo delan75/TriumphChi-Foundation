@@ -11,7 +11,7 @@ interface BlogFiltersProps {
 
 export function BlogFilters({ copy, filters, options, onChange }: BlogFiltersProps) {
   return (
-    <section className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+    <section className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
       <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(220px,1fr)_190px_150px_auto] md:items-end">
         <label className="min-w-0">
           <span className="text-xs font-black uppercase text-ink-500">{copy.filters.search}</span>
@@ -47,7 +47,7 @@ export function BlogFilters({ copy, filters, options, onChange }: BlogFiltersPro
             type="checkbox"
             checked={Boolean(filters.featured)}
             onChange={(event) => onChange({ ...filters, featured: event.target.checked || undefined, page: 1 })}
-            className="h-4 w-4 rounded border-ink-300 text-foundation-700"
+            className="h-4 w-4 rounded-sm border-ink-300 text-foundation-700"
           />
           {copy.filters.featured}
         </label>

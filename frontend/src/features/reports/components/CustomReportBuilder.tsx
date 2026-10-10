@@ -161,7 +161,7 @@ export function CustomReportBuilder({
                   type="checkbox"
                   checked={selectedFields.includes(field)}
                   onChange={() => toggleField(field)}
-                  className="h-4 w-4 rounded border-ink-300 text-foundation-600"
+                  className="h-4 w-4 rounded-sm border-ink-300 text-foundation-600"
                 />
                 {field}
               </label>

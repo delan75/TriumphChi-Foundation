@@ -24,7 +24,7 @@ export function ReportsPage() {
   const activeLocale = isLocale(locale) ? locale : 'en';
   const copy = reportsContent[activeLocale];
   const user = readStoredAuthUser();
-  const permissions = user?.permissions ?? [];
+  const permissions = useMemo(() => user?.permissions ?? [], [user?.permissions]);
   const canViewReports = hasPermission(permissions, 'reports.view');
   const [activeCategory, setActiveCategory] = useState<ReportCategoryKey>('all');
   const [search, setSearch] = useState('');
@@ -106,7 +106,7 @@ export function ReportsPage() {
     });
   }, [categoryLabels, copy.templates, dashboard?.templates, permissions]);
 
-  const queue = reportQueueQuery.data ?? dashboard?.queue ?? [];
+  const queue = useMemo(() => reportQueueQuery.data ?? dashboard?.queue ?? [], [reportQueueQuery.data, dashboard?.queue]);
   const savedReports = useMemo<SavedReport[]>(() => {
     const completed = dashboard?.saved_reports ?? queue.filter((request) => request.status === 'completed');
 
@@ -302,7 +302,7 @@ export function ReportsPage() {
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder={copy.filters.searchPlaceholder}
-                  className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-ink-900 outline-none placeholder:text-ink-400"
+                  className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-ink-900 outline-hidden placeholder:text-ink-400"
                 />
               </div>
             </label>

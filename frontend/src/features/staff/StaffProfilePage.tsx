@@ -82,11 +82,11 @@ export function StaffProfilePage() {
 
   return (
     <section className="space-y-6">
-      <header className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-sm">
+      <header className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-xs">
         <div className="staff-profile-hero px-5 py-6 sm:px-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center">
-              <div className="staff-profile-avatar grid h-24 w-24 shrink-0 place-items-center rounded-md text-3xl font-black shadow-sm">
+              <div className="staff-profile-avatar grid h-24 w-24 shrink-0 place-items-center rounded-md text-3xl font-black shadow-xs">
                 {initials}
               </div>
               <div className="min-w-0">
@@ -229,7 +229,7 @@ function OverviewTab({
         <DashboardPanel title={copy.sections.quickStats}>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => (
-              <article key={stat.label} className="profile-stat-card rounded-md border border-l-4 p-4 shadow-sm">
+              <article key={stat.label} className="profile-stat-card rounded-md border border-l-4 p-4 shadow-xs">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="profile-stat-label text-xs font-bold uppercase">{stat.label}</p>
@@ -407,12 +407,12 @@ function HeroFact({ icon: Icon, label, value }: { icon: LucideIcon; label: strin
 
 function ProfileFact({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
-    <div className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+    <div className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
       <div className="flex items-center gap-2 text-ink-500">
         <Icon className="h-4 w-4" aria-hidden="true" />
         <p className="text-xs font-bold uppercase">{label}</p>
       </div>
-      <p className="mt-2 break-words text-sm font-black text-ink-900">{value}</p>
+      <p className="mt-2 wrap-break-word text-sm font-black text-ink-900">{value}</p>
     </div>
   );
 }
@@ -425,7 +425,7 @@ function Timeline({ empty, items }: { empty: string; items: Array<{ id: string; 
   return (
     <div className="space-y-3">
       {items.map((item, index) => (
-        <article key={`${item.id}-${index}`} className="flex gap-3 rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+        <article key={`${item.id}-${index}`} className="flex gap-3 rounded-md border border-ink-100 bg-white p-4 shadow-xs">
           <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-foundation-600" />
           <div className="min-w-0">
             <p className="text-sm font-black text-ink-900">{item.title}</p>
@@ -441,7 +441,7 @@ function Timeline({ empty, items }: { empty: string; items: Array<{ id: string; 
 function ProfileLoadingState({ copy }: { copy: StaffProfileCopy }) {
   return (
     <section className="space-y-6" aria-busy="true">
-      <header className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-sm">
+      <header className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-xs">
         <div className="staff-profile-hero px-5 py-6 sm:px-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center">
@@ -467,7 +467,7 @@ function ProfileLoadingState({ copy }: { copy: StaffProfileCopy }) {
       <DashboardPanel title={copy.loadingTitle} description={copy.loadingDescription}>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }, (_, index) => (
-            <div key={index} className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+            <div key={index} className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
               <div className="loading-line w-24" />
               <div className="loading-line mt-4 w-16" />
             </div>

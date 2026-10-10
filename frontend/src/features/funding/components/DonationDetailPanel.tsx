@@ -38,7 +38,7 @@ export function DonationDetailPanel({
 
   return (
     /* 1. Made the parent element sticky */
-    <aside className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-md border border-ink-100 bg-white shadow-sm">
+    <aside className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col rounded-md border border-ink-100 bg-white shadow-xs">
       {/* 2. Kept the header non-scrollable at the top */}
       <header className="flex shrink-0 items-start justify-between gap-4 border-b border-ink-100 px-5 py-4">
         <div>
@@ -191,7 +191,7 @@ function DetailStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-ink-100 bg-white p-3">
       <p className="text-xs font-bold uppercase text-ink-400">{label}</p>
-      <p className="mt-1 break-words text-sm font-bold text-ink-900">{value}</p>
+      <p className="mt-1 wrap-break-word text-sm font-bold text-ink-900">{value}</p>
     </div>
   );
 }
