@@ -14,7 +14,7 @@ export function UserFilters({ copy, filters, accessOptions, onChange }: UserFilt
   const update = (patch: ManagedUserListParams) => onChange({ ...filters, ...patch, page: 1 });
 
   return (
-    <section className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+    <section className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
       <div className="grid min-w-0 gap-3 md:grid-cols-2 xl:grid-cols-[minmax(280px,1fr)_180px_180px_160px_160px_auto]">
         <label className="min-w-0">
           <span className="text-xs font-bold uppercase text-ink-500">{copy.filters.search}</span>
@@ -24,7 +24,7 @@ export function UserFilters({ copy, filters, accessOptions, onChange }: UserFilt
               value={filters.search ?? ''}
               onChange={(event) => update({ search: event.target.value || undefined })}
               placeholder={copy.filters.searchPlaceholder}
-              className="focus-ring min-h-11 w-full rounded-md border border-ink-200 bg-white py-2 pl-10 pr-3 text-sm text-ink-900 outline-none transition"
+              className="focus-ring min-h-11 w-full rounded-md border border-ink-200 bg-white py-2 pl-10 pr-3 text-sm text-ink-900 outline-hidden transition"
             />
           </span>
         </label>
@@ -68,7 +68,7 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="focus-ring mt-2 min-h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm text-ink-900 outline-none transition"
+        className="focus-ring mt-2 min-h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm text-ink-900 outline-hidden transition"
       />
     </label>
   );
@@ -91,7 +91,7 @@ function Select({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="focus-ring mt-2 min-h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800 outline-none transition"
+        className="focus-ring mt-2 min-h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800 outline-hidden transition"
       >
         {children}
       </select>

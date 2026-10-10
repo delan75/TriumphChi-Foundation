@@ -133,7 +133,7 @@ export function ApplicationTrackModal({ isOpen, onClose, locale }: ApplicationTr
     <div className="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div 
         className={cn(
-          "fixed inset-0 bg-ink-900/60 backdrop-blur-sm transition-opacity duration-300",
+          "fixed inset-0 bg-ink-900/60 backdrop-blur-xs transition-opacity duration-300",
           isOpen ? "opacity-100" : "opacity-0"
         )}
         onClick={handleClose}
@@ -150,7 +150,7 @@ export function ApplicationTrackModal({ isOpen, onClose, locale }: ApplicationTr
             <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
               <button
                 type="button"
-                className="rounded-md bg-white text-ink-400 hover:text-ink-500 focus:outline-none focus:ring-2 focus:ring-foundation-500 focus:ring-offset-2"
+                className="rounded-md bg-white text-ink-400 hover:text-ink-500 focus:outline-hidden focus:ring-2 focus:ring-foundation-500 focus:ring-offset-2"
                 onClick={handleClose}
               >
                 <span className="sr-only">Close</span>
@@ -159,7 +159,7 @@ export function ApplicationTrackModal({ isOpen, onClose, locale }: ApplicationTr
             </div>
             
             <div className="sm:flex sm:items-start">
-              <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-foundation-100 sm:mx-0 sm:h-10 sm:w-10">
+              <div className="mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-foundation-100 sm:mx-0 sm:h-10 sm:w-10">
                 <Search className="h-5 w-5 text-foundation-600" aria-hidden="true" />
               </div>
               <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
@@ -200,13 +200,13 @@ export function ApplicationTrackModal({ isOpen, onClose, locale }: ApplicationTr
                       <button
                         type="submit"
                         disabled={isLoading}
-                        className="inline-flex w-full justify-center rounded-md bg-foundation-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-foundation-500 sm:ml-3 sm:w-auto disabled:opacity-50"
+                        className="inline-flex w-full justify-center rounded-md bg-foundation-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-foundation-500 sm:ml-3 sm:w-auto disabled:opacity-50"
                       >
                         {isLoading ? copy.checking : copy.checkStatus}
                       </button>
                       <button
                         type="button"
-                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm ring-1 ring-inset ring-ink-300 hover:bg-ink-50 sm:mt-0 sm:w-auto"
+                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-ink-900 shadow-xs ring-1 ring-inset ring-ink-300 hover:bg-ink-50 sm:mt-0 sm:w-auto"
                         onClick={handleClose}
                       >
                         {copy.cancel}
@@ -243,14 +243,14 @@ export function ApplicationTrackModal({ isOpen, onClose, locale }: ApplicationTr
                     <div className="mt-6 sm:flex sm:flex-row-reverse">
                       <button
                         type="button"
-                        className="inline-flex w-full justify-center rounded-md bg-foundation-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-foundation-500 sm:ml-3 sm:w-auto"
+                        className="inline-flex w-full justify-center rounded-md bg-foundation-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-foundation-500 sm:ml-3 sm:w-auto"
                         onClick={handleClose}
                       >
                         {copy.close}
                       </button>
                       <button
                         type="button"
-                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-ink-900 shadow-sm ring-1 ring-inset ring-ink-300 hover:bg-ink-50 sm:mt-0 sm:w-auto"
+                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-ink-900 shadow-xs ring-1 ring-inset ring-ink-300 hover:bg-ink-50 sm:mt-0 sm:w-auto"
                         onClick={() => setData(null)}
                       >
                         {copy.checkAnother}

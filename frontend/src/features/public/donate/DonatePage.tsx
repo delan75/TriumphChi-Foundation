@@ -106,7 +106,6 @@ export function DonatePage({ locale, page }: DonatePageProps) {
   const copy = donateCopy[locale];
   const homePage = getPageByKey('home');
   const impactPage = getPageByKey('impact');
-  const programsPage = getPageByKey('programs');
   const contactPage = getPageByKey('contact');
 
   const donationConfig = useQuery({
@@ -157,7 +156,7 @@ export function DonatePage({ locale, page }: DonatePageProps) {
             </a>
             <Link
               to={`/${locale}${impactPage.path[locale]}`}
-              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.18]"
+              className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white/18"
             >
               {copy.heroSecondaryCta}
             </Link>
@@ -200,7 +199,7 @@ export function DonatePage({ locale, page }: DonatePageProps) {
               const Icon = supportIcons[index] ?? HeartHandshake;
 
               return (
-                <article key={card.title} className="rounded-md border border-white bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
+                <article key={card.title} className="rounded-md border border-white bg-white p-5 shadow-xs transition duration-200 hover:-translate-y-1 hover:shadow-md">
                   <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
                   <h3 className="mt-4 text-lg font-black text-ink-900">{card.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-500">{card.body}</p>
@@ -238,7 +237,7 @@ export function DonatePage({ locale, page }: DonatePageProps) {
               const Icon = stewardshipIcons[index] ?? ShieldCheck;
 
               return (
-                <article key={card.title} className="rounded-md border border-ink-100 bg-white p-5 shadow-sm">
+                <article key={card.title} className="rounded-md border border-ink-100 bg-white p-5 shadow-xs">
                   <Icon className="h-6 w-6 text-foundation-600" aria-hidden="true" />
                   <h3 className="mt-4 text-lg font-black text-ink-900">{card.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-500">{card.body}</p>
@@ -849,7 +848,7 @@ function DonationCard({
                 onClick={() => updateField('frequency', frequency.key)}
                 className={cn(
                   'focus-ring min-h-11 rounded-md px-3 text-sm font-black transition',
-                  state.frequency === frequency.key ? 'bg-foundation-600 text-white shadow-sm' : 'text-ink-600 hover:bg-white',
+                  state.frequency === frequency.key ? 'bg-foundation-600 text-white shadow-xs' : 'text-ink-600 hover:bg-white',
                 )}
               >
                 {copy.frequencyLabels[frequency.key] ?? frequency.label}
@@ -910,7 +909,7 @@ function DonationCard({
               step={state.currency === 'XAF' ? '1' : '0.01'}
               value={state.amount}
               onChange={(event) => updateField('amount', event.target.value)}
-              className="min-h-12 flex-1 border-0 px-3 text-base font-bold text-ink-900 outline-none"
+              className="min-h-12 flex-1 border-0 px-3 text-base font-bold text-ink-900 outline-hidden"
             />
           </div>
           {errors.amount ? <p className="mt-2 text-sm font-bold text-red-700">{errors.amount}</p> : null}
@@ -985,7 +984,7 @@ function DonationCard({
               type="checkbox"
               checked={state.paymentConsent}
               onChange={(event) => updateField('paymentConsent', event.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-ink-300 text-foundation-600 focus:ring-foundation-500"
+              className="mt-1 h-4 w-4 rounded-sm border-ink-300 text-foundation-600 focus:ring-foundation-500"
             />
             <span>
               <span className="block text-sm font-black text-ink-900">{copy.momoConsentLabel}</span>
@@ -1000,7 +999,7 @@ function DonationCard({
             type="checkbox"
             checked={state.anonymous}
             onChange={(event) => updateField('anonymous', event.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-ink-300 text-foundation-600 focus:ring-foundation-500"
+            className="mt-1 h-4 w-4 rounded-sm border-ink-300 text-foundation-600 focus:ring-foundation-500"
           />
           <span>
             <span className="block text-sm font-black text-ink-900">{copy.anonymousLabel}</span>
@@ -1036,7 +1035,7 @@ function DonationCard({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-sm transition hover:bg-foundation-900 disabled:cursor-not-allowed disabled:opacity-60"
+            className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-xs transition hover:bg-foundation-900 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <HandHeart className="h-4 w-4" aria-hidden="true" />}
             {isSubmitting ? copy.submittingLabel : copy.submitLabel}
@@ -1084,7 +1083,7 @@ function PaypalRedirectOverlay({
 
   return (
     <div
-      className="fixed inset-0 z-[120] grid min-h-dvh place-items-center bg-ink-950/80 px-4 py-8 backdrop-blur-md"
+      className="fixed inset-0 z-120 grid min-h-dvh place-items-center bg-ink-950/80 px-4 py-8 backdrop-blur-md"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="paypal-redirect-title"

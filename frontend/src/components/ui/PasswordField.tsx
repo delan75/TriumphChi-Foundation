@@ -25,7 +25,7 @@ export const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldPro
             id={inputId}
             type={showPassword ? 'text' : 'password'}
             className={cn(
-              'block w-full rounded-md border px-3 py-2.5 pr-10 text-sm shadow-sm transition duration-200 focus:outline-none',
+              'block w-full rounded-md border px-3 py-2.5 pr-10 text-sm shadow-xs transition duration-200 focus:outline-hidden',
               error
                 ? 'border-support-red focus:border-support-red focus:ring-support-red/20'
                 : 'border-ink-200 focus:border-foundation-500 focus:ring-2 focus:ring-foundation-500/20',
@@ -37,7 +37,7 @@ export const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldPro
           />
           <button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 hover:text-ink-600 focus:outline-none"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 hover:text-ink-600 focus:outline-hidden"
             onClick={() => setShowPassword(!showPassword)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >

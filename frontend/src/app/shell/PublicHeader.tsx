@@ -21,10 +21,10 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
   const accountLabel = t(locale, authState ? 'account' : 'login');
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/20 bg-white/[0.92] shadow-sm backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-white/20 bg-white/92 shadow-xs backdrop-blur-xl">
       <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <NavLink to={`/${locale}`} className="focus-ring flex min-h-11 min-w-0 items-center gap-3 rounded-md pr-2">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-foundation-600 text-white shadow-sm">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-foundation-600 text-white shadow-xs">
             <ShieldCheck className="h-5 w-5" aria-hidden="true" />
           </span>
           <span className="min-w-0">
@@ -71,7 +71,7 @@ export function PublicHeader({ locale }: PublicHeaderProps) {
           </NavLink>
           <NavLink
             to={donatePath}
-            className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-foundation-600 px-3 text-sm font-bold text-white shadow-sm transition duration-200 hover:bg-foundation-900 sm:px-4"
+            className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-foundation-600 px-3 text-sm font-bold text-white shadow-xs transition duration-200 hover:bg-foundation-900 sm:px-4"
           >
             <HeartHandshake className="h-4 w-4" aria-hidden="true" />
             <span>{t(locale, 'donate')}</span>

@@ -308,7 +308,7 @@ function SummaryItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs font-black uppercase text-foundation-700">{label}</p>
-      <p className="mt-1 break-words text-sm font-black text-ink-900">{value}</p>
+      <p className="mt-1 wrap-break-word text-sm font-black text-ink-900">{value}</p>
     </div>
   );
 }

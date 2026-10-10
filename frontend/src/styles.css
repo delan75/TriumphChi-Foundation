@@ -1,6 +1,44 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-foundation-50: #f3fbf8;
+  --color-foundation-100: #d7f3ea;
+  --color-foundation-200: #d1f0e6;
+  --color-foundation-500: #168a6a;
+  --color-foundation-600: #0f6f56;
+  --color-foundation-700: #135c47;
+  --color-foundation-900: #12372f;
+
+  --color-ink-50: #f8fafc;
+  --color-ink-100: #e7edf2;
+  --color-ink-500: #627386;
+  --color-ink-700: #334155;
+  --color-ink-900: #111827;
+
+  --color-support-amber: #b7791f;
+  --color-support-blue: #2563eb;
+  --color-support-red: #b91c1c;
+
+  --shadow-focus: 0 0 0 3px rgba(22, 138, 106, 0.25);
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 :root {
   color: #111827;
@@ -33,7 +71,7 @@ textarea {
 }
 
 .focus-ring {
-  @apply focus:outline-none focus-visible:shadow-focus;
+  @apply focus:outline-hidden focus-visible:shadow-focus;
 }
 
 .mobile-menu {

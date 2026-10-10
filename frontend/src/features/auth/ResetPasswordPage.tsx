@@ -104,7 +104,7 @@ export function ResetPasswordPage({ locale, redirectTo }: ResetPasswordPageProps
                   <button
                     type="button"
                     onClick={() => navigate(buildAuthPath(locale, 'login', redirectTarget), { replace: true })}
-                    className="focus-ring mt-8 flex w-full justify-center rounded-md bg-foundation-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-foundation-900"
+                    className="focus-ring mt-8 flex w-full justify-center rounded-md bg-foundation-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-foundation-900"
                   >
                     {copy.successAction}
                   </button>
@@ -150,7 +150,7 @@ export function ResetPasswordPage({ locale, redirectTo }: ResetPasswordPageProps
                       type="submit"
                       disabled={isLoading || !token || !email}
                       className={cn(
-                        'focus-ring flex w-full justify-center rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200',
+                        'focus-ring flex w-full justify-center rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition duration-200',
                         isLoading || !token || !email ? 'cursor-not-allowed bg-foundation-400' : 'bg-foundation-600 hover:bg-foundation-900',
                       )}
                     >

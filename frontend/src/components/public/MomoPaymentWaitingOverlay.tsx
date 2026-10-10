@@ -196,7 +196,7 @@ export function MomoPaymentWaitingOverlay({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] min-h-dvh overflow-y-auto bg-foundation-950/92 px-4 py-5 backdrop-blur-md sm:px-6 sm:py-8"
+      className="fixed inset-0 z-9999 min-h-dvh overflow-y-auto bg-foundation-950/92 px-4 py-5 backdrop-blur-md sm:px-6 sm:py-8"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby={titleId}
@@ -205,14 +205,14 @@ export function MomoPaymentWaitingOverlay({
       <div
         ref={containerRef}
         tabIndex={-1}
-        className="mx-auto flex min-h-[calc(100dvh-2.5rem)] w-full max-w-3xl items-center outline-none sm:min-h-[calc(100dvh-4rem)]"
+        className="mx-auto flex min-h-[calc(100dvh-2.5rem)] w-full max-w-3xl items-center outline-hidden sm:min-h-[calc(100dvh-4rem)]"
       >
         <div className="relative w-full overflow-hidden rounded-md border border-white/15 bg-white shadow-2xl shadow-foundation-950/45">
           {canClose ? (
             <button
               type="button"
               onClick={onClose}
-              className="focus-ring absolute right-3 top-3 z-20 grid h-11 w-11 place-items-center rounded-md bg-white/95 text-ink-700 shadow-sm transition hover:bg-foundation-50"
+              className="focus-ring absolute right-3 top-3 z-20 grid h-11 w-11 place-items-center rounded-md bg-white/95 text-ink-700 shadow-xs transition hover:bg-foundation-50"
               aria-label={copy.closeLabel}
             >
               <X className="h-5 w-5" aria-hidden="true" />
@@ -257,7 +257,7 @@ export function MomoPaymentWaitingOverlay({
               <DataPill label={copy.amountLabel} value={`${amount} ${currency}`} />
             </div>
 
-            <div className="rounded-md border border-ink-100 bg-white p-4 shadow-sm" aria-live="polite">
+            <div className="rounded-md border border-ink-100 bg-white p-4 shadow-xs" aria-live="polite">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <div className={cn('grid h-14 w-14 shrink-0 place-items-center rounded-full', isFailed ? 'bg-red-50 text-red-700' : isConfirmed ? 'bg-foundation-50 text-foundation-700' : 'bg-foundation-700 text-white')}>
                   {isActive ? (
@@ -401,9 +401,9 @@ export function MomoPaymentWaitingOverlay({
 
 function DataPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md bg-white px-3 py-3 shadow-sm">
+    <div className="rounded-md bg-white px-3 py-3 shadow-xs">
       <p className="text-xs font-black uppercase text-foundation-700">{label}</p>
-      <p className="mt-1 break-words text-base font-black text-ink-900">{value}</p>
+      <p className="mt-1 wrap-break-word text-base font-black text-ink-900">{value}</p>
     </div>
   );
 }

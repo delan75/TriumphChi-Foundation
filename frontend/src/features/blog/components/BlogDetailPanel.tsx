@@ -84,7 +84,7 @@ export function BlogDetailPanel({ copy, locale, post, isLoading, isWorking, canU
             <h4 className="text-sm font-black uppercase text-ink-500">{copy.detail.tags}</h4>
             <div className="mt-3 flex flex-wrap gap-2">
               {post.tags?.length ? post.tags.map((tag) => (
-                <span key={tag.uuid} className="rounded-md bg-white px-3 py-1 text-xs font-bold text-ink-700 shadow-sm">
+                <span key={tag.uuid} className="rounded-md bg-white px-3 py-1 text-xs font-bold text-ink-700 shadow-xs">
                   {tag.label}
                 </span>
               )) : <span className="text-sm font-semibold text-ink-500">{copy.detail.noTags}</span>}

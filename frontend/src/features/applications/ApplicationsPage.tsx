@@ -7,7 +7,6 @@ import {
   ChevronDown,
   ClipboardList,
   Download,
-  Filter,
   Loader2,
   Phone,
   RefreshCcw,
@@ -259,7 +258,7 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
   return (
     <div className="grid grid-cols-[120px_1fr] gap-2 py-2.5 text-sm">
       <dt className="font-medium text-ink-500">{label}</dt>
-      <dd className="text-ink-900 break-words">{value ?? <span className="text-ink-400">—</span>}</dd>
+      <dd className="text-ink-900 wrap-break-word">{value ?? <span className="text-ink-400">—</span>}</dd>
     </div>
   );
 }
@@ -519,7 +518,7 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder={panel.notesPlaceholder}
-              className="w-full rounded-md border border-ink-200 bg-white px-3 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-foundation-400 focus:outline-none focus:ring-2 focus:ring-foundation-200"
+              className="w-full rounded-md border border-ink-200 bg-white px-3 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-foundation-400 focus:outline-hidden focus:ring-2 focus:ring-foundation-200"
             />
 
             {/* Transition buttons */}
@@ -712,7 +711,7 @@ export function ApplicationsPage() {
       />
 
       {/* ── Filters ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 rounded-md border border-ink-100 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-md border border-ink-100 bg-white px-4 py-4 shadow-xs sm:flex-row sm:items-center">
         {/* Search */}
         <form onSubmit={handleSearchSubmit} className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
@@ -722,7 +721,7 @@ export function ApplicationsPage() {
             value={searchInput}
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder={c.searchPlaceholder}
-            className="h-10 w-full rounded-md border border-ink-200 bg-ink-50 pl-9 pr-3 text-sm text-ink-900 placeholder:text-ink-400 focus:border-foundation-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-foundation-100"
+            className="h-10 w-full rounded-md border border-ink-200 bg-ink-50 pl-9 pr-3 text-sm text-ink-900 placeholder:text-ink-400 focus:border-foundation-400 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-foundation-100"
           />
         </form>
 
@@ -732,7 +731,7 @@ export function ApplicationsPage() {
             id="applications-source-filter"
             value={sourceFilter}
             onChange={(e) => setFilter('source', e.target.value)}
-            className="h-10 appearance-none rounded-md border border-ink-200 bg-white pl-3 pr-8 text-sm text-ink-900 focus:border-foundation-400 focus:outline-none focus:ring-2 focus:ring-foundation-100"
+            className="h-10 appearance-none rounded-md border border-ink-200 bg-white pl-3 pr-8 text-sm text-ink-900 focus:border-foundation-400 focus:outline-hidden focus:ring-2 focus:ring-foundation-100"
           >
             <option value="">{c.allSources}</option>
             {Object.entries(c.sourceLabels).map(([val, label]) => (
@@ -755,7 +754,7 @@ export function ApplicationsPage() {
             className={cn(
               'focus-ring inline-flex h-8 items-center rounded-md px-3 text-xs font-semibold transition',
               statusFilter === tab.value
-                ? 'bg-foundation-600 text-white shadow-sm'
+                ? 'bg-foundation-600 text-white shadow-xs'
                 : 'border border-ink-200 bg-white text-ink-600 hover:border-foundation-200 hover:bg-foundation-50 hover:text-foundation-800',
             )}
           >
@@ -765,7 +764,7 @@ export function ApplicationsPage() {
       </div>
 
       {/* ── Table ───────────────────────────────────────────────────────────── */}
-      <div className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-xs">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-ink-400">
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -897,7 +896,7 @@ export function ApplicationsPage() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40 bg-ink-900/30 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-ink-900/30 backdrop-blur-xs"
             onClick={() => setSelected(null)}
             aria-hidden="true"
           />

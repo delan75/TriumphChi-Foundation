@@ -1,4 +1,4 @@
-import { Clock3, FileText, Loader2, X } from 'lucide-react';
+import { FileText, Loader2, X } from 'lucide-react';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
 import { cn } from '../../../components/ui/cn';
 import type { ReportRequestRecord } from '../../../lib/api';
@@ -37,7 +37,7 @@ export function ReportQueueDrawer({
         className="absolute inset-0 cursor-default bg-ink-950/35"
         onClick={onClose}
       />
-      <aside className="absolute inset-y-0 right-0 flex w-full max-w-xl flex-col border-l border-ink-100 bg-white shadow-2xl sm:w-[30rem]">
+      <aside className="absolute inset-y-0 right-0 flex w-full max-w-xl flex-col border-l border-ink-100 bg-white shadow-2xl sm:w-120">
         <header className="flex items-start justify-between gap-4 border-b border-ink-100 p-5">
           <div className="min-w-0">
             <p className="text-xs font-black uppercase text-foundation-700">{copy.actions.openQueue}</p>
@@ -64,7 +64,7 @@ export function ReportQueueDrawer({
           ) : queue.length ? (
             <div className="grid gap-3">
               {queue.map((request) => (
-                <article key={request.uuid} className="rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+                <article key={request.uuid} className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
                   <div className="flex items-start justify-between gap-3">
                     <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-foundation-50 text-foundation-700">
                       <FileText className="h-5 w-5" aria-hidden="true" />

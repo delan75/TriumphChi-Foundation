@@ -42,7 +42,6 @@ export function StaffDashboardPage() {
   const user = readStoredAuthUser();
   const summary = summaryQuery.data;
   const metrics = summary?.metrics ?? [];
-  const queues = summary?.priority_queues ?? [];
   const activity = summary?.recent_activity ?? [];
   const quickActions = summary?.quick_actions ?? [];
   const monthlyActivity = summary?.charts?.monthly_activity ?? [];
@@ -53,7 +52,7 @@ export function StaffDashboardPage() {
   const lastLogin = formatDateTime(user?.last_login_at, activeLocale);
   const generatedAt = formatDateTime(summary?.snapshot.generated_at, activeLocale, true);
 
-  const queuePreview = useMemo(() => queues.slice(0, 4), [queues]);
+  const queuePreview = useMemo(() => (summary?.priority_queues ?? []).slice(0, 4), [summary?.priority_queues]);
 
   const topActions = quickActions.slice(0, 2);
 
@@ -85,8 +84,8 @@ export function StaffDashboardPage() {
 
   return (
     <section className="space-y-6">
-      <header className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-sm">
-        <div className="border-b border-ink-100 bg-gradient-to-r from-foundation-50 via-white to-white px-5 py-5 sm:px-6">
+      <header className="overflow-hidden rounded-md border border-ink-100 bg-white shadow-xs">
+        <div className="border-b border-ink-100 bg-linear-to-r from-foundation-50 via-white to-white px-5 py-5 sm:px-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <div className="flex flex-wrap items-center gap-2">
@@ -150,7 +149,7 @@ export function StaffDashboardPage() {
                   return (
                     <article
                       key={metric.key}
-                      className="rounded-md border border-ink-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5"
+                      className="rounded-md border border-ink-100 bg-white p-5 shadow-xs transition duration-200 hover:-translate-y-0.5"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className={cn('grid h-11 w-11 place-items-center rounded-md ring-1', metricToneClasses[metric.tone as MetricTone] ?? metricToneClasses.info)}>
@@ -172,7 +171,7 @@ export function StaffDashboardPage() {
                   );
                 })
               ) : (
-                <article className="rounded-md border border-dashed border-ink-200 bg-white p-5 text-sm text-ink-500 shadow-sm sm:col-span-2 xl:col-span-3">
+                <article className="rounded-md border border-dashed border-ink-200 bg-white p-5 text-sm text-ink-500 shadow-xs sm:col-span-2 xl:col-span-3">
                   {copy.statusLabels.noData}
                 </article>
               )}
@@ -220,7 +219,7 @@ export function StaffDashboardPage() {
                             <Link
                               key={item.id}
                               to={`/${activeLocale}${item.path}`}
-                              className="focus-ring flex items-start justify-between gap-4 rounded-md bg-white px-3 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                              className="focus-ring flex items-start justify-between gap-4 rounded-md bg-white px-3 py-3 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md"
                             >
                               <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
@@ -263,7 +262,7 @@ export function StaffDashboardPage() {
                       <Link
                         key={`${item.id ?? item.reference ?? item.key}-${item.occurred_at ?? item.happened_at ?? index}`}
                         to={`/${activeLocale}${item.path}`}
-                        className="focus-ring flex items-start justify-between gap-4 rounded-md border border-ink-100 bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:border-foundation-100 hover:shadow-sm"
+                        className="focus-ring flex items-start justify-between gap-4 rounded-md border border-ink-100 bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:border-foundation-100 hover:shadow-xs"
                       >
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
@@ -338,7 +337,7 @@ export function StaffDashboardPage() {
                     <Link
                       key={action.key}
                       to={`/${activeLocale}${action.path}`}
-                      className="focus-ring group rounded-md border border-ink-100 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-foundation-100 hover:shadow-md"
+                      className="focus-ring group rounded-md border border-ink-100 bg-white p-4 shadow-xs transition duration-200 hover:-translate-y-0.5 hover:border-foundation-100 hover:shadow-md"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="grid h-11 w-11 place-items-center rounded-md bg-foundation-50 text-foundation-700 transition group-hover:bg-foundation-600 group-hover:text-white">
@@ -364,7 +363,7 @@ export function StaffDashboardPage() {
 
 function CompactStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-ink-100 bg-white px-4 py-3 shadow-sm">
+    <div className="rounded-md border border-ink-100 bg-white px-4 py-3 shadow-xs">
       <p className="text-[11px] font-semibold uppercase tracking-normal text-ink-500">{label}</p>
       <p className="mt-1 truncate text-sm font-semibold text-ink-900">{value}</p>
     </div>
@@ -373,7 +372,7 @@ function CompactStat({ label, value }: { label: string; value: string }) {
 
 function SummaryPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-ink-100 bg-white px-4 py-3 shadow-sm">
+    <div className="rounded-md border border-ink-100 bg-white px-4 py-3 shadow-xs">
       <p className="text-xs font-semibold text-ink-500">{label}</p>
       <p className="mt-1 text-xl font-bold tracking-tight text-ink-900 tabular-nums">{value}</p>
     </div>
@@ -397,7 +396,7 @@ function TopActionLink({
     <Link
       to={to}
       className={cn(
-        'focus-ring group flex min-h-14 items-center justify-between gap-3 rounded-md border px-4 py-3 text-left shadow-sm transition duration-200 hover:-translate-y-0.5',
+        'focus-ring group flex min-h-14 items-center justify-between gap-3 rounded-md border px-4 py-3 text-left shadow-xs transition duration-200 hover:-translate-y-0.5',
         tone === 'foundation'
           ? 'border-foundation-100 bg-foundation-600 text-white hover:bg-foundation-700'
           : 'border-ink-100 bg-white text-ink-900 hover:border-foundation-100 hover:bg-foundation-50',
@@ -423,7 +422,7 @@ function DashboardSkeleton() {
         ))}
       </section>
       <section className="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
-        <div className="h-[26rem] animate-pulse rounded-md border border-ink-100 bg-white" />
+        <div className="h-104 animate-pulse rounded-md border border-ink-100 bg-white" />
         <div className="space-y-6">
           <div className="h-64 animate-pulse rounded-md border border-ink-100 bg-white" />
           <div className="h-48 animate-pulse rounded-md border border-ink-100 bg-white" />

@@ -277,7 +277,7 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
                   type="submit"
                   disabled={isVerifying}
                   className={cn(
-                    'focus-ring flex w-full justify-center rounded-md bg-foundation-50 px-4 py-2.5 text-sm font-semibold text-foundation-900 shadow-sm transition hover:bg-foundation-900 hover:text-white',
+                    'focus-ring flex w-full justify-center rounded-md bg-foundation-50 px-4 py-2.5 text-sm font-semibold text-foundation-900 shadow-xs transition hover:bg-foundation-900 hover:text-white',
                     isVerifying && 'cursor-not-allowed opacity-60',
                   )}
                 >

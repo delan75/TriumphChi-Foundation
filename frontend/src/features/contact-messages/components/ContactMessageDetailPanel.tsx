@@ -56,6 +56,8 @@ export function ContactMessageDetailPanel({
     setFeedback(null);
     setError(null);
     setPreviewOpen(false);
+    // Initialize when opening another message; background refetches must not overwrite unsaved edits.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [message?.uuid]);
 
   useEffect(() => {
@@ -88,7 +90,7 @@ export function ContactMessageDetailPanel({
 
   if (!message && !isLoading) {
     return (
-      <aside className="min-w-0 rounded-md border border-dashed border-ink-200 bg-white p-6 text-sm font-medium leading-6 text-ink-500 shadow-sm xl:sticky xl:top-24">
+      <aside className="min-w-0 rounded-md border border-dashed border-ink-200 bg-white p-6 text-sm font-medium leading-6 text-ink-500 shadow-xs xl:sticky xl:top-24">
         {copy.noSelection}
       </aside>
     );
@@ -97,7 +99,7 @@ export function ContactMessageDetailPanel({
   return (
     <>
       <aside className="min-w-0 xl:sticky xl:top-24">
-      <div className="flex max-h-none min-w-0 flex-col rounded-md border border-ink-100 bg-white shadow-sm xl:max-h-[calc(100vh-7rem)]">
+      <div className="flex max-h-none min-w-0 flex-col rounded-md border border-ink-100 bg-white shadow-xs xl:max-h-[calc(100vh-7rem)]">
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-ink-100 px-5 py-4">
           <div className="min-w-0">
             <p className="text-xs font-bold uppercase text-foundation-600">{copy.detailTitle}</p>
@@ -269,7 +271,7 @@ export function ContactMessageDetailPanel({
                     type="checkbox"
                     checked={markAsReplied}
                     onChange={(event) => setMarkAsReplied(event.target.checked)}
-                    className="h-4 w-4 rounded border-ink-300 text-foundation-600"
+                    className="h-4 w-4 rounded-sm border-ink-300 text-foundation-600"
                   />
                   {copy.markReplied}
                 </label>
@@ -341,7 +343,7 @@ function DetailStat({ label, value }: { label: string; value: string | ReactNode
   return (
     <div className="rounded-md border border-ink-100 bg-white p-3">
       <p className="text-xs font-bold uppercase text-ink-400">{label}</p>
-      <div className="mt-1 break-words text-sm font-black text-ink-900">{value}</div>
+      <div className="mt-1 wrap-break-word text-sm font-black text-ink-900">{value}</div>
     </div>
   );
 }
@@ -350,7 +352,7 @@ function Line({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid min-w-0 gap-1 sm:grid-cols-[110px_minmax(0,1fr)]">
       <span className="text-ink-500">{label}</span>
-      <span className="min-w-0 break-words font-bold text-ink-900 sm:text-right">{value}</span>
+      <span className="min-w-0 wrap-break-word font-bold text-ink-900 sm:text-right">{value}</span>
     </div>
   );
 }
@@ -367,7 +369,7 @@ function ContactInquiryPreviewModal({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-ink-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-5" role="presentation">
+    <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-ink-950/60 p-0 backdrop-blur-xs sm:items-center sm:p-5" role="presentation">
       <div
         role="dialog"
         aria-modal="true"
@@ -385,7 +387,7 @@ function ContactInquiryPreviewModal({
           <button
             type="button"
             onClick={onClose}
-            className="focus-ring inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-white text-ink-500 shadow-sm transition hover:text-ink-900"
+            className="focus-ring inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-white text-ink-500 shadow-xs transition hover:text-ink-900"
             aria-label={copy.closePreview}
           >
             <X className="h-5 w-5" aria-hidden="true" />
@@ -394,12 +396,12 @@ function ContactInquiryPreviewModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">
           <div className="grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-xs">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <p className="text-xs font-bold uppercase text-ink-400">{copy.contact}</p>
-                  <h3 className="mt-1 break-words text-2xl font-black text-ink-950">{message.name}</h3>
-                  <p className="mt-2 break-words text-sm font-semibold text-ink-600">{message.email}</p>
+                  <h3 className="mt-1 wrap-break-word text-2xl font-black text-ink-950">{message.name}</h3>
+                  <p className="mt-2 wrap-break-word text-sm font-semibold text-ink-600">{message.email}</p>
                 </div>
                 <StatusBadge
                   label={message.status_label ?? copy.statuses[message.status] ?? message.status}
@@ -419,10 +421,10 @@ function ContactInquiryPreviewModal({
 
             <section className="min-w-0 rounded-md border border-ink-100 bg-ink-50 p-4">
               <p className="text-xs font-bold uppercase text-ink-400">{copy.message}</p>
-              <p className="mt-3 whitespace-pre-line break-words text-sm leading-7 text-ink-800">{message.message}</p>
+              <p className="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-ink-800">{message.message}</p>
             </section>
 
-            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-xs">
               <p className="text-xs font-bold uppercase text-ink-400">{copy.contactDetails}</p>
               <div className="mt-3 grid gap-3 text-sm">
                 <Line label="IP" value={message.ip_address ?? '-'} />
@@ -431,7 +433,7 @@ function ContactInquiryPreviewModal({
               </div>
             </section>
 
-            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-xs">
               <p className="text-xs font-bold uppercase text-ink-400">{copy.activity}</p>
               <div className="mt-3 grid gap-3 text-sm">
                 <Line label="Reviewed" value={formatContactDate(message.reviewed_at, locale, true)} />
@@ -440,12 +442,12 @@ function ContactInquiryPreviewModal({
               </div>
             </section>
 
-            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm lg:col-span-2">
+            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-xs lg:col-span-2">
               <p className="text-xs font-bold uppercase text-ink-400">{copy.notes}</p>
-              <p className="mt-3 whitespace-pre-line break-words text-sm leading-7 text-ink-700">{message.staff_notes || '-'}</p>
+              <p className="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-ink-700">{message.staff_notes || '-'}</p>
             </section>
 
-            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm lg:col-span-2">
+            <section className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-xs lg:col-span-2">
               <p className="text-xs font-bold uppercase text-ink-400">{copy.attachmentsTitle}</p>
               {message.attachments?.length ? (
                 <div className="mt-3 grid gap-3 md:grid-cols-2">
@@ -453,7 +455,7 @@ function ContactInquiryPreviewModal({
                     const content = (
                       <>
                         <div className="min-w-0">
-                          <p className="break-words text-sm font-black text-ink-900">{attachment.original_name}</p>
+                          <p className="wrap-break-word text-sm font-black text-ink-900">{attachment.original_name}</p>
                           <p className="mt-1 text-xs text-ink-500">{attachment.mime_type} / {formatFileSize(attachment.size_bytes)}</p>
                         </div>
                         <span className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-md bg-foundation-600 px-3 text-xs font-bold text-white">

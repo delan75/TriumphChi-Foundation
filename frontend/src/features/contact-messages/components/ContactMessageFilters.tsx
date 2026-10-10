@@ -17,7 +17,7 @@ export function ContactMessageFilters({ copy, filters, onChange }: ContactMessag
   };
 
   return (
-    <div className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-sm">
+    <div className="min-w-0 rounded-md border border-ink-100 bg-white p-4 shadow-xs">
       <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(240px,1fr)_180px_180px_160px_auto]">
         <label className="block">
           <span className="text-xs font-bold uppercase text-ink-500">{copy.filters.search}</span>

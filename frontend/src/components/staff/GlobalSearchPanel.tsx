@@ -90,7 +90,7 @@ export function GlobalSearchPanel({
   }
 
   return (
-    <div ref={panelRef} className="rounded-md border border-ink-100 bg-white shadow-sm">
+    <div ref={panelRef} className="rounded-md border border-ink-100 bg-white shadow-xs">
       <div className="border-b border-ink-100 px-5 py-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-2xl">
@@ -148,7 +148,7 @@ export function GlobalSearchPanel({
         </div>
 
         {isOpen ? (
-          <div className="mt-4 overflow-hidden rounded-md border border-ink-100 bg-white shadow-sm">
+          <div className="mt-4 overflow-hidden rounded-md border border-ink-100 bg-white shadow-xs">
             {searchQuery.isLoading ? (
               <SearchState>
                 <Loader2 className="h-4 w-4 animate-spin text-foundation-700" aria-hidden="true" />

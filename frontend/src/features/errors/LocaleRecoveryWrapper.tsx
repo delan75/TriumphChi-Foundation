@@ -24,8 +24,8 @@ export function LocaleRecoveryWrapper() {
     storeLocalePreference(locale);
 
     // Track recovery for analytics
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'locale_recovery', {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'locale_recovery', {
         original_path: location.pathname,
         recovered_path: newPath,
         locale,

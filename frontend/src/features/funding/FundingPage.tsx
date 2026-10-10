@@ -6,7 +6,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { cn } from '../../components/ui/cn';
 import { readStoredAuthUser } from '../../lib/auth';
 import type { DonationListParams } from '../../lib/api';
-import { isLocale, type Locale } from '../../lib/i18n';
+import { isLocale } from '../../lib/i18n';
 import { DonationDetailPanel } from './components/DonationDetailPanel';
 import { DonationFilters } from './components/DonationFilters';
 import { DonationRecords } from './components/DonationRecords';

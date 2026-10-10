@@ -326,7 +326,7 @@ function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-ink-100 bg-ink-50 px-3 py-3">
       <p className="text-[11px] font-black uppercase leading-none text-ink-400">{label}</p>
-      <p className="mt-2 break-words text-sm font-black leading-5 text-ink-900">{value}</p>
+      <p className="mt-2 wrap-break-word text-sm font-black leading-5 text-ink-900">{value}</p>
     </div>
   );
 }
@@ -346,7 +346,7 @@ function displayValue(value: string | null | undefined) {
 function EmptyPanel({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
   return (
     <div className="rounded-md border border-dashed border-ink-200 bg-ink-50 p-6 text-center">
-      <div className="mx-auto grid h-12 w-12 place-items-center rounded-md bg-white text-ink-500 shadow-sm">
+      <div className="mx-auto grid h-12 w-12 place-items-center rounded-md bg-white text-ink-500 shadow-xs">
         <Icon className="h-5 w-5" aria-hidden="true" />
       </div>
       <p className="mx-auto mt-3 max-w-sm text-sm font-medium leading-6 text-ink-500">{text}</p>

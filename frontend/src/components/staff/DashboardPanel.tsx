@@ -19,7 +19,7 @@ export function DashboardPanel({
   bodyClassName,
 }: DashboardPanelProps) {
   return (
-    <section className={cn('rounded-md border border-ink-100 bg-white shadow-sm', className)}>
+    <section className={cn('rounded-md border border-ink-100 bg-white shadow-xs', className)}>
       <header className="flex flex-col gap-3 border-b border-ink-100 px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="max-w-2xl">
           <h2 className="text-lg font-semibold text-ink-900">{title}</h2>

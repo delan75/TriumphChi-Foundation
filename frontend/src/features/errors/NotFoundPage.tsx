@@ -18,8 +18,8 @@ export function NotFoundPage({ locale }: NotFoundPageProps) {
 
   useEffect(() => {
     // Track 404 for analytics if available
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'page_not_found', {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'page_not_found', {
         page_path: location.pathname,
         referrer: document.referrer,
         locale,
@@ -134,7 +134,7 @@ export function NotFoundPage({ locale }: NotFoundPageProps) {
           </div>
 
           {/* Helpful Links */}
-          <div className="mx-auto max-w-lg rounded-xl border border-ink-100 bg-white p-6 text-left shadow-sm">
+          <div className="mx-auto max-w-lg rounded-xl border border-ink-100 bg-white p-6 text-left shadow-xs">
             <h2 className="mb-4 text-lg font-semibold text-ink-900">{authenticated ? t.staffLinks : t.publicLinks}</h2>
             <nav className="grid gap-2">
               {authenticated
