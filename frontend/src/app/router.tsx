@@ -1,30 +1,33 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { createBrowserRouter, Navigate, Outlet, useLocation, useParams } from 'react-router-dom';
 import { AppShell } from './shell/AppShell';
+import { PageLoading } from '../components/ui/PageLoading';
 import { PublicPage } from '../features/public/PublicPage';
-import { StaffDashboardPage } from '../features/staff/StaffDashboardPage';
-import { StaffProfilePage } from '../features/staff/StaffProfilePage';
-import { StaffSettingsPage } from '../features/staff/StaffSettingsPage';
-import { ApplicationsPage } from '../features/applications/ApplicationsPage';
-import { BeneficiariesPage } from '../features/beneficiaries/BeneficiariesPage';
-import { ContactMessagesPage } from '../features/contact-messages/ContactMessagesPage';
-import { FundingPage } from '../features/funding/FundingPage';
-import { ReportsPage } from '../features/reports/ReportsPage';
-import { UsersPage } from '../features/users/UsersPage';
-import { BlogManagementPage } from '../features/blog/BlogManagementPage';
-import { LoginPage } from '../features/auth/LoginPage';
-import { RegisterPage } from '../features/auth/RegisterPage';
-import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
-import { ResetPasswordPage } from '../features/auth/ResetPasswordPage';
-import { OAuthCallbackPage } from '../features/auth/OAuthCallbackPage';
-import { VerifyAccountPage } from '../features/auth/VerifyAccountPage';
-import { PaypalDonationReturnPage } from '../features/public/donate/PaypalDonationReturnPage';
-import { BlogArticlePage } from '../features/public/blog/BlogArticlePage';
 import { NotFoundPage } from '../features/errors/NotFoundPage';
 import { LocaleRecoveryWrapper } from '../features/errors/LocaleRecoveryWrapper';
 import { buildAuthPath, isAuthenticated, resolvePostAuthPath } from '../lib/auth';
 import { isLocale } from '../lib/i18n';
 import { buildLocalizedPath, resolveLocale, storeLocalePreference } from '../lib/localeRecovery';
+
+// Keep route wrappers eager so locale and authentication checks run before page imports.
+const StaffDashboardPage = lazy(() => import('../features/staff/StaffDashboardPage').then((module) => ({ default: module.StaffDashboardPage })));
+const StaffProfilePage = lazy(() => import('../features/staff/StaffProfilePage').then((module) => ({ default: module.StaffProfilePage })));
+const StaffSettingsPage = lazy(() => import('../features/staff/StaffSettingsPage').then((module) => ({ default: module.StaffSettingsPage })));
+const ApplicationsPage = lazy(() => import('../features/applications/ApplicationsPage').then((module) => ({ default: module.ApplicationsPage })));
+const BeneficiariesPage = lazy(() => import('../features/beneficiaries/BeneficiariesPage').then((module) => ({ default: module.BeneficiariesPage })));
+const ContactMessagesPage = lazy(() => import('../features/contact-messages/ContactMessagesPage').then((module) => ({ default: module.ContactMessagesPage })));
+const FundingPage = lazy(() => import('../features/funding/FundingPage').then((module) => ({ default: module.FundingPage })));
+const ReportsPage = lazy(() => import('../features/reports/ReportsPage').then((module) => ({ default: module.ReportsPage })));
+const UsersPage = lazy(() => import('../features/users/UsersPage').then((module) => ({ default: module.UsersPage })));
+const BlogManagementPage = lazy(() => import('../features/blog/BlogManagementPage').then((module) => ({ default: module.BlogManagementPage })));
+const LoginPage = lazy(() => import('../features/auth/LoginPage').then((module) => ({ default: module.LoginPage })));
+const RegisterPage = lazy(() => import('../features/auth/RegisterPage').then((module) => ({ default: module.RegisterPage })));
+const ForgotPasswordPage = lazy(() => import('../features/auth/ForgotPasswordPage').then((module) => ({ default: module.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import('../features/auth/ResetPasswordPage').then((module) => ({ default: module.ResetPasswordPage })));
+const OAuthCallbackPage = lazy(() => import('../features/auth/OAuthCallbackPage').then((module) => ({ default: module.OAuthCallbackPage })));
+const VerifyAccountPage = lazy(() => import('../features/auth/VerifyAccountPage').then((module) => ({ default: module.VerifyAccountPage })));
+const PaypalDonationReturnPage = lazy(() => import('../features/public/donate/PaypalDonationReturnPage').then((module) => ({ default: module.PaypalDonationReturnPage })));
+const BlogArticlePage = lazy(() => import('../features/public/blog/BlogArticlePage').then((module) => ({ default: module.BlogArticlePage })));
 
 export const router = createBrowserRouter([
   {
@@ -123,7 +126,7 @@ function LocaleRouteGate() {
     return <Navigate to={localizedPath} replace />;
   }
 
-  return <Outlet />;
+  return <Suspense fallback={<PageLoading />}><Outlet /></Suspense>;
 }
 
 function LoginPageWrapper() {
@@ -150,7 +153,7 @@ function ProtectedStaffOutlet() {
     return <Navigate to={buildAuthPath(activeLocale, 'login', requestedPath)} replace />;
   }
 
-  return <Outlet />;
+  return <Suspense fallback={<PageLoading />}><Outlet /></Suspense>;
 }
 
 function RegisterPageWrapper() {

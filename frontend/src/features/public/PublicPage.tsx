@@ -1,3 +1,5 @@
+import { lazy, Suspense } from 'react';
+import { PageLoading } from '../../components/ui/PageLoading';
 import { ArrowRight } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { PublicPageTitle } from '../../components/public/PublicPageTitle';
@@ -5,19 +7,24 @@ import { Seo } from '../../components/seo/Seo';
 import { isLocale } from '../../lib/i18n';
 import { buildPublicPageSchema, getPageByKey, getPublicPage, publicPages } from '../../content/publicPages';
 import { LandingPage } from './landing/LandingPage';
-import { AboutPage } from './about/AboutPage';
-import { ApplyPage } from './apply/ApplyPage';
-import { ProgramsPage } from './programs/ProgramsPage';
-import { SponsorPage } from './sponsor/SponsorPage';
-import { ContactPage } from './contact/ContactPage';
-import { PrivacyPolicyPage } from './privacy/PrivacyPolicyPage';
-import { ImpactPage } from './impact/ImpactPage';
-import { DonatePage } from './donate/DonatePage';
-import { BlogIndexPage } from './blog/BlogIndexPage';
 import { NotFoundPage } from '../errors/NotFoundPage';
 import defaultPageHeroImage from '../../assets/landing/rural_kids.jpg';
 
+const AboutPage = lazy(() => import('./about/AboutPage').then((module) => ({ default: module.AboutPage })));
+const ApplyPage = lazy(() => import('./apply/ApplyPage').then((module) => ({ default: module.ApplyPage })));
+const ProgramsPage = lazy(() => import('./programs/ProgramsPage').then((module) => ({ default: module.ProgramsPage })));
+const SponsorPage = lazy(() => import('./sponsor/SponsorPage').then((module) => ({ default: module.SponsorPage })));
+const ContactPage = lazy(() => import('./contact/ContactPage').then((module) => ({ default: module.ContactPage })));
+const PrivacyPolicyPage = lazy(() => import('./privacy/PrivacyPolicyPage').then((module) => ({ default: module.PrivacyPolicyPage })));
+const ImpactPage = lazy(() => import('./impact/ImpactPage').then((module) => ({ default: module.ImpactPage })));
+const DonatePage = lazy(() => import('./donate/DonatePage').then((module) => ({ default: module.DonatePage })));
+const BlogIndexPage = lazy(() => import('./blog/BlogIndexPage').then((module) => ({ default: module.BlogIndexPage })));
+
 export function PublicPage() {
+  return <Suspense fallback={<PageLoading />}><PublicPageContent /></Suspense>;
+}
+
+function PublicPageContent() {
   const { locale, pageSlug } = useParams();
   const activeLocale = isLocale(locale) ? locale : 'en';
   const page = getPublicPage(activeLocale, pageSlug);
