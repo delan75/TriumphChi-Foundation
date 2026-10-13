@@ -226,6 +226,8 @@ Copy `frontend/.env.example` and configure:
 
 ## Documentation
 
+[LLM documentation index](llms.txt) provides a concise, source-linked entry point for repository assistants. It follows the `llms.txt` proposal and uses repository-relative links; web publication requires hosting the linked resources too.
+
 - [Architecture](docs/architecture.md)
 - [System Design](docs/system-design.md)
 - [Conceptual Data Model](docs/conceptual-data-model.md)
