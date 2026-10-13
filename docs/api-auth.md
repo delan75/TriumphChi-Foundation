@@ -230,6 +230,10 @@ GET /api/v1/auth/google/redirect
 GET /api/v1/auth/facebook/redirect
 ```
 
+The redirects accept `?locale=en` or `?locale=fr`. Unsupported or malformed locale values fall back to English. Google receives the selected language in its `hl` parameter. Successful callbacks use the account's preferred locale; error redirects use the request locale.
+
+Google requires `email_verified`; Facebook requires `verified`. Missing provider identity or email, unverified email, provider errors, and inactive accounts redirect to the localized login page with an error code. A verified provider can activate and link an existing pending account with the same email. Successful new registrations include `new=1` in the callback query.
+
 Provider callbacks create or resolve the user, link the provider, and redirect to the frontend with a short-lived code:
 
 ```text
@@ -252,6 +256,10 @@ Content-Type: application/json
 ```
 
 OAuth codes are stored hashed, expire quickly, and can only be consumed once.
+
+Starting another callback replaces outstanding codes for the same account and provider. Exchange rejects unknown, expired, or consumed codes. An account that becomes inactive before exchange receives no token.
+
+Provider listing is available at `GET /api/v1/auth/social/providers`. Unlinking at `DELETE /api/v1/auth/social/{provider}` supports Google and Facebook, and requires another connected sign-in method to remain. Local sign-in is not an unlinkable provider. Explicit API provider linking currently returns 501.
 
 ## Current User
 

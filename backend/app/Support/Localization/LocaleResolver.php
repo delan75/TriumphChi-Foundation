@@ -28,9 +28,9 @@ class LocaleResolver
     /**
      * @param  array<int, string>  $supportedLocales
      */
-    private function normalize(?string $locale, array $supportedLocales): ?string
+    private function normalize(mixed $locale, array $supportedLocales): ?string
     {
-        if ($locale === null || $locale === '') {
+        if (! is_string($locale) || $locale === '') {
             return null;
         }
 
