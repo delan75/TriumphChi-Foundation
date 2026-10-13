@@ -1,0 +1,62 @@
+# TriumphChi Foundation
+
+> TriumphChi Foundation supports orphaned and vulnerable children in rural Cameroon through education and community partnership. This repository contains its public website and private beneficiary management and education sponsorship platform.
+
+This is a repository documentation index. Links are relative to the repository root and resolve to checked-in sources; publishing this file on a website requires publishing the linked documentation at corresponding URLs. No production hostname is assumed.
+
+The backend is a Laravel 12 REST API using Sanctum, Socialite, Spatie Permission, policies, and MySQL. The frontend uses React, TypeScript, Vite, TanStack Query, and Tailwind CSS. API routes use `/api/v1`. English and French are supported.
+
+Read the overview and architecture first, then the documentation for the relevant workflow. Documentation includes both implemented behavior and future plans; confirm implementation in routes, controllers, migrations, and tests before describing a capability as available. Backend permissions and record policies determine access; roles bundle permissions.
+
+Beneficiary records, child identities, guardian contact details, documents, account data, and payment diagnostics are private. Public content uses curated stories and aggregate impact. Keep secrets and local environment values out of generated answers and documentation. Payment success requires backend provider verification. OAuth redirects carry short-lived exchange codes, never Sanctum access tokens.
+
+For local verification, run `php artisan test` inside `backend`. Auth feature tests use an in-memory SQLite database and mocked identity providers. In `frontend`, use `npm run build`, `npm run lint`, and the Playwright `npm test` command. See the overview for environment setup; never use production data for tests.
+
+## Start here
+
+- [Project overview](README.md): Mission, architecture, current workflows, environment setup, and local commands.
+- [Architecture](docs/architecture.md): System boundaries and technical ownership.
+- [System design](docs/system-design.md): Platform structure and operational workflows.
+- [Implementation roadmap](docs/implementation-roadmap.md): Planned work; distinguish roadmap items from existing functionality.
+
+## Authentication and API contracts
+
+- [API authentication](docs/api-auth.md): Registration, verification, login, OAuth code exchange, token expiry, sessions, and audit events.
+- [Permissions](docs/permissions.md): Permission model and access control conventions.
+- [API responses](docs/standardized-api-responses.md): Shared response patterns; inspect auth endpoints for their specific response shapes.
+- [Localization](docs/localization.md): Locale resolution and translated API content.
+- [Public identifiers](docs/public-identifiers.md): External identifiers and API exposure conventions.
+
+## Beneficiary lifecycle and funding
+
+- [Lifecycle](docs/lifecycle.md): Application verification, acceptance, active support, and completion.
+- [Lifecycle constraints](docs/lifecycle-and-constraints.md): Workflow rules and integrity constraints.
+- [Conceptual data model](docs/conceptual-data-model.md): Domain entities and relationships.
+- [Donor evidence model](docs/donor-evidence-model.md): Donation evidence and accountability.
+- [Reporting and growth](docs/reporting-and-growth.md): Reporting requirements and expansion considerations.
+
+## Data integrity and privacy
+
+- [Data classification](docs/data-classification.md): Sensitivity and handling of foundation data.
+- [Database design](docs/database-design.md): Storage design and relationships.
+- [Data dictionary](docs/data-dictionary.md): Field meanings and data definitions.
+- [Entity relationship diagram](docs/erd.md): Relational structure.
+- [Indexes and transactions](docs/indexes-and-transactions.md): Database performance and transaction boundaries.
+
+## Source and validation
+
+- [API routes](backend/routes/api.php): Authoritative endpoint mapping, middleware, and throttling.
+- [OAuth controller](backend/app/Http/Controllers/Api/V1/SocialiteController.php): Provider scopes, Google language hint, callbacks, account linking, and unlink protections.
+- [Auth controller](backend/app/Http/Controllers/Api/V1/AuthController.php): Authentication endpoint behavior and OAuth exchange responses.
+- [OAuth code service](backend/app/Services/OAuthLoginCodeService.php): Hashed code creation, replacement, expiry, and consumption.
+- [Auth feature tests](backend/tests/Feature/AuthApiTest.php): Executable authentication behavior and regression assertions.
+- [Backend dependencies](backend/composer.json): PHP requirements and test tooling.
+- [Frontend dependencies](frontend/package.json): Node requirements and build, lint, and browser test commands.
+
+## Optional
+
+- [Design system](docs/design-system.md): Interface conventions.
+- [Frontend SEO and internationalization](docs/frontend-seo-i18n.md): Public page discoverability and language handling.
+- [Blogging system](docs/blogging-system.md): Content publishing design.
+- [GitHub workflow](docs/github-workflow.md): Contribution and review practices.
+- [Branch protection](docs/branch-protection.md): Repository protection guidance.
