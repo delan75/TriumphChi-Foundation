@@ -6,6 +6,7 @@ use App\Models\OAuthLoginCode;
 use App\Models\User;
 use App\Models\UserVerificationOtp;
 use App\Notifications\VerificationOtpNotification;
+use App\Services\OAuthLoginCodeService;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -522,6 +523,7 @@ class AuthApiTest extends TestCase
             ->once()
             ->with(['openid', 'profile', 'email'])
             ->andReturnSelf();
+        $provider->shouldReceive('with')->once()->with(['hl' => 'en'])->andReturnSelf();
         $provider->shouldReceive('redirect')
             ->once()
             ->andReturn(redirect('https://accounts.google.com/o/oauth2/v2/auth'));
@@ -606,7 +608,7 @@ class AuthApiTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        $code = app(\App\Services\OAuthLoginCodeService::class)->create(
+        $code = app(OAuthLoginCodeService::class)->create(
             $user,
             'facebook',
             request(),
@@ -634,18 +636,138 @@ class AuthApiTest extends TestCase
     public function test_provider_listing_and_unlinking_preserve_one_sign_in_method(): void
     {
         $user = $this->createUserWithPermissions();
-        $user->authProviders()->firstOrCreate(['provider' => 'local'], ['linked_at' => now()]);
-        $token = $this->loginToken($user);
+        $user->authProviders()->create(['provider' => 'google', 'provider_user_id' => 'only-google', 'linked_at' => now()]);
+        $token = $user->createToken('Web Client')->plainTextToken;
 
         $this->withToken($token)
             ->getJson('/api/v1/auth/social/providers')
             ->assertOk()
-            ->assertJsonPath('data.0.provider', 'local');
+            ->assertJsonPath('data.0.provider', 'google');
 
         $this->withToken($token)
-            ->deleteJson('/api/v1/auth/social/local')
+            ->deleteJson('/api/v1/auth/social/google')
             ->assertStatus(422)
             ->assertJsonPath('message', 'At least one sign-in method must remain connected.');
+
+        $this->assertDatabaseHas('user_auth_providers', ['user_id' => $user->id, 'provider' => 'google']);
+    }
+
+    public function test_google_redirect_normalises_locale_and_passes_language_hint(): void
+    {
+        foreach (['fr' => 'fr', 'de' => 'en', 'locale[]=fr' => 'en'] as $query => $expected) {
+            $provider = \Mockery::mock();
+            $provider->shouldReceive('stateless')->once()->andReturnSelf();
+            $provider->shouldReceive('scopes')->once()->with(['openid', 'profile', 'email'])->andReturnSelf();
+            $provider->shouldReceive('with')->once()->with(['hl' => $expected])->andReturnSelf();
+            $provider->shouldReceive('redirect')->once()->andReturn(redirect('https://accounts.google.com/'));
+            Socialite::shouldReceive('driver')->once()->with('google')->andReturn($provider);
+
+            $this->get('/api/v1/auth/google/redirect?'.(str_contains($query, '=') ? $query : 'locale='.$query))
+                ->assertRedirect('https://accounts.google.com/');
+        }
+    }
+
+    public function test_google_callback_creates_verified_account_and_hashed_expiring_code(): void
+    {
+        $this->travelTo(now()->startOfSecond());
+        config(['app.frontend_url' => 'https://foundation.example/', 'auth_security.oauth_code_expiration_minutes' => 5]);
+        $this->mockGoogleUser();
+
+        $response = $this->get('/api/v1/auth/google/callback?locale=fr');
+        $response->assertRedirect();
+        $location = $response->headers->get('Location');
+        $this->assertStringStartsWith('https://foundation.example/fr/oauth/callback?', $location);
+        parse_str(parse_url($location, PHP_URL_QUERY), $query);
+        $this->assertSame(['code', 'new'], array_keys($query));
+        $this->assertSame('1', $query['new']);
+        $user = User::where('email', 'google@example.org')->firstOrFail();
+        $this->assertTrue($user->hasVerifiedEmail());
+        $this->assertTrue($user->isActive());
+        $this->assertNull($user->password);
+        $this->assertSame('google', $user->registered_via);
+        $this->assertSame('fr', $user->preferred_locale);
+        $this->assertCount(0, $user->roles);
+        $this->assertCount(0, $user->getAllPermissions());
+        $code = OAuthLoginCode::sole();
+        $this->assertSame(hash('sha256', $query['code']), $code->code_hash);
+        $this->assertTrue($code->expires_at->equalTo(now()->addMinutes(5)));
+        $this->assertNull($code->consumed_at);
+        $this->assertSame($user->id, $code->user_id);
+        $this->assertDatabaseHas('user_auth_providers', ['user_id' => $user->id, 'provider' => 'google', 'provider_user_id' => 'google-123']);
+        $this->assertDatabaseHas('audit_logs', ['user_id' => $user->id, 'action' => 'oauth_registered']);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    public function test_google_callback_rejects_missing_identity_and_unverified_email_without_side_effects(): void
+    {
+        config(['app.frontend_url' => 'https://foundation.example']);
+        foreach ([['id' => null], ['email' => null], ['email_verified' => false], ['email_verified' => null]] as $attributes) {
+            $this->mockGoogleUser($attributes);
+            $error = array_key_exists('email_verified', $attributes) ? 'email_not_verified' : 'email_required';
+            $this->get('/api/v1/auth/google/callback?locale=fr')
+                ->assertRedirect('https://foundation.example/fr/login?error='.$error);
+            $this->assertDatabaseCount('users', 0);
+            $this->assertDatabaseCount('user_auth_providers', 0);
+            $this->assertDatabaseCount('oauth_login_codes', 0);
+            $this->assertDatabaseCount('personal_access_tokens', 0);
+        }
+    }
+
+    public function test_google_callback_handles_provider_exception_with_localised_error_redirect(): void
+    {
+        config(['app.frontend_url' => 'https://foundation.example']);
+        $provider = \Mockery::mock();
+        $provider->shouldReceive('stateless')->once()->andReturnSelf();
+        $provider->shouldReceive('user')->once()->andThrow(new \RuntimeException('Provider unavailable'));
+        Socialite::shouldReceive('driver')->once()->with('google')->andReturn($provider);
+        $this->get('/api/v1/auth/google/callback?locale=fr')
+            ->assertRedirect('https://foundation.example/fr/login?error=oauth_failed');
+        $this->assertDatabaseCount('users', 0);
+        $this->assertDatabaseCount('oauth_login_codes', 0);
+    }
+
+    public function test_google_callback_links_pending_account_and_preserves_account_locale(): void
+    {
+        config(['app.frontend_url' => 'https://foundation.example']);
+        $user = User::create(['name' => 'Pending', 'email' => 'google@example.org', 'password' => 'secret-password', 'status' => User::STATUS_PENDING, 'preferred_locale' => 'fr']);
+        $password = $user->password;
+        $this->mockGoogleUser();
+        $response = $this->get('/api/v1/auth/google/callback?locale=en')->assertRedirect();
+        $this->assertStringStartsWith('https://foundation.example/fr/oauth/callback?code=', $response->headers->get('Location'));
+        $this->assertStringNotContainsString('new=', $response->headers->get('Location'));
+        $this->assertDatabaseCount('users', 1);
+        $this->assertTrue($user->fresh()->isActive());
+        $this->assertTrue($user->fresh()->hasVerifiedEmail());
+        $this->assertSame($password, $user->fresh()->password);
+        $this->assertDatabaseHas('audit_logs', ['user_id' => $user->id, 'action' => 'oauth_provider_linked']);
+    }
+
+    public function test_oauth_exchange_rejects_unknown_expired_and_inactive_account_codes(): void
+    {
+        $user = $this->createUserWithPermissions();
+        $service = app(OAuthLoginCodeService::class);
+        $this->postJson('/api/v1/auth/oauth/exchange', ['code' => 'unknown'])->assertUnprocessable()->assertJsonValidationErrors('code');
+        $code = $service->create($user, 'google', request());
+        OAuthLoginCode::sole()->update(['expires_at' => now()->subSecond()]);
+        $this->postJson('/api/v1/auth/oauth/exchange', ['code' => $code])->assertUnprocessable()->assertJsonValidationErrors('code');
+        $this->assertNull(OAuthLoginCode::sole()->consumed_at);
+        $code = $service->create($user, 'google', request());
+        $user->update(['status' => User::STATUS_SUSPENDED]);
+        $this->postJson('/api/v1/auth/oauth/exchange', ['code' => $code])->assertForbidden();
+        $this->assertNotNull(OAuthLoginCode::sole()->consumed_at);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+        $this->assertNull($user->fresh()->last_login_at);
+    }
+
+    private function mockGoogleUser(array $attributes = []): void
+    {
+        $provider = \Mockery::mock();
+        $provider->shouldReceive('stateless')->once()->andReturnSelf();
+        $provider->shouldReceive('user')->once()->andReturn(SocialiteUser::fake(array_merge([
+            'id' => 'google-123', 'name' => 'Google User', 'email' => 'google@example.org',
+            'avatar' => 'https://example.org/avatar.jpg', 'email_verified' => true,
+        ], $attributes)));
+        Socialite::shouldReceive('driver')->once()->with('google')->andReturn($provider);
     }
 
     private function createUserWithPermissions(): User
