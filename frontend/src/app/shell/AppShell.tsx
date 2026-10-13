@@ -1,8 +1,11 @@
+import { lazy, Suspense } from 'react';
 import { Outlet, useLocation, useParams } from 'react-router-dom';
 import { isLocale, Locale } from '../../lib/i18n';
 import { PublicHeader } from './PublicHeader';
 import { PublicFooter } from './PublicFooter';
-import { StaffShell } from './StaffShell';
+import { PageLoading } from '../../components/ui/PageLoading';
+
+const StaffShell = lazy(() => import('./StaffShell').then((module) => ({ default: module.StaffShell })));
 
 export function AppShell() {
   const { locale = 'en' } = useParams();
@@ -22,6 +25,6 @@ export function AppShell() {
     );
   }
 
-  return <StaffShell />;
+  return <Suspense fallback={<PageLoading />}><StaffShell /></Suspense>;
 }
 
