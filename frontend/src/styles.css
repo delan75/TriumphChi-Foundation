@@ -38,6 +38,11 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
   }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
 :root {
@@ -56,11 +61,6 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100dvh;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
 }
 
 button,

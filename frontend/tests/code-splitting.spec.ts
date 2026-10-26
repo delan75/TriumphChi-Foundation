@@ -15,7 +15,7 @@ test('home excludes deferred pages and public navigation loads its page on deman
   await page.locator('header a[href="/fr/a-propos"]:visible').first().click();
   await expect(page).toHaveURL(/\/fr\/a-propos$/);
   await expect(page.locator('main h1')).toBeVisible();
-  expect(scripts.some((url) => /AboutPage-.*\.js/.test(url))).toBe(true);
+  await expect.poll(() => scripts.some((url) => /AboutPage-.*\.js/.test(url))).toBe(true);
   expect(errors).toEqual([]);
 });
 

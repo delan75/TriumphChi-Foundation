@@ -86,7 +86,7 @@ export function LocaleSelector({ locale, currentPath, theme = 'light' }: LocaleS
             ? "border-white/20 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"
             : "border-ink-100 bg-white text-ink-700 hover:border-foundation-100 hover:bg-foundation-50"
         )}
-        aria-label="Language selector"
+        aria-label={`${locale.toUpperCase()} — ${locale === 'fr' ? 'Choisir la langue' : 'Choose language'}`}
         aria-haspopup="true"
         aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}

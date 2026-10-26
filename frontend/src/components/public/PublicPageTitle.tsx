@@ -51,8 +51,6 @@ export function PublicPageTitle({
   backgroundImage,
   backgroundAlt,
   breadcrumbs,
-  seoTitle,
-  seoDescription,
   className,
   actions,
 }: PublicPageTitleProps) {
