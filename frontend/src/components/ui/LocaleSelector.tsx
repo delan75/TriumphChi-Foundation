@@ -8,9 +8,10 @@ interface LocaleSelectorProps {
   locale: Locale;
   currentPath?: string;
   theme?: 'light' | 'dark';
+  openAbove?: boolean;
 }
 
-export function LocaleSelector({ locale, currentPath, theme = 'light' }: LocaleSelectorProps) {
+export function LocaleSelector({ locale, currentPath, theme = 'light', openAbove = false }: LocaleSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState<{ vertical: 'top' | 'bottom'; horizontal: 'left' | 'right' }>({
     vertical: 'bottom',
@@ -39,8 +40,8 @@ export function LocaleSelector({ locale, currentPath, theme = 'light' }: LocaleS
     const handleScrollOrResize = () => {
       if (isOpen && buttonRef.current) {
         const rect = buttonRef.current.getBoundingClientRect();
-        const dropdownHeight = 110;
-        const dropdownWidth = 192;
+        const dropdownHeight = (dropdownRef.current?.scrollHeight ?? 192) + 8;
+        const dropdownWidth = dropdownRef.current?.offsetWidth ?? 192;
 
         const spaceBelow = window.innerHeight - rect.bottom;
         const spaceAbove = rect.top;
@@ -105,9 +106,10 @@ export function LocaleSelector({ locale, currentPath, theme = 'light' }: LocaleS
 
       <div
         ref={dropdownRef}
+        hidden={!isOpen}
         className={cn(
           'absolute z-50 w-48 overflow-hidden rounded-md border shadow-lg transition-all duration-200',
-          position.vertical === 'bottom' ? 'top-full mt-1 origin-top' : 'bottom-full mb-1 origin-bottom',
+          !openAbove && position.vertical === 'bottom' ? 'top-full mt-1 origin-top' : 'bottom-full mb-1 origin-bottom',
           position.horizontal === 'right' ? 'right-0' : 'left-0',
           isDark ? 'border-white/20 bg-white/10 backdrop-blur-md' : 'border-ink-100 bg-white',
           isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'
