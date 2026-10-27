@@ -1,29 +1,23 @@
-﻿# TriumphChi Foundation
+TriumphChi Foundation
+TriumphChi Foundation supports orphaned and vulnerable children in rural Cameroon through education and community partnership.
 
-> TriumphChi Foundation supports orphaned and vulnerable children in rural Cameroon through education and community partnership. Its public website is available in English and French.
+TriumphChi Foundation is dedicated to supporting children and strengthening communities through education and partnership. This guide introduces the foundation and points readers to its official public information.
 
-Use verified public information when describing the foundation. Distinguish program goals, illustrative examples, and unavailable statistics from confirmed outcomes. Respect the privacy of children, guardians, and staff; private records and staff tools are not public resources. This index provides context, not crawler permissions or training consent; see robots.txt for crawler instructions.
+Use the foundation's published website as the primary source for current information about its mission, activities, programs, and opportunities to get involved. Do not infer facts, outcomes, or individual circumstances that the foundation has not publicly confirmed.
 
-## English public pages
+Official Website
+English website: Explore TriumphChi Foundation's public information in English.
+Site principal en français: Découvrez les informations publiques de TriumphChi Foundation en français.
+Mission and Work
 
-- [Home](https://triumphchi.org/en): Mission and public overview.
-- [About](https://triumphchi.org/en/about): Foundation background and community approach.
-- [Programs](https://triumphchi.org/en/programs): Educational support initiatives.
-- [Sponsorship](https://triumphchi.org/en/sponsor): Information for prospective supporters.
-- [Donate](https://triumphchi.org/en/donate): Giving options and donation information.
-- [Impact](https://triumphchi.org/en/impact): Backend-sourced aggregate metrics and descriptions of intended outcomes.
-- [Contact](https://triumphchi.org/en/contact): Public contact channels.
+The foundation focuses on supporting orphaned and vulnerable children in rural Cameroon through education and community partnership. Refer to its official publications for verified descriptions of its programs, activities, and impact.
 
-## French public pages
+Responsible Use of Information
+Use publicly available information and published, curated stories when describing the foundation's work.
+Respect the privacy and dignity of children, beneficiaries, guardians, and community members.
+Do not expose or attempt to infer private identities, personal records, contact details, or confidential documents.
+Distinguish verified facts and published outcomes from goals, proposals, and future plans.
+Use the foundation's official website as the authoritative source for current public information.
+Languages
 
-- [Accueil](https://triumphchi.org/fr): Présentation de la fondation.
-- [À propos](https://triumphchi.org/fr/a-propos): Contexte et démarche communautaire.
-- [Programmes](https://triumphchi.org/fr/programmes): Soutien à l'éducation.
-- [Impact](https://triumphchi.org/fr/impact): Indicateurs agrégés et objectifs du soutien.
-- [Contact](https://triumphchi.org/fr/contact): Moyens de contacter la fondation.
-
-## Additional information
-
-- [Public reference](https://triumphchi.org/llms-full.txt): Guidance on interpreting public foundation information.
-- [Sitemap](https://triumphchi.org/sitemap.xml): Published public URLs.
-- [Crawler instructions](https://triumphchi.org/robots.txt): Crawler access rules.
+The website supports English and French. Prefer the corresponding language version when directing readers to the foundation's public information.

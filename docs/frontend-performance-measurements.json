@@ -1,0 +1,1463 @@
+{
+  "productionBaseline": {
+    "source": "https://pagespeed.web.dev/analysis/https-triumphchi-org/rx4c8vjd91?form_factor=mobile",
+    "date": "2026-10-13T21:46:20.349Z",
+    "categories": {
+      "accessibility": 1,
+      "agentic-browsing": 0.75,
+      "best-practices": 1,
+      "performance": 0.88,
+      "seo": 1
+    },
+    "audits": {
+      "first-contentful-paint": {
+        "id": "first-contentful-paint",
+        "title": "First Contentful Paint",
+        "description": "First Contentful Paint marks the time at which the first text or image is painted. [Learn more about the First Contentful Paint metric](https://developer.chrome.com/docs/lighthouse/performance/first-contentful-paint/).",
+        "score": 0.84,
+        "scoreDisplayMode": "numeric",
+        "displayValue": "2.0 s",
+        "numericValue": 2000.7149256549162,
+        "numericUnit": "millisecond",
+        "scoringOptions": {
+          "p10": 1800,
+          "median": 3000
+        }
+      },
+      "largest-contentful-paint": {
+        "id": "largest-contentful-paint",
+        "title": "Largest Contentful Paint",
+        "description": "Largest Contentful Paint marks the time at which the largest text or image is painted. [Learn more about the Largest Contentful Paint metric](https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/)",
+        "score": 0.62,
+        "scoreDisplayMode": "numeric",
+        "displayValue": "3.5 s",
+        "numericValue": 3545.00122170484,
+        "numericUnit": "millisecond",
+        "scoringOptions": {
+          "p10": 2500,
+          "median": 4000
+        }
+      },
+      "total-blocking-time": {
+        "id": "total-blocking-time",
+        "title": "Total Blocking Time",
+        "description": "Sum of all time periods between FCP and Time to Interactive, when task length exceeded 50ms, expressed in milliseconds. [Learn more about the Total Blocking Time metric](https://developer.chrome.com/docs/lighthouse/performance/lighthouse-total-blocking-time/).",
+        "score": 1,
+        "scoreDisplayMode": "numeric",
+        "displayValue": "0 ms",
+        "numericValue": 0,
+        "numericUnit": "millisecond",
+        "scoringOptions": {
+          "p10": 200,
+          "median": 600
+        }
+      },
+      "cumulative-layout-shift": {
+        "id": "cumulative-layout-shift",
+        "title": "Cumulative Layout Shift",
+        "description": "Cumulative Layout Shift measures the movement of visible elements within the viewport. [Learn more about the Cumulative Layout Shift metric](https://web.dev/articles/cls).",
+        "score": 1,
+        "scoreDisplayMode": "numeric",
+        "displayValue": "0",
+        "details": {
+          "items": [
+            {
+              "cumulativeLayoutShiftMainFrame": 0,
+              "newEngineResult": {
+                "cumulativeLayoutShift": 0,
+                "cumulativeLayoutShiftMainFrame": 0
+              },
+              "newEngineResultDiffered": false
+            }
+          ],
+          "type": "debugdata"
+        },
+        "numericValue": 0,
+        "numericUnit": "unitless",
+        "scoringOptions": {
+          "p10": 0.1,
+          "median": 0.25
+        }
+      },
+      "unused-javascript": {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "description": "Reduce unused JavaScript and defer loading scripts until they are required to decrease bytes consumed by network activity. [Learn how to reduce unused JavaScript](https://developer.chrome.com/docs/lighthouse/performance/unused-javascript/).",
+        "score": 0,
+        "scoreDisplayMode": "metricSavings",
+        "displayValue": "Est savings of 210 KiB",
+        "details": {
+          "debugData": {
+            "metricSavings": {
+              "FCP": 620,
+              "LCP": 930
+            },
+            "type": "debugdata"
+          },
+          "headings": [
+            {
+              "key": "url",
+              "label": "URL",
+              "subItemsHeading": {
+                "key": "source",
+                "valueType": "code"
+              },
+              "valueType": "url"
+            },
+            {
+              "key": "totalBytes",
+              "label": "Transfer Size",
+              "subItemsHeading": {
+                "key": "sourceBytes"
+              },
+              "valueType": "bytes"
+            },
+            {
+              "key": "wastedBytes",
+              "label": "Est Savings",
+              "subItemsHeading": {
+                "key": "sourceWastedBytes"
+              },
+              "valueType": "bytes"
+            }
+          ],
+          "items": [
+            {
+              "totalBytes": 247310,
+              "url": "https://triumphchi.org/assets/index-VUEXd-M9.js",
+              "wastedBytes": 138259,
+              "wastedPercent": 55.90522412840012
+            },
+            {
+              "totalBytes": 115747,
+              "url": "https://www.googletagmanager.com/gtm.js?id=GTM-M6C88237",
+              "wastedBytes": 76549,
+              "wastedPercent": 66.13444773542145
+            }
+          ],
+          "overallSavingsBytes": 214808,
+          "overallSavingsMs": 930,
+          "sortedBy": [
+            "wastedBytes"
+          ],
+          "type": "opportunity"
+        },
+        "numericValue": 930,
+        "numericUnit": "millisecond",
+        "metricSavings": {
+          "LCP": 950,
+          "FCP": 600
+        },
+        "guidanceLevel": 1
+      },
+      "render-blocking-insight": {
+        "id": "render-blocking-insight",
+        "title": "Render-blocking requests",
+        "description": "Requests are blocking the page's initial render, which may delay LCP. [Deferring or inlining](https://developer.chrome.com/docs/performance/insights/render-blocking) can move these network requests out of the critical path.",
+        "score": 0,
+        "scoreDisplayMode": "metricSavings",
+        "displayValue": "Est savings of 300 ms",
+        "details": {
+          "headings": [
+            {
+              "key": "url",
+              "label": "URL",
+              "valueType": "url"
+            },
+            {
+              "key": "totalBytes",
+              "label": "Transfer Size",
+              "valueType": "bytes"
+            },
+            {
+              "key": "wastedMs",
+              "label": "Duration",
+              "valueType": "timespanMs"
+            }
+          ],
+          "items": [
+            {
+              "totalBytes": 11392,
+              "url": "https://triumphchi.org/assets/index-D2KaeIka.css",
+              "wastedMs": 152
+            }
+          ],
+          "type": "table"
+        },
+        "metricSavings": {
+          "LCP": 0,
+          "FCP": 300
+        },
+        "guidanceLevel": 3
+      },
+      "cache-insight": {
+        "id": "cache-insight",
+        "title": "Use efficient cache lifetimes",
+        "description": "A long cache lifetime can speed up repeat visits to your page. [Learn more about caching](https://developer.chrome.com/docs/performance/insights/cache).",
+        "score": 0,
+        "scoreDisplayMode": "metricSavings",
+        "displayValue": "Est savings of 324 KiB",
+        "details": {
+          "debugData": {
+            "type": "debugdata",
+            "wastedBytes": 331520.9
+          },
+          "headings": [
+            {
+              "key": "url",
+              "label": "Request",
+              "valueType": "url"
+            },
+            {
+              "displayUnit": "duration",
+              "key": "cacheLifetimeMs",
+              "label": "Cache TTL",
+              "valueType": "ms"
+            },
+            {
+              "displayUnit": "kb",
+              "granularity": 1,
+              "key": "totalBytes",
+              "label": "Transfer Size",
+              "valueType": "bytes"
+            }
+          ],
+          "items": [
+            {
+              "cacheLifetimeMs": 0,
+              "totalBytes": 247991,
+              "url": "https://triumphchi.org/assets/index-VUEXd-M9.js",
+              "wastedBytes": 247991
+            },
+            {
+              "cacheLifetimeMs": 604800000,
+              "totalBytes": 226905,
+              "url": "https://triumphchi.org/assets/rural_kids-DwcTeuoZ.jpg",
+              "wastedBytes": 22690.499999999996
+            },
+            {
+              "cacheLifetimeMs": 604800000,
+              "totalBytes": 214118,
+              "url": "https://triumphchi.org/assets/rural-home-cameroon-BgYFsG5r.jpg",
+              "wastedBytes": 21411.799999999996
+            },
+            {
+              "cacheLifetimeMs": 604800000,
+              "totalBytes": 131515,
+              "url": "https://triumphchi.org/assets/cameroon-Opx_q-iO.jpg",
+              "wastedBytes": 13151.499999999996
+            },
+            {
+              "cacheLifetimeMs": 604800000,
+              "totalBytes": 128219,
+              "url": "https://triumphchi.org/assets/education_aid_project-BOXN7Gff.jpg",
+              "wastedBytes": 12821.899999999998
+            },
+            {
+              "cacheLifetimeMs": 604800000,
+              "totalBytes": 123150,
+              "url": "https://triumphchi.org/assets/cameroon-children-educationjpg-BWSHc0JY.jpg",
+              "wastedBytes": 12314.999999999996
+            },
+            {
+              "cacheLifetimeMs": 604800000,
+              "totalBytes": 11392,
+              "url": "https://triumphchi.org/assets/index-D2KaeIka.css",
+              "wastedBytes": 1139.1999999999998
+            }
+          ],
+          "skipSumming": [
+            "cacheLifetimeMs"
+          ],
+          "sortedBy": [
+            "wastedBytes"
+          ],
+          "type": "table"
+        },
+        "metricSavings": {
+          "LCP": 1150,
+          "FCP": 1200
+        },
+        "guidanceLevel": 3
+      },
+      "lcp-breakdown-insight": {
+        "id": "lcp-breakdown-insight",
+        "title": "LCP breakdown",
+        "description": "Each [subpart has specific improvement strategies](https://developer.chrome.com/docs/performance/insights/lcp-breakdown). Ideally, most of the LCP time should be spent on loading the resources, not within delays.",
+        "score": 1,
+        "scoreDisplayMode": "informative",
+        "details": {
+          "items": [
+            {
+              "headings": [
+                {
+                  "key": "label",
+                  "label": "Subpart",
+                  "valueType": "text"
+                },
+                {
+                  "key": "duration",
+                  "label": "Duration",
+                  "valueType": "ms"
+                }
+              ],
+              "items": [
+                {
+                  "duration": 1.115,
+                  "label": "Time to first byte",
+                  "subpart": "timeToFirstByte"
+                },
+                {
+                  "duration": 1568.693,
+                  "label": "Resource load delay",
+                  "subpart": "resourceLoadDelay"
+                },
+                {
+                  "duration": 214.888,
+                  "label": "Resource load duration",
+                  "subpart": "resourceLoadDuration"
+                },
+                {
+                  "duration": 44.269,
+                  "label": "Element render delay",
+                  "subpart": "elementRenderDelay"
+                }
+              ],
+              "type": "table"
+            },
+            {
+              "boundingRect": {
+                "bottom": 1069,
+                "height": 1032,
+                "left": -11,
+                "right": 423,
+                "top": 38,
+                "width": 435
+              },
+              "lhId": "page-0-IMG",
+              "nodeLabel": "A smiling school child in a classroom in Cameroon.",
+              "path": "1,HTML,1,BODY,3,DIV,0,DIV,1,MAIN,0,SECTION,0,DIV,0,IMG",
+              "selector": "main#main-content > section.hero-visual > div.absolute > img.hero-slide",
+              "snippet": "<img src=\"/assets/cameroon-Opx_q-iO.jpg\" alt=\"A smiling school child in a classroom in Cameroon.\" class=\"hero-slide absolute inset-0 h-full w-full object-cover saturate-[0.78] her…\" width=\"2400\" height=\"1200\" fetchpriority=\"high\">",
+              "type": "node"
+            }
+          ],
+          "type": "list"
+        },
+        "metricSavings": {
+          "LCP": 0
+        },
+        "guidanceLevel": 3
+      },
+      "lcp-discovery-insight": {
+        "id": "lcp-discovery-insight",
+        "title": "LCP request discovery",
+        "description": "[Optimize LCP](https://developer.chrome.com/docs/performance/insights/lcp-discovery) by making the LCP image discoverable from the HTML immediately, and avoiding lazy-loading",
+        "score": 0,
+        "scoreDisplayMode": "numeric",
+        "details": {
+          "items": [
+            {
+              "items": {
+                "eagerlyLoaded": {
+                  "label": "LCP resources should not use loading=lazy",
+                  "value": true
+                },
+                "priorityHinted": {
+                  "label": "fetchpriority=high applied",
+                  "value": true
+                },
+                "requestDiscoverable": {
+                  "label": "Request is discoverable in initial document",
+                  "value": false
+                }
+              },
+              "type": "checklist"
+            },
+            {
+              "boundingRect": {
+                "bottom": 1069,
+                "height": 1032,
+                "left": -11,
+                "right": 423,
+                "top": 38,
+                "width": 435
+              },
+              "lhId": "page-0-IMG",
+              "nodeLabel": "A smiling school child in a classroom in Cameroon.",
+              "path": "1,HTML,1,BODY,3,DIV,0,DIV,1,MAIN,0,SECTION,0,DIV,0,IMG",
+              "selector": "main#main-content > section.hero-visual > div.absolute > img.hero-slide",
+              "snippet": "<img src=\"/assets/cameroon-Opx_q-iO.jpg\" alt=\"A smiling school child in a classroom in Cameroon.\" class=\"hero-slide absolute inset-0 h-full w-full object-cover saturate-[0.78] her…\" width=\"2400\" height=\"1200\" fetchpriority=\"high\">",
+              "type": "node"
+            }
+          ],
+          "type": "list"
+        },
+        "metricSavings": {
+          "LCP": 0
+        },
+        "guidanceLevel": 3
+      }
+    }
+  },
+  "method": "Three alternating cold-navigation runs per build on identical local gzip servers, Lighthouse mobile defaults (150ms RTT, 1638.4Kbps, 4x CPU). GTM blocked only for measurement in both builds; API unreachable in both. Discarded samples that overlapped browser tests. Not equivalent to production PSI host, CDN, analytics, API, or CPU calibration.",
+  "bundleBytes": {
+    "before": {
+      "initial": [
+        "index-Bw_K_fvc.js"
+      ],
+      "initialSize": {
+        "bytes": 1079483,
+        "gzip": 274544
+      },
+      "total": {
+        "bytes": 1079483,
+        "gzip": 274544
+      },
+      "largest": [
+        {
+          "file": "index-Bw_K_fvc.js",
+          "bytes": 1079483,
+          "gzip": 274544
+        }
+      ]
+    },
+    "after": {
+      "initial": [
+        "index-DeyAbmyz.js",
+        "i18n-7hPHL70t.js",
+        "cn-CaLRenW8.js",
+        "book-open-rXih-K_w.js",
+        "heart-handshake-C2S_tpb2.js"
+      ],
+      "initialSize": {
+        "bytes": 401546,
+        "gzip": 123220
+      },
+      "total": {
+        "bytes": 1104049,
+        "gzip": 326389
+      },
+      "largest": [
+        {
+          "file": "index-DeyAbmyz.js",
+          "bytes": 296963,
+          "gzip": 88083
+        },
+        {
+          "file": "i18n-7hPHL70t.js",
+          "bytes": 102190,
+          "gzip": 33777
+        },
+        {
+          "file": "DonatePage-vUPJMvzQ.js",
+          "bytes": 71093,
+          "gzip": 19618
+        },
+        {
+          "file": "ApplyPage-C1ujdaaO.js",
+          "bytes": 59738,
+          "gzip": 15598
+        },
+        {
+          "file": "BlogManagementPage-C6XWnBtR.js",
+          "bytes": 50626,
+          "gzip": 11398
+        },
+        {
+          "file": "ReportsPage-DcQ6QYXd.js",
+          "bytes": 47587,
+          "gzip": 11326
+        }
+      ]
+    }
+  },
+  "localSamples": [
+    {
+      "build": "before",
+      "run": 1,
+      "date": "2026-10-13T22:02:12.017Z",
+      "lighthouseVersion": "13.5.0",
+      "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "benchmarkIndex": 4411.5,
+      "settings": {
+        "output": [
+          "json"
+        ],
+        "maxWaitForFcp": 30000,
+        "maxWaitForLoad": 45000,
+        "pauseAfterFcpMs": 1000,
+        "pauseAfterLoadMs": 1000,
+        "networkQuietThresholdMs": 1000,
+        "cpuQuietThresholdMs": 1000,
+        "formFactor": "mobile",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "throttlingMethod": "simulate",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        },
+        "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+        "auditMode": false,
+        "gatherMode": false,
+        "clearStorageTypes": [
+          "file_systems",
+          "shader_cache",
+          "service_workers",
+          "cache_storage"
+        ],
+        "disableStorageReset": false,
+        "debugNavigation": false,
+        "channel": "cli",
+        "usePassiveGathering": false,
+        "disableFullPageScreenshot": false,
+        "skipAboutBlank": false,
+        "blankPage": "about:blank",
+        "ignoreStatusCode": false,
+        "locale": "en-US",
+        "blockedUrlPatterns": [
+          "https://www.googletagmanager.com/*"
+        ],
+        "additionalTraceCategories": null,
+        "extraHeaders": null,
+        "precomputedLanternData": null,
+        "onlyAudits": null,
+        "onlyCategories": [
+          "performance",
+          "accessibility",
+          "best-practices",
+          "seo"
+        ],
+        "skipAudits": null
+      },
+      "categories": {
+        "performance": 0.78,
+        "accessibility": 0.96,
+        "best-practices": 0.96,
+        "seo": 0.92
+      },
+      "metrics": {
+        "first-contentful-paint": 2404.5753,
+        "largest-contentful-paint": 5181.862950000001,
+        "total-blocking-time": 3.5,
+        "cumulative-layout-shift": 0
+      },
+      "unusedJavaScript": 161858,
+      "initialScripts": [
+        {
+          "url": "http://127.0.0.1:4174/assets/index-Bw_K_fvc.js",
+          "bytes": 1079483,
+          "transferBytes": 274792
+        }
+      ],
+      "lcp": [
+        {
+          "type": "table",
+          "headings": [
+            {
+              "key": "label",
+              "valueType": "text",
+              "label": "Subpart"
+            },
+            {
+              "key": "duration",
+              "valueType": "ms",
+              "label": "Duration"
+            }
+          ],
+          "items": [
+            {
+              "subpart": "timeToFirstByte",
+              "label": "Time to first byte",
+              "duration": 3.301
+            },
+            {
+              "subpart": "resourceLoadDelay",
+              "label": "Resource load delay",
+              "duration": 80.594
+            },
+            {
+              "subpart": "resourceLoadDuration",
+              "label": "Resource load duration",
+              "duration": 2.726
+            },
+            {
+              "subpart": "elementRenderDelay",
+              "label": "Element render delay",
+              "duration": 200.56
+            }
+          ]
+        },
+        {
+          "type": "node",
+          "lhId": "page-4-IMG",
+          "path": "1,HTML,1,BODY,3,DIV,0,DIV,1,MAIN,0,SECTION,0,DIV,0,IMG",
+          "selector": "main#main-content > section.hero-visual > div.absolute > img.hero-slide",
+          "boundingRect": {
+            "top": 45,
+            "bottom": 1062,
+            "left": -8,
+            "right": 420,
+            "width": 428,
+            "height": 1016
+          },
+          "snippet": "<img src=\"/assets/cameroon-CkHAKzqA.jpg\" alt=\"A smiling school child in a classroom in Cameroon.\" class=\"hero-slide absolute inset-0 h-full w-full object-cover saturate-[0.78] her…\" width=\"2400\" height=\"1200\" fetchpriority=\"high\">",
+          "nodeLabel": "A smiling school child in a classroom in Cameroon."
+        }
+      ]
+    },
+    {
+      "build": "before",
+      "run": 2,
+      "date": "2026-10-13T22:02:39.103Z",
+      "lighthouseVersion": "13.5.0",
+      "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "benchmarkIndex": 4379,
+      "settings": {
+        "output": [
+          "json"
+        ],
+        "maxWaitForFcp": 30000,
+        "maxWaitForLoad": 45000,
+        "pauseAfterFcpMs": 1000,
+        "pauseAfterLoadMs": 1000,
+        "networkQuietThresholdMs": 1000,
+        "cpuQuietThresholdMs": 1000,
+        "formFactor": "mobile",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "throttlingMethod": "simulate",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        },
+        "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+        "auditMode": false,
+        "gatherMode": false,
+        "clearStorageTypes": [
+          "file_systems",
+          "shader_cache",
+          "service_workers",
+          "cache_storage"
+        ],
+        "disableStorageReset": false,
+        "debugNavigation": false,
+        "channel": "cli",
+        "usePassiveGathering": false,
+        "disableFullPageScreenshot": false,
+        "skipAboutBlank": false,
+        "blankPage": "about:blank",
+        "ignoreStatusCode": false,
+        "locale": "en-US",
+        "blockedUrlPatterns": [
+          "https://www.googletagmanager.com/*"
+        ],
+        "additionalTraceCategories": null,
+        "extraHeaders": null,
+        "precomputedLanternData": null,
+        "onlyAudits": null,
+        "onlyCategories": [
+          "performance",
+          "accessibility",
+          "best-practices",
+          "seo"
+        ],
+        "skipAudits": null
+      },
+      "categories": {
+        "performance": 0.78,
+        "accessibility": 0.96,
+        "best-practices": 0.96,
+        "seo": 0.92
+      },
+      "metrics": {
+        "first-contentful-paint": 2408.7599,
+        "largest-contentful-paint": 5188.13985,
+        "total-blocking-time": 5,
+        "cumulative-layout-shift": 0
+      },
+      "unusedJavaScript": 161858,
+      "initialScripts": [
+        {
+          "url": "http://127.0.0.1:4174/assets/index-Bw_K_fvc.js",
+          "bytes": 1079483,
+          "transferBytes": 274792
+        }
+      ],
+      "lcp": [
+        {
+          "type": "table",
+          "headings": [
+            {
+              "key": "label",
+              "valueType": "text",
+              "label": "Subpart"
+            },
+            {
+              "key": "duration",
+              "valueType": "ms",
+              "label": "Duration"
+            }
+          ],
+          "items": [
+            {
+              "subpart": "timeToFirstByte",
+              "label": "Time to first byte",
+              "duration": 3.683
+            },
+            {
+              "subpart": "resourceLoadDelay",
+              "label": "Resource load delay",
+              "duration": 79.862
+            },
+            {
+              "subpart": "resourceLoadDuration",
+              "label": "Resource load duration",
+              "duration": 2.466
+            },
+            {
+              "subpart": "elementRenderDelay",
+              "label": "Element render delay",
+              "duration": 208.376
+            }
+          ]
+        },
+        {
+          "type": "node",
+          "lhId": "page-4-IMG",
+          "path": "1,HTML,1,BODY,3,DIV,0,DIV,1,MAIN,0,SECTION,0,DIV,0,IMG",
+          "selector": "main#main-content > section.hero-visual > div.absolute > img.hero-slide",
+          "boundingRect": {
+            "top": 45,
+            "bottom": 1062,
+            "left": -8,
+            "right": 420,
+            "width": 428,
+            "height": 1016
+          },
+          "snippet": "<img src=\"/assets/cameroon-CkHAKzqA.jpg\" alt=\"A smiling school child in a classroom in Cameroon.\" class=\"hero-slide absolute inset-0 h-full w-full object-cover saturate-[0.78] her…\" width=\"2400\" height=\"1200\" fetchpriority=\"high\">",
+          "nodeLabel": "A smiling school child in a classroom in Cameroon."
+        }
+      ]
+    },
+    {
+      "build": "before",
+      "run": 3,
+      "date": "2026-10-13T22:03:07.406Z",
+      "lighthouseVersion": "13.5.0",
+      "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "benchmarkIndex": 4230,
+      "settings": {
+        "output": [
+          "json"
+        ],
+        "maxWaitForFcp": 30000,
+        "maxWaitForLoad": 45000,
+        "pauseAfterFcpMs": 1000,
+        "pauseAfterLoadMs": 1000,
+        "networkQuietThresholdMs": 1000,
+        "cpuQuietThresholdMs": 1000,
+        "formFactor": "mobile",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "throttlingMethod": "simulate",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        },
+        "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+        "auditMode": false,
+        "gatherMode": false,
+        "clearStorageTypes": [
+          "file_systems",
+          "shader_cache",
+          "service_workers",
+          "cache_storage"
+        ],
+        "disableStorageReset": false,
+        "debugNavigation": false,
+        "channel": "cli",
+        "usePassiveGathering": false,
+        "disableFullPageScreenshot": false,
+        "skipAboutBlank": false,
+        "blankPage": "about:blank",
+        "ignoreStatusCode": false,
+        "locale": "en-US",
+        "blockedUrlPatterns": [
+          "https://www.googletagmanager.com/*"
+        ],
+        "additionalTraceCategories": null,
+        "extraHeaders": null,
+        "precomputedLanternData": null,
+        "onlyAudits": null,
+        "onlyCategories": [
+          "performance",
+          "accessibility",
+          "best-practices",
+          "seo"
+        ],
+        "skipAudits": null
+      },
+      "categories": {
+        "performance": 0.77,
+        "accessibility": 0.96,
+        "best-practices": 0.96,
+        "seo": 0.92
+      },
+      "metrics": {
+        "first-contentful-paint": 2259.2533000000003,
+        "largest-contentful-paint": 5713.8799500000005,
+        "total-blocking-time": 5.5,
+        "cumulative-layout-shift": 0
+      },
+      "unusedJavaScript": 161858,
+      "initialScripts": [
+        {
+          "url": "http://127.0.0.1:4174/assets/index-Bw_K_fvc.js",
+          "bytes": 1079483,
+          "transferBytes": 274792
+        }
+      ],
+      "lcp": [
+        {
+          "type": "table",
+          "headings": [
+            {
+              "key": "label",
+              "valueType": "text",
+              "label": "Subpart"
+            },
+            {
+              "key": "duration",
+              "valueType": "ms",
+              "label": "Duration"
+            }
+          ],
+          "items": [
+            {
+              "subpart": "timeToFirstByte",
+              "label": "Time to first byte",
+              "duration": 3.7010001220703126
+            },
+            {
+              "subpart": "resourceLoadDelay",
+              "label": "Resource load delay",
+              "duration": 93.44499987792969
+            },
+            {
+              "subpart": "resourceLoadDuration",
+              "label": "Resource load duration",
+              "duration": 3.153
+            },
+            {
+              "subpart": "elementRenderDelay",
+              "label": "Element render delay",
+              "duration": 212.013
+            }
+          ]
+        },
+        {
+          "type": "node",
+          "lhId": "page-4-IMG",
+          "path": "1,HTML,1,BODY,3,DIV,0,DIV,1,MAIN,0,SECTION,0,DIV,0,IMG",
+          "selector": "main#main-content > section.hero-visual > div.absolute > img.hero-slide",
+          "boundingRect": {
+            "top": 45,
+            "bottom": 1062,
+            "left": -8,
+            "right": 420,
+            "width": 428,
+            "height": 1016
+          },
+          "snippet": "<img src=\"/assets/cameroon-CkHAKzqA.jpg\" alt=\"A smiling school child in a classroom in Cameroon.\" class=\"hero-slide absolute inset-0 h-full w-full object-cover saturate-[0.78] her…\" width=\"2400\" height=\"1200\" fetchpriority=\"high\">",
+          "nodeLabel": "A smiling school child in a classroom in Cameroon."
+        }
+      ]
+    },
+    {
+      "build": "after",
+      "run": 1,
+      "date": "2026-10-13T22:02:25.568Z",
+      "lighthouseVersion": "13.5.0",
+      "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "benchmarkIndex": 4462,
+      "settings": {
+        "output": [
+          "json"
+        ],
+        "maxWaitForFcp": 30000,
+        "maxWaitForLoad": 45000,
+        "pauseAfterFcpMs": 1000,
+        "pauseAfterLoadMs": 1000,
+        "networkQuietThresholdMs": 1000,
+        "cpuQuietThresholdMs": 1000,
+        "formFactor": "mobile",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "throttlingMethod": "simulate",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        },
+        "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+        "auditMode": false,
+        "gatherMode": false,
+        "clearStorageTypes": [
+          "file_systems",
+          "shader_cache",
+          "service_workers",
+          "cache_storage"
+        ],
+        "disableStorageReset": false,
+        "debugNavigation": false,
+        "channel": "cli",
+        "usePassiveGathering": false,
+        "disableFullPageScreenshot": false,
+        "skipAboutBlank": false,
+        "blankPage": "about:blank",
+        "ignoreStatusCode": false,
+        "locale": "en-US",
+        "blockedUrlPatterns": [
+          "https://www.googletagmanager.com/*"
+        ],
+        "additionalTraceCategories": null,
+        "extraHeaders": null,
+        "precomputedLanternData": null,
+        "onlyAudits": null,
+        "onlyCategories": [
+          "performance",
+          "accessibility",
+          "best-practices",
+          "seo"
+        ],
+        "skipAudits": null
+      },
+      "categories": {
+        "performance": 0.84,
+        "accessibility": 0.96,
+        "best-practices": 0.96,
+        "seo": 1
+      },
+      "metrics": {
+        "first-contentful-paint": 1811.6198,
+        "largest-contentful-paint": 4367.4297,
+        "total-blocking-time": 4.5,
+        "cumulative-layout-shift": 0
+      },
+      "unusedJavaScript": 53648,
+      "initialScripts": [
+        {
+          "url": "http://127.0.0.1:4175/assets/index-DeyAbmyz.js",
+          "bytes": 296963,
+          "transferBytes": 88331
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/i18n-7hPHL70t.js",
+          "bytes": 102190,
+          "transferBytes": 34024
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/cn-CaLRenW8.js",
+          "bytes": 1296,
+          "transferBytes": 977
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/book-open-rXih-K_w.js",
+          "bytes": 264,
+          "transferBytes": 440
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/heart-handshake-C2S_tpb2.js",
+          "bytes": 833,
+          "transferBytes": 680
+        }
+      ],
+      "lcp": [
+        {
+          "type": "table",
+          "headings": [
+            {
+              "key": "label",
+              "valueType": "text",
+              "label": "Subpart"
+            },
+            {
+              "key": "duration",
+              "valueType": "ms",
+              "label": "Duration"
+            }
+          ],
+          "items": [
+            {
+              "subpart": "timeToFirstByte",
+              "label": "Time to first byte",
+              "duration": 3.793
+            },
+            {
+              "subpart": "resourceLoadDelay",
+              "label": "Resource load delay",
+              "duration": 54.766
+            },
+            {
+              "subpart": "resourceLoadDuration",
+              "label": "Resource load duration",
+              "duration": 3.535
+            },
+            {
+              "subpart": "elementRenderDelay",
+              "label": "Element render delay",
+              "duration": 213.653
+            }
+          ]
+        },
+        {
+          "type": "node",
+          "lhId": "page-4-IMG",
+          "path": "1,HTML,1,BODY,3,DIV,0,DIV,1,MAIN,0,SECTION,0,DIV,0,IMG",
+          "selector": "main#main-content > section.hero-visual > div.absolute > img.hero-slide",
+          "boundingRect": {
+            "top": 45,
+            "bottom": 1062,
+            "left": -8,
+            "right": 420,
+            "width": 428,
+            "height": 1016
+          },
+          "snippet": "<img src=\"/assets/cameroon-CkHAKzqA.jpg\" alt=\"A smiling school child in a classroom in Cameroon.\" class=\"hero-slide absolute inset-0 h-full w-full object-cover saturate-[0.78] her…\" width=\"2400\" height=\"1200\" fetchpriority=\"high\">",
+          "nodeLabel": "A smiling school child in a classroom in Cameroon."
+        }
+      ]
+    },
+    {
+      "build": "after",
+      "run": 2,
+      "date": "2026-10-13T22:02:52.807Z",
+      "lighthouseVersion": "13.5.0",
+      "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "benchmarkIndex": 4348.5,
+      "settings": {
+        "output": [
+          "json"
+        ],
+        "maxWaitForFcp": 30000,
+        "maxWaitForLoad": 45000,
+        "pauseAfterFcpMs": 1000,
+        "pauseAfterLoadMs": 1000,
+        "networkQuietThresholdMs": 1000,
+        "cpuQuietThresholdMs": 1000,
+        "formFactor": "mobile",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "throttlingMethod": "simulate",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        },
+        "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+        "auditMode": false,
+        "gatherMode": false,
+        "clearStorageTypes": [
+          "file_systems",
+          "shader_cache",
+          "service_workers",
+          "cache_storage"
+        ],
+        "disableStorageReset": false,
+        "debugNavigation": false,
+        "channel": "cli",
+        "usePassiveGathering": false,
+        "disableFullPageScreenshot": false,
+        "skipAboutBlank": false,
+        "blankPage": "about:blank",
+        "ignoreStatusCode": false,
+        "locale": "en-US",
+        "blockedUrlPatterns": [
+          "https://www.googletagmanager.com/*"
+        ],
+        "additionalTraceCategories": null,
+        "extraHeaders": null,
+        "precomputedLanternData": null,
+        "onlyAudits": null,
+        "onlyCategories": [
+          "performance",
+          "accessibility",
+          "best-practices",
+          "seo"
+        ],
+        "skipAudits": null
+      },
+      "categories": {
+        "performance": 0.8,
+        "accessibility": 0.96,
+        "best-practices": 0.96,
+        "seo": 1
+      },
+      "metrics": {
+        "first-contentful-paint": 1968.1078,
+        "largest-contentful-paint": 4902.161700000001,
+        "total-blocking-time": 11,
+        "cumulative-layout-shift": 0
+      },
+      "unusedJavaScript": 53648,
+      "initialScripts": [
+        {
+          "url": "http://127.0.0.1:4175/assets/index-DeyAbmyz.js",
+          "bytes": 296963,
+          "transferBytes": 88331
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/i18n-7hPHL70t.js",
+          "bytes": 102190,
+          "transferBytes": 34024
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/cn-CaLRenW8.js",
+          "bytes": 1296,
+          "transferBytes": 977
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/book-open-rXih-K_w.js",
+          "bytes": 264,
+          "transferBytes": 440
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/heart-handshake-C2S_tpb2.js",
+          "bytes": 833,
+          "transferBytes": 680
+        }
+      ],
+      "lcp": [
+        {
+          "type": "table",
+          "headings": [
+            {
+              "key": "label",
+              "valueType": "text",
+              "label": "Subpart"
+            },
+            {
+              "key": "duration",
+              "valueType": "ms",
+              "label": "Duration"
+            }
+          ],
+          "items": [
+            {
+              "subpart": "timeToFirstByte",
+              "label": "Time to first byte",
+              "duration": 4.779000122070313
+            },
+            {
+              "subpart": "resourceLoadDelay",
+              "label": "Resource load delay",
+              "duration": 63.717999877929685
+            },
+            {
+              "subpart": "resourceLoadDuration",
+              "label": "Resource load duration",
+              "duration": 2.882
+            },
+            {
+              "subpart": "elementRenderDelay",
+              "label": "Element render delay",
+              "duration": 212.385
+            }
+          ]
+        },
+        {
+          "type": "node",
+          "lhId": "page-4-IMG",
+          "path": "1,HTML,1,BODY,3,DIV,0,DIV,1,MAIN,0,SECTION,0,DIV,0,IMG",
+          "selector": "main#main-content > section.hero-visual > div.absolute > img.hero-slide",
+          "boundingRect": {
+            "top": 45,
+            "bottom": 1062,
+            "left": -8,
+            "right": 420,
+            "width": 428,
+            "height": 1016
+          },
+          "snippet": "<img src=\"/assets/cameroon-CkHAKzqA.jpg\" alt=\"A smiling school child in a classroom in Cameroon.\" class=\"hero-slide absolute inset-0 h-full w-full object-cover saturate-[0.78] her…\" width=\"2400\" height=\"1200\" fetchpriority=\"high\">",
+          "nodeLabel": "A smiling school child in a classroom in Cameroon."
+        }
+      ]
+    },
+    {
+      "build": "after",
+      "run": 3,
+      "date": "2026-10-13T22:03:21.805Z",
+      "lighthouseVersion": "13.5.0",
+      "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "benchmarkIndex": 4341,
+      "settings": {
+        "output": [
+          "json"
+        ],
+        "maxWaitForFcp": 30000,
+        "maxWaitForLoad": 45000,
+        "pauseAfterFcpMs": 1000,
+        "pauseAfterLoadMs": 1000,
+        "networkQuietThresholdMs": 1000,
+        "cpuQuietThresholdMs": 1000,
+        "formFactor": "mobile",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "throttlingMethod": "simulate",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        },
+        "emulatedUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+        "auditMode": false,
+        "gatherMode": false,
+        "clearStorageTypes": [
+          "file_systems",
+          "shader_cache",
+          "service_workers",
+          "cache_storage"
+        ],
+        "disableStorageReset": false,
+        "debugNavigation": false,
+        "channel": "cli",
+        "usePassiveGathering": false,
+        "disableFullPageScreenshot": false,
+        "skipAboutBlank": false,
+        "blankPage": "about:blank",
+        "ignoreStatusCode": false,
+        "locale": "en-US",
+        "blockedUrlPatterns": [
+          "https://www.googletagmanager.com/*"
+        ],
+        "additionalTraceCategories": null,
+        "extraHeaders": null,
+        "precomputedLanternData": null,
+        "onlyAudits": null,
+        "onlyCategories": [
+          "performance",
+          "accessibility",
+          "best-practices",
+          "seo"
+        ],
+        "skipAudits": null
+      },
+      "categories": {
+        "performance": 0.83,
+        "accessibility": 0.96,
+        "best-practices": 0.96,
+        "seo": 1
+      },
+      "metrics": {
+        "first-contentful-paint": 1972.4445,
+        "largest-contentful-paint": 4383.66675,
+        "total-blocking-time": 4,
+        "cumulative-layout-shift": 0
+      },
+      "unusedJavaScript": 53648,
+      "initialScripts": [
+        {
+          "url": "http://127.0.0.1:4175/assets/index-DeyAbmyz.js",
+          "bytes": 296963,
+          "transferBytes": 88331
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/i18n-7hPHL70t.js",
+          "bytes": 102190,
+          "transferBytes": 34024
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/cn-CaLRenW8.js",
+          "bytes": 1296,
+          "transferBytes": 977
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/book-open-rXih-K_w.js",
+          "bytes": 264,
+          "transferBytes": 440
+        },
+        {
+          "url": "http://127.0.0.1:4175/assets/heart-handshake-C2S_tpb2.js",
+          "bytes": 833,
+          "transferBytes": 680
+        }
+      ],
+      "lcp": [
+        {
+          "type": "table",
+          "headings": [
+            {
+              "key": "label",
+              "valueType": "text",
+              "label": "Subpart"
+            },
+            {
+              "key": "duration",
+              "valueType": "ms",
+              "label": "Duration"
+            }
+          ],
+          "items": [
+            {
+              "subpart": "timeToFirstByte",
+              "label": "Time to first byte",
+              "duration": 4.255000122070313
+            },
+            {
+              "subpart": "resourceLoadDelay",
+              "label": "Resource load delay",
+              "duration": 58.88999987792969
+            },
+            {
+              "subpart": "resourceLoadDuration",
+              "label": "Resource load duration",
+              "duration": 2.99
+            },
+            {
+              "subpart": "elementRenderDelay",
+              "label": "Element render delay",
+              "duration": 204.031
+            }
+          ]
+        },
+        {
+          "type": "node",
+          "lhId": "page-4-IMG",
+          "path": "1,HTML,1,BODY,3,DIV,0,DIV,1,MAIN,0,SECTION,0,DIV,0,IMG",
+          "selector": "main#main-content > section.hero-visual > div.absolute > img.hero-slide",
+          "boundingRect": {
+            "top": 45,
+            "bottom": 1062,
+            "left": -8,
+            "right": 420,
+            "width": 429,
+            "height": 1017
+          },
+          "snippet": "<img src=\"/assets/cameroon-CkHAKzqA.jpg\" alt=\"A smiling school child in a classroom in Cameroon.\" class=\"hero-slide absolute inset-0 h-full w-full object-cover saturate-[0.78] her…\" width=\"2400\" height=\"1200\" fetchpriority=\"high\">",
+          "nodeLabel": "A smiling school child in a classroom in Cameroon."
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "before": {
+      "samples": 3,
+      "performance": {
+        "median": 78,
+        "min": 77,
+        "max": 78
+      },
+      "first-contentful-paint": {
+        "median": 2404.5753,
+        "min": 2259.2533000000003,
+        "max": 2408.7599
+      },
+      "largest-contentful-paint": {
+        "median": 5188.13985,
+        "min": 5181.862950000001,
+        "max": 5713.8799500000005
+      },
+      "total-blocking-time": {
+        "median": 5,
+        "min": 3.5,
+        "max": 5.5
+      },
+      "cumulative-layout-shift": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "unusedJavaScript": {
+        "median": 161858,
+        "min": 161858,
+        "max": 161858
+      }
+    },
+    "after": {
+      "samples": 3,
+      "performance": {
+        "median": 83,
+        "min": 80,
+        "max": 84
+      },
+      "first-contentful-paint": {
+        "median": 1968.1078,
+        "min": 1811.6198,
+        "max": 1972.4445
+      },
+      "largest-contentful-paint": {
+        "median": 4383.66675,
+        "min": 4367.4297,
+        "max": 4902.161700000001
+      },
+      "total-blocking-time": {
+        "median": 4.5,
+        "min": 4,
+        "max": 11
+      },
+      "cumulative-layout-shift": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "unusedJavaScript": {
+        "median": 53648,
+        "min": 53648,
+        "max": 53648
+      }
+    }
+  }
+}

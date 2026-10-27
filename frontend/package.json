@@ -9,8 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "playwright test",
-    "test:browser": "npm run build && playwright test",
-    "verify:deployment": "node scripts/verify-deployment.mjs"
+    "test:browser": "npm run build && playwright test"
   },
   "engines": {
     "node": ">=24.0.0 <25"

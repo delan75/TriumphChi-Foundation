@@ -13,7 +13,7 @@ export function Seo({ meta, structuredData }: SeoProps) {
     const pageUrl = localizedUrl(meta.locale, meta.path[meta.locale]);
     const image = absoluteUrl(meta.image ?? siteConfig.defaultImage);
     const imageAlt = meta.imageAlt ?? siteConfig.defaultImageAlt;
-    const title = formatTitle(meta.title, meta.locale);
+    const title = formatTitle(meta.title);
 
     document.documentElement.lang = meta.locale;
     document.title = title;
@@ -55,9 +55,8 @@ export function Seo({ meta, structuredData }: SeoProps) {
   return null;
 }
 
-function formatTitle(title: string, locale: 'en' | 'fr'): string {
-  const brand = locale === 'fr' ? 'Fondation TriumphChi' : siteConfig.name;
-  return title.includes(siteConfig.name) || title.includes('Fondation TriumphChi') ? title : `${title} | ${brand}`;
+function formatTitle(title: string): string {
+  return title.includes(siteConfig.name) ? title : `${title} | ${siteConfig.name}`;
 }
 
 function upsertMeta(attribute: 'name' | 'property', key: string, content: string, instance?: string) {
@@ -116,7 +115,7 @@ function upsertCanonical(href: string) {
 }
 
 function upsertAlternateLinks(links: Array<{ hrefLang: string; href: string }>) {
-  document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach((node) => node.remove());
+  document.head.querySelectorAll('link[data-managed-alternate="true"]').forEach((node) => node.remove());
 
   links.forEach((link) => {
     const tag = document.createElement('link');
