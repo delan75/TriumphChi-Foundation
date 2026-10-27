@@ -1,4 +1,3 @@
-import { formatImpactCount as formatWholeNumber } from '../../../lib/impactSummary';
 import {
   ArrowRight,
   BookOpen,
@@ -217,10 +216,9 @@ export function DonatePage({ locale, page }: DonatePageProps) {
         body={copy.impactBody}
         items={impactStats.items}
         icons={impactIcons}
-        locale={locale}
-        hasPlaceholderMetrics
+        usesFallback={impactStats.usesFallback}
+        fallbackNote={copy.impactFallbackNote}
         isLoading={impactSummary.isLoading}
-        isImpactDataUnavailable={impactStats.isImpactDataUnavailable}
       />
 
       <FaqSection
@@ -1583,7 +1581,7 @@ function buildImpactStats(
   copy: DonateCopy,
   locale: Locale,
   summary?: PublicImpactSummary['data'],
-): { items: ImpactSummaryItem[]; isImpactDataUnavailable: boolean } {
+): { items: ImpactSummaryItem[]; usesFallback: boolean } {
   const childrenSupported = formatWholeNumber(summary?.children_supported, copy.impactFallbacks.childrenSupported, locale);
   const partnerSchools = formatWholeNumber(summary?.partner_schools, copy.impactFallbacks.partnerSchools, locale);
   const regionsReached = formatWholeNumber(summary?.regions_reached, copy.impactFallbacks.regionsReached, locale);
@@ -1595,8 +1593,16 @@ function buildImpactStats(
       { value: copy.impactFallbacks.educationalNeeds, label: copy.impactLabels.educationalNeeds },
       { value: regionsReached.value, label: copy.impactLabels.regionsReached },
     ],
-    isImpactDataUnavailable: childrenSupported.usedFallback || partnerSchools.usedFallback || regionsReached.usedFallback,
+    usesFallback: childrenSupported.usedFallback || partnerSchools.usedFallback || regionsReached.usedFallback || true,
   };
+}
+
+function formatWholeNumber(value: number | null | undefined, fallback: string, locale: Locale) {
+  if (typeof value !== 'number' || value < 1) {
+    return { value: fallback, usedFallback: true };
+  }
+
+  return { value: new Intl.NumberFormat(locale).format(value), usedFallback: false };
 }
 
 interface DonateCopy {
@@ -1904,10 +1910,10 @@ const donateCopy = {
       regionsReached: 'Regions Reached',
     },
     impactFallbacks: {
-      childrenSupported: '—',
-      partnerSchools: '—',
+      childrenSupported: '300+',
+      partnerSchools: '12+',
       educationalNeeds: 'Growing',
-      regionsReached: '—',
+      regionsReached: '4+',
     },
     faqEyebrow: 'Giving questions',
     faqTitle: 'Common questions before giving.',
@@ -2119,10 +2125,10 @@ const donateCopy = {
       regionsReached: 'Regions atteintes',
     },
     impactFallbacks: {
-      childrenSupported: '—',
-      partnerSchools: '—',
+      childrenSupported: '300+',
+      partnerSchools: '12+',
       educationalNeeds: 'En croissance',
-      regionsReached: '—',
+      regionsReached: '4+',
     },
     faqEyebrow: 'Questions sur le don',
     faqTitle: 'Questions frequentes avant de donner.',

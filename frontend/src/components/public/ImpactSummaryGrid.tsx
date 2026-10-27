@@ -1,7 +1,5 @@
 import { LucideIcon } from 'lucide-react';
 import { cn } from '../ui/cn';
-import type { Locale } from '../../lib/i18n';
-import { impactSummaryMessages } from '../../lib/impactSummary';
 
 export interface ImpactSummaryItem {
   value: string;
@@ -14,9 +12,8 @@ interface ImpactSummaryGridProps {
   body: string;
   items: ImpactSummaryItem[];
   icons: LucideIcon[];
-  locale: Locale;
-  isImpactDataUnavailable?: boolean;
-  hasPlaceholderMetrics?: boolean;
+  usesFallback?: boolean;
+  fallbackNote?: string;
   isLoading?: boolean;
   variant?: 'light' | 'dark';
   className?: string;
@@ -28,18 +25,13 @@ export function ImpactSummaryGrid({
   body,
   items,
   icons,
-  locale,
-  isImpactDataUnavailable = false,
-  hasPlaceholderMetrics = false,
+  usesFallback = false,
+  fallbackNote,
   isLoading = false,
   variant = 'light',
   className,
 }: ImpactSummaryGridProps) {
   const dark = variant === 'dark';
-  const messages = impactSummaryMessages[locale];
-  const note = isLoading ? messages.loading
-    : isImpactDataUnavailable ? messages.unavailable
-      : hasPlaceholderMetrics ? messages.placeholders : null;
 
   return (
     <section className={cn(dark ? 'bg-ink-900 text-white' : 'bg-white', className)}>
@@ -50,7 +42,7 @@ export function ImpactSummaryGrid({
           <p className={cn('mt-3 text-base leading-7', dark ? 'text-ink-100' : 'text-ink-500')}>{body}</p>
         </div>
 
-        <div aria-busy={isLoading} className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {isLoading
             ? Array.from({ length: Math.max(items.length, 4) }).map((_, index) => (
                 <div
@@ -72,7 +64,7 @@ export function ImpactSummaryGrid({
               <article
                 key={item.label}
                 className={cn(
-                  'min-h-40 rounded-md border p-5',
+                  'rounded-md border p-5',
                   dark ? 'border-white/10 bg-white/5' : 'border-foundation-100 bg-foundation-50',
                 )}
               >
@@ -84,7 +76,7 @@ export function ImpactSummaryGrid({
           })}
         </div>
 
-        {note ? <p className={cn('mt-4 text-sm font-bold', dark ? 'text-ink-200' : 'text-ink-500')}>{note}</p> : null}
+        {usesFallback && fallbackNote ? <p className={cn('mt-4 text-sm font-bold', dark ? 'text-ink-200' : 'text-ink-500')}>{fallbackNote}</p> : null}
       </div>
     </section>
   );

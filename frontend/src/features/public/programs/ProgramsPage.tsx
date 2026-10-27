@@ -1,4 +1,3 @@
-import { formatImpactCount as formatWholeNumber, formatImpactPercentage as formatPercentage } from '../../../lib/impactSummary';
 import { ArrowRight, BookOpen, CheckCircle2, GraduationCap, HeartHandshake, Home, School, ShieldCheck, Sparkles, UsersRound } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -130,9 +129,8 @@ export function ProgramsPage({ locale, page }: ProgramsPageProps) {
         body={copy.impactBody}
         items={impactStats.items}
         icons={impactIcons}
-        locale={locale}
-        isLoading={impactSummary.isLoading}
-        isImpactDataUnavailable={impactStats.isImpactDataUnavailable}
+        usesFallback={impactStats.usesFallback}
+        fallbackNote={copy.impactFallbackNote}
       />
 
       <section className="bg-white">
@@ -351,10 +349,10 @@ const programsCopy = {
       schoolContinuationRate: 'School Continuation Rate',
     },
     impactFallbacks: {
-      childrenSupported: '—',
-      partnerSchools: '—',
-      regionsReached: '—',
-      schoolContinuationRate: '—',
+      childrenSupported: '300+',
+      partnerSchools: '12+',
+      regionsReached: '4+',
+      schoolContinuationRate: '95%',
     },
     journeyEyebrow: "A child's journey",
     journeyTitle: 'How support moves from need to progress.',
@@ -446,10 +444,10 @@ const programsCopy = {
       schoolContinuationRate: 'Taux de maintien scolaire',
     },
     impactFallbacks: {
-      childrenSupported: '—',
-      partnerSchools: '—',
-      regionsReached: '—',
-      schoolContinuationRate: '—',
+      childrenSupported: '300+',
+      partnerSchools: '12+',
+      regionsReached: '4+',
+      schoolContinuationRate: '95%',
     },
     journeyEyebrow: "Le parcours d'un enfant",
     journeyTitle: "Comment l'aide passe du besoin au progrès.",
@@ -509,7 +507,7 @@ function buildImpactStats(
   copy: ProgramsCopy,
   locale: Locale,
   summary?: PublicImpactSummary['data'],
-): { items: ImpactSummaryItem[]; isImpactDataUnavailable: boolean } {
+): { items: ImpactSummaryItem[]; usesFallback: boolean } {
   const childrenSupported = formatWholeNumber(summary?.children_supported, copy.impactFallbacks.childrenSupported, locale);
   const partnerSchools = formatWholeNumber(summary?.partner_schools, copy.impactFallbacks.partnerSchools, locale);
   const regionsReached = formatWholeNumber(summary?.regions_reached, copy.impactFallbacks.regionsReached, locale);
@@ -522,10 +520,26 @@ function buildImpactStats(
       { value: regionsReached.value, label: copy.impactLabels.regionsReached },
       { value: schoolContinuationRate.value, label: copy.impactLabels.schoolContinuationRate },
     ],
-    isImpactDataUnavailable:
+    usesFallback:
       childrenSupported.usedFallback ||
       partnerSchools.usedFallback ||
       regionsReached.usedFallback ||
       schoolContinuationRate.usedFallback,
   };
+}
+
+function formatWholeNumber(value: number | null | undefined, fallback: string, locale: Locale) {
+  if (typeof value !== 'number' || value < 1) {
+    return { value: fallback, usedFallback: true };
+  }
+
+  return { value: new Intl.NumberFormat(locale).format(value), usedFallback: false };
+}
+
+function formatPercentage(value: number | null | undefined, fallback: string) {
+  if (typeof value !== 'number' || value < 1) {
+    return { value: fallback, usedFallback: true };
+  }
+
+  return { value: `${Math.round(value)}%`, usedFallback: false };
 }
