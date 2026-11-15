@@ -138,7 +138,8 @@ export const usersContent: Record<Locale, UsersCopy> = {
     },
     table: {
       title: 'User Records',
-      description: 'Review staff accounts, access state, and the people responsible for operations.',
+      description:
+        'Review staff accounts, access state, and the people responsible for operations.',
       user: 'User',
       access: 'Access',
       organization: 'Organization',
@@ -222,7 +223,8 @@ export const usersContent: Record<Locale, UsersCopy> = {
   },
   fr: {
     title: 'Utilisateurs',
-    description: 'Gerez les identites, les acces, les sessions et les details organisationnels du personnel.',
+    description:
+      'Gerez les identites, les acces, les sessions et les details organisationnels du personnel.',
     refresh: 'Actualiser',
     create: 'Ajouter',
     cancel: 'Annuler',
@@ -230,7 +232,8 @@ export const usersContent: Record<Locale, UsersCopy> = {
     saving: 'Enregistrement...',
     edit: 'Modifier',
     accessDeniedTitle: 'Acces indisponible',
-    accessDeniedBody: "Votre compte n'a pas la permission de consulter la gestion des utilisateurs.",
+    accessDeniedBody:
+      "Votre compte n'a pas la permission de consulter la gestion des utilisateurs.",
     summary: {
       total: 'Utilisateurs',
       active: 'Actifs',
@@ -251,7 +254,8 @@ export const usersContent: Record<Locale, UsersCopy> = {
     },
     table: {
       title: 'Comptes utilisateurs',
-      description: 'Consultez les comptes du personnel, leur acces et leur rattachement operationnel.',
+      description:
+        'Consultez les comptes du personnel, leur acces et leur rattachement operationnel.',
       user: 'Utilisateur',
       access: 'Acces',
       organization: 'Organisation',

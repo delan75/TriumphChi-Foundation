@@ -1,4 +1,15 @@
-import { BarChart3, Building2, ClipboardList, GraduationCap, HandCoins, HeartHandshake, Landmark, School, Users, type LucideIcon } from 'lucide-react';
+import {
+  BarChart3,
+  Building2,
+  ClipboardList,
+  GraduationCap,
+  HandCoins,
+  HeartHandshake,
+  Landmark,
+  School,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import { cn } from '../../../components/ui/cn';
 import type { ReportCategory, ReportCategoryKey, ReportsCopy } from '../reportsContent';
 
@@ -38,11 +49,15 @@ export function ReportCategoryCards({
         onClick={() => onSelect('all')}
         className={cn(
           'focus-ring rounded-md border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xs',
-          activeCategory === 'all' ? 'border-foundation-200 bg-foundation-50' : 'border-ink-100 bg-white hover:border-foundation-100',
+          activeCategory === 'all'
+            ? 'border-foundation-200 bg-foundation-50'
+            : 'border-ink-100 bg-white hover:border-foundation-100',
         )}
       >
         <p className="text-xs font-bold uppercase text-ink-400">{copy.filters.all}</p>
-        <p className="mt-2 text-3xl font-black text-ink-950">{categories.reduce((total, category) => total + category.available, 0)}</p>
+        <p className="mt-2 text-3xl font-black text-ink-950">
+          {categories.reduce((total, category) => total + category.available, 0)}
+        </p>
         <p className="mt-1 text-sm font-semibold text-ink-600">{copy.sections.summary}</p>
       </button>
 
@@ -56,7 +71,9 @@ export function ReportCategoryCards({
             onClick={() => onSelect(category.key)}
             className={cn(
               'focus-ring rounded-md border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xs',
-              activeCategory === category.key ? 'border-foundation-200 bg-foundation-50' : 'border-ink-100 bg-white hover:border-foundation-100',
+              activeCategory === category.key
+                ? 'border-foundation-200 bg-foundation-50'
+                : 'border-ink-100 bg-white hover:border-foundation-100',
             )}
           >
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-foundation-600 text-white">
@@ -65,7 +82,9 @@ export function ReportCategoryCards({
             <div className="mt-4 flex items-end justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-sm font-black text-ink-950">{category.label}</p>
-                <p className="mt-1 line-clamp-2 text-xs leading-5 text-ink-500">{category.description}</p>
+                <p className="mt-1 line-clamp-2 text-xs leading-5 text-ink-500">
+                  {category.description}
+                </p>
               </div>
               <p className="shrink-0 text-2xl font-black text-ink-950">{category.available}</p>
             </div>

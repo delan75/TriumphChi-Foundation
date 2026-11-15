@@ -56,10 +56,17 @@ export function WorkspaceCard({
   const content = (
     <>
       <div className="flex items-start justify-between gap-4">
-        <span className={cn('grid h-11 w-11 shrink-0 place-items-center rounded-md', toneClass.icon)}>
+        <span
+          className={cn('grid h-11 w-11 shrink-0 place-items-center rounded-md', toneClass.icon)}
+        >
           <Icon className="h-5 w-5" aria-hidden="true" />
         </span>
-        <span className={cn('inline-flex min-h-7 items-center rounded-md px-2.5 text-xs font-semibold', toneClass.badge)}>
+        <span
+          className={cn(
+            'inline-flex min-h-7 items-center rounded-md px-2.5 text-xs font-semibold',
+            toneClass.badge,
+          )}
+        >
           {available ? ctaLabel : lockedLabel}
         </span>
       </div>

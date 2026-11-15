@@ -1,6 +1,21 @@
-import { useEffect, useMemo, useState, type ChangeEvent, type Dispatch, type FormEvent, type SetStateAction } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type Dispatch,
+  type FormEvent,
+  type SetStateAction,
+} from 'react';
 import { DashboardPanel } from '../../../components/staff/DashboardPanel';
-import { apiUploadBlogMedia, type BlogOptionsResponse, type BlogPostMediaRecord, type BlogPostPayload, type BlogPostRecord, type LocalizedText } from '../../../lib/api';
+import {
+  apiUploadBlogMedia,
+  type BlogOptionsResponse,
+  type BlogPostMediaRecord,
+  type BlogPostPayload,
+  type BlogPostRecord,
+  type LocalizedText,
+} from '../../../lib/api';
 import { slugify } from '../../../lib/slugify';
 import type { BlogCopy } from '../blogContent';
 
@@ -25,7 +40,18 @@ const allowedMediaExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg', 'mp4', 'web
 const imageAccept = allowedImageExtensions.map((extension) => `.${extension}`).join(',');
 const mediaAccept = allowedMediaExtensions.map((extension) => `.${extension}`).join(',');
 
-export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, canPublish, surface = 'panel', onClose, onSubmit }: BlogEditorPanelProps) {
+export function BlogEditorPanel({
+  copy,
+  mode,
+  post,
+  options,
+  isWorking,
+  error,
+  canPublish,
+  surface = 'panel',
+  onClose,
+  onSubmit,
+}: BlogEditorPanelProps) {
   const [activeLocale, setActiveLocale] = useState<LocaleKey>('en');
   const [title, setTitle] = useState<LocalizedText>(emptyLocalized);
   const [slug, setSlug] = useState<LocalizedText>(emptyLocalized);
@@ -174,234 +200,329 @@ export function BlogEditorPanel({ copy, mode, post, options, isWorking, error, c
   }
 
   const form = (
-      <form className="space-y-5" onSubmit={handleSubmit}>
-        {error ? <div className="rounded-md border border-red-100 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</div> : null}
-
-        <div className="flex rounded-md bg-ink-50 p-1">
-          {(['en', 'fr'] as LocaleKey[]).map((locale) => (
-            <button
-              key={locale}
-              type="button"
-              onClick={() => setActiveLocale(locale)}
-              className={`focus-ring min-h-10 flex-1 rounded-md text-sm font-black transition ${
-                activeLocale === locale ? 'bg-white text-foundation-800 shadow-xs' : 'text-ink-500 hover:text-ink-900'
-              }`}
-            >
-              {locale === 'en' ? copy.form.english : copy.form.french}
-            </button>
-          ))}
+    <form className="space-y-5" onSubmit={handleSubmit}>
+      {error ? (
+        <div className="rounded-md border border-red-100 bg-red-50 p-3 text-sm font-bold text-red-700">
+          {error}
         </div>
+      ) : null}
 
-        <TextInput
-          label={copy.form.title}
-          value={title[activeLocale] ?? ''}
-          required={activeLocale === 'en'}
-          onChange={(value) => {
-            setTitle((current) => ({ ...current, [activeLocale]: value }));
-            if (autoSlug[activeLocale]) {
-              setSlug((current) => ({ ...current, [activeLocale]: slugify(value) }));
-            }
-          }}
-        />
-        <TextInput
-          label={copy.form.slug}
-          value={slug[activeLocale] ?? ''}
-          onChange={(value) => {
-            setAutoSlug((current) => ({ ...current, [activeLocale]: false }));
-            setSlug((current) => ({ ...current, [activeLocale]: value }));
-          }}
-        />
-        <TextArea label={copy.form.excerpt} value={excerpt[activeLocale] ?? ''} rows={3} onChange={(value) => setExcerpt((current) => ({ ...current, [activeLocale]: value }))} />
-        <TextArea label={copy.form.body} value={body[activeLocale] ?? ''} rows={10} required={activeLocale === 'en'} onChange={(value) => setBody((current) => ({ ...current, [activeLocale]: value }))} />
+      <div className="flex rounded-md bg-ink-50 p-1">
+        {(['en', 'fr'] as LocaleKey[]).map((locale) => (
+          <button
+            key={locale}
+            type="button"
+            onClick={() => setActiveLocale(locale)}
+            className={`focus-ring min-h-10 flex-1 rounded-md text-sm font-black transition ${
+              activeLocale === locale
+                ? 'bg-white text-foundation-800 shadow-xs'
+                : 'text-ink-500 hover:text-ink-900'
+            }`}
+          >
+            {locale === 'en' ? copy.form.english : copy.form.french}
+          </button>
+        ))}
+      </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label>
-            <span className="text-xs font-black uppercase text-ink-500">{copy.form.category}</span>
-            <select
-              value={categoryId}
-              onChange={(event) => setCategoryId(event.target.value)}
-              className="focus-ring mt-1 h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800"
-            >
-              <option value="">-</option>
-              {(options?.categories ?? []).map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
-          </label>
+      <TextInput
+        label={copy.form.title}
+        value={title[activeLocale] ?? ''}
+        required={activeLocale === 'en'}
+        onChange={(value) => {
+          setTitle((current) => ({ ...current, [activeLocale]: value }));
+          if (autoSlug[activeLocale]) {
+            setSlug((current) => ({ ...current, [activeLocale]: slugify(value) }));
+          }
+        }}
+      />
+      <TextInput
+        label={copy.form.slug}
+        value={slug[activeLocale] ?? ''}
+        onChange={(value) => {
+          setAutoSlug((current) => ({ ...current, [activeLocale]: false }));
+          setSlug((current) => ({ ...current, [activeLocale]: value }));
+        }}
+      />
+      <TextArea
+        label={copy.form.excerpt}
+        value={excerpt[activeLocale] ?? ''}
+        rows={3}
+        onChange={(value) => setExcerpt((current) => ({ ...current, [activeLocale]: value }))}
+      />
+      <TextArea
+        label={copy.form.body}
+        value={body[activeLocale] ?? ''}
+        rows={10}
+        required={activeLocale === 'en'}
+        onChange={(value) => setBody((current) => ({ ...current, [activeLocale]: value }))}
+      />
 
-          <label>
-            <span className="text-xs font-black uppercase text-ink-500">{copy.form.status}</span>
-            <select
-              value={status}
-              onChange={(event) => setStatus(event.target.value as BlogPostPayload['status'])}
-              className="focus-ring mt-1 h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800"
-            >
-              {availableStatuses.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <fieldset className="rounded-md border border-ink-100 p-3">
-          <legend className="px-1 text-xs font-black uppercase text-ink-500">{copy.form.tags}</legend>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {(options?.tags ?? []).map((tag) => (
-              <label key={tag.id} className="inline-flex min-h-10 items-center gap-2 rounded-md border border-ink-200 px-3 text-sm font-bold text-ink-700">
-                <input
-                  type="checkbox"
-                  checked={tagIds.includes(tag.id)}
-                  onChange={(event) =>
-                    setTagIds((current) => (event.target.checked ? [...current, tag.id] : current.filter((id) => id !== tag.id)))
-                  }
-                  className="h-4 w-4 rounded-sm border-ink-300 text-foundation-700"
-                />
-                {tag.label}
-              </label>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label>
+          <span className="text-xs font-black uppercase text-ink-500">{copy.form.category}</span>
+          <select
+            value={categoryId}
+            onChange={(event) => setCategoryId(event.target.value)}
+            className="focus-ring mt-1 h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800"
+          >
+            <option value="">-</option>
+            {(options?.categories ?? []).map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.label}
+              </option>
             ))}
-          </div>
-        </fieldset>
-
-        <label className="inline-flex min-h-11 items-center gap-2 rounded-md border border-ink-200 px-3 text-sm font-bold text-ink-700">
-          <input
-            type="checkbox"
-            checked={isFeatured}
-            onChange={(event) => setIsFeatured(event.target.checked)}
-            className="h-4 w-4 rounded-sm border-ink-300 text-foundation-700"
-          />
-          {copy.form.featured}
+          </select>
         </label>
 
-        <div className="rounded-md border border-ink-100 bg-ink-50 p-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-black uppercase text-ink-500">{copy.form.imagePath}</p>
-              <p className="mt-1 text-xs font-semibold text-ink-500">{imagePath || copy.form.mediaHelp}</p>
-            </div>
-            <label className="focus-within:ring-2 focus-within:ring-foundation-500 inline-flex min-h-10 cursor-pointer items-center rounded-md bg-white px-3 text-xs font-black text-foundation-800 shadow-xs transition hover:bg-foundation-50">
-              {isUploadingMedia ? copy.form.uploadingMedia : copy.form.uploadMedia}
-              <input
-                type="file"
-                accept={imageAccept}
-                className="sr-only"
-                disabled={isUploadingMedia}
-                onChange={handleFeaturedUpload}
-              />
-            </label>
-          </div>
-        </div>
-        <TextInput label={copy.form.imageAlt} value={imageAlt[activeLocale] ?? ''} onChange={(value) => setImageAlt((current) => ({ ...current, [activeLocale]: value }))} />
-
-        <fieldset className="rounded-md border border-ink-100 bg-ink-50 p-3">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <legend className="text-xs font-black uppercase text-ink-500">{copy.form.media}</legend>
-              <p className="mt-1 text-xs font-semibold text-ink-500">{copy.form.mediaHelp}</p>
-            </div>
-            <label className="focus-within:ring-2 focus-within:ring-foundation-500 inline-flex min-h-9 cursor-pointer items-center rounded-md bg-white px-3 text-xs font-black text-foundation-800 shadow-xs transition hover:bg-foundation-50">
-              {isUploadingMedia ? copy.form.uploadingMedia : copy.form.uploadMedia}
-              <input
-                type="file"
-                accept={mediaAccept}
-                multiple
-                className="sr-only"
-                disabled={isUploadingMedia}
-                onChange={handleArticleMediaUpload}
-              />
-            </label>
-          </div>
-          {uploadError ? <p className="mt-3 rounded-md border border-red-100 bg-red-50 p-3 text-sm font-bold text-red-700">{uploadError}</p> : null}
-
-          <div className="mt-3 space-y-3">
-            {media.map((item, index) => (
-              <div key={`${index}-${item.url}`} className="rounded-md border border-ink-100 bg-white p-3 shadow-xs">
-                <div className="grid gap-3 sm:grid-cols-[1fr_120px_120px]">
-                  <div className="min-w-0 rounded-md border border-ink-100 bg-ink-50 px-3 py-2">
-                    <p className="text-xs font-black uppercase text-ink-500">{copy.form.mediaUrl}</p>
-                    <p className="mt-1 truncate text-sm font-semibold text-ink-700">{item.url}</p>
-                  </div>
-                  <TextInput
-                    label={copy.form.mediaPosition}
-                    value={String(item.position ?? index)}
-                    onChange={(value) => updateMedia(index, (current) => ({ ...current, position: Number(value) }), setMedia)}
-                  />
-                  <label className="block">
-                    <span className="text-xs font-black uppercase text-ink-500">{copy.form.mediaLayout}</span>
-                    <select
-                      value={item.layout ?? 'full'}
-                      onChange={(event) => updateMedia(index, (current) => ({ ...current, layout: event.target.value as BlogPostMediaRecord['layout'] }), setMedia)}
-                      className="focus-ring mt-1 h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800"
-                    >
-                      <option value="full">Full</option>
-                      <option value="inset">Inset</option>
-                      <option value="side">Side</option>
-                    </select>
-                  </label>
-                </div>
-
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <TextInput
-                    label={copy.form.mediaTitle}
-                    value={item.title?.[activeLocale] ?? ''}
-                    onChange={(value) => updateMedia(index, (current) => ({
-                      ...current,
-                      title: { ...(current.title ?? {}), [activeLocale]: value },
-                      alt: current.alt?.[activeLocale] ? current.alt : { ...(current.alt ?? {}), [activeLocale]: value },
-                    }), setMedia)}
-                  />
-                  <TextInput
-                    label={copy.form.mediaAlt}
-                    value={item.alt?.[activeLocale] ?? ''}
-                    onChange={(value) => updateMedia(index, (current) => ({ ...current, alt: { ...(current.alt ?? {}), [activeLocale]: value } }), setMedia)}
-                  />
-                  <TextInput
-                    label={copy.form.mediaCaption}
-                    value={item.caption?.[activeLocale] ?? ''}
-                    onChange={(value) => updateMedia(index, (current) => ({ ...current, caption: { ...(current.caption ?? {}), [activeLocale]: value } }), setMedia)}
-                  />
-                  <TextInput
-                    label={copy.form.mediaCredit}
-                    value={item.credit ?? ''}
-                    onChange={(value) => updateMedia(index, (current) => ({ ...current, credit: value }), setMedia)}
-                  />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setMedia((current) => current.filter((_, currentIndex) => currentIndex !== index))}
-                  className="focus-ring mt-3 min-h-9 rounded-md border border-red-200 px-3 text-xs font-black text-red-700 transition hover:bg-red-50"
-                >
-                  {copy.form.removeMedia}
-                </button>
-              </div>
+        <label>
+          <span className="text-xs font-black uppercase text-ink-500">{copy.form.status}</span>
+          <select
+            value={status}
+            onChange={(event) => setStatus(event.target.value as BlogPostPayload['status'])}
+            className="focus-ring mt-1 h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800"
+          >
+            {availableStatuses.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
             ))}
-          </div>
-        </fieldset>
+          </select>
+        </label>
+      </div>
 
-        <TextInput label={copy.form.seoTitle} value={seoTitle[activeLocale] ?? ''} onChange={(value) => setSeoTitle((current) => ({ ...current, [activeLocale]: value }))} />
-        <TextArea label={copy.form.seoDescription} value={seoDescription[activeLocale] ?? ''} rows={3} onChange={(value) => setSeoDescription((current) => ({ ...current, [activeLocale]: value }))} />
-
-        <div className="flex flex-wrap justify-end gap-2 border-t border-ink-100 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="focus-ring min-h-11 rounded-md border border-ink-200 px-4 text-sm font-black text-ink-700 transition hover:bg-ink-50"
-          >
-            {copy.cancel}
-          </button>
-          <button
-            type="submit"
-            disabled={isWorking}
-            className="focus-ring min-h-11 rounded-md bg-foundation-600 px-4 text-sm font-black text-white transition hover:bg-foundation-900 disabled:opacity-50"
-          >
-            {isWorking ? copy.saving : copy.save}
-          </button>
+      <fieldset className="rounded-md border border-ink-100 p-3">
+        <legend className="px-1 text-xs font-black uppercase text-ink-500">{copy.form.tags}</legend>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {(options?.tags ?? []).map((tag) => (
+            <label
+              key={tag.id}
+              className="inline-flex min-h-10 items-center gap-2 rounded-md border border-ink-200 px-3 text-sm font-bold text-ink-700"
+            >
+              <input
+                type="checkbox"
+                checked={tagIds.includes(tag.id)}
+                onChange={(event) =>
+                  setTagIds((current) =>
+                    event.target.checked
+                      ? [...current, tag.id]
+                      : current.filter((id) => id !== tag.id),
+                  )
+                }
+                className="h-4 w-4 rounded-sm border-ink-300 text-foundation-700"
+              />
+              {tag.label}
+            </label>
+          ))}
         </div>
-      </form>
+      </fieldset>
+
+      <label className="inline-flex min-h-11 items-center gap-2 rounded-md border border-ink-200 px-3 text-sm font-bold text-ink-700">
+        <input
+          type="checkbox"
+          checked={isFeatured}
+          onChange={(event) => setIsFeatured(event.target.checked)}
+          className="h-4 w-4 rounded-sm border-ink-300 text-foundation-700"
+        />
+        {copy.form.featured}
+      </label>
+
+      <div className="rounded-md border border-ink-100 bg-ink-50 p-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase text-ink-500">{copy.form.imagePath}</p>
+            <p className="mt-1 text-xs font-semibold text-ink-500">
+              {imagePath || copy.form.mediaHelp}
+            </p>
+          </div>
+          <label className="focus-within:ring-2 focus-within:ring-foundation-500 inline-flex min-h-10 cursor-pointer items-center rounded-md bg-white px-3 text-xs font-black text-foundation-800 shadow-xs transition hover:bg-foundation-50">
+            {isUploadingMedia ? copy.form.uploadingMedia : copy.form.uploadMedia}
+            <input
+              type="file"
+              accept={imageAccept}
+              className="sr-only"
+              disabled={isUploadingMedia}
+              onChange={handleFeaturedUpload}
+            />
+          </label>
+        </div>
+      </div>
+      <TextInput
+        label={copy.form.imageAlt}
+        value={imageAlt[activeLocale] ?? ''}
+        onChange={(value) => setImageAlt((current) => ({ ...current, [activeLocale]: value }))}
+      />
+
+      <fieldset className="rounded-md border border-ink-100 bg-ink-50 p-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <legend className="text-xs font-black uppercase text-ink-500">{copy.form.media}</legend>
+            <p className="mt-1 text-xs font-semibold text-ink-500">{copy.form.mediaHelp}</p>
+          </div>
+          <label className="focus-within:ring-2 focus-within:ring-foundation-500 inline-flex min-h-9 cursor-pointer items-center rounded-md bg-white px-3 text-xs font-black text-foundation-800 shadow-xs transition hover:bg-foundation-50">
+            {isUploadingMedia ? copy.form.uploadingMedia : copy.form.uploadMedia}
+            <input
+              type="file"
+              accept={mediaAccept}
+              multiple
+              className="sr-only"
+              disabled={isUploadingMedia}
+              onChange={handleArticleMediaUpload}
+            />
+          </label>
+        </div>
+        {uploadError ? (
+          <p className="mt-3 rounded-md border border-red-100 bg-red-50 p-3 text-sm font-bold text-red-700">
+            {uploadError}
+          </p>
+        ) : null}
+
+        <div className="mt-3 space-y-3">
+          {media.map((item, index) => (
+            <div
+              key={`${index}-${item.url}`}
+              className="rounded-md border border-ink-100 bg-white p-3 shadow-xs"
+            >
+              <div className="grid gap-3 sm:grid-cols-[1fr_120px_120px]">
+                <div className="min-w-0 rounded-md border border-ink-100 bg-ink-50 px-3 py-2">
+                  <p className="text-xs font-black uppercase text-ink-500">{copy.form.mediaUrl}</p>
+                  <p className="mt-1 truncate text-sm font-semibold text-ink-700">{item.url}</p>
+                </div>
+                <TextInput
+                  label={copy.form.mediaPosition}
+                  value={String(item.position ?? index)}
+                  onChange={(value) =>
+                    updateMedia(
+                      index,
+                      (current) => ({ ...current, position: Number(value) }),
+                      setMedia,
+                    )
+                  }
+                />
+                <label className="block">
+                  <span className="text-xs font-black uppercase text-ink-500">
+                    {copy.form.mediaLayout}
+                  </span>
+                  <select
+                    value={item.layout ?? 'full'}
+                    onChange={(event) =>
+                      updateMedia(
+                        index,
+                        (current) => ({
+                          ...current,
+                          layout: event.target.value as BlogPostMediaRecord['layout'],
+                        }),
+                        setMedia,
+                      )
+                    }
+                    className="focus-ring mt-1 h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800"
+                  >
+                    <option value="full">Full</option>
+                    <option value="inset">Inset</option>
+                    <option value="side">Side</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <TextInput
+                  label={copy.form.mediaTitle}
+                  value={item.title?.[activeLocale] ?? ''}
+                  onChange={(value) =>
+                    updateMedia(
+                      index,
+                      (current) => ({
+                        ...current,
+                        title: { ...(current.title ?? {}), [activeLocale]: value },
+                        alt: current.alt?.[activeLocale]
+                          ? current.alt
+                          : { ...(current.alt ?? {}), [activeLocale]: value },
+                      }),
+                      setMedia,
+                    )
+                  }
+                />
+                <TextInput
+                  label={copy.form.mediaAlt}
+                  value={item.alt?.[activeLocale] ?? ''}
+                  onChange={(value) =>
+                    updateMedia(
+                      index,
+                      (current) => ({
+                        ...current,
+                        alt: { ...(current.alt ?? {}), [activeLocale]: value },
+                      }),
+                      setMedia,
+                    )
+                  }
+                />
+                <TextInput
+                  label={copy.form.mediaCaption}
+                  value={item.caption?.[activeLocale] ?? ''}
+                  onChange={(value) =>
+                    updateMedia(
+                      index,
+                      (current) => ({
+                        ...current,
+                        caption: { ...(current.caption ?? {}), [activeLocale]: value },
+                      }),
+                      setMedia,
+                    )
+                  }
+                />
+                <TextInput
+                  label={copy.form.mediaCredit}
+                  value={item.credit ?? ''}
+                  onChange={(value) =>
+                    updateMedia(index, (current) => ({ ...current, credit: value }), setMedia)
+                  }
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setMedia((current) => current.filter((_, currentIndex) => currentIndex !== index))
+                }
+                className="focus-ring mt-3 min-h-9 rounded-md border border-red-200 px-3 text-xs font-black text-red-700 transition hover:bg-red-50"
+              >
+                {copy.form.removeMedia}
+              </button>
+            </div>
+          ))}
+        </div>
+      </fieldset>
+
+      <TextInput
+        label={copy.form.seoTitle}
+        value={seoTitle[activeLocale] ?? ''}
+        onChange={(value) => setSeoTitle((current) => ({ ...current, [activeLocale]: value }))}
+      />
+      <TextArea
+        label={copy.form.seoDescription}
+        value={seoDescription[activeLocale] ?? ''}
+        rows={3}
+        onChange={(value) =>
+          setSeoDescription((current) => ({ ...current, [activeLocale]: value }))
+        }
+      />
+
+      <div className="flex flex-wrap justify-end gap-2 border-t border-ink-100 pt-4">
+        <button
+          type="button"
+          onClick={onClose}
+          className="focus-ring min-h-11 rounded-md border border-ink-200 px-4 text-sm font-black text-ink-700 transition hover:bg-ink-50"
+        >
+          {copy.cancel}
+        </button>
+        <button
+          type="submit"
+          disabled={isWorking}
+          className="focus-ring min-h-11 rounded-md bg-foundation-600 px-4 text-sm font-black text-white transition hover:bg-foundation-900 disabled:opacity-50"
+        >
+          {isWorking ? copy.saving : copy.save}
+        </button>
+      </div>
+    </form>
   );
 
   if (surface === 'plain') {
@@ -482,7 +603,9 @@ function updateMedia(
   update: (item: BlogPostMediaRecord) => BlogPostMediaRecord,
   setMedia: Dispatch<SetStateAction<BlogPostMediaRecord[]>>,
 ) {
-  setMedia((current) => current.map((item, currentIndex) => (currentIndex === index ? update(item) : item)));
+  setMedia((current) =>
+    current.map((item, currentIndex) => (currentIndex === index ? update(item) : item)),
+  );
 }
 
 function isAllowedMediaName(fileName: string, allowedExtensions = allowedMediaExtensions): boolean {
@@ -493,5 +616,7 @@ function isAllowedMediaName(fileName: string, allowedExtensions = allowedMediaEx
     return false;
   }
 
-  return !parts.slice(0, -1).some((part) => ['sql', 'exe', 'php', 'js', 'bat', 'cmd', 'ps1', 'sh', 'vbs'].includes(part));
+  return !parts
+    .slice(0, -1)
+    .some((part) => ['sql', 'exe', 'php', 'js', 'bat', 'cmd', 'ps1', 'sh', 'vbs'].includes(part));
 }

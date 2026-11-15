@@ -97,7 +97,7 @@ export const publicPages: PublicPageDefinition[] = [
         title: { en: 'Private by default', fr: 'Privé par défaut' },
         body: {
           en: 'Public pages use curated stories and aggregate impact. Sensitive beneficiary data remains behind authenticated workflows.',
-          fr: "Les pages publiques utilisent des récits validés et des données agrégées. Les données sensibles restent protégées.",
+          fr: 'Les pages publiques utilisent des récits validés et des données agrégées. Les données sensibles restent protégées.',
         },
       },
       {
@@ -139,7 +139,10 @@ export const publicPages: PublicPageDefinition[] = [
     path: { en: '/mission', fr: '/mission' },
     label: { en: 'Mission', fr: 'Mission' },
     eyebrow: { en: 'Our mission', fr: 'Notre mission' },
-    title: { en: 'Keep vulnerable children learning.', fr: 'Permettre aux enfants vulnérables de poursuivre leurs études.' },
+    title: {
+      en: 'Keep vulnerable children learning.',
+      fr: 'Permettre aux enfants vulnérables de poursuivre leurs études.',
+    },
     description: {
       en: 'We help children remain in school through verified needs, direct school support, and sustained sponsor communication.',
       fr: "Nous aidons les enfants à rester à l'école grâce à des besoins vérifiés, un soutien direct aux écoles et une communication continue avec les parrains.",
@@ -154,7 +157,10 @@ export const publicPages: PublicPageDefinition[] = [
     path: { en: '/vision', fr: '/vision' },
     label: { en: 'Vision', fr: 'Vision' },
     eyebrow: { en: 'Our vision', fr: 'Notre vision' },
-    title: { en: "A future where hardship does not end a child's education.", fr: "Un avenir où la difficulté n'arrête pas l'éducation d'un enfant." },
+    title: {
+      en: "A future where hardship does not end a child's education.",
+      fr: "Un avenir où la difficulté n'arrête pas l'éducation d'un enfant.",
+    },
     description: {
       en: 'We envision rural communities where orphaned and vulnerable children remain in school, grow in confidence, and move toward adulthood with hope.',
       fr: "Nous imaginons des communautés rurales où les orphelins et enfants vulnérables restent à l'école, grandissent en confiance et avancent vers l'âge adulte avec espérance.",
@@ -219,7 +225,10 @@ export const publicPages: PublicPageDefinition[] = [
     path: { en: '/success-stories', fr: '/histoires-de-reussite' },
     label: { en: 'Success Stories', fr: 'Histoires de réussite' },
     eyebrow: { en: 'Curated stories', fr: 'Récits validés' },
-    title: { en: 'Share progress responsibly.', fr: 'Partager les progrès de manière responsable.' },
+    title: {
+      en: 'Share progress responsibly.',
+      fr: 'Partager les progrès de manière responsable.',
+    },
     description: {
       en: 'Success stories should use consented, reviewed content and avoid exposing sensitive beneficiary details.',
       fr: 'Les histoires de réussite doivent utiliser du contenu consenti, validé et sans détails sensibles.',
@@ -234,7 +243,10 @@ export const publicPages: PublicPageDefinition[] = [
     path: { en: '/blog', fr: '/blog' },
     label: { en: 'Blog', fr: 'Blog' },
     eyebrow: { en: 'Updates and insights', fr: 'Actualités et analyses' },
-    title: { en: 'Field notes, education insights, and program updates.', fr: 'Notes de terrain, analyses éducatives et nouvelles des programmes.' },
+    title: {
+      en: 'Field notes, education insights, and program updates.',
+      fr: 'Notes de terrain, analyses éducatives et nouvelles des programmes.',
+    },
     description: {
       en: 'The blog will support localized slugs, metadata, categories, tags, and structured article data.',
       fr: 'Le blog prendra en charge les slugs localisés, métadonnées, catégories, étiquettes et données structurées.',
@@ -275,7 +287,7 @@ export const publicPages: PublicPageDefinition[] = [
     },
     seoDescription: {
       en: 'Contact TriumphChi Foundation about supporting a child, requesting education assistance, school partnerships, volunteering, or community support in rural Cameroon.',
-      fr: "Contactez la Fondation TriumphChi pour parrainer un enfant, demander une aide scolaire, coordonner avec une école, faire du bénévolat, créer un partenariat ou soutenir les besoins scolaires au Cameroun rural.",
+      fr: 'Contactez la Fondation TriumphChi pour parrainer un enfant, demander une aide scolaire, coordonner avec une école, faire du bénévolat, créer un partenariat ou soutenir les besoins scolaires au Cameroun rural.',
     },
     schemaType: 'ContactPage',
     sections: [],
@@ -290,7 +302,7 @@ export const publicPages: PublicPageDefinition[] = [
     title: { en: 'Help A Child Stay In School', fr: "Aider un enfant a rester a l'ecole" },
     description: {
       en: 'Support educational opportunities for orphaned and vulnerable children in rural Cameroon through practical school needs and community care.',
-      fr: "Soutenir les opportunites scolaires des orphelins et enfants vulnerables du Cameroun rural par des besoins concrets et le soin communautaire.",
+      fr: 'Soutenir les opportunites scolaires des orphelins et enfants vulnerables du Cameroun rural par des besoins concrets et le soin communautaire.',
     },
     seoTitle: {
       en: 'Donate | Help A Child Stay In School',
@@ -298,7 +310,7 @@ export const publicPages: PublicPageDefinition[] = [
     },
     seoDescription: {
       en: 'Donate to TriumphChi Foundation and help children in rural Cameroon with school fees, learning materials, examination support, uniforms, and education needs.',
-      fr: "Donnez a la Fondation TriumphChi pour aider les enfants du Cameroun rural avec les frais scolaires, le materiel, les examens, les uniformes et les besoins educatifs.",
+      fr: 'Donnez a la Fondation TriumphChi pour aider les enfants du Cameroun rural avec les frais scolaires, le materiel, les examens, les uniformes et les besoins educatifs.',
     },
     schemaType: 'DonateAction',
     sections: [],
@@ -338,7 +350,7 @@ export const publicPages: PublicPageDefinition[] = [
     eyebrow: { en: 'Child sponsorship', fr: "Parrainage d'enfant" },
     title: { en: 'Sponsor a Child', fr: 'Parrainer un enfant' },
     description: {
-      en: "Help a child remain in school through education support, mentorship, and community care. Your sponsorship becomes part of a larger commitment to helping children in rural Cameroon continue learning with dignity.",
+      en: 'Help a child remain in school through education support, mentorship, and community care. Your sponsorship becomes part of a larger commitment to helping children in rural Cameroon continue learning with dignity.',
       fr: "Aider un enfant à rester à l'école grâce au soutien scolaire, au mentorat et au soin communautaire. Votre parrainage rejoint un engagement plus large pour aider les enfants du Cameroun rural à continuer d'apprendre avec dignité.",
     },
     seoTitle: {
@@ -347,7 +359,7 @@ export const publicPages: PublicPageDefinition[] = [
     },
     seoDescription: {
       en: 'Sponsor a child through TriumphChi Foundation and help provide school fees, learning materials, exam support, mentorship, and community care in rural Cameroon.',
-      fr: "Parrainez un enfant avec la Fondation TriumphChi et aidez à fournir frais scolaires, fournitures, soutien aux examens, mentorat et soin communautaire au Cameroun rural.",
+      fr: 'Parrainez un enfant avec la Fondation TriumphChi et aidez à fournir frais scolaires, fournitures, soutien aux examens, mentorat et soin communautaire au Cameroun rural.',
     },
     schemaType: 'WebPage',
     sections: [],
@@ -359,7 +371,10 @@ export const publicPages: PublicPageDefinition[] = [
     path: { en: '/corporate-partnerships', fr: '/partenariats-entreprises' },
     label: { en: 'Corporate Partnerships', fr: 'Partenariats entreprises' },
     eyebrow: { en: 'Partner with us', fr: 'Devenir partenaire' },
-    title: { en: 'Create accountable education partnerships.', fr: 'Créer des partenariats éducatifs responsables.' },
+    title: {
+      en: 'Create accountable education partnerships.',
+      fr: 'Créer des partenariats éducatifs responsables.',
+    },
     description: {
       en: 'Corporate partners can support program funds, school infrastructure, emergency needs, and transparent reporting.',
       fr: "Les entreprises peuvent soutenir les fonds de programme, l'infrastructure scolaire, les urgences et les rapports.",
@@ -373,7 +388,10 @@ export const publicPages: PublicPageDefinition[] = [
     navGroup: 'secondary',
     path: { en: '/privacy-policy', fr: '/politique-de-confidentialite' },
     label: { en: 'Privacy Policy', fr: 'Confidentialite' },
-    eyebrow: { en: 'Privacy and child protection', fr: 'Confidentialite et protection des enfants' },
+    eyebrow: {
+      en: 'Privacy and child protection',
+      fr: 'Confidentialite et protection des enfants',
+    },
     title: { en: 'Privacy Policy', fr: 'Politique de confidentialite' },
     description: {
       en: 'How TriumphChi Foundation collects, uses, protects, and shares personal information connected to visitors, donors, applicants, children, guardians, schools, volunteers, and partners.',
@@ -393,7 +411,9 @@ export const publicPages: PublicPageDefinition[] = [
 ];
 
 export const publicNavigation = publicPages.filter((page) =>
-  ['home', 'about', 'programs', 'impact', 'donate', 'apply', 'blog', 'sponsor', 'contact'].includes(page.key),
+  ['home', 'about', 'programs', 'impact', 'donate', 'apply', 'blog', 'sponsor', 'contact'].includes(
+    page.key,
+  ),
 );
 
 export function getPublicPage(locale: Locale, slug?: string): PublicPageDefinition | undefined {
@@ -414,7 +434,10 @@ export function getPageByKey(key: PublicPageKey): PublicPageDefinition {
 export function buildPublicPageSchema(page: PublicPageDefinition, locale: Locale): JsonLdGraph {
   const url = localizedUrl(locale, page.path[locale]);
   const homePage = getPageByKey('home');
-  const faqSection = page.key in publicFaqSections ? publicFaqSections[page.key as keyof typeof publicFaqSections] : undefined;
+  const faqSection =
+    page.key in publicFaqSections
+      ? publicFaqSections[page.key as keyof typeof publicFaqSections]
+      : undefined;
   const breadcrumbs =
     page.key === 'home'
       ? [{ name: homePage.label[locale], url }]
@@ -424,38 +447,37 @@ export function buildPublicPageSchema(page: PublicPageDefinition, locale: Locale
         ];
 
   return buildJsonLdGraph([
-      buildOrganizationSchema(locale),
-      buildWebSiteSchema(locale),
-      {
-        '@type': page.schemaType === 'DonateAction' ? 'WebPage' : page.schemaType,
-        '@id': `${url}#webpage`,
-        url,
-        name: page.seoTitle?.[locale] ?? page.title[locale],
-        headline: page.title[locale],
-        description: page.seoDescription?.[locale] ?? page.description[locale],
-        inLanguage: locale,
-        isPartOf: { '@id': 'https://triumphchi.org/#website' },
-        about: { '@id': 'https://triumphchi.org/#organization' },
-        primaryImageOfPage: {
-          '@type': 'ImageObject',
-          url: absoluteUrl(siteConfig.defaultImage),
-          width: siteConfig.defaultImageWidth,
-          height: siteConfig.defaultImageHeight,
-          caption: siteConfig.defaultImageAlt,
-        },
+    buildOrganizationSchema(locale),
+    buildWebSiteSchema(locale),
+    {
+      '@type': page.schemaType === 'DonateAction' ? 'WebPage' : page.schemaType,
+      '@id': `${url}#webpage`,
+      url,
+      name: page.seoTitle?.[locale] ?? page.title[locale],
+      headline: page.title[locale],
+      description: page.seoDescription?.[locale] ?? page.description[locale],
+      inLanguage: locale,
+      isPartOf: { '@id': 'https://triumphchi.org/#website' },
+      about: { '@id': 'https://triumphchi.org/#organization' },
+      primaryImageOfPage: {
+        '@type': 'ImageObject',
+        url: absoluteUrl(siteConfig.defaultImage),
+        width: siteConfig.defaultImageWidth,
+        height: siteConfig.defaultImageHeight,
+        caption: siteConfig.defaultImageAlt,
       },
-      buildBreadcrumbSchema(breadcrumbs),
-      faqSection ? buildFaqSchema(faqSection.items[locale]) : undefined,
-      ...(page.schemaType === 'DonateAction'
-        ? [
-            {
-              '@type': 'DonateAction',
-              target: url,
-              recipient: { '@id': 'https://triumphchi.org/#organization' },
-              name: page.title[locale],
-            },
-          ]
-        : []),
-    ]);
+    },
+    buildBreadcrumbSchema(breadcrumbs),
+    faqSection ? buildFaqSchema(faqSection.items[locale]) : undefined,
+    ...(page.schemaType === 'DonateAction'
+      ? [
+          {
+            '@type': 'DonateAction',
+            target: url,
+            recipient: { '@id': 'https://triumphchi.org/#organization' },
+            name: page.title[locale],
+          },
+        ]
+      : []),
+  ]);
 }
-

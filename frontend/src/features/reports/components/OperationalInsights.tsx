@@ -27,7 +27,10 @@ export function OperationalInsights({
         >
           <div className="flex items-start justify-between gap-3">
             <StatusBadge label={insight.value} tone={insight.tone} />
-            <ArrowUpRight className="h-4 w-4 text-ink-400 transition group-hover:text-foundation-700" aria-hidden="true" />
+            <ArrowUpRight
+              className="h-4 w-4 text-ink-400 transition group-hover:text-foundation-700"
+              aria-hidden="true"
+            />
           </div>
           <p className="mt-4 text-sm font-black leading-6 text-ink-900">{insight.label}</p>
         </Link>

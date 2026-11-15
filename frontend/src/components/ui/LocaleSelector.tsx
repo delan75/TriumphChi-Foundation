@@ -11,9 +11,17 @@ interface LocaleSelectorProps {
   openAbove?: boolean;
 }
 
-export function LocaleSelector({ locale, currentPath, theme = 'light', openAbove = false }: LocaleSelectorProps) {
+export function LocaleSelector({
+  locale,
+  currentPath,
+  theme = 'light',
+  openAbove = false,
+}: LocaleSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [position, setPosition] = useState<{ vertical: 'top' | 'bottom'; horizontal: 'left' | 'right' }>({
+  const [position, setPosition] = useState<{
+    vertical: 'top' | 'bottom';
+    horizontal: 'left' | 'right';
+  }>({
     vertical: 'bottom',
     horizontal: 'right',
   });
@@ -82,22 +90,25 @@ export function LocaleSelector({ locale, currentPath, theme = 'light', openAbove
         ref={buttonRef}
         type="button"
         className={cn(
-          "focus-ring inline-flex min-h-11 items-center gap-2 rounded-md border pl-3 pr-8 text-xs font-black transition",
+          'focus-ring inline-flex min-h-11 items-center gap-2 rounded-md border pl-3 pr-8 text-xs font-black transition',
           isDark
-            ? "border-white/20 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"
-            : "border-ink-100 bg-white text-ink-700 hover:border-foundation-100 hover:bg-foundation-50"
+            ? 'border-white/20 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm'
+            : 'border-ink-100 bg-white text-ink-700 hover:border-foundation-100 hover:bg-foundation-50',
         )}
         aria-label={`${locale.toUpperCase()} — ${locale === 'fr' ? 'Choisir la langue' : 'Choose language'}`}
         aria-haspopup="true"
         aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Globe2 className={cn("h-4 w-4", isDark ? "text-foundation-100" : "text-foundation-600")} aria-hidden="true" />
+        <Globe2
+          className={cn('h-4 w-4', isDark ? 'text-foundation-100' : 'text-foundation-600')}
+          aria-hidden="true"
+        />
         <span className="uppercase">{locale}</span>
         <ChevronDown
           className={cn(
-            "pointer-events-none absolute right-2.5 h-4 w-4 transition-transform duration-200",
-            isDark ? "text-white/70" : "text-ink-500"
+            'pointer-events-none absolute right-2.5 h-4 w-4 transition-transform duration-200',
+            isDark ? 'text-white/70' : 'text-ink-500',
           )}
           aria-hidden="true"
           style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
@@ -109,10 +120,12 @@ export function LocaleSelector({ locale, currentPath, theme = 'light', openAbove
         hidden={!isOpen}
         className={cn(
           'absolute z-50 w-48 overflow-hidden rounded-md border shadow-lg transition-all duration-200',
-          !openAbove && position.vertical === 'bottom' ? 'top-full mt-1 origin-top' : 'bottom-full mb-1 origin-bottom',
+          !openAbove && position.vertical === 'bottom'
+            ? 'top-full mt-1 origin-top'
+            : 'bottom-full mb-1 origin-bottom',
           position.horizontal === 'right' ? 'right-0' : 'left-0',
           isDark ? 'border-white/20 bg-white/10 backdrop-blur-md' : 'border-ink-100 bg-white',
-          isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'
+          isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none',
         )}
         role="menu"
         aria-orientation="vertical"
@@ -124,42 +137,80 @@ export function LocaleSelector({ locale, currentPath, theme = 'light', openAbove
             className={cn(
               'focus-ring w-full px-4 py-3 text-left transition-colors duration-200',
               isDark
-                ? (locale === 'en' ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10')
-                : (locale === 'en' ? 'bg-foundation-50 text-foundation-900' : 'text-ink-700 hover:bg-foundation-50')
+                ? locale === 'en'
+                  ? 'bg-white/20 text-white'
+                  : 'text-white/80 hover:bg-white/10'
+                : locale === 'en'
+                  ? 'bg-foundation-50 text-foundation-900'
+                  : 'text-ink-700 hover:bg-foundation-50',
             )}
             onClick={() => handleSelect('en')}
           >
             <div className="flex items-center gap-3">
-              <div className={cn(
-                "grid h-7 w-7 shrink-0 place-items-center rounded-md text-xs font-black",
-                isDark ? "bg-white/20 text-white" : "bg-foundation-600 text-white"
-              )}>EN</div>
+              <div
+                className={cn(
+                  'grid h-7 w-7 shrink-0 place-items-center rounded-md text-xs font-black',
+                  isDark ? 'bg-white/20 text-white' : 'bg-foundation-600 text-white',
+                )}
+              >
+                EN
+              </div>
               <div className="flex flex-col">
-                <span className={cn("text-sm font-black uppercase", isDark ? "text-white" : "text-ink-900")}>English</span>
-                <span className={cn("text-xs font-normal", isDark ? "text-white/70" : "text-ink-500")}>English</span>
+                <span
+                  className={cn(
+                    'text-sm font-black uppercase',
+                    isDark ? 'text-white' : 'text-ink-900',
+                  )}
+                >
+                  English
+                </span>
+                <span
+                  className={cn('text-xs font-normal', isDark ? 'text-white/70' : 'text-ink-500')}
+                >
+                  English
+                </span>
               </div>
             </div>
           </button>
-          <div className={cn("my-1 border-t", isDark ? "border-white/10" : "border-ink-100")} />
+          <div className={cn('my-1 border-t', isDark ? 'border-white/10' : 'border-ink-100')} />
           <button
             type="button"
             role="menuitem"
             className={cn(
               'focus-ring w-full px-4 py-3 text-left transition-colors duration-200',
               isDark
-                ? (locale === 'fr' ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10')
-                : (locale === 'fr' ? 'bg-foundation-50 text-foundation-900' : 'text-ink-700 hover:bg-foundation-50')
+                ? locale === 'fr'
+                  ? 'bg-white/20 text-white'
+                  : 'text-white/80 hover:bg-white/10'
+                : locale === 'fr'
+                  ? 'bg-foundation-50 text-foundation-900'
+                  : 'text-ink-700 hover:bg-foundation-50',
             )}
             onClick={() => handleSelect('fr')}
           >
             <div className="flex items-center gap-3">
-              <div className={cn(
-                "grid h-7 w-7 shrink-0 place-items-center rounded-md text-xs font-black",
-                isDark ? "bg-white/20 text-white" : "bg-foundation-600 text-white"
-              )}>FR</div>
+              <div
+                className={cn(
+                  'grid h-7 w-7 shrink-0 place-items-center rounded-md text-xs font-black',
+                  isDark ? 'bg-white/20 text-white' : 'bg-foundation-600 text-white',
+                )}
+              >
+                FR
+              </div>
               <div className="flex flex-col">
-                <span className={cn("text-sm font-black uppercase", isDark ? "text-white" : "text-ink-900")}>Français</span>
-                <span className={cn("text-xs font-normal", isDark ? "text-white/70" : "text-ink-500")}>French</span>
+                <span
+                  className={cn(
+                    'text-sm font-black uppercase',
+                    isDark ? 'text-white' : 'text-ink-900',
+                  )}
+                >
+                  Français
+                </span>
+                <span
+                  className={cn('text-xs font-normal', isDark ? 'text-white/70' : 'text-ink-500')}
+                >
+                  French
+                </span>
               </div>
             </div>
           </button>
@@ -177,7 +228,9 @@ export function getLocalizedHref(currentPath: string, currentLocale: Locale, tar
   }
 
   const normalizedPublicPath = `/${rest.join('/')}`.replace(/\/$/, '') || '/';
-  const page = publicPages.find((candidate) => candidate.path[currentLocale] === normalizedPublicPath);
+  const page = publicPages.find(
+    (candidate) => candidate.path[currentLocale] === normalizedPublicPath,
+  );
 
   if (page) {
     return `/${targetLocale}${page.path[targetLocale]}`;

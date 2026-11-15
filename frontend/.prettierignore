@@ -1,0 +1,9 @@
+dist/
+node_modules/
+stats.html
+public/
+test-results/
+playwright-report/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts

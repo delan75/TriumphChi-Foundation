@@ -1,5 +1,14 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AlertCircle, ArrowLeft, BarChart3, HandCoins, Home, Inbox, Mail, UsersRound } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowLeft,
+  BarChart3,
+  HandCoins,
+  Home,
+  Inbox,
+  Mail,
+  UsersRound,
+} from 'lucide-react';
 import { Locale } from '../../lib/i18n';
 import { Seo } from '../../components/seo/Seo';
 import { isAuthenticated } from '../../lib/auth';
@@ -59,12 +68,26 @@ export function NotFoundPage({ locale }: NotFoundPageProps) {
   };
 
   const t = copy[locale];
-  const publicLinks = publicNavigation.filter((item) => ['home', 'about', 'contact', 'donate', 'sponsor', 'apply'].includes(item.key));
+  const publicLinks = publicNavigation.filter((item) =>
+    ['home', 'about', 'contact', 'donate', 'sponsor', 'apply'].includes(item.key),
+  );
   const staffLinks = [
     { to: `/${locale}/staff`, label: t.dashboard, icon: BarChart3 },
-    { to: `/${locale}/staff/applications`, label: locale === 'fr' ? 'Demandes' : 'Applications', icon: Inbox },
-    { to: `/${locale}/staff/beneficiaries`, label: locale === 'fr' ? 'Bénéficiaires' : 'Beneficiaries', icon: UsersRound },
-    { to: `/${locale}/staff/funding`, label: locale === 'fr' ? 'Financement' : 'Funding', icon: HandCoins },
+    {
+      to: `/${locale}/staff/applications`,
+      label: locale === 'fr' ? 'Demandes' : 'Applications',
+      icon: Inbox,
+    },
+    {
+      to: `/${locale}/staff/beneficiaries`,
+      label: locale === 'fr' ? 'Bénéficiaires' : 'Beneficiaries',
+      icon: UsersRound,
+    },
+    {
+      to: `/${locale}/staff/funding`,
+      label: locale === 'fr' ? 'Financement' : 'Funding',
+      icon: HandCoins,
+    },
   ];
 
   const handleGoBack = () => {
@@ -94,13 +117,16 @@ export function NotFoundPage({ locale }: NotFoundPageProps) {
             <AlertCircle className="h-10 w-10 text-foundation-600" aria-hidden="true" />
           </div>
 
-          <p className="mb-3 text-7xl font-black leading-none text-foundation-900 sm:text-8xl" aria-label="404">
+          <p
+            className="mb-3 text-7xl font-black leading-none text-foundation-900 sm:text-8xl"
+            aria-label="404"
+          >
             404
           </p>
 
           {/* Heading */}
           <h1 className="mb-4 text-4xl font-bold text-ink-900 sm:text-5xl">{t.heading}</h1>
-          
+
           {/* Description */}
           <p className="mb-8 text-lg text-ink-600">{t.description}</p>
 
@@ -135,29 +161,31 @@ export function NotFoundPage({ locale }: NotFoundPageProps) {
 
           {/* Helpful Links */}
           <div className="mx-auto max-w-lg rounded-xl border border-ink-100 bg-white p-6 text-left shadow-xs">
-            <h2 className="mb-4 text-lg font-semibold text-ink-900">{authenticated ? t.staffLinks : t.publicLinks}</h2>
+            <h2 className="mb-4 text-lg font-semibold text-ink-900">
+              {authenticated ? t.staffLinks : t.publicLinks}
+            </h2>
             <nav className="grid gap-2">
               {authenticated
                 ? staffLinks.map((item) => (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    className="focus-ring flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-ink-700 transition hover:bg-foundation-50 hover:text-foundation-900"
-                  >
-                    <item.icon className="h-4 w-4 text-foundation-600" aria-hidden="true" />
-                    {item.label}
-                  </Link>
-                ))
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className="focus-ring flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-ink-700 transition hover:bg-foundation-50 hover:text-foundation-900"
+                    >
+                      <item.icon className="h-4 w-4 text-foundation-600" aria-hidden="true" />
+                      {item.label}
+                    </Link>
+                  ))
                 : publicLinks.map((item) => (
-                  <Link
-                    key={item.key}
-                    to={`/${locale}${item.path[locale]}`}
-                    className="focus-ring flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-ink-700 transition hover:bg-foundation-50 hover:text-foundation-900"
-                  >
-                    <item.icon className="h-4 w-4 text-foundation-600" aria-hidden="true" />
-                    {item.label[locale]}
-                  </Link>
-                ))}
+                    <Link
+                      key={item.key}
+                      to={`/${locale}${item.path[locale]}`}
+                      className="focus-ring flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-ink-700 transition hover:bg-foundation-50 hover:text-foundation-900"
+                    >
+                      <item.icon className="h-4 w-4 text-foundation-600" aria-hidden="true" />
+                      {item.label[locale]}
+                    </Link>
+                  ))}
             </nav>
           </div>
 

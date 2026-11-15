@@ -74,7 +74,8 @@ export interface FundingCopy {
 export const fundingContent = {
   en: {
     title: 'Donation Management',
-    description: 'Review giving records, provider status, allocation progress, and payment traceability from one workspace.',
+    description:
+      'Review giving records, provider status, allocation progress, and payment traceability from one workspace.',
     refresh: 'Refresh',
     searchPlaceholder: 'Search reference, donor, or provider reference',
     status: 'Status',
@@ -99,9 +100,11 @@ export const fundingContent = {
       allocated: 'Allocation coverage',
     },
     tableTitle: 'Donation records',
-    tableDescription: 'Open a record to inspect donor, fund, allocation, and provider transaction details.',
+    tableDescription:
+      'Open a record to inspect donor, fund, allocation, and provider transaction details.',
     sourceDistributionTitle: 'Funding source distribution',
-    sourceDistributionDescription: 'See which giving source is generating the most funds for the selected currency.',
+    sourceDistributionDescription:
+      'See which giving source is generating the most funds for the selected currency.',
     sourceDistributionEmpty: 'No source distribution is available for the current filters.',
     giftLabel: 'gift',
     giftsLabel: 'gifts',
@@ -118,7 +121,8 @@ export const fundingContent = {
     loading: 'Loading donations...',
     empty: 'No donations match the current filters.',
     accessDeniedTitle: 'Donation access is not available',
-    accessDeniedBody: 'Your account needs the donations.view permission to review donation records.',
+    accessDeniedBody:
+      'Your account needs the donations.view permission to review donation records.',
     detailTitle: 'Donation details',
     close: 'Close',
     providerReference: 'Provider reference',
@@ -136,7 +140,8 @@ export const fundingContent = {
     refreshPaymentStatus: 'Check PayPal Status',
     refreshingPaymentStatus: 'Checking PayPal...',
     paymentReviewTitle: 'PayPal review in progress',
-    paymentReviewBody: 'PayPal may hold donations for security review. Use this action later to check whether PayPal has released or declined the payment.',
+    paymentReviewBody:
+      'PayPal may hold donations for security review. Use this action later to check whether PayPal has released or declined the payment.',
     permissions: 'Allowed actions',
     canCreate: 'Create',
     canUpdate: 'Update',
@@ -144,7 +149,8 @@ export const fundingContent = {
   },
   fr: {
     title: 'Gestion des dons',
-    description: 'Consultez les dons, le statut des prestataires, les allocations et la traçabilité des paiements depuis un seul espace.',
+    description:
+      'Consultez les dons, le statut des prestataires, les allocations et la traçabilité des paiements depuis un seul espace.',
     refresh: 'Actualiser',
     searchPlaceholder: 'Rechercher référence, donateur ou référence prestataire',
     status: 'Statut',
@@ -169,9 +175,11 @@ export const fundingContent = {
       allocated: 'Couverture allocation',
     },
     tableTitle: 'Dossiers de dons',
-    tableDescription: 'Ouvrez un dossier pour voir donateur, fonds, allocation et transaction prestataire.',
+    tableDescription:
+      'Ouvrez un dossier pour voir donateur, fonds, allocation et transaction prestataire.',
     sourceDistributionTitle: 'Repartition des sources de dons',
-    sourceDistributionDescription: 'Voyez quelle source genere le plus de fonds pour la devise selectionnee.',
+    sourceDistributionDescription:
+      'Voyez quelle source genere le plus de fonds pour la devise selectionnee.',
     sourceDistributionEmpty: 'Aucune repartition disponible pour les filtres actuels.',
     giftLabel: 'don',
     giftsLabel: 'dons',
@@ -188,7 +196,8 @@ export const fundingContent = {
     loading: 'Chargement des dons...',
     empty: 'Aucun don ne correspond aux filtres actuels.',
     accessDeniedTitle: 'Accès aux dons indisponible',
-    accessDeniedBody: 'Votre compte a besoin de la permission donations.view pour consulter les dons.',
+    accessDeniedBody:
+      'Votre compte a besoin de la permission donations.view pour consulter les dons.',
     detailTitle: 'Détails du don',
     close: 'Fermer',
     providerReference: 'Référence prestataire',
@@ -206,7 +215,8 @@ export const fundingContent = {
     refreshPaymentStatus: 'Verifier PayPal',
     refreshingPaymentStatus: 'Verification PayPal...',
     paymentReviewTitle: 'Verification PayPal en cours',
-    paymentReviewBody: 'PayPal peut retenir certains dons pour verification de securite. Utilisez cette action plus tard pour verifier si PayPal a libere ou refuse le paiement.',
+    paymentReviewBody:
+      'PayPal peut retenir certains dons pour verification de securite. Utilisez cette action plus tard pour verifier si PayPal a libere ou refuse le paiement.',
     permissions: 'Actions autorisées',
     canCreate: 'Créer',
     canUpdate: 'Modifier',

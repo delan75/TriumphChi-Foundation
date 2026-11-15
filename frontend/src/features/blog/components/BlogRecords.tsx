@@ -16,13 +16,30 @@ interface BlogRecordsProps {
   onEdit: (uuid: string) => void;
 }
 
-export function BlogRecords({ copy, locale, posts, selectedUuid, isLoading, canUpdate, onOpen, onEdit }: BlogRecordsProps) {
+export function BlogRecords({
+  copy,
+  locale,
+  posts,
+  selectedUuid,
+  isLoading,
+  canUpdate,
+  onOpen,
+  onEdit,
+}: BlogRecordsProps) {
   if (isLoading) {
-    return <div className="rounded-md border border-ink-100 bg-ink-50 p-4 text-sm font-bold text-ink-500">{copy.table.loading}</div>;
+    return (
+      <div className="rounded-md border border-ink-100 bg-ink-50 p-4 text-sm font-bold text-ink-500">
+        {copy.table.loading}
+      </div>
+    );
   }
 
   if (posts.length === 0) {
-    return <div className="rounded-md border border-ink-100 bg-ink-50 p-4 text-sm font-bold text-ink-500">{copy.table.empty}</div>;
+    return (
+      <div className="rounded-md border border-ink-100 bg-ink-50 p-4 text-sm font-bold text-ink-500">
+        {copy.table.empty}
+      </div>
+    );
   }
 
   return (
@@ -35,15 +52,22 @@ export function BlogRecords({ copy, locale, posts, selectedUuid, isLoading, canU
             onClick={() => onOpen(post.uuid)}
             className={cn(
               'focus-ring rounded-md border bg-white p-4 text-left shadow-xs transition hover:border-foundation-200 hover:bg-foundation-50',
-              selectedUuid === post.uuid ? 'border-foundation-300 bg-foundation-50' : 'border-ink-100',
+              selectedUuid === post.uuid
+                ? 'border-foundation-300 bg-foundation-50'
+                : 'border-ink-100',
             )}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-black uppercase text-ink-400">{post.reference}</p>
-                <h3 className="mt-1 text-base font-black leading-tight text-ink-900">{post.current_title}</h3>
+                <h3 className="mt-1 text-base font-black leading-tight text-ink-900">
+                  {post.current_title}
+                </h3>
               </div>
-              <StatusBadge label={copy.statuses[post.status] ?? post.status_label ?? post.status} tone={statusTone(post.status)} />
+              <StatusBadge
+                label={copy.statuses[post.status] ?? post.status_label ?? post.status}
+                tone={statusTone(post.status)}
+              />
             </div>
             <p className="mt-3 text-sm leading-6 text-ink-500">{post.current_excerpt ?? '-'}</p>
             <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold text-ink-500">
@@ -70,19 +94,35 @@ export function BlogRecords({ copy, locale, posts, selectedUuid, isLoading, canU
             {posts.map((post) => (
               <tr
                 key={post.uuid}
-                className={cn('transition hover:bg-foundation-50/70', selectedUuid === post.uuid ? 'bg-foundation-50' : 'bg-white')}
+                className={cn(
+                  'transition hover:bg-foundation-50/70',
+                  selectedUuid === post.uuid ? 'bg-foundation-50' : 'bg-white',
+                )}
               >
                 <td className="px-3 py-4">
                   <p className="text-xs font-black uppercase text-ink-400">{post.reference}</p>
-                  <p className="mt-1 max-w-sm text-sm font-black text-ink-900">{post.current_title}</p>
-                  <p className="mt-1 max-w-sm truncate text-xs font-semibold text-ink-500">{post.current_excerpt ?? '-'}</p>
+                  <p className="mt-1 max-w-sm text-sm font-black text-ink-900">
+                    {post.current_title}
+                  </p>
+                  <p className="mt-1 max-w-sm truncate text-xs font-semibold text-ink-500">
+                    {post.current_excerpt ?? '-'}
+                  </p>
                 </td>
                 <td className="px-3 py-4">
-                  <StatusBadge label={copy.statuses[post.status] ?? post.status_label ?? post.status} tone={statusTone(post.status)} />
+                  <StatusBadge
+                    label={copy.statuses[post.status] ?? post.status_label ?? post.status}
+                    tone={statusTone(post.status)}
+                  />
                 </td>
-                <td className="px-3 py-4 text-sm font-bold text-ink-700">{post.category?.label ?? '-'}</td>
-                <td className="px-3 py-4 text-sm font-bold text-ink-700">{post.author?.name ?? '-'}</td>
-                <td className="px-3 py-4 text-sm font-bold text-ink-700">{formatDate(post.published_at, locale)}</td>
+                <td className="px-3 py-4 text-sm font-bold text-ink-700">
+                  {post.category?.label ?? '-'}
+                </td>
+                <td className="px-3 py-4 text-sm font-bold text-ink-700">
+                  {post.author?.name ?? '-'}
+                </td>
+                <td className="px-3 py-4 text-sm font-bold text-ink-700">
+                  {formatDate(post.published_at, locale)}
+                </td>
                 <td className="px-3 py-4">
                   <div className="flex justify-end gap-2">
                     <button
@@ -126,5 +166,9 @@ function formatDate(value: string | null | undefined, locale: Locale): string {
     return '-';
   }
 
-  return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value));
+  return new Intl.DateTimeFormat(locale, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(value));
 }

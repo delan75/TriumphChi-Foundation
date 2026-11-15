@@ -27,7 +27,7 @@ export function AuthLayout({
   locale,
   leftPanelContent,
   backgroundImages,
-  mobileHeader = true
+  mobileHeader = true,
 }: AuthLayoutProps) {
   const { primary, secondary } = backgroundImages;
 
@@ -37,13 +37,20 @@ export function AuthLayout({
       {mobileHeader && (
         <header className="sticky top-0 z-30 border-b border-white/20 bg-white/92 shadow-xs backdrop-blur-xl lg:hidden">
           <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-            <Link to={`/${locale}`} className="focus-ring flex min-h-11 items-center gap-3 rounded-md pr-2">
+            <Link
+              to={`/${locale}`}
+              className="focus-ring flex min-h-11 items-center gap-3 rounded-md pr-2"
+            >
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-foundation-600 text-white shadow-xs">
                 <ShieldCheck className="h-5 w-5" aria-hidden="true" />
               </span>
               <span className="min-w-0">
-                <span className="block truncate text-sm font-bold text-foundation-900">{leftPanelContent.title}</span>
-                <span className="block truncate text-xs text-ink-500">{leftPanelContent.tagline}</span>
+                <span className="block truncate text-sm font-bold text-foundation-900">
+                  {leftPanelContent.title}
+                </span>
+                <span className="block truncate text-xs text-ink-500">
+                  {leftPanelContent.tagline}
+                </span>
               </span>
             </Link>
 
@@ -81,7 +88,10 @@ export function AuthLayout({
           {/* Content */}
           <div className="relative flex h-full flex-col justify-between p-8">
             <div>
-              <Link to={`/${locale}`} className="focus-ring inline-flex items-center gap-3 rounded-md p-2">
+              <Link
+                to={`/${locale}`}
+                className="focus-ring inline-flex items-center gap-3 rounded-md p-2"
+              >
                 <div className="grid h-12 w-12 place-items-center rounded-md bg-white/10 text-white backdrop-blur-sm">
                   <ShieldCheck className="h-6 w-6" aria-hidden="true" />
                 </div>
@@ -94,7 +104,9 @@ export function AuthLayout({
 
             <div className="mt-auto">
               <div className="max-w-md">
-                <p className="text-base leading-7 text-foundation-100">{leftPanelContent.description}</p>
+                <p className="text-base leading-7 text-foundation-100">
+                  {leftPanelContent.description}
+                </p>
 
                 <div className="mt-6 grid grid-cols-2 gap-3">
                   {leftPanelContent.highlights.map((highlight, index) => (
@@ -126,7 +138,9 @@ export function AuthLayout({
           {/* Mobile Brand Storytelling - visible only on mobile */}
           <div className="bg-foundation-900 px-4 py-12 text-white lg:hidden">
             <div className="mx-auto max-w-md">
-              <p className="text-base leading-7 text-foundation-100">{leftPanelContent.description}</p>
+              <p className="text-base leading-7 text-foundation-100">
+                {leftPanelContent.description}
+              </p>
 
               <div className="mt-8 grid grid-cols-2 gap-3">
                 {leftPanelContent.highlights.map((highlight, index) => (

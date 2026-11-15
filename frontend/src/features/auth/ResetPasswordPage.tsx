@@ -52,7 +52,12 @@ export function ResetPasswordPage({ locale, redirectTo }: ResetPasswordPageProps
     setIsLoading(true);
 
     try {
-      const response = await apiResetPassword(token, email, formData.password, formData.confirmPassword);
+      const response = await apiResetPassword(
+        token,
+        email,
+        formData.password,
+        formData.confirmPassword,
+      );
       setSuccessMessage(response.message);
       setIsSuccess(true);
     } catch (error) {
@@ -103,7 +108,9 @@ export function ResetPasswordPage({ locale, redirectTo }: ResetPasswordPageProps
                   <p className="mt-2 text-sm text-ink-500">{successMessage}</p>
                   <button
                     type="button"
-                    onClick={() => navigate(buildAuthPath(locale, 'login', redirectTarget), { replace: true })}
+                    onClick={() =>
+                      navigate(buildAuthPath(locale, 'login', redirectTarget), { replace: true })
+                    }
                     className="focus-ring mt-8 flex w-full justify-center rounded-md bg-foundation-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-foundation-900"
                   >
                     {copy.successAction}
@@ -151,7 +158,9 @@ export function ResetPasswordPage({ locale, redirectTo }: ResetPasswordPageProps
                       disabled={isLoading || !token || !email}
                       className={cn(
                         'focus-ring flex w-full justify-center rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition duration-200',
-                        isLoading || !token || !email ? 'cursor-not-allowed bg-foundation-400' : 'bg-foundation-600 hover:bg-foundation-900',
+                        isLoading || !token || !email
+                          ? 'cursor-not-allowed bg-foundation-400'
+                          : 'bg-foundation-600 hover:bg-foundation-900',
                       )}
                     >
                       {isLoading ? (
@@ -208,14 +217,26 @@ const leftPanel = {
   en: {
     title: 'TriumphChi Foundation',
     tagline: 'Giving from a covenant, not from leftovers.',
-    description: 'Helping orphaned and vulnerable children in rural Cameroon continue learning through education support, mentorship, and community partnership.',
-    highlights: ['Education Support', 'Community Partnership', 'Mentorship', 'Dignity and Opportunity'],
+    description:
+      'Helping orphaned and vulnerable children in rural Cameroon continue learning through education support, mentorship, and community partnership.',
+    highlights: [
+      'Education Support',
+      'Community Partnership',
+      'Mentorship',
+      'Dignity and Opportunity',
+    ],
   },
   fr: {
     title: 'Fondation TriumphChi',
     tagline: 'Donner par alliance, pas avec les restes.',
-    description: "Aider les orphelins et enfants vulnérables du Cameroun rural à continuer d'apprendre grâce au soutien éducatif, au mentorat et au partenariat communautaire.",
-    highlights: ['Soutien éducatif', 'Partenariat communautaire', 'Mentorat', 'Dignité et opportunité'],
+    description:
+      "Aider les orphelins et enfants vulnérables du Cameroun rural à continuer d'apprendre grâce au soutien éducatif, au mentorat et au partenariat communautaire.",
+    highlights: [
+      'Soutien éducatif',
+      'Partenariat communautaire',
+      'Mentorat',
+      'Dignité et opportunité',
+    ],
   },
 };
 
@@ -229,7 +250,8 @@ const resetPasswordCopy = {
     resetting: 'Resetting...',
     backToLogin: 'Back to sign in',
     successTitle: 'Password reset complete',
-    successMessage: 'Your password has been successfully reset. You can now log in with your new password.',
+    successMessage:
+      'Your password has been successfully reset. You can now log in with your new password.',
     successAction: 'Go to login',
     passwordHelp: 'Must be at least 8 characters.',
     invalidToken: 'Invalid or missing password reset token.',
@@ -249,7 +271,8 @@ const resetPasswordCopy = {
     resetting: 'Réinitialisation...',
     backToLogin: 'Retour à la connexion',
     successTitle: 'Mot de passe réinitialisé',
-    successMessage: 'Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter.',
+    successMessage:
+      'Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter.',
     successAction: 'Aller à la connexion',
     passwordHelp: 'Doit contenir au moins 8 caractères.',
     invalidToken: 'Jeton de réinitialisation invalide ou manquant.',

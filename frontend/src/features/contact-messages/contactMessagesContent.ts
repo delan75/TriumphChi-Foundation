@@ -75,7 +75,8 @@ export interface ContactMessagesCopy {
 export const contactMessagesContent: Record<Locale, ContactMessagesCopy> = {
   en: {
     title: 'Contact Inquiries',
-    description: 'Review public messages, assign ownership, forward inquiries, and keep follow-up moving.',
+    description:
+      'Review public messages, assign ownership, forward inquiries, and keep follow-up moving.',
     refresh: 'Refresh',
     accessDeniedTitle: 'Contact access required',
     accessDeniedBody: 'Your account does not currently have permission to view contact inquiries.',
@@ -161,10 +162,12 @@ export const contactMessagesContent: Record<Locale, ContactMessagesCopy> = {
   },
   fr: {
     title: 'Messages de contact',
-    description: 'Consultez les messages publics, assignez les suivis, transferez les demandes et avancez les reponses.',
+    description:
+      'Consultez les messages publics, assignez les suivis, transferez les demandes et avancez les reponses.',
     refresh: 'Actualiser',
     accessDeniedTitle: 'Acces contact requis',
-    accessDeniedBody: 'Votre compte ne dispose pas encore de la permission pour consulter les messages de contact.',
+    accessDeniedBody:
+      'Votre compte ne dispose pas encore de la permission pour consulter les messages de contact.',
     summary: {
       total: 'Demandes totales',
       new: 'Nouvelles',
@@ -200,9 +203,11 @@ export const contactMessagesContent: Record<Locale, ContactMessagesCopy> = {
     close: 'Fermer les details',
     preview: 'Apercu de la demande',
     previewTitle: 'Apercu complet',
-    previewDescription: 'Details complets de la demande pour la revue, l assignation ou le transfert.',
+    previewDescription:
+      'Details complets de la demande pour la revue, l assignation ou le transfert.',
     closePreview: 'Fermer l apercu',
-    noSelection: 'Selectionnez une demande pour lire le message, assigner le suivi ou le transferer.',
+    noSelection:
+      'Selectionnez une demande pour lire le message, assigner le suivi ou le transferer.',
     message: 'Message',
     contactDetails: 'Coordonnees',
     management: 'Gestion',

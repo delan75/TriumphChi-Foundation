@@ -30,7 +30,10 @@ export function FundingPage() {
   const [selectedDonationUuid, setSelectedDonationUuid] = useState<string | null>(null);
 
   const donationsQuery = useDonations(filters, canViewDonations);
-  const donationQuery = useDonation(selectedDonationUuid, canViewDonations && Boolean(selectedDonationUuid));
+  const donationQuery = useDonation(
+    selectedDonationUuid,
+    canViewDonations && Boolean(selectedDonationUuid),
+  );
   const refreshPaymentStatus = useRefreshDonationPaymentStatus();
 
   const donations = donationsQuery.data?.data ?? [];
@@ -67,13 +70,20 @@ export function FundingPage() {
             onClick={() => donationsQuery.refetch()}
             className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-foundation-600 px-4 text-sm font-bold text-white transition hover:bg-foundation-900"
           >
-            <RefreshCcw className={cn('h-4 w-4', donationsQuery.isFetching ? 'animate-spin' : '')} aria-hidden="true" />
+            <RefreshCcw
+              className={cn('h-4 w-4', donationsQuery.isFetching ? 'animate-spin' : '')}
+              aria-hidden="true"
+            />
             {copy.refresh}
           </button>
         }
       />
 
-      <DonationSummaryCards summary={donationsQuery.data?.summary} copy={copy} locale={activeLocale} />
+      <DonationSummaryCards
+        summary={donationsQuery.data?.summary}
+        copy={copy}
+        locale={activeLocale}
+      />
 
       <DonationFilters
         copy={copy}
@@ -96,16 +106,25 @@ export function FundingPage() {
         <DashboardPanel
           title={copy.tableTitle}
           description={copy.tableDescription}
-          action={pagination ? (
-            <PaginationControls
-              copy={copy}
-              pageLabel={pageLabel}
-              canPrevious={Boolean(donationsQuery.data?.links.prev)}
-              canNext={Boolean(donationsQuery.data?.links.next)}
-              onPrevious={() => setFilters((current) => ({ ...current, page: Math.max((current.page ?? 1) - 1, 1) }))}
-              onNext={() => setFilters((current) => ({ ...current, page: (current.page ?? 1) + 1 }))}
-            />
-          ) : null}
+          action={
+            pagination ? (
+              <PaginationControls
+                copy={copy}
+                pageLabel={pageLabel}
+                canPrevious={Boolean(donationsQuery.data?.links.prev)}
+                canNext={Boolean(donationsQuery.data?.links.next)}
+                onPrevious={() =>
+                  setFilters((current) => ({
+                    ...current,
+                    page: Math.max((current.page ?? 1) - 1, 1),
+                  }))
+                }
+                onNext={() =>
+                  setFilters((current) => ({ ...current, page: (current.page ?? 1) + 1 }))
+                }
+              />
+            ) : null
+          }
           bodyClassName="p-4"
         >
           {donationsQuery.isError ? (
@@ -162,7 +181,9 @@ function PaginationControls({
       >
         {copy.previous}
       </button>
-      <span className="min-h-10 rounded-md bg-ink-50 px-3 py-2 text-sm font-bold text-ink-700">{pageLabel}</span>
+      <span className="min-h-10 rounded-md bg-ink-50 px-3 py-2 text-sm font-bold text-ink-700">
+        {pageLabel}
+      </span>
       <button
         type="button"
         disabled={!canNext}

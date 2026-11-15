@@ -13,11 +13,23 @@ interface ModerationQueueProps {
   onReject: (uuid: string) => Promise<void>;
 }
 
-export function ModerationQueue({ posts, isLoading, isWorking, canPublish, onOpen, onApprove, onReject }: ModerationQueueProps) {
-  const reviewPosts = posts.filter(post => post.status === 'review');
+export function ModerationQueue({
+  posts,
+  isLoading,
+  isWorking,
+  canPublish,
+  onOpen,
+  onApprove,
+  onReject,
+}: ModerationQueueProps) {
+  const reviewPosts = posts.filter((post) => post.status === 'review');
 
   if (isLoading) {
-    return <div className="rounded-md border border-ink-100 bg-ink-50 p-4 text-sm font-bold text-ink-500">Loading moderation queue...</div>;
+    return (
+      <div className="rounded-md border border-ink-100 bg-ink-50 p-4 text-sm font-bold text-ink-500">
+        Loading moderation queue...
+      </div>
+    );
   }
 
   if (reviewPosts.length === 0) {
@@ -33,7 +45,10 @@ export function ModerationQueue({ posts, isLoading, isWorking, canPublish, onOpe
   return (
     <div className="space-y-4">
       {reviewPosts.map((post) => (
-        <article key={post.uuid} className="rounded-md border border-ink-200 bg-white shadow-xs transition hover:border-foundation-200 hover:shadow-md">
+        <article
+          key={post.uuid}
+          className="rounded-md border border-ink-200 bg-white shadow-xs transition hover:border-foundation-200 hover:shadow-md"
+        >
           <div className="p-4 sm:p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
@@ -41,15 +56,21 @@ export function ModerationQueue({ posts, isLoading, isWorking, canPublish, onOpe
                   <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-1 text-xs font-black text-amber-700 ring-1 ring-inset ring-amber-600/20">
                     Needs Review
                   </span>
-                  <span className="text-xs font-black uppercase text-ink-400">{post.reference}</span>
+                  <span className="text-xs font-black uppercase text-ink-400">
+                    {post.reference}
+                  </span>
                 </div>
-                <h3 className="mt-2 text-lg font-black leading-tight text-ink-900">{post.current_title}</h3>
-                <p className="mt-2 text-sm leading-6 text-ink-600 line-clamp-2">{post.current_excerpt || 'No excerpt provided.'}</p>
+                <h3 className="mt-2 text-lg font-black leading-tight text-ink-900">
+                  {post.current_title}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-ink-600 line-clamp-2">
+                  {post.current_excerpt || 'No excerpt provided.'}
+                </p>
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs font-bold text-ink-500">
                   <span>Author: {post.author?.name ?? 'Unknown'}</span>
                   <span>Category: {post.category?.label ?? '-'}</span>
                   {post.tags && post.tags.length > 0 ? (
-                    <span>Tags: {post.tags.map(t => t.label).join(', ')}</span>
+                    <span>Tags: {post.tags.map((t) => t.label).join(', ')}</span>
                   ) : null}
                 </div>
               </div>
@@ -63,7 +84,7 @@ export function ModerationQueue({ posts, isLoading, isWorking, canPublish, onOpe
                   <Eye className="h-4 w-4 text-ink-400" aria-hidden="true" />
                   Review Content
                 </button>
-                
+
                 {canPublish ? (
                   <>
                     <button

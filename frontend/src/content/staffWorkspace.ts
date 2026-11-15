@@ -67,15 +67,15 @@ export interface StaffWorkspaceCopy {
     };
     loading: string;
   };
-    profile: {
-      title: string;
-      description: string;
-      identityTitle: string;
-      identityDescription: string;
-      accessNote: string;
-      noPermissions: string;
-      labels: {
-        name: string;
+  profile: {
+    title: string;
+    description: string;
+    identityTitle: string;
+    identityDescription: string;
+    accessNote: string;
+    noPermissions: string;
+    labels: {
+      name: string;
       email: string;
       phone: string;
       locale: string;
@@ -142,7 +142,8 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
     dashboard: {
       greeting: 'Good day',
       title: 'Manage applications, beneficiaries, funding, and reporting from one place.',
-      subtitle: 'Surface the work that needs attention, move decisions forward, and keep records coherent across the organization.',
+      subtitle:
+        'Surface the work that needs attention, move decisions forward, and keep records coherent across the organization.',
       roleLabel: 'Current role',
       lastLoginLabel: 'Last login',
       workspaceLabel: 'Current workspace',
@@ -155,7 +156,8 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
         reports_due: 'Reports due',
       },
       metricsSectionTitle: 'Key metrics',
-      metricsSectionDescription: 'A quick reading of the queues and records that shape today’s work.',
+      metricsSectionDescription:
+        'A quick reading of the queues and records that shape today’s work.',
       queuesTitle: 'Priority work queue',
       queuesDescription: 'Start with the records that need movement now.',
       queueLabels: {
@@ -222,21 +224,25 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
       title: 'Settings',
       description: 'Handle session and workspace controls without leaving the authenticated area.',
       sessionTitle: 'Session controls',
-      sessionDescription: 'End the current session or revoke access across all devices when needed.',
+      sessionDescription:
+        'End the current session or revoke access across all devices when needed.',
       logoutCurrent: 'Logout current session',
       logoutAll: 'Logout all devices',
       inProgress: 'Working...',
       done: 'Done.',
       workspaceTitle: 'Workspace notes',
-      workspaceDescription: 'Language selection is shared with the rest of the site for a coherent experience.',
+      workspaceDescription:
+        'Language selection is shared with the rest of the site for a coherent experience.',
       localeNote: 'Use the locale selector in the top bar to switch the workspace language.',
     },
   },
   fr: {
     shell: {
       workspaceLabel: 'Operations',
-      searchPlaceholder: 'Rechercher des demandes, beneficiaires, ecoles, donateurs, fonds, paiements...',
-      searchEmpty: "Aucun dossier correspondant n'a ete trouve dans les espaces auxquels vous avez acces.",
+      searchPlaceholder:
+        'Rechercher des demandes, beneficiaires, ecoles, donateurs, fonds, paiements...',
+      searchEmpty:
+        "Aucun dossier correspondant n'a ete trouve dans les espaces auxquels vous avez acces.",
       searchTooShort: 'Saisissez au moins deux caracteres pour lancer la recherche.',
       searchRecent: 'Recherches recentes',
       searchRecentEmpty: 'Aucune recherche recente pour le moment.',
@@ -244,7 +250,7 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
       searchClear: 'Effacer la recherche',
       searchResults: { one: 'resultat', many: 'resultats' },
       notifications: 'Notifications',
-      notificationsEmpty: "Aucun element urgent pour le moment.",
+      notificationsEmpty: 'Aucun element urgent pour le moment.',
       notificationsOpenDashboard: 'Ouvrir le tableau de bord',
       userMenu: {
         profile: 'Profil',
@@ -271,8 +277,10 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
     },
     dashboard: {
       greeting: 'Bonjour',
-      title: 'Gerez les demandes, les beneficiaires, le financement et les rapports depuis un seul espace.',
-      subtitle: "Faites remonter le travail qui demande de l'attention, avancez les decisions et gardez les dossiers coherents dans toute l'organisation.",
+      title:
+        'Gerez les demandes, les beneficiaires, le financement et les rapports depuis un seul espace.',
+      subtitle:
+        "Faites remonter le travail qui demande de l'attention, avancez les decisions et gardez les dossiers coherents dans toute l'organisation.",
       roleLabel: 'Role actuel',
       lastLoginLabel: 'Derniere connexion',
       workspaceLabel: 'Espace actuel',
@@ -285,7 +293,8 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
         reports_due: 'Rapports attendus',
       },
       metricsSectionTitle: 'Indicateurs cles',
-      metricsSectionDescription: "Lecture rapide des files et des dossiers qui structurent le travail d'aujourd'hui.",
+      metricsSectionDescription:
+        "Lecture rapide des files et des dossiers qui structurent le travail d'aujourd'hui.",
       queuesTitle: 'File de travail prioritaire',
       queuesDescription: 'Commencez par les dossiers qui ont besoin de mouvement maintenant.',
       queueLabels: {
@@ -298,10 +307,12 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
       queueAction: 'Ouvrir la file',
       queueEmpty: "Aucun element n'attend dans cette file.",
       activityTitle: 'Activite recente',
-      activityDescription: 'Les mises a jour les plus recentes parmi les dossiers que vous pouvez consulter.',
+      activityDescription:
+        'Les mises a jour les plus recentes parmi les dossiers que vous pouvez consulter.',
       activityEmpty: "Aucune activite recente n'est disponible pour le moment.",
       quickActionsTitle: 'Actions rapides',
-      quickActionsDescription: 'Entrez directement dans les espaces de travail que vous utilisez le plus.',
+      quickActionsDescription:
+        'Entrez directement dans les espaces de travail que vous utilisez le plus.',
       quickActionLabels: {
         applications_review: {
           title: 'Revoir les demandes',
@@ -333,7 +344,8 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
       title: 'Profil',
       description: 'Consultez les informations de compte qui structurent cet espace de travail.',
       identityTitle: 'Identite',
-      identityDescription: 'Gardez vos informations de compte visibles et faciles a verifier pendant le travail.',
+      identityDescription:
+        'Gardez vos informations de compte visibles et faciles a verifier pendant le travail.',
       accessNote: "L'acces actuel provient des roles et des permissions attribues.",
       noPermissions: 'Aucune permission directe disponible.',
       labels: {
@@ -350,16 +362,20 @@ export const staffWorkspaceContent: Record<Locale, StaffWorkspaceCopy> = {
     },
     settings: {
       title: 'Parametres',
-      description: 'Gerez la session et les controles de workspace sans quitter la zone authentifiee.',
+      description:
+        'Gerez la session et les controles de workspace sans quitter la zone authentifiee.',
       sessionTitle: 'Controles de session',
-      sessionDescription: "Terminez la session actuelle ou revoquez l'acces sur tous les appareils si necessaire.",
+      sessionDescription:
+        "Terminez la session actuelle ou revoquez l'acces sur tous les appareils si necessaire.",
       logoutCurrent: 'Deconnecter la session actuelle',
       logoutAll: 'Deconnecter tous les appareils',
       inProgress: 'Traitement...',
       done: 'Termine.',
       workspaceTitle: "Notes sur l'espace de travail",
-      workspaceDescription: "La selection de langue est partagee avec le reste du site pour garder une experience coherente.",
-      localeNote: 'Utilisez le selecteur de langue dans la barre superieure pour changer la langue du workspace.',
+      workspaceDescription:
+        'La selection de langue est partagee avec le reste du site pour garder une experience coherente.',
+      localeNote:
+        'Utilisez le selecteur de langue dans la barre superieure pour changer la langue du workspace.',
     },
   },
 };

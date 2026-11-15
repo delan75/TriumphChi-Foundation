@@ -50,7 +50,9 @@ export function ContactMessageSummaryCards({ summary, copy }: ContactMessageSumm
               <p className="text-sm font-semibold text-ink-500">{card.label}</p>
               <p className="mt-2 text-2xl font-black text-ink-900">{card.value.toLocaleString()}</p>
             </div>
-            <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-md ${card.className}`}>
+            <div
+              className={`grid h-11 w-11 shrink-0 place-items-center rounded-md ${card.className}`}
+            >
               <card.icon className="h-5 w-5" aria-hidden="true" />
             </div>
           </div>

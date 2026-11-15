@@ -31,7 +31,10 @@ export function BlogSummaryCards({ summary, copy }: BlogSummaryCardsProps) {
         const Icon = card.icon;
 
         return (
-          <article key={card.key} className={cn('rounded-md border border-ink-100 p-4 shadow-xs', card.tone)}>
+          <article
+            key={card.key}
+            className={cn('rounded-md border border-ink-100 p-4 shadow-xs', card.tone)}
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-black uppercase opacity-75">{copy.summary[card.key]}</p>

@@ -18,7 +18,11 @@ test('localized navigation and migrated styles work in the production build', as
     element.className = 'bg-foundation-600 rounded-xs shadow-xs';
     document.body.append(element);
     const style = getComputedStyle(element);
-    const result = { background: style.backgroundColor, radius: style.borderRadius, shadow: style.boxShadow };
+    const result = {
+      background: style.backgroundColor,
+      radius: style.borderRadius,
+      shadow: style.boxShadow,
+    };
     element.remove();
     return result;
   });
@@ -36,7 +40,9 @@ test('staff guard preserves the requested localized path and query', async ({ pa
   await expect(page.locator('input[type="password"]')).toBeVisible();
 });
 
-test('root redirects preserve query and hash; nested public routes load directly', async ({ page }) => {
+test('root redirects preserve query and hash; nested public routes load directly', async ({
+  page,
+}) => {
   await page.goto('/?campaign=education#support');
   await expect(page).toHaveURL(/\/(en|fr)\?campaign=education#support$/);
   await page.goto('/en/donate/paypal/cancel');
@@ -74,7 +80,8 @@ test('page navigation scrolls smoothly to top', async ({ page }) => {
   await expect
     .poll(async () => {
       return page.evaluate(() => {
-        const calls = (window as unknown as { __scrollToCalls?: unknown[][] }).__scrollToCalls ?? [];
+        const calls =
+          (window as unknown as { __scrollToCalls?: unknown[][] }).__scrollToCalls ?? [];
         return calls.some((call) => {
           const opts = (call as [ScrollToOptions])[0];
           return typeof opts === 'object' && opts.top === 0 && opts.behavior === 'smooth';

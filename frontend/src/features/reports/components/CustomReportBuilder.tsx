@@ -24,7 +24,9 @@ export function CustomReportBuilder({
     () => templates.find((template) => template.key === templateKey) ?? templates[0],
     [templateKey, templates],
   );
-  const availableFormats = selectedTemplate?.formats?.length ? selectedTemplate.formats : copy.formats;
+  const availableFormats = selectedTemplate?.formats?.length
+    ? selectedTemplate.formats
+    : copy.formats;
   const [format, setFormat] = useState(availableFormats[0] ?? 'PDF');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [selectedFields, setSelectedFields] = useState<string[]>(copy.fields.slice(0, 5));
@@ -35,7 +37,9 @@ export function CustomReportBuilder({
       return;
     }
 
-    setFormat((current) => (availableFormats.includes(current) ? current : availableFormats[0] ?? 'PDF'));
+    setFormat((current) =>
+      availableFormats.includes(current) ? current : (availableFormats[0] ?? 'PDF'),
+    );
   }, [availableFormats, selectedTemplate]);
 
   useEffect(() => {
@@ -48,11 +52,9 @@ export function CustomReportBuilder({
   const canGenerate = Boolean(selectedTemplate) && selectedFields.length > 0 && !isWorking;
 
   const toggleField = (field: string) => {
-    setSelectedFields((current) => (
-      current.includes(field)
-        ? current.filter((item) => item !== field)
-        : [...current, field]
-    ));
+    setSelectedFields((current) =>
+      current.includes(field) ? current.filter((item) => item !== field) : [...current, field],
+    );
   };
 
   const updateFilter = (key: keyof ReportFilters, value: string) => {
@@ -87,7 +89,11 @@ export function CustomReportBuilder({
   };
 
   if (!templates.length) {
-    return <p className="rounded-md border border-dashed border-ink-200 p-5 text-sm text-ink-500">{copy.table.empty}</p>;
+    return (
+      <p className="rounded-md border border-dashed border-ink-200 p-5 text-sm text-ink-500">
+        {copy.table.empty}
+      </p>
+    );
   }
 
   return (
@@ -101,7 +107,9 @@ export function CustomReportBuilder({
             className="focus-ring mt-1 min-h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800"
           >
             {templates.map((template) => (
-              <option key={template.key} value={template.key}>{template.name}</option>
+              <option key={template.key} value={template.key}>
+                {template.name}
+              </option>
             ))}
           </select>
         </label>
@@ -153,10 +161,15 @@ export function CustomReportBuilder({
 
       <div className="grid gap-4">
         <fieldset>
-          <legend className="text-xs font-bold uppercase text-ink-500">{copy.builder.fields}</legend>
+          <legend className="text-xs font-bold uppercase text-ink-500">
+            {copy.builder.fields}
+          </legend>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {copy.fields.map((field) => (
-              <label key={field} className="flex min-h-11 items-center gap-3 rounded-md border border-ink-100 px-3 text-sm font-semibold text-ink-700">
+              <label
+                key={field}
+                className="flex min-h-11 items-center gap-3 rounded-md border border-ink-100 px-3 text-sm font-semibold text-ink-700"
+              >
                 <input
                   type="checkbox"
                   checked={selectedFields.includes(field)}
@@ -189,14 +202,18 @@ export function CustomReportBuilder({
               className="focus-ring mt-1 min-h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800"
             >
               {availableFormats.map((option) => (
-                <option key={option} value={option}>{option}</option>
+                <option key={option} value={option}>
+                  {option}
+                </option>
               ))}
             </select>
           </label>
         </div>
 
         <div className="rounded-md border border-foundation-100 bg-foundation-50 p-4">
-          <p className="text-xs font-bold uppercase text-foundation-700">{copy.builder.selectedFields}</p>
+          <p className="text-xs font-bold uppercase text-foundation-700">
+            {copy.builder.selectedFields}
+          </p>
           <p className="mt-2 text-sm leading-6 text-ink-700">{selectedLabel || '-'}</p>
         </div>
 

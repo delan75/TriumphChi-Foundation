@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiGenerateReport, apiGetReportDashboard, apiGetReportQueue, type ReportGeneratePayload } from '../../lib/api';
+import {
+  apiGenerateReport,
+  apiGetReportDashboard,
+  apiGetReportQueue,
+  type ReportGeneratePayload,
+} from '../../lib/api';
 
 export function useReportDashboard(enabled: boolean) {
   return useQuery({

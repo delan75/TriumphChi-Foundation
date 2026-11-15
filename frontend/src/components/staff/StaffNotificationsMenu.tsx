@@ -85,7 +85,10 @@ export function StaffNotificationsMenu({ locale, summary, labels }: StaffNotific
                     <p className="text-sm font-semibold text-ink-900">{item.title}</p>
                     <p className="mt-1 text-sm text-ink-500">{item.status_label}</p>
                   </div>
-                  <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-ink-400" aria-hidden="true" />
+                  <ChevronRight
+                    className="mt-0.5 h-4 w-4 shrink-0 text-ink-400"
+                    aria-hidden="true"
+                  />
                 </button>
               ))}
             </div>
