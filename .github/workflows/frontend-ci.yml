@@ -1,3 +1,4 @@
+
 name: Frontend CI
 
 on:
@@ -17,9 +18,11 @@ jobs:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
@@ -31,14 +34,8 @@ jobs:
       - name: Security audit
         run: npm audit
 
-      - name: Lint
-        run: npm run lint
-
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Browser tests
-        run: npm run test:browser
-
-      - name: Final project check
+      - name: Run frontend checks
         run: npm run check
