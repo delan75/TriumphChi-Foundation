@@ -5,7 +5,9 @@ import { PublicHeader } from './PublicHeader';
 import { PublicFooter } from './PublicFooter';
 import { PageLoading } from '../../components/ui/PageLoading';
 
-const StaffShell = lazy(() => import('./StaffShell').then((module) => ({ default: module.StaffShell })));
+const StaffShell = lazy(() =>
+  import('./StaffShell').then((module) => ({ default: module.StaffShell })),
+);
 
 export function AppShell() {
   const { locale = 'en' } = useParams();
@@ -25,6 +27,9 @@ export function AppShell() {
     );
   }
 
-  return <Suspense fallback={<PageLoading />}><StaffShell /></Suspense>;
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <StaffShell />
+    </Suspense>
+  );
 }
-

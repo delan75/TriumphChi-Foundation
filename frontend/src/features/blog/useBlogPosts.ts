@@ -55,7 +55,8 @@ export function useUpdateBlogPost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ uuid, payload }: { uuid: string; payload: BlogPostPayload }) => apiUpdateBlogPost(uuid, payload),
+    mutationFn: ({ uuid, payload }: { uuid: string; payload: BlogPostPayload }) =>
+      apiUpdateBlogPost(uuid, payload),
     onSuccess: (post) => {
       queryClient.setQueryData(['blog-post', post.uuid], post);
       void queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
@@ -68,7 +69,8 @@ export function useTransitionBlogPostStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ uuid, status }: { uuid: string; status: string }) => apiTransitionBlogPostStatus(uuid, status),
+    mutationFn: ({ uuid, status }: { uuid: string; status: string }) =>
+      apiTransitionBlogPostStatus(uuid, status),
     onSuccess: (post) => {
       queryClient.setQueryData(['blog-post', post.uuid], post);
       void queryClient.invalidateQueries({ queryKey: ['blog-posts'] });

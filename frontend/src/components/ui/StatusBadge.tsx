@@ -15,9 +15,13 @@ const tones = {
 
 export function StatusBadge({ label, tone = 'neutral' }: StatusBadgeProps) {
   return (
-    <span className={cn('inline-flex min-h-7 items-center rounded-md px-2.5 text-xs font-semibold', tones[tone])}>
+    <span
+      className={cn(
+        'inline-flex min-h-7 items-center rounded-md px-2.5 text-xs font-semibold',
+        tones[tone],
+      )}
+    >
       {label}
     </span>
   );
 }
-

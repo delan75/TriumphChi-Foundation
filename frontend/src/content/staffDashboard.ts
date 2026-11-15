@@ -99,9 +99,18 @@ export const staffDashboardText: Record<Locale, StaffDashboardText> = {
     queueEmpty: 'Nothing is waiting in this queue.',
     activityEmpty: 'No recent activity yet.',
     quickActionLabels: {
-      applications_review: { title: 'Review applications', description: 'Open intake and review queues.' },
-      beneficiaries_open: { title: 'Open beneficiaries', description: 'Go to active child records.' },
-      funding_open: { title: 'Open funding', description: 'Review donations, allocations, and payments.' },
+      applications_review: {
+        title: 'Review applications',
+        description: 'Open intake and review queues.',
+      },
+      beneficiaries_open: {
+        title: 'Open beneficiaries',
+        description: 'Go to active child records.',
+      },
+      funding_open: {
+        title: 'Open funding',
+        description: 'Review donations, allocations, and payments.',
+      },
       reports_open: { title: 'Open reports', description: 'Check impact and accountability work.' },
     },
     overviewLabels: {
@@ -165,10 +174,22 @@ export const staffDashboardText: Record<Locale, StaffDashboardText> = {
     queueEmpty: 'Aucun element n attend dans cette file.',
     activityEmpty: 'Aucune activite recente pour le moment.',
     quickActionLabels: {
-      applications_review: { title: 'Revoir les demandes', description: "Ouvrir les files d entree et de revue." },
-      beneficiaries_open: { title: 'Ouvrir les beneficiaires', description: 'Acceder aux dossiers actifs.' },
-      funding_open: { title: 'Ouvrir le financement', description: 'Revoir dons, allocations et paiements.' },
-      reports_open: { title: 'Ouvrir les rapports', description: "Verifier impact et redevabilite." },
+      applications_review: {
+        title: 'Revoir les demandes',
+        description: 'Ouvrir les files d entree et de revue.',
+      },
+      beneficiaries_open: {
+        title: 'Ouvrir les beneficiaires',
+        description: 'Acceder aux dossiers actifs.',
+      },
+      funding_open: {
+        title: 'Ouvrir le financement',
+        description: 'Revoir dons, allocations et paiements.',
+      },
+      reports_open: {
+        title: 'Ouvrir les rapports',
+        description: 'Verifier impact et redevabilite.',
+      },
     },
     overviewLabels: {
       accessibleModules: 'Modules accessibles',
@@ -180,6 +201,6 @@ export const staffDashboardText: Record<Locale, StaffDashboardText> = {
       noData: 'Aucune donnee disponible pour le moment.',
     },
     errorTitle: 'Les donnees du tableau de bord n ont pas pu se charger.',
-    errorDescription: "L espace de travail se rafraichira des que l API repondra de nouveau.",
+    errorDescription: 'L espace de travail se rafraichira des que l API repondra de nouveau.',
   },
 };

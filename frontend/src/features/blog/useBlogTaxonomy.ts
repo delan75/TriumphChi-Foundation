@@ -25,7 +25,8 @@ export function useUpdateBlogCategory() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ uuid, payload }: { uuid: string; payload: BlogCategoryPayload }) => apiUpdateBlogCategory(uuid, payload),
+    mutationFn: ({ uuid, payload }: { uuid: string; payload: BlogCategoryPayload }) =>
+      apiUpdateBlogCategory(uuid, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['blog-options'] });
     },
@@ -58,7 +59,8 @@ export function useUpdateBlogTag() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ uuid, payload }: { uuid: string; payload: BlogTagPayload }) => apiUpdateBlogTag(uuid, payload),
+    mutationFn: ({ uuid, payload }: { uuid: string; payload: BlogTagPayload }) =>
+      apiUpdateBlogTag(uuid, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['blog-options'] });
     },

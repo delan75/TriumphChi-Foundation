@@ -9,7 +9,15 @@ interface BeneficiaryFiltersProps {
   onChange: (filters: BeneficiaryListParams) => void;
 }
 
-const statusOptions = ['application', 'verification', 'review', 'accepted', 'active_support', 'graduated', 'archived'];
+const statusOptions = [
+  'application',
+  'verification',
+  'review',
+  'accepted',
+  'active_support',
+  'graduated',
+  'archived',
+];
 
 export function BeneficiaryFilters({ copy, filters, onChange }: BeneficiaryFiltersProps) {
   const update = (key: keyof BeneficiaryListParams, value: string) => {
@@ -25,7 +33,10 @@ export function BeneficiaryFilters({ copy, filters, onChange }: BeneficiaryFilte
       <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-8">
         <label className="relative block min-w-0 sm:col-span-2 lg:col-span-4 2xl:col-span-2">
           <span className="sr-only">{copy.filters.search}</span>
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" aria-hidden="true" />
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400"
+            aria-hidden="true"
+          />
           <input
             type="search"
             value={filters.search ?? ''}
@@ -35,7 +46,11 @@ export function BeneficiaryFilters({ copy, filters, onChange }: BeneficiaryFilte
           />
         </label>
 
-        <Select label={copy.filters.status} value={filters.status ?? ''} onChange={(value) => update('status', value)}>
+        <Select
+          label={copy.filters.status}
+          value={filters.status ?? ''}
+          onChange={(value) => update('status', value)}
+        >
           <option value="">{copy.filters.all}</option>
           {statusOptions.map((status) => (
             <option key={status} value={status}>
@@ -64,14 +79,20 @@ export function BeneficiaryFilters({ copy, filters, onChange }: BeneficiaryFilte
           <option value="unsponsored">{copy.filters.unsponsored}</option>
         </Select>
 
-        <Select label={copy.filters.gender} value={filters.gender ?? ''} onChange={(value) => update('gender', value)}>
+        <Select
+          label={copy.filters.gender}
+          value={filters.gender ?? ''}
+          onChange={(value) => update('gender', value)}
+        >
           <option value="">{copy.filters.all}</option>
           <option value="female">{copy.filters.female}</option>
           <option value="male">{copy.filters.male}</option>
         </Select>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-bold uppercase text-ink-400">{copy.filters.academicYear}</span>
+          <span className="mb-1 block text-xs font-bold uppercase text-ink-400">
+            {copy.filters.academicYear}
+          </span>
           <input
             type="text"
             value={filters.academic_year ?? ''}
@@ -81,7 +102,9 @@ export function BeneficiaryFilters({ copy, filters, onChange }: BeneficiaryFilte
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-bold uppercase text-ink-400">{copy.filters.classLevel}</span>
+          <span className="mb-1 block text-xs font-bold uppercase text-ink-400">
+            {copy.filters.classLevel}
+          </span>
           <input
             type="text"
             value={filters.education_level ?? ''}
@@ -92,7 +115,14 @@ export function BeneficiaryFilters({ copy, filters, onChange }: BeneficiaryFilte
 
         <button
           type="button"
-          onClick={() => onChange({ page: 1, per_page: filters.per_page, sort: filters.sort, direction: filters.direction })}
+          onClick={() =>
+            onChange({
+              page: 1,
+              per_page: filters.per_page,
+              sort: filters.sort,
+              direction: filters.direction,
+            })
+          }
           className="focus-ring inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-md border border-ink-200 px-3 text-sm font-bold text-ink-700 transition hover:bg-ink-50 lg:mt-5"
         >
           <X className="h-4 w-4" aria-hidden="true" />

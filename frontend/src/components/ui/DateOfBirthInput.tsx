@@ -262,12 +262,17 @@ export function DateOfBirthInput({
   }
 
   const hasError = Boolean(error);
-  const describedBy = [hasError ? errorId : null, helpText ? helpId : null].filter(Boolean).join(' ') || undefined;
+  const describedBy =
+    [hasError ? errorId : null, helpText ? helpId : null].filter(Boolean).join(' ') || undefined;
 
   const segmentBase =
     'h-11 rounded-md border bg-white text-center text-base font-semibold text-ink-900 shadow-xs transition duration-200 focus:outline-hidden focus:ring-2 placeholder:text-ink-300';
   const segmentNormal = 'border-ink-200 focus:border-foundation-500 focus:ring-foundation-500/20';
   const segmentError = 'border-support-red focus:border-support-red focus:ring-support-red/20';
+  const segmentClass = cn(
+    segmentBase,
+    hasError || (touched && !value) ? segmentError : segmentNormal,
+  );
   const isSegmentEmpty = !day && !month && !year;
   const segmentClass = cn(segmentBase, hasError || (touched && isSegmentEmpty) ? segmentError : segmentNormal);
 
@@ -355,8 +360,19 @@ export function DateOfBirthInput({
 
       {/* Error */}
       {error ? (
-        <p id={errorId} role="alert" className="mt-1.5 flex items-center gap-1.5 text-sm text-support-red">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="shrink-0">
+        <p
+          id={errorId}
+          role="alert"
+          className="mt-1.5 flex items-center gap-1.5 text-sm text-support-red"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+            className="shrink-0"
+          >
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
           </svg>
           {error}

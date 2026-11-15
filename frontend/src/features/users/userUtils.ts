@@ -1,6 +1,8 @@
 import type { Locale } from '../../lib/i18n';
 
-export function userStatusTone(status?: string): 'neutral' | 'info' | 'success' | 'warning' | 'danger' {
+export function userStatusTone(
+  status?: string,
+): 'neutral' | 'info' | 'success' | 'warning' | 'danger' {
   switch (status) {
     case 'active':
       return 'success';

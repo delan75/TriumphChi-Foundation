@@ -7,11 +7,23 @@ type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 export function statusTone(status: string | null | undefined): Tone {
   const normalized = (status ?? '').toLowerCase();
 
-  if (['active', 'active_support', 'funded', 'sponsored', 'graduated', 'completed', 'accepted'].includes(normalized)) {
+  if (
+    [
+      'active',
+      'active_support',
+      'funded',
+      'sponsored',
+      'graduated',
+      'completed',
+      'accepted',
+    ].includes(normalized)
+  ) {
     return 'success';
   }
 
-  if (['verification', 'review', 'pending', 'awaiting_sponsorship', 'submitted'].includes(normalized)) {
+  if (
+    ['verification', 'review', 'pending', 'awaiting_sponsorship', 'submitted'].includes(normalized)
+  ) {
     return 'warning';
   }
 
@@ -26,7 +38,11 @@ export function statusTone(status: string | null | undefined): Tone {
   return 'neutral';
 }
 
-export function formatMoney(amount: string | number | null | undefined, currency: string | null | undefined, locale: Locale) {
+export function formatMoney(
+  amount: string | number | null | undefined,
+  currency: string | null | undefined,
+  locale: Locale,
+) {
   const numericAmount = Number(amount ?? 0);
   const normalizedCurrency = typeof currency === 'string' ? currency.trim().toUpperCase() : '';
 
@@ -58,11 +74,17 @@ export function formatDate(value: string | null | undefined, locale: Locale) {
   return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date);
 }
 
-export function fundingStatusLabel(hasFundingGap: boolean, copy: { funded: string; fundingGap: string }) {
+export function fundingStatusLabel(
+  hasFundingGap: boolean,
+  copy: { funded: string; fundingGap: string },
+) {
   return hasFundingGap ? copy.fundingGap : copy.funded;
 }
 
-export function sponsorStatusLabel(count: number, copy: { sponsored: string; unsponsored: string }) {
+export function sponsorStatusLabel(
+  count: number,
+  copy: { sponsored: string; unsponsored: string },
+) {
   return count > 0 ? copy.sponsored : copy.unsponsored;
 }
 
@@ -70,7 +92,11 @@ export function currentNeedLabel(beneficiary: BeneficiaryRecord, copy: Beneficia
   return beneficiary.current_need?.title || copy.filters.noActiveNeeds;
 }
 
-export function currentNeedDescription(beneficiary: BeneficiaryRecord, copy: BeneficiariesCopy, locale: Locale) {
+export function currentNeedDescription(
+  beneficiary: BeneficiaryRecord,
+  copy: BeneficiariesCopy,
+  locale: Locale,
+) {
   const need = beneficiary.current_need;
 
   if (!need) {
@@ -83,7 +109,11 @@ export function currentNeedDescription(beneficiary: BeneficiaryRecord, copy: Ben
   return `${copy.tableHelp.currentNeed} ${status}. ${copy.profile.gap}: ${gap}.`;
 }
 
-export function fundingState(beneficiary: BeneficiaryRecord, copy: BeneficiariesCopy, locale: Locale): { label: string; tone: Tone; description: string } {
+export function fundingState(
+  beneficiary: BeneficiaryRecord,
+  copy: BeneficiariesCopy,
+  locale: Locale,
+): { label: string; tone: Tone; description: string } {
   const required = Number(beneficiary.funding_summary.amount_required ?? 0);
   const funded = Number(beneficiary.funding_summary.amount_funded ?? 0);
   const gap = Number(beneficiary.funding_summary.funding_gap ?? 0);
@@ -128,7 +158,10 @@ export function fundingState(beneficiary: BeneficiaryRecord, copy: Beneficiaries
   };
 }
 
-export function sponsorshipState(beneficiary: BeneficiaryRecord, copy: BeneficiariesCopy): { label: string; tone: Tone; description: string } {
+export function sponsorshipState(
+  beneficiary: BeneficiaryRecord,
+  copy: BeneficiariesCopy,
+): { label: string; tone: Tone; description: string } {
   const count = beneficiary.case_summary.sponsor_count;
 
   if (count <= 0) {

@@ -36,7 +36,10 @@ export function QuickReportsGrid({
             className="focus-ring mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-foundation-600 px-4 text-sm font-black text-white transition hover:bg-foundation-900"
           >
             {copy.actions.generate}
-            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" />
+            <ArrowRight
+              className="h-4 w-4 transition group-hover:translate-x-0.5"
+              aria-hidden="true"
+            />
           </button>
         </article>
       ))}

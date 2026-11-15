@@ -97,7 +97,9 @@ export function GlobalSearchPanel({
             <h2 className="text-lg font-semibold text-ink-900">{title}</h2>
             <p className="mt-1 text-sm leading-6 text-ink-500">{description}</p>
           </div>
-          <div className="rounded-md bg-ink-50 px-3 py-2 text-xs font-medium text-ink-500">{permissionsHint}</div>
+          <div className="rounded-md bg-ink-50 px-3 py-2 text-xs font-medium text-ink-500">
+            {permissionsHint}
+          </div>
         </div>
       </div>
 
@@ -106,7 +108,10 @@ export function GlobalSearchPanel({
           {title}
         </label>
         <div className="relative">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-400" aria-hidden="true" />
+          <Search
+            className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-400"
+            aria-hidden="true"
+          />
           <input
             id="dashboard-global-search"
             type="search"
@@ -138,9 +143,14 @@ export function GlobalSearchPanel({
         <div className="mt-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <p className="text-sm text-ink-500">{helperText}</p>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-normal text-ink-500">{visibleScopesLabel}</span>
+            <span className="text-xs font-semibold uppercase tracking-normal text-ink-500">
+              {visibleScopesLabel}
+            </span>
             {(scopeLabels.length > 0 ? scopeLabels : [noVisibleScopes]).map((scope) => (
-              <span key={scope} className="inline-flex min-h-7 items-center rounded-md bg-foundation-50 px-2.5 text-xs font-semibold text-foundation-900">
+              <span
+                key={scope}
+                className="inline-flex min-h-7 items-center rounded-md bg-foundation-50 px-2.5 text-xs font-semibold text-foundation-900"
+              >
                 {scope}
               </span>
             ))}
@@ -167,7 +177,9 @@ export function GlobalSearchPanel({
                     <header className="flex items-center justify-between gap-3 bg-ink-50 px-4 py-3">
                       <div>
                         <p className="text-sm font-semibold text-ink-900">{group.label}</p>
-                        <p className="text-xs text-ink-500">{group.count} {group.count === 1 ? resultSingular : resultPlural}</p>
+                        <p className="text-xs text-ink-500">
+                          {group.count} {group.count === 1 ? resultSingular : resultPlural}
+                        </p>
                       </div>
                       <button
                         type="button"
@@ -195,9 +207,16 @@ export function GlobalSearchPanel({
                                 </span>
                               ) : null}
                             </div>
-                            {result.subtitle ? <p className="mt-1 text-sm leading-6 text-ink-500">{result.subtitle}</p> : null}
+                            {result.subtitle ? (
+                              <p className="mt-1 text-sm leading-6 text-ink-500">
+                                {result.subtitle}
+                              </p>
+                            ) : null}
                           </div>
-                          <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-ink-400" aria-hidden="true" />
+                          <ArrowRight
+                            className="mt-0.5 h-4 w-4 shrink-0 text-ink-400"
+                            aria-hidden="true"
+                          />
                         </button>
                       ))}
                     </div>
@@ -213,7 +232,11 @@ export function GlobalSearchPanel({
 }
 
 function SearchState({ children }: { children: ReactNode }) {
-  return <div className="flex min-h-20 items-center gap-3 px-4 py-4 text-sm text-ink-500">{children}</div>;
+  return (
+    <div className="flex min-h-20 items-center gap-3 px-4 py-4 text-sm text-ink-500">
+      {children}
+    </div>
+  );
 }
 
 function useClickAway(ref: React.RefObject<HTMLElement | null>, onAway: () => void) {

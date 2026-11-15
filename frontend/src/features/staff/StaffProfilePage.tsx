@@ -50,7 +50,10 @@ export function StaffProfilePage() {
   const initials = extractInitials(user?.name);
   const stats = useMemo(() => buildStats(summaryQuery.data, copy), [copy, summaryQuery.data]);
   const responsibilities = useMemo(() => buildResponsibilities(user, copy), [copy, user]);
-  const permissionGroups = useMemo(() => groupPermissions(user?.permissions ?? []), [user?.permissions]);
+  const permissionGroups = useMemo(
+    () => groupPermissions(user?.permissions ?? []),
+    [user?.permissions],
+  );
 
   if (currentUserQuery.isLoading) {
     return <ProfileLoadingState copy={copy} />;
@@ -96,16 +99,35 @@ export function StaffProfilePage() {
                     {department}
                   </span>
                 </div>
-                <h1 className="mt-3 truncate text-3xl font-black tracking-tight sm:text-4xl">{user?.name ?? copy.values.staffMember}</h1>
-                <p className="staff-profile-hero-subtitle mt-2 text-sm font-semibold sm:text-base">{roleLabel}</p>
+                <h1 className="mt-3 truncate text-3xl font-black tracking-tight sm:text-4xl">
+                  {user?.name ?? copy.values.staffMember}
+                </h1>
+                <p className="staff-profile-hero-subtitle mt-2 text-sm font-semibold sm:text-base">
+                  {roleLabel}
+                </p>
                 <p className="staff-profile-hero-muted mt-1 text-sm">{position}</p>
               </div>
             </div>
 
             <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[480px]">
-              <HeroFact icon={CalendarDays} label={copy.labels.memberSince} value={formatDate(user?.profile?.joined_foundation_at ?? user?.email_verified_at, activeLocale)} />
-              <HeroFact icon={Clock3} label={copy.labels.lastActive} value={formatDateTime(user?.last_login_at, activeLocale)} />
-              <HeroFact icon={MapPin} label={copy.labels.timezone} value={Intl.DateTimeFormat().resolvedOptions().timeZone || 'Africa/Douala'} />
+              <HeroFact
+                icon={CalendarDays}
+                label={copy.labels.memberSince}
+                value={formatDate(
+                  user?.profile?.joined_foundation_at ?? user?.email_verified_at,
+                  activeLocale,
+                )}
+              />
+              <HeroFact
+                icon={Clock3}
+                label={copy.labels.lastActive}
+                value={formatDateTime(user?.last_login_at, activeLocale)}
+              />
+              <HeroFact
+                icon={MapPin}
+                label={copy.labels.timezone}
+                value={Intl.DateTimeFormat().resolvedOptions().timeZone || 'Africa/Douala'}
+              />
             </div>
           </div>
         </div>
@@ -143,7 +165,13 @@ export function StaffProfilePage() {
               className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-md border border-ink-200 bg-white text-ink-700 transition hover:bg-ink-50"
               aria-label={copy.actions.refresh}
             >
-              <RefreshCcw className={cn('h-4 w-4', (currentUserQuery.isFetching || summaryQuery.isFetching) && 'animate-spin')} aria-hidden="true" />
+              <RefreshCcw
+                className={cn(
+                  'h-4 w-4',
+                  (currentUserQuery.isFetching || summaryQuery.isFetching) && 'animate-spin',
+                )}
+                aria-hidden="true"
+              />
             </button>
           </div>
         </div>
@@ -157,7 +185,9 @@ export function StaffProfilePage() {
                 onClick={() => setActiveTab(tab)}
                 className={cn(
                   'focus-ring min-h-10 rounded-md px-3 text-sm font-bold transition',
-                  activeTab === tab ? 'bg-foundation-600 text-white' : 'bg-ink-50 text-ink-700 hover:bg-ink-100',
+                  activeTab === tab
+                    ? 'bg-foundation-600 text-white'
+                    : 'bg-ink-50 text-ink-700 hover:bg-ink-100',
                 )}
               >
                 {copy.tabs[tab]}
@@ -218,22 +248,47 @@ function OverviewTab({
         <DashboardPanel title={copy.sections.contact}>
           <div className="grid gap-3 sm:grid-cols-2">
             <ProfileFact icon={Mail} label={copy.labels.email} value={user?.email ?? '-'} />
-            <ProfileFact icon={Phone} label={copy.labels.phone} value={user?.phone ?? copy.empty.phone} />
-            <ProfileFact icon={Languages} label={copy.labels.language} value={languageLabel(user?.preferred_locale ?? locale, copy)} />
-            <ProfileFact icon={BriefcaseBusiness} label={copy.labels.employeeNumber} value={user?.employee_number ?? '-'} />
-            <ProfileFact icon={MapPin} label={copy.labels.department} value={user?.profile?.department ?? copy.empty.department} />
-            <ProfileFact icon={ShieldCheck} label={copy.labels.position} value={user?.profile?.position ?? copy.empty.position} />
+            <ProfileFact
+              icon={Phone}
+              label={copy.labels.phone}
+              value={user?.phone ?? copy.empty.phone}
+            />
+            <ProfileFact
+              icon={Languages}
+              label={copy.labels.language}
+              value={languageLabel(user?.preferred_locale ?? locale, copy)}
+            />
+            <ProfileFact
+              icon={BriefcaseBusiness}
+              label={copy.labels.employeeNumber}
+              value={user?.employee_number ?? '-'}
+            />
+            <ProfileFact
+              icon={MapPin}
+              label={copy.labels.department}
+              value={user?.profile?.department ?? copy.empty.department}
+            />
+            <ProfileFact
+              icon={ShieldCheck}
+              label={copy.labels.position}
+              value={user?.profile?.position ?? copy.empty.position}
+            />
           </div>
         </DashboardPanel>
 
         <DashboardPanel title={copy.sections.quickStats}>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => (
-              <article key={stat.label} className="profile-stat-card rounded-md border border-l-4 p-4 shadow-xs">
+              <article
+                key={stat.label}
+                className="profile-stat-card rounded-md border border-l-4 p-4 shadow-xs"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="profile-stat-label text-xs font-bold uppercase">{stat.label}</p>
-                    <p className="profile-stat-value mt-2 text-2xl font-black tabular-nums">{stat.value}</p>
+                    <p className="profile-stat-value mt-2 text-2xl font-black tabular-nums">
+                      {stat.value}
+                    </p>
                   </div>
                   <div className="profile-stat-icon grid h-10 w-10 shrink-0 place-items-center rounded-md">
                     <stat.icon className="h-5 w-5" aria-hidden="true" />
@@ -249,7 +304,10 @@ function OverviewTab({
         <DashboardPanel title={copy.sections.responsibilities}>
           <div className="flex flex-wrap gap-2">
             {responsibilities.map((responsibility) => (
-              <span key={responsibility} className="inline-flex min-h-9 items-center rounded-md bg-foundation-50 px-3 text-sm font-bold text-foundation-800">
+              <span
+                key={responsibility}
+                className="inline-flex min-h-9 items-center rounded-md bg-foundation-50 px-3 text-sm font-bold text-foundation-800"
+              >
                 {responsibility}
               </span>
             ))}
@@ -269,15 +327,33 @@ function OverviewTab({
         </DashboardPanel>
 
         <DashboardPanel title={copy.sections.professionalProfile}>
-          <p className="text-sm leading-6 text-ink-600">{user?.profile?.bio || copy.empty.profile}</p>
-          <TagList items={[...(user?.profile?.skills ?? []), ...(user?.profile?.languages ?? []), ...(user?.profile?.certifications ?? [])]} />
+          <p className="text-sm leading-6 text-ink-600">
+            {user?.profile?.bio || copy.empty.profile}
+          </p>
+          <TagList
+            items={[
+              ...(user?.profile?.skills ?? []),
+              ...(user?.profile?.languages ?? []),
+              ...(user?.profile?.certifications ?? []),
+            ]}
+          />
         </DashboardPanel>
       </div>
     </div>
   );
 }
 
-function ActivityTab({ copy, locale, user, summary }: { copy: StaffProfileCopy; locale: Locale; user: AuthUser | null; summary?: DashboardSummaryResponse }) {
+function ActivityTab({
+  copy,
+  locale,
+  user,
+  summary,
+}: {
+  copy: StaffProfileCopy;
+  locale: Locale;
+  user: AuthUser | null;
+  summary?: DashboardSummaryResponse;
+}) {
   const items = [
     ...(user?.activity ?? []).map((item) => ({
       id: `user-${item.id}`,
@@ -300,16 +376,28 @@ function ActivityTab({ copy, locale, user, summary }: { copy: StaffProfileCopy; 
   );
 }
 
-function AccessTab({ copy, roles, permissionGroups }: { copy: StaffProfileCopy; roles: string[]; permissionGroups: Record<string, string[]> }) {
+function AccessTab({
+  copy,
+  roles,
+  permissionGroups,
+}: {
+  copy: StaffProfileCopy;
+  roles: string[];
+  permissionGroups: Record<string, string[]>;
+}) {
   return (
     <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
       <DashboardPanel title={copy.sections.responsibilities}>
         <div className="space-y-2">
-          {roles.length ? roles.map((role) => (
-            <div key={role} className="rounded-md border border-ink-100 bg-ink-50 p-4">
-              <p className="text-sm font-black text-ink-900">{friendlyRoleName(role)}</p>
-            </div>
-          )) : <p className="text-sm text-ink-500">{copy.empty.permissions}</p>}
+          {roles.length ? (
+            roles.map((role) => (
+              <div key={role} className="rounded-md border border-ink-100 bg-ink-50 p-4">
+                <p className="text-sm font-black text-ink-900">{friendlyRoleName(role)}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-ink-500">{copy.empty.permissions}</p>
+          )}
         </div>
       </DashboardPanel>
 
@@ -318,10 +406,15 @@ function AccessTab({ copy, roles, permissionGroups }: { copy: StaffProfileCopy; 
           <div className="grid gap-3 lg:grid-cols-2">
             {Object.entries(permissionGroups).map(([group, permissions]) => (
               <details key={group} className="rounded-md border border-ink-100 bg-white p-4" open>
-                <summary className="cursor-pointer text-sm font-black text-ink-900">{friendlyRoleName(group)}</summary>
+                <summary className="cursor-pointer text-sm font-black text-ink-900">
+                  {friendlyRoleName(group)}
+                </summary>
                 <div className="mt-3 space-y-2">
                   {permissions.map((permission) => (
-                    <div key={permission} className="flex items-center gap-2 rounded-md bg-ink-50 px-3 py-2 text-sm font-semibold text-ink-700">
+                    <div
+                      key={permission}
+                      className="flex items-center gap-2 rounded-md bg-ink-50 px-3 py-2 text-sm font-semibold text-ink-700"
+                    >
                       <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-hidden="true" />
                       <span>{friendlyPermissionAction(permission)}</span>
                     </div>
@@ -338,40 +431,73 @@ function AccessTab({ copy, roles, permissionGroups }: { copy: StaffProfileCopy; 
   );
 }
 
-function SecurityTab({ copy, locale, user }: { copy: StaffProfileCopy; locale: Locale; user: AuthUser | null }) {
+function SecurityTab({
+  copy,
+  locale,
+  user,
+}: {
+  copy: StaffProfileCopy;
+  locale: Locale;
+  user: AuthUser | null;
+}) {
   return (
     <div className="grid gap-6 xl:grid-cols-2">
       <DashboardPanel title={copy.sections.connectedAccounts}>
         <div className="space-y-3">
-          {user?.auth_providers?.length ? user.auth_providers.map((provider) => (
-            <div key={provider.provider} className="rounded-md border border-ink-100 bg-ink-50 p-4">
-              <p className="text-sm font-black text-ink-900">{friendlyRoleName(provider.provider)}</p>
-              <p className="mt-1 text-xs text-ink-500">{provider.provider_email ?? user.email}</p>
-              <p className="mt-2 text-xs font-semibold text-ink-500">{copy.labels.lastActive}: {formatDateTime(provider.last_used_at, locale)}</p>
-            </div>
-          )) : <p className="text-sm text-ink-500">{copy.empty.providers}</p>}
+          {user?.auth_providers?.length ? (
+            user.auth_providers.map((provider) => (
+              <div
+                key={provider.provider}
+                className="rounded-md border border-ink-100 bg-ink-50 p-4"
+              >
+                <p className="text-sm font-black text-ink-900">
+                  {friendlyRoleName(provider.provider)}
+                </p>
+                <p className="mt-1 text-xs text-ink-500">{provider.provider_email ?? user.email}</p>
+                <p className="mt-2 text-xs font-semibold text-ink-500">
+                  {copy.labels.lastActive}: {formatDateTime(provider.last_used_at, locale)}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-ink-500">{copy.empty.providers}</p>
+          )}
         </div>
       </DashboardPanel>
 
       <DashboardPanel title={copy.sections.sessions}>
         <div className="space-y-3">
-          {user?.sessions?.length ? user.sessions.map((session) => (
-            <div key={session.id} className="flex items-start gap-3 rounded-md border border-ink-100 bg-white p-4">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-foundation-50 text-foundation-700">
-                <Monitor className="h-5 w-5" aria-hidden="true" />
+          {user?.sessions?.length ? (
+            user.sessions.map((session) => (
+              <div
+                key={session.id}
+                className="flex items-start gap-3 rounded-md border border-ink-100 bg-white p-4"
+              >
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-foundation-50 text-foundation-700">
+                  <Monitor className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-sm font-black text-ink-900">{session.name}</p>
+                  <p className="mt-1 text-xs text-ink-500">
+                    {copy.labels.lastActive}:{' '}
+                    {formatDateTime(session.last_used_at ?? session.created_at, locale)}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-black text-ink-900">{session.name}</p>
-                <p className="mt-1 text-xs text-ink-500">{copy.labels.lastActive}: {formatDateTime(session.last_used_at ?? session.created_at, locale)}</p>
-              </div>
-            </div>
-          )) : <p className="text-sm text-ink-500">{copy.empty.sessions}</p>}
+            ))
+          ) : (
+            <p className="text-sm text-ink-500">{copy.empty.sessions}</p>
+          )}
         </div>
       </DashboardPanel>
 
       <DashboardPanel title={copy.actions.manageSecurity}>
         <div className="grid gap-3 sm:grid-cols-2">
-          <ProfileFact icon={LockKeyhole} label={copy.labels.twoFactor} value={copy.values.disabled} />
+          <ProfileFact
+            icon={LockKeyhole}
+            label={copy.labels.twoFactor}
+            value={copy.values.disabled}
+          />
           <ProfileFact icon={Mail} label={copy.labels.recoveryEmail} value={user?.email ?? '-'} />
         </div>
       </DashboardPanel>
@@ -379,21 +505,53 @@ function SecurityTab({ copy, locale, user }: { copy: StaffProfileCopy; locale: L
   );
 }
 
-function PreferencesTab({ copy, locale, user }: { copy: StaffProfileCopy; locale: Locale; user: AuthUser | null }) {
+function PreferencesTab({
+  copy,
+  locale,
+  user,
+}: {
+  copy: StaffProfileCopy;
+  locale: Locale;
+  user: AuthUser | null;
+}) {
   return (
     <DashboardPanel title={copy.sections.preferences}>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <ProfileFact icon={Languages} label={copy.labels.language} value={languageLabel(user?.preferred_locale ?? locale, copy)} />
+        <ProfileFact
+          icon={Languages}
+          label={copy.labels.language}
+          value={languageLabel(user?.preferred_locale ?? locale, copy)}
+        />
         <ProfileFact icon={Monitor} label={copy.labels.theme} value={copy.values.lightTheme} />
-        <ProfileFact icon={CalendarDays} label={copy.labels.dateFormat} value={locale === 'fr' ? '30 juin 2026' : 'Jun 30, 2026'} />
-        <ProfileFact icon={Bell} label={copy.labels.notifications} value={copy.values.browserNotifications} />
-        <ProfileFact icon={FileText} label={copy.values.weeklySummary} value={copy.values.enabled} />
+        <ProfileFact
+          icon={CalendarDays}
+          label={copy.labels.dateFormat}
+          value={locale === 'fr' ? '30 juin 2026' : 'Jun 30, 2026'}
+        />
+        <ProfileFact
+          icon={Bell}
+          label={copy.labels.notifications}
+          value={copy.values.browserNotifications}
+        />
+        <ProfileFact
+          icon={FileText}
+          label={copy.values.weeklySummary}
+          value={copy.values.enabled}
+        />
       </div>
     </DashboardPanel>
   );
 }
 
-function HeroFact({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
+function HeroFact({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+}) {
   return (
     <div className="staff-profile-hero-fact rounded-md p-3">
       <div className="staff-profile-hero-label flex items-center gap-2">
@@ -405,7 +563,15 @@ function HeroFact({ icon: Icon, label, value }: { icon: LucideIcon; label: strin
   );
 }
 
-function ProfileFact({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
+function ProfileFact({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+}) {
   return (
     <div className="rounded-md border border-ink-100 bg-white p-4 shadow-xs">
       <div className="flex items-center gap-2 text-ink-500">
@@ -417,19 +583,34 @@ function ProfileFact({ icon: Icon, label, value }: { icon: LucideIcon; label: st
   );
 }
 
-function Timeline({ empty, items }: { empty: string; items: Array<{ id: string; title: string; description?: string; date: string }> }) {
+function Timeline({
+  empty,
+  items,
+}: {
+  empty: string;
+  items: Array<{ id: string; title: string; description?: string; date: string }>;
+}) {
   if (!items.length) {
-    return <p className="rounded-md border border-dashed border-ink-200 bg-ink-50 p-5 text-sm font-semibold text-ink-500">{empty}</p>;
+    return (
+      <p className="rounded-md border border-dashed border-ink-200 bg-ink-50 p-5 text-sm font-semibold text-ink-500">
+        {empty}
+      </p>
+    );
   }
 
   return (
     <div className="space-y-3">
       {items.map((item, index) => (
-        <article key={`${item.id}-${index}`} className="flex gap-3 rounded-md border border-ink-100 bg-white p-4 shadow-xs">
+        <article
+          key={`${item.id}-${index}`}
+          className="flex gap-3 rounded-md border border-ink-100 bg-white p-4 shadow-xs"
+        >
           <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-foundation-600" />
           <div className="min-w-0">
             <p className="text-sm font-black text-ink-900">{item.title}</p>
-            {item.description ? <p className="mt-1 text-sm leading-6 text-ink-500">{item.description}</p> : null}
+            {item.description ? (
+              <p className="mt-1 text-sm leading-6 text-ink-500">{item.description}</p>
+            ) : null}
             <p className="mt-2 text-xs font-semibold text-ink-400">{item.date}</p>
           </div>
         </article>
@@ -453,12 +634,14 @@ function ProfileLoadingState({ copy }: { copy: StaffProfileCopy }) {
               </div>
             </div>
             <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[480px]">
-              {[copy.labels.memberSince, copy.labels.lastActive, copy.labels.timezone].map((label) => (
-                <div key={label} className="staff-profile-hero-fact rounded-md p-3">
-                  <div className="h-3 w-24 rounded-full bg-white/20" />
-                  <div className="mt-3 h-4 w-28 rounded-full bg-white/25" />
-                </div>
-              ))}
+              {[copy.labels.memberSince, copy.labels.lastActive, copy.labels.timezone].map(
+                (label) => (
+                  <div key={label} className="staff-profile-hero-fact rounded-md p-3">
+                    <div className="h-3 w-24 rounded-full bg-white/20" />
+                    <div className="mt-3 h-4 w-28 rounded-full bg-white/25" />
+                  </div>
+                ),
+              )}
             </div>
           </div>
         </div>
@@ -478,8 +661,17 @@ function ProfileLoadingState({ copy }: { copy: StaffProfileCopy }) {
   );
 }
 
-function activityItemId(prefix: string, item: DashboardSummaryResponse['recent_activity'][number], index: number) {
-  return [prefix, item.id ?? item.reference ?? item.key, item.occurred_at ?? item.happened_at ?? 'undated', index].join('-');
+function activityItemId(
+  prefix: string,
+  item: DashboardSummaryResponse['recent_activity'][number],
+  index: number,
+) {
+  return [
+    prefix,
+    item.id ?? item.reference ?? item.key,
+    item.occurred_at ?? item.happened_at ?? 'undated',
+    index,
+  ].join('-');
 }
 
 function TagList({ items }: { items: string[] }) {
@@ -490,7 +682,10 @@ function TagList({ items }: { items: string[] }) {
   return (
     <div className="mt-4 flex flex-wrap gap-2">
       {items.map((item) => (
-        <span key={item} className="inline-flex min-h-8 items-center rounded-md bg-ink-100 px-2.5 text-xs font-bold text-ink-700">
+        <span
+          key={item}
+          className="inline-flex min-h-8 items-center rounded-md bg-ink-100 px-2.5 text-xs font-bold text-ink-700"
+        >
           {item}
         </span>
       ))}
@@ -502,9 +697,21 @@ function buildStats(summary: DashboardSummaryResponse | undefined, copy: StaffPr
   const metric = (key: string) => summary?.metrics.find((item) => item.key === key)?.count ?? 0;
 
   return [
-    { label: copy.stats.applicationsReviewed, value: metric('applications_pending_review'), icon: FileText },
-    { label: copy.stats.beneficiariesManaged, value: metric('beneficiaries_supported'), icon: UserRound },
-    { label: copy.stats.paymentsApproved, value: metric('funding_awaiting_allocation'), icon: WalletCards },
+    {
+      label: copy.stats.applicationsReviewed,
+      value: metric('applications_pending_review'),
+      icon: FileText,
+    },
+    {
+      label: copy.stats.beneficiariesManaged,
+      value: metric('beneficiaries_supported'),
+      icon: UserRound,
+    },
+    {
+      label: copy.stats.paymentsApproved,
+      value: metric('funding_awaiting_allocation'),
+      icon: WalletCards,
+    },
     { label: copy.stats.reportsGenerated, value: metric('reports_due'), icon: ShieldCheck },
   ];
 }
@@ -513,7 +720,11 @@ function buildResponsibilities(user: AuthUser | null, copy: StaffProfileCopy): s
   const permissions = user?.permissions ?? [];
   const responsibilities = new Set<string>();
 
-  if (permissions.some((permission) => permission.startsWith('users.') || permission.includes('permissions'))) {
+  if (
+    permissions.some(
+      (permission) => permission.startsWith('users.') || permission.includes('permissions'),
+    )
+  ) {
     responsibilities.add(copy.values.systemAdministrator);
   }
   if (permissions.some((permission) => permission.startsWith('applications.'))) {
@@ -522,10 +733,21 @@ function buildResponsibilities(user: AuthUser | null, copy: StaffProfileCopy): s
   if (permissions.some((permission) => permission.startsWith('beneficiaries.'))) {
     responsibilities.add('Beneficiary Support');
   }
-  if (permissions.some((permission) => permission.startsWith('donations.') || permission.startsWith('payments.') || permission.startsWith('funds.'))) {
+  if (
+    permissions.some(
+      (permission) =>
+        permission.startsWith('donations.') ||
+        permission.startsWith('payments.') ||
+        permission.startsWith('funds.'),
+    )
+  ) {
     responsibilities.add('Financial Oversight');
   }
-  if (permissions.some((permission) => permission.startsWith('reports.') || permission.startsWith('impact_updates.'))) {
+  if (
+    permissions.some(
+      (permission) => permission.startsWith('reports.') || permission.startsWith('impact_updates.'),
+    )
+  ) {
     responsibilities.add('Reporting');
   }
 
@@ -558,9 +780,7 @@ function friendlyRole(value: string | undefined, copy: StaffProfileCopy) {
 }
 
 function friendlyRoleName(value: string) {
-  return value
-    .replace(/[._-]/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return value.replace(/[._-]/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function friendlyPermissionAction(value: string) {
@@ -639,5 +859,7 @@ function formatRelativeTime(value: string | null | undefined, locale: Locale) {
   ];
   const [unit, amount] = units.find(([, amount]) => abs >= amount) ?? ['second', 1];
 
-  return new Intl.RelativeTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-US', { numeric: 'auto' }).format(Math.round(seconds / amount), unit);
+  return new Intl.RelativeTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-US', {
+    numeric: 'auto',
+  }).format(Math.round(seconds / amount), unit);
 }

@@ -16,7 +16,10 @@ export function BlogFilters({ copy, filters, options, onChange }: BlogFiltersPro
         <label className="min-w-0">
           <span className="text-xs font-black uppercase text-ink-500">{copy.filters.search}</span>
           <span className="relative mt-1 block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" aria-hidden="true" />
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400"
+              aria-hidden="true"
+            />
             <input
               value={filters.search ?? ''}
               onChange={(event) => onChange({ ...filters, search: event.target.value, page: 1 })}
@@ -30,7 +33,9 @@ export function BlogFilters({ copy, filters, options, onChange }: BlogFiltersPro
           <span className="text-xs font-black uppercase text-ink-500">{copy.filters.status}</span>
           <select
             value={filters.status ?? ''}
-            onChange={(event) => onChange({ ...filters, status: event.target.value || undefined, page: 1 })}
+            onChange={(event) =>
+              onChange({ ...filters, status: event.target.value || undefined, page: 1 })
+            }
             className="focus-ring mt-1 h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800"
           >
             <option value="">{copy.filters.allStatuses}</option>
@@ -46,7 +51,9 @@ export function BlogFilters({ copy, filters, options, onChange }: BlogFiltersPro
           <input
             type="checkbox"
             checked={Boolean(filters.featured)}
-            onChange={(event) => onChange({ ...filters, featured: event.target.checked || undefined, page: 1 })}
+            onChange={(event) =>
+              onChange({ ...filters, featured: event.target.checked || undefined, page: 1 })
+            }
             className="h-4 w-4 rounded-sm border-ink-300 text-foundation-700"
           />
           {copy.filters.featured}
@@ -54,7 +61,14 @@ export function BlogFilters({ copy, filters, options, onChange }: BlogFiltersPro
 
         <button
           type="button"
-          onClick={() => onChange({ page: 1, per_page: filters.per_page ?? 12, sort: 'created_at', direction: 'desc' })}
+          onClick={() =>
+            onChange({
+              page: 1,
+              per_page: filters.per_page ?? 12,
+              sort: 'created_at',
+              direction: 'desc',
+            })
+          }
           className="focus-ring min-h-11 rounded-md border border-ink-200 px-4 text-sm font-black text-ink-700 transition hover:bg-ink-50"
         >
           {copy.filters.reset}

@@ -55,4 +55,3 @@ export const messages = {
 export function t(locale: Locale, key: keyof typeof messages.en): string {
   return messages[locale][key];
 }
-

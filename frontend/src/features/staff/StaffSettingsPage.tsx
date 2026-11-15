@@ -57,7 +57,11 @@ export function StaffSettingsPage() {
                 className="focus-ring flex min-h-11 w-full items-center justify-between rounded-md border border-ink-100 px-4 text-sm font-semibold text-ink-700 transition hover:bg-ink-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="inline-flex items-center gap-2">
-                  {busy === 'current' ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <LogOut className="h-4 w-4" aria-hidden="true" />}
+                  {busy === 'current' ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <LogOut className="h-4 w-4" aria-hidden="true" />
+                  )}
                   {copy.logoutCurrent}
                 </span>
               </button>
@@ -68,7 +72,11 @@ export function StaffSettingsPage() {
                 className="focus-ring flex min-h-11 w-full items-center justify-between rounded-md border border-ink-100 px-4 text-sm font-semibold text-ink-700 transition hover:bg-ink-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="inline-flex items-center gap-2">
-                  {busy === 'all' ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <MonitorX className="h-4 w-4" aria-hidden="true" />}
+                  {busy === 'all' ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <MonitorX className="h-4 w-4" aria-hidden="true" />
+                  )}
                   {copy.logoutAll}
                 </span>
               </button>
@@ -87,7 +95,9 @@ export function StaffSettingsPage() {
             </div>
 
             <div className="mt-5 rounded-md border border-foundation-100 bg-white p-4 shadow-xs">
-              <p className="text-sm font-semibold text-ink-900">{user?.preferred_locale ?? activeLocale}</p>
+              <p className="text-sm font-semibold text-ink-900">
+                {user?.preferred_locale ?? activeLocale}
+              </p>
               <p className="mt-1 text-sm leading-6 text-ink-500">{copy.localeNote}</p>
             </div>
           </article>

@@ -6,14 +6,15 @@ const LOCALE_COOKIE_NAME = 'locale';
 
 export interface LocaleRecoveryResult {
   locale: Locale;
-  source: 'url' | 'user-profile' | 'local-storage' | 'cookie' | 'session-storage' | 'browser' | 'default';
+  source:
+    'url' | 'user-profile' | 'local-storage' | 'cookie' | 'session-storage' | 'browser' | 'default';
 }
 
 export function resolveLocale(pathname: string): LocaleRecoveryResult {
   // Check if pathname already has locale
   const pathSegments = pathname.split('/').filter(Boolean);
   const firstSegment = pathSegments[0];
-  
+
   if (firstSegment && isLocale(firstSegment)) {
     return { locale: firstSegment, source: 'url' };
   }
@@ -51,7 +52,12 @@ export function resolveLocale(pathname: string): LocaleRecoveryResult {
   return { locale: defaultLocale, source: 'default' };
 }
 
-export function buildLocalizedPath(pathname: string, search: string, hash: string, locale: Locale): string {
+export function buildLocalizedPath(
+  pathname: string,
+  search: string,
+  hash: string,
+  locale: Locale,
+): string {
   const pathSegments = pathname.split('/').filter(Boolean);
   const firstSegment = pathSegments[0];
 

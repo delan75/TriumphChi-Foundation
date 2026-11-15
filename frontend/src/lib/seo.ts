@@ -76,7 +76,12 @@ export function buildOrganizationSchema(locale: Locale): Record<string, unknown>
     url: localizedUrl(locale, '/'),
     areaServed: 'Cameroon',
     nonprofitStatus: 'NonprofitType',
-    knowsAbout: ['Education sponsorship', 'Orphan education', 'Child safeguarding', 'School support'],
+    knowsAbout: [
+      'Education sponsorship',
+      'Orphan education',
+      'Child safeguarding',
+      'School support',
+    ],
     logo: {
       '@type': 'ImageObject',
       url: imageUrl,
@@ -105,7 +110,9 @@ export function buildWebSiteSchema(locale: Locale): Record<string, unknown> {
   };
 }
 
-export function buildBreadcrumbSchema(items: Array<{ name: string; url: string }>): Record<string, unknown> {
+export function buildBreadcrumbSchema(
+  items: Array<{ name: string; url: string }>,
+): Record<string, unknown> {
   return {
     '@type': 'BreadcrumbList',
     itemListElement: items.map((item, index) => ({
@@ -117,7 +124,9 @@ export function buildBreadcrumbSchema(items: Array<{ name: string; url: string }
   };
 }
 
-export function buildFaqSchema(items: Array<{ question: string; answer: string }>): Record<string, unknown> {
+export function buildFaqSchema(
+  items: Array<{ question: string; answer: string }>,
+): Record<string, unknown> {
   return {
     '@type': 'FAQPage',
     mainEntity: items.map((item) => ({
@@ -131,7 +140,9 @@ export function buildFaqSchema(items: Array<{ question: string; answer: string }
   };
 }
 
-export function buildJsonLdGraph(nodes: Array<Record<string, unknown> | undefined | false>): JsonLdGraph {
+export function buildJsonLdGraph(
+  nodes: Array<Record<string, unknown> | undefined | false>,
+): JsonLdGraph {
   return {
     '@context': 'https://schema.org',
     '@graph': nodes.filter(Boolean) as Array<Record<string, unknown>>,

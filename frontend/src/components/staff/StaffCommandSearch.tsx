@@ -157,8 +157,7 @@ export function StaffCommandSearch({
         <Search className="h-4 w-4 shrink-0 text-ink-400" aria-hidden="true" />
         <span className="min-w-0 flex-1 truncate">{placeholder}</span>
         <span className="inline-flex min-h-7 items-center rounded-md border border-ink-100 bg-white px-2 text-xs font-semibold text-ink-500">
-          <Command className="mr-1 h-3.5 w-3.5" aria-hidden="true" />
-          K
+          <Command className="mr-1 h-3.5 w-3.5" aria-hidden="true" />K
         </span>
       </button>
 
@@ -173,11 +172,7 @@ export function StaffCommandSearch({
 
       {open ? (
         <div className="fixed inset-0 z-110 bg-ink-900/40 p-4 backdrop-blur-xs sm:p-6">
-          <div
-            className="absolute inset-0"
-            aria-hidden="true"
-            onClick={() => setOpen(false)}
-          />
+          <div className="absolute inset-0" aria-hidden="true" onClick={() => setOpen(false)} />
           <div className="relative mx-auto mt-6 max-w-3xl overflow-hidden rounded-md border border-ink-100 bg-white shadow-2xl">
             <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-4">
               <Search className="h-5 w-5 shrink-0 text-ink-400" aria-hidden="true" />
@@ -204,7 +199,10 @@ export function StaffCommandSearch({
             <div className="max-h-[70vh] overflow-y-auto">
               {searchQuery.isLoading ? (
                 <SearchMessage>
-                  <Loader2 className="h-4 w-4 animate-spin text-foundation-700" aria-hidden="true" />
+                  <Loader2
+                    className="h-4 w-4 animate-spin text-foundation-700"
+                    aria-hidden="true"
+                  />
                   <span>{placeholder}</span>
                 </SearchMessage>
               ) : null}
@@ -233,7 +231,10 @@ export function StaffCommandSearch({
                           className="focus-ring flex min-h-11 items-center justify-between rounded-md border border-ink-100 bg-ink-50 px-3 text-left text-sm text-ink-700 transition hover:bg-foundation-50 hover:text-foundation-900"
                         >
                           <span className="truncate">{recent}</span>
-                          <ArrowRight className="h-4 w-4 shrink-0 text-ink-400" aria-hidden="true" />
+                          <ArrowRight
+                            className="h-4 w-4 shrink-0 text-ink-400"
+                            aria-hidden="true"
+                          />
                         </button>
                       ))}
                     </div>
@@ -268,7 +269,11 @@ export function StaffCommandSearch({
                       </header>
                       <div className="divide-y divide-ink-100">
                         {group.items.map((result) => {
-                          const index = flatResults.findIndex((entry) => entry.item.id === result.id && entry.item.resource === result.resource);
+                          const index = flatResults.findIndex(
+                            (entry) =>
+                              entry.item.id === result.id &&
+                              entry.item.resource === result.resource,
+                          );
                           const isActive = activeIndex === index;
 
                           return (
@@ -283,16 +288,25 @@ export function StaffCommandSearch({
                             >
                               <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <p className="text-sm font-semibold text-ink-900">{result.title}</p>
+                                  <p className="text-sm font-semibold text-ink-900">
+                                    {result.title}
+                                  </p>
                                   {result.reference ? (
                                     <span className="rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-ink-500 shadow-xs">
                                       {result.reference}
                                     </span>
                                   ) : null}
                                 </div>
-                                {result.subtitle ? <p className="mt-1 text-sm leading-6 text-ink-500">{result.subtitle}</p> : null}
+                                {result.subtitle ? (
+                                  <p className="mt-1 text-sm leading-6 text-ink-500">
+                                    {result.subtitle}
+                                  </p>
+                                ) : null}
                               </div>
-                              <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-ink-400" aria-hidden="true" />
+                              <ArrowRight
+                                className="mt-0.5 h-4 w-4 shrink-0 text-ink-400"
+                                aria-hidden="true"
+                              />
                             </button>
                           );
                         })}
@@ -310,7 +324,11 @@ export function StaffCommandSearch({
 }
 
 function SearchMessage({ children }: { children: React.ReactNode }) {
-  return <div className="flex min-h-24 items-center gap-3 px-4 py-5 text-sm text-ink-500">{children}</div>;
+  return (
+    <div className="flex min-h-24 items-center gap-3 px-4 py-5 text-sm text-ink-500">
+      {children}
+    </div>
+  );
 }
 
 function readRecentSearches(): string[] {
@@ -331,7 +349,10 @@ function persistRecentSearch(query: string, setRecentSearches: (searches: string
     return;
   }
 
-  const next = [query.trim(), ...readRecentSearches().filter((item) => item !== query.trim())].slice(0, 6);
+  const next = [
+    query.trim(),
+    ...readRecentSearches().filter((item) => item !== query.trim()),
+  ].slice(0, 6);
   window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
   setRecentSearches(next);
 }

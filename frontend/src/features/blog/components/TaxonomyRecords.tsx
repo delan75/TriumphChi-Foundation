@@ -13,9 +13,20 @@ interface TaxonomyRecordsProps {
   onDelete: (uuid: string) => void;
 }
 
-export function TaxonomyRecords({ title, items, selectedUuid, canUpdate, onEdit, onDelete }: TaxonomyRecordsProps) {
+export function TaxonomyRecords({
+  title,
+  items,
+  selectedUuid,
+  canUpdate,
+  onEdit,
+  onDelete,
+}: TaxonomyRecordsProps) {
   if (items.length === 0) {
-    return <div className="rounded-md border border-ink-100 bg-ink-50 p-4 text-sm font-bold text-ink-500">No {title.toLowerCase()} found.</div>;
+    return (
+      <div className="rounded-md border border-ink-100 bg-ink-50 p-4 text-sm font-bold text-ink-500">
+        No {title.toLowerCase()} found.
+      </div>
+    );
   }
 
   return (
@@ -33,12 +44,17 @@ export function TaxonomyRecords({ title, items, selectedUuid, canUpdate, onEdit,
             {items.map((item) => (
               <tr
                 key={item.uuid}
-                className={cn('transition hover:bg-foundation-50/70', selectedUuid === item.uuid ? 'bg-foundation-50' : 'bg-white')}
+                className={cn(
+                  'transition hover:bg-foundation-50/70',
+                  selectedUuid === item.uuid ? 'bg-foundation-50' : 'bg-white',
+                )}
               >
                 <td className="px-3 py-4">
                   <p className="text-sm font-black text-ink-900">{item.label}</p>
                 </td>
-                <td className="px-3 py-4 text-sm font-bold text-ink-700">{item.slug.en || item.slug.fr || '-'}</td>
+                <td className="px-3 py-4 text-sm font-bold text-ink-700">
+                  {item.slug.en || item.slug.fr || '-'}
+                </td>
                 <td className="px-3 py-4">
                   <div className="flex justify-end gap-2">
                     {canUpdate ? (

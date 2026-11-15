@@ -1,6 +1,7 @@
 import { resolveLocale } from './localeRecovery';
+import { isPublicDonationConfig } from './donationConfig';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'https://api.triumphchi.org/api/v1';
 
 export interface TokenResponse {
   access_token: string;
@@ -513,7 +514,15 @@ export interface PublicApplicationPayload {
   need_type: 'fees' | 'books' | 'uniform' | 'exam' | 'transport' | 'meals' | 'other';
   need_summary: string;
   situation_summary: string;
-  contact_role: 'parent' | 'guardian' | 'school' | 'school_representative' | 'teacher' | 'community_leader' | 'child' | 'other';
+  contact_role:
+    | 'parent'
+    | 'guardian'
+    | 'school'
+    | 'school_representative'
+    | 'teacher'
+    | 'community_leader'
+    | 'child'
+    | 'other';
   contact_name: string;
   contact_phone: string;
   contact_email?: string;
@@ -1133,8 +1142,8 @@ export async function apiListApplications(params: {
   const envelope = await parseJsonEnvelope(response, 'Failed to fetch applications.');
   return {
     data: (envelope.data as ApplicationRecord[]) ?? [],
-    meta: (envelope.meta as PaginatedResponse<ApplicationRecord>['meta']),
-    links: (envelope.links as PaginatedResponse<ApplicationRecord>['links']),
+    meta: envelope.meta as PaginatedResponse<ApplicationRecord>['meta'],
+    links: envelope.links as PaginatedResponse<ApplicationRecord>['links'],
   };
 }
 
@@ -1142,10 +1151,12 @@ export async function apiGetApplication(uuid: string): Promise<ApplicationRecord
   return apiGet<ApplicationRecord>(`/applications/${uuid}`);
 }
 
-export async function apiListBeneficiaries(params: BeneficiaryListParams): Promise<PaginatedResponse<BeneficiaryRecord> & {
-  summary: BeneficiarySummary;
-  filters: Record<string, string | number>;
-}> {
+export async function apiListBeneficiaries(params: BeneficiaryListParams): Promise<
+  PaginatedResponse<BeneficiaryRecord> & {
+    summary: BeneficiarySummary;
+    filters: Record<string, string | number>;
+  }
+> {
   const qs = new URLSearchParams();
   if (params.status) qs.set('status', params.status);
   if (params.search) qs.set('search', params.search);
@@ -1198,10 +1209,12 @@ export async function apiGetBeneficiary(uuid: string): Promise<BeneficiaryRecord
   return (envelope.data ?? envelope) as BeneficiaryRecord;
 }
 
-export async function apiListDonations(params: DonationListParams): Promise<PaginatedResponse<DonationManagementRecord> & {
-  summary: DonationManagementSummary;
-  filters: Record<string, string | number>;
-}> {
+export async function apiListDonations(params: DonationListParams): Promise<
+  PaginatedResponse<DonationManagementRecord> & {
+    summary: DonationManagementSummary;
+    filters: Record<string, string | number>;
+  }
+> {
   const qs = new URLSearchParams();
   if (params.status) qs.set('status', params.status);
   if (params.search) qs.set('search', params.search);
@@ -1257,15 +1270,18 @@ export async function apiGetDonation(uuid: string): Promise<DonationManagementRe
   return (envelope.data ?? envelope) as DonationManagementRecord;
 }
 
-export async function apiListContactMessages(params: ContactMessageListParams): Promise<PaginatedResponse<ContactMessageRecord> & {
-  summary: ContactMessageSummary;
-  filters: Record<string, string | number | boolean>;
-}> {
+export async function apiListContactMessages(params: ContactMessageListParams): Promise<
+  PaginatedResponse<ContactMessageRecord> & {
+    summary: ContactMessageSummary;
+    filters: Record<string, string | number | boolean>;
+  }
+> {
   const qs = new URLSearchParams();
   if (params.status) qs.set('status', params.status);
   if (params.reason) qs.set('reason', params.reason);
   if (params.search) qs.set('search', params.search);
-  if (params.has_attachments !== undefined) qs.set('has_attachments', String(params.has_attachments));
+  if (params.has_attachments !== undefined)
+    qs.set('has_attachments', String(params.has_attachments));
   if (params.created_from) qs.set('created_from', params.created_from);
   if (params.created_to) qs.set('created_to', params.created_to);
   if (params.page) qs.set('page', String(params.page));
@@ -1377,10 +1393,12 @@ export async function apiListContactAssignees(): Promise<ContactMessageAssignee[
   return (envelope.data ?? []) as ContactMessageAssignee[];
 }
 
-export async function apiListManagedUsers(params: ManagedUserListParams): Promise<PaginatedResponse<ManagedUserRecord> & {
-  summary: ManagedUserSummary;
-  filters: Record<string, string | number>;
-}> {
+export async function apiListManagedUsers(params: ManagedUserListParams): Promise<
+  PaginatedResponse<ManagedUserRecord> & {
+    summary: ManagedUserSummary;
+    filters: Record<string, string | number>;
+  }
+> {
   const qs = new URLSearchParams();
   if (params.search) qs.set('search', params.search);
   if (params.status) qs.set('status', params.status);
@@ -1427,7 +1445,9 @@ export async function apiGetManagedUser(uuid: string): Promise<ManagedUserRecord
   return (envelope.data ?? envelope) as ManagedUserRecord;
 }
 
-export async function apiCreateManagedUser(payload: ManagedUserPayload): Promise<ManagedUserRecord> {
+export async function apiCreateManagedUser(
+  payload: ManagedUserPayload,
+): Promise<ManagedUserRecord> {
   const response = await fetch(`${API_BASE_URL}/users`, {
     method: 'POST',
     headers: buildHeaders({ 'Content-Type': 'application/json' }),
@@ -1440,7 +1460,10 @@ export async function apiCreateManagedUser(payload: ManagedUserPayload): Promise
   return (envelope.data ?? envelope) as ManagedUserRecord;
 }
 
-export async function apiUpdateManagedUser(uuid: string, payload: ManagedUserPayload): Promise<ManagedUserRecord> {
+export async function apiUpdateManagedUser(
+  uuid: string,
+  payload: ManagedUserPayload,
+): Promise<ManagedUserRecord> {
   const response = await fetch(`${API_BASE_URL}/users/${uuid}`, {
     method: 'PATCH',
     headers: buildHeaders({ 'Content-Type': 'application/json' }),
@@ -1509,7 +1532,9 @@ export async function apiTerminateManagedUserSessions(uuid: string): Promise<Man
   return (envelope.data ?? envelope) as ManagedUserRecord;
 }
 
-export async function apiRefreshDonationPaymentStatus(uuid: string): Promise<DonationManagementRecord> {
+export async function apiRefreshDonationPaymentStatus(
+  uuid: string,
+): Promise<DonationManagementRecord> {
   const response = await fetch(`${API_BASE_URL}/donations/${uuid}/payment-status`, {
     method: 'POST',
     headers: buildHeaders({ 'Content-Type': 'application/json' }),
@@ -1549,7 +1574,6 @@ export async function apiTransitionApplicationStatus(
   });
   return parseJsonResponse<ApplicationRecord>(response, 'Failed to update application status.');
 }
-
 
 export async function apiGet<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -1595,7 +1619,10 @@ export async function apiPublicLookup(
     params.set('village_name', filters.village_name);
   }
 
-  const response = await apiPublicGet<PublicLookupResponse>(`/public/lookups/${type}?${params.toString()}`, locale);
+  const response = await apiPublicGet<PublicLookupResponse>(
+    `/public/lookups/${type}?${params.toString()}`,
+    locale,
+  );
   return response;
 }
 
@@ -1614,7 +1641,11 @@ export async function apiPublicPost<T>(path: string, payload: unknown, locale: s
   return parseJsonResponse<T>(response, `API request failed with ${response.status}`);
 }
 
-export async function apiLogin(email: string, password: string, deviceName?: string): Promise<AuthResponse> {
+export async function apiLogin(
+  email: string,
+  password: string,
+  deviceName?: string,
+): Promise<AuthResponse> {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: buildHeaders({ 'Content-Type': 'application/json' }, false),
@@ -1659,7 +1690,10 @@ export async function apiRegister(
 export async function apiResendVerificationOtp(
   email: string,
   channel: 'email' | 'sms' | 'whatsapp' = 'email',
-): Promise<{ message: string; data?: { channel: string; expires_in_minutes: number; verification?: VerificationContext } }> {
+): Promise<{
+  message: string;
+  data?: { channel: string; expires_in_minutes: number; verification?: VerificationContext };
+}> {
   const response = await fetch(`${API_BASE_URL}/auth/email/otp/resend`, {
     method: 'POST',
     headers: buildHeaders({ 'Content-Type': 'application/json' }, false),
@@ -1671,7 +1705,9 @@ export async function apiResendVerificationOtp(
 
   return {
     message: String(data.message ?? 'Verification code sent.'),
-    data: data.data as { channel: string; expires_in_minutes: number; verification?: VerificationContext } | undefined,
+    data: data.data as
+      | { channel: string; expires_in_minutes: number; verification?: VerificationContext }
+      | undefined,
   };
 }
 
@@ -1681,7 +1717,10 @@ export async function apiUpdateVerificationContact(payload: {
   email?: string;
   phone?: string;
   channel?: 'email' | 'sms' | 'whatsapp';
-}): Promise<{ message: string; data?: { channel: string; expires_in_minutes: number; verification?: VerificationContext } }> {
+}): Promise<{
+  message: string;
+  data?: { channel: string; expires_in_minutes: number; verification?: VerificationContext };
+}> {
   const response = await fetch(`${API_BASE_URL}/auth/verification/contact`, {
     method: 'POST',
     headers: buildHeaders({ 'Content-Type': 'application/json' }, false),
@@ -1693,7 +1732,9 @@ export async function apiUpdateVerificationContact(payload: {
 
   return {
     message: String(data.message ?? 'Verification details updated.'),
-    data: data.data as { channel: string; expires_in_minutes: number; verification?: VerificationContext } | undefined,
+    data: data.data as
+      | { channel: string; expires_in_minutes: number; verification?: VerificationContext }
+      | undefined,
   };
 }
 
@@ -1716,7 +1757,10 @@ export async function apiVerifyEmailOtp(
   return parseJsonResponse<AuthResponse>(response, 'Failed to verify account.');
 }
 
-export async function apiExchangeOAuthCode(code: string, deviceName?: string): Promise<AuthResponse> {
+export async function apiExchangeOAuthCode(
+  code: string,
+  deviceName?: string,
+): Promise<AuthResponse> {
   const response = await fetch(`${API_BASE_URL}/auth/oauth/exchange`, {
     method: 'POST',
     headers: buildHeaders({ 'Content-Type': 'application/json' }, false),
@@ -1746,7 +1790,9 @@ export async function apiGetReportQueue(): Promise<ReportRequestRecord[]> {
   return apiGet('/reports/queue');
 }
 
-export async function apiGenerateReport(payload: ReportGeneratePayload): Promise<ReportRequestRecord> {
+export async function apiGenerateReport(
+  payload: ReportGeneratePayload,
+): Promise<ReportRequestRecord> {
   const response = await fetch(`${API_BASE_URL}/reports/generate`, {
     method: 'POST',
     headers: buildHeaders({ 'Content-Type': 'application/json' }),
@@ -1758,7 +1804,15 @@ export async function apiGenerateReport(payload: ReportGeneratePayload): Promise
 }
 
 export async function apiGetDonationConfig(locale: string): Promise<PublicDonationConfig> {
-  return apiPublicGet<PublicDonationConfig>('/public/donation-config', locale);
+  const config = await apiPublicGet<unknown>('/public/donation-config', locale);
+  if (!isPublicDonationConfig(config)) {
+    throw new Error(
+      locale === 'fr'
+        ? 'La configuration des dons est indisponible.'
+        : 'Donation configuration is unavailable.',
+    );
+  }
+  return config;
 }
 
 export async function apiCreateDonationIntent(
@@ -1776,7 +1830,10 @@ export async function apiCreateDonationIntent(
     body: JSON.stringify(payload),
   });
 
-  const data = await parseJsonEnvelope(response, 'We could not prepare your donation. Please try again.');
+  const data = await parseJsonEnvelope(
+    response,
+    'We could not prepare your donation. Please try again.',
+  );
 
   return {
     message: String(data.message ?? 'Thank you. Your donation has been prepared securely.'),
@@ -1788,7 +1845,10 @@ export async function apiGetDonationIntentStatus(
   uuid: string,
   locale: string,
 ): Promise<PublicDonationIntentResponse> {
-  return apiPublicGet<PublicDonationIntentResponse>(`/public/donation-intents/${uuid}/status`, locale);
+  return apiPublicGet<PublicDonationIntentResponse>(
+    `/public/donation-intents/${uuid}/status`,
+    locale,
+  );
 }
 
 export async function apiCapturePaypalDonationIntent(
@@ -1807,7 +1867,10 @@ export async function apiCapturePaypalDonationIntent(
     body: JSON.stringify({ order_id: orderId }),
   });
 
-  const data = await parseJsonEnvelope(response, 'We could not verify your PayPal donation. Please try again.');
+  const data = await parseJsonEnvelope(
+    response,
+    'We could not verify your PayPal donation. Please try again.',
+  );
 
   return {
     message: String(data.message ?? 'PayPal donation verified successfully.'),
@@ -1829,7 +1892,10 @@ export async function apiCancelPaypalDonationIntent(
     credentials: 'omit',
   });
 
-  const data = await parseJsonEnvelope(response, 'We could not update your PayPal donation. Please try again.');
+  const data = await parseJsonEnvelope(
+    response,
+    'We could not update your PayPal donation. Please try again.',
+  );
 
   return {
     message: String(data.message ?? 'PayPal donation cancelled.'),
@@ -1876,9 +1942,11 @@ export async function apiPublicGetBlogOptions(locale: string): Promise<BlogOptio
   return apiPublicGet<BlogOptionsResponse>('/public/blog/options', locale);
 }
 
-export async function apiListBlogPosts(params: BlogPostListParams): Promise<PaginatedResponse<BlogPostRecord> & {
-  summary: BlogPostSummary;
-}> {
+export async function apiListBlogPosts(params: BlogPostListParams): Promise<
+  PaginatedResponse<BlogPostRecord> & {
+    summary: BlogPostSummary;
+  }
+> {
   const query = buildQueryString(params);
   const response = await fetch(`${API_BASE_URL}/blog-posts${query ? `?${query}` : ''}`, {
     headers: buildHeaders(),
@@ -1921,7 +1989,10 @@ export async function apiCreateBlogPost(payload: BlogPostPayload): Promise<BlogP
   return parseJsonResponse<BlogPostRecord>(response, 'Failed to create blog post.');
 }
 
-export async function apiUpdateBlogPost(uuid: string, payload: BlogPostPayload): Promise<BlogPostRecord> {
+export async function apiUpdateBlogPost(
+  uuid: string,
+  payload: BlogPostPayload,
+): Promise<BlogPostRecord> {
   const response = await fetch(`${API_BASE_URL}/blog-posts/${uuid}`, {
     method: 'PUT',
     headers: buildHeaders({ 'Content-Type': 'application/json' }),
@@ -1932,7 +2003,10 @@ export async function apiUpdateBlogPost(uuid: string, payload: BlogPostPayload):
   return parseJsonResponse<BlogPostRecord>(response, 'Failed to update blog post.');
 }
 
-export async function apiTransitionBlogPostStatus(uuid: string, status: string): Promise<BlogPostRecord> {
+export async function apiTransitionBlogPostStatus(
+  uuid: string,
+  status: string,
+): Promise<BlogPostRecord> {
   const response = await fetch(`${API_BASE_URL}/blog-posts/${uuid}/status`, {
     method: 'PATCH',
     headers: buildHeaders({ 'Content-Type': 'application/json' }),
@@ -1982,7 +2056,10 @@ export async function apiForgotPassword(email: string): Promise<{ message: strin
   const data = await parseJsonEnvelope(response, 'Failed to send reset link. Please try again.');
 
   return {
-    message: String(data.message ?? 'If your email exists in our database, you will receive a reset link shortly.'),
+    message: String(
+      data.message ??
+        'If your email exists in our database, you will receive a reset link shortly.',
+    ),
   };
 }
 
@@ -2004,7 +2081,10 @@ export async function apiResetPassword(
     }),
   });
 
-  const data = await parseJsonEnvelope(response, 'Failed to reset password. The link may have expired.');
+  const data = await parseJsonEnvelope(
+    response,
+    'Failed to reset password. The link may have expired.',
+  );
 
   return {
     message: String(data.message ?? 'Password reset successfully.'),
@@ -2029,14 +2109,21 @@ export async function apiSubmitContactMessage(
     }),
   });
 
-  const data = await parseJsonEnvelope(response, 'We could not send your message. Please try again.');
+  const data = await parseJsonEnvelope(
+    response,
+    'We could not send your message. Please try again.',
+  );
 
   return {
-    message: String(data.message ?? 'Thank you for contacting us. We will respond as soon as possible.'),
+    message: String(
+      data.message ?? 'Thank you for contacting us. We will respond as soon as possible.',
+    ),
   };
 }
 
-export async function apiCreateApplicationDraft(locale: string): Promise<{ data: { draft_token: string; application_number: string } }> {
+export async function apiCreateApplicationDraft(
+  locale: string,
+): Promise<{ data: { draft_token: string; application_number: string } }> {
   const response = await fetch(`${API_BASE_URL}/public/applications/draft`, {
     method: 'POST',
     headers: buildHeaders({
@@ -2052,7 +2139,7 @@ export async function apiSaveApplicationStep(
   token: string,
   stepIndex: number,
   payload: Partial<PublicApplicationPayload>,
-  locale: string
+  locale: string,
 ): Promise<{ message: string }> {
   const response = await fetch(`${API_BASE_URL}/public/applications/${token}/step/${stepIndex}`, {
     method: 'PUT',
@@ -2071,7 +2158,7 @@ export async function apiUploadApplicationDocument(
   token: string,
   file: File,
   documentType: string,
-  locale: string
+  locale: string,
 ): Promise<{ message: string; document_id: number }> {
   const body = new FormData();
   body.append('file', file);
@@ -2086,15 +2173,15 @@ export async function apiUploadApplicationDocument(
     body,
   });
   const env = await parseJsonEnvelope(response, 'Failed to upload document.');
-  return { 
-    message: String(env.message ?? 'Uploaded'), 
-    document_id: (env.data as { document_id: number }).document_id
+  return {
+    message: String(env.message ?? 'Uploaded'),
+    document_id: (env.data as { document_id: number }).document_id,
   };
 }
 
 export async function apiSubmitApplicationDraft(
   token: string,
-  locale: string
+  locale: string,
 ): Promise<{ message: string; data?: PublicApplicationSubmissionResponse }> {
   const response = await fetch(`${API_BASE_URL}/public/applications/${token}/submit`, {
     method: 'POST',
@@ -2125,15 +2212,23 @@ export async function apiSubmitPublicApplication(
     body: JSON.stringify(payload),
   });
 
-  const data = await parseJsonEnvelope(response, 'We could not send your application. Please try again.');
+  const data = await parseJsonEnvelope(
+    response,
+    'We could not send your application. Please try again.',
+  );
 
   return {
-    message: String(data.message ?? 'Thank you. Your application has been received and will be reviewed.'),
+    message: String(
+      data.message ?? 'Thank you. Your application has been received and will be reviewed.',
+    ),
     data: data.data as PublicApplicationSubmissionResponse | undefined,
   };
 }
 
-export async function apiDownloadPreviewPdf(payload: PublicApplicationPayload, locale: string): Promise<Blob> {
+export async function apiDownloadPreviewPdf(
+  payload: PublicApplicationPayload,
+  locale: string,
+): Promise<Blob> {
   const response = await fetch(`${API_BASE_URL}/public/applications/preview-pdf`, {
     method: 'POST',
     headers: buildHeaders({
@@ -2237,7 +2332,10 @@ async function parseJsonResponse<T>(response: Response, fallbackMessage: string)
   return envelope as T;
 }
 
-async function parseJsonEnvelope(response: Response, fallbackMessage: string): Promise<Record<string, unknown>> {
+async function parseJsonEnvelope(
+  response: Response,
+  fallbackMessage: string,
+): Promise<Record<string, unknown>> {
   const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
 
   if (!response.ok) {
@@ -2248,7 +2346,7 @@ async function parseJsonEnvelope(response: Response, fallbackMessage: string): P
     // Safely extract the first validation error without crashing
     let firstError: string | null = null;
     const errorsObj = data.errors;
-    
+
     if (errorsObj && typeof errorsObj === 'object') {
       const allErrors = Object.values(errorsObj as Record<string, unknown>).flat();
       const validError = allErrors.find((err): err is string => typeof err === 'string');
@@ -2277,7 +2375,9 @@ export interface BlogTagPayload {
   slug: LocalizedText;
 }
 
-export async function apiCreateBlogCategory(payload: BlogCategoryPayload): Promise<BlogCategoryRecord> {
+export async function apiCreateBlogCategory(
+  payload: BlogCategoryPayload,
+): Promise<BlogCategoryRecord> {
   const response = await fetch(`${API_BASE_URL}/blog-categories`, {
     method: 'POST',
     headers: buildHeaders({ 'Content-Type': 'application/json' }),
@@ -2288,7 +2388,10 @@ export async function apiCreateBlogCategory(payload: BlogCategoryPayload): Promi
   return parseJsonResponse<BlogCategoryRecord>(response, 'Failed to create blog category.');
 }
 
-export async function apiUpdateBlogCategory(uuid: string, payload: BlogCategoryPayload): Promise<BlogCategoryRecord> {
+export async function apiUpdateBlogCategory(
+  uuid: string,
+  payload: BlogCategoryPayload,
+): Promise<BlogCategoryRecord> {
   const response = await fetch(`${API_BASE_URL}/blog-categories/${uuid}`, {
     method: 'PUT',
     headers: buildHeaders({ 'Content-Type': 'application/json' }),
@@ -2320,7 +2423,10 @@ export async function apiCreateBlogTag(payload: BlogTagPayload): Promise<BlogTag
   return parseJsonResponse<BlogTagRecord>(response, 'Failed to create blog tag.');
 }
 
-export async function apiUpdateBlogTag(uuid: string, payload: BlogTagPayload): Promise<BlogTagRecord> {
+export async function apiUpdateBlogTag(
+  uuid: string,
+  payload: BlogTagPayload,
+): Promise<BlogTagRecord> {
   const response = await fetch(`${API_BASE_URL}/blog-tags/${uuid}`, {
     method: 'PUT',
     headers: buildHeaders({ 'Content-Type': 'application/json' }),

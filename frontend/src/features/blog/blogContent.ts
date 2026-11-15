@@ -92,7 +92,8 @@ export interface BlogCopy {
 export const blogContent: Record<Locale, BlogCopy> = {
   en: {
     title: 'Blog',
-    description: 'Publish field notes, education insights, and foundation updates for the public site.',
+    description:
+      'Publish field notes, education insights, and foundation updates for the public site.',
     create: 'New Post',
     refresh: 'Refresh',
     save: 'Save Post',
@@ -164,7 +165,8 @@ export const blogContent: Record<Locale, BlogCopy> = {
       addMedia: 'Add media row',
       uploadMedia: 'Select media files',
       uploadingMedia: 'Uploading...',
-      mediaHelp: 'Upload safe images or videos. Alt text is generated from the file name and can be edited.',
+      mediaHelp:
+        'Upload safe images or videos. Alt text is generated from the file name and can be edited.',
       removeMedia: 'Remove',
       mediaUrl: 'Image URL or path',
       mediaTitle: 'Image title',
@@ -185,7 +187,8 @@ export const blogContent: Record<Locale, BlogCopy> = {
   },
   fr: {
     title: 'Blog',
-    description: 'Publiez les notes de terrain, les analyses educatives et les nouvelles de la fondation.',
+    description:
+      'Publiez les notes de terrain, les analyses educatives et les nouvelles de la fondation.',
     create: 'Nouvelle note',
     refresh: 'Actualiser',
     save: 'Enregistrer',
@@ -257,7 +260,8 @@ export const blogContent: Record<Locale, BlogCopy> = {
       addMedia: 'Ajouter une image',
       uploadMedia: 'Selectionner des medias',
       uploadingMedia: 'Televersement...',
-      mediaHelp: 'Ajoutez des images ou videos sures. Le texte alternatif est genere puis modifiable.',
+      mediaHelp:
+        'Ajoutez des images ou videos sures. Le texte alternatif est genere puis modifiable.',
       removeMedia: 'Retirer',
       mediaUrl: 'URL ou chemin',
       mediaTitle: 'Titre image',

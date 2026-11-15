@@ -41,7 +41,9 @@ export function FundingSourceDistributionChart({
             </span>
             <div>
               <h2 className="text-base font-black text-ink-950">{copy.sourceDistributionTitle}</h2>
-              <p className="mt-1 text-sm leading-6 text-ink-500">{copy.sourceDistributionDescription}</p>
+              <p className="mt-1 text-sm leading-6 text-ink-500">
+                {copy.sourceDistributionDescription}
+              </p>
             </div>
           </div>
         </div>
@@ -65,8 +67,12 @@ export function FundingSourceDistributionChart({
             />
             {activeSlice ? (
               <div className="rounded-md border border-foundation-100 bg-foundation-50/70 p-3 text-center shadow-xs">
-                <p className="text-xs font-black uppercase text-foundation-700">{activeSlice.source_label || activeSlice.source}</p>
-                <p className="mt-1 text-xl font-black text-ink-950">{formatMoney(activeSlice.amountValue, activeSlice.currency, locale)}</p>
+                <p className="text-xs font-black uppercase text-foundation-700">
+                  {activeSlice.source_label || activeSlice.source}
+                </p>
+                <p className="mt-1 text-xl font-black text-ink-950">
+                  {formatMoney(activeSlice.amountValue, activeSlice.currency, locale)}
+                </p>
                 <p className="mt-1 text-xs font-bold text-ink-500">
                   {formatPercent(total > 0 ? (activeSlice.amountValue / total) * 100 : 0, locale)}
                 </p>
@@ -88,16 +94,30 @@ export function FundingSourceDistributionChart({
                   onBlur={() => setActiveSource(null)}
                   className={cn(
                     'focus-ring rounded-md border p-3 text-left shadow-xs transition duration-200 hover:-translate-y-1 hover:shadow-md',
-                    isActive ? 'border-foundation-200 bg-foundation-50' : 'border-ink-100 bg-ink-50/60 hover:border-foundation-100',
+                    isActive
+                      ? 'border-foundation-200 bg-foundation-50'
+                      : 'border-ink-100 bg-ink-50/60 hover:border-foundation-100',
                   )}
                 >
                   <div className="flex items-center gap-2">
-                    <span className={cn('h-3 w-3 rounded-full transition-transform duration-200', isActive && 'scale-125')} style={{ backgroundColor: slice.color }} aria-hidden="true" />
-                    <p className="truncate text-sm font-black text-ink-900">{slice.source_label || slice.source}</p>
+                    <span
+                      className={cn(
+                        'h-3 w-3 rounded-full transition-transform duration-200',
+                        isActive && 'scale-125',
+                      )}
+                      style={{ backgroundColor: slice.color }}
+                      aria-hidden="true"
+                    />
+                    <p className="truncate text-sm font-black text-ink-900">
+                      {slice.source_label || slice.source}
+                    </p>
                   </div>
-                  <p className="mt-3 text-xl font-black tabular-nums text-ink-950">{formatMoney(slice.amountValue, slice.currency, locale)}</p>
+                  <p className="mt-3 text-xl font-black tabular-nums text-ink-950">
+                    {formatMoney(slice.amountValue, slice.currency, locale)}
+                  </p>
                   <p className="mt-1 text-xs font-bold uppercase text-ink-500">
-                    {formatPercent(percent, locale)} / {slice.count} {slice.count === 1 ? copy.giftLabel : copy.giftsLabel}
+                    {formatPercent(percent, locale)} / {slice.count}{' '}
+                    {slice.count === 1 ? copy.giftLabel : copy.giftsLabel}
                   </p>
                 </button>
               );
@@ -133,7 +153,11 @@ function DonutChart({
   let offset = 0;
 
   return (
-    <div className="relative mx-auto h-56 w-56" role="img" aria-label={`Funding source distribution for ${currency}`}>
+    <div
+      className="relative mx-auto h-56 w-56"
+      role="img"
+      aria-label={`Funding source distribution for ${currency}`}
+    >
       <svg viewBox="0 0 180 180" className="h-full w-full -rotate-90">
         <circle cx="90" cy="90" r={radius} fill="none" stroke="#f3f4f6" strokeWidth="22" />
         {slices.map((slice) => {

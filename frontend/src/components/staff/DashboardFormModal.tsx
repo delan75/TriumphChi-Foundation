@@ -61,7 +61,12 @@ export function DashboardFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-ink-950/55 px-4 py-6 backdrop-blur-xs sm:px-6" role="dialog" aria-modal="true" aria-labelledby="dashboard-form-modal-title">
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto bg-ink-950/55 px-4 py-6 backdrop-blur-xs sm:px-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dashboard-form-modal-title"
+    >
       <div className={cn('mx-auto min-h-full w-full', sizes[size])}>
         <div className="flex min-h-full items-start justify-center">
           <section className="w-full overflow-hidden rounded-md border border-white/20 bg-white shadow-2xl">
@@ -70,7 +75,9 @@ export function DashboardFormModal({
                 <h2 id="dashboard-form-modal-title" className="text-lg font-black text-ink-950">
                   {title}
                 </h2>
-                {description ? <p className="mt-1 text-sm leading-6 text-ink-500">{description}</p> : null}
+                {description ? (
+                  <p className="mt-1 text-sm leading-6 text-ink-500">{description}</p>
+                ) : null}
               </div>
               <button
                 type="button"

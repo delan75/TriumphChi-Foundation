@@ -1,6 +1,8 @@
 import type { Locale } from '../../lib/i18n';
 
-export function contactStatusTone(status: string | null | undefined): 'neutral' | 'info' | 'success' | 'warning' | 'danger' {
+export function contactStatusTone(
+  status: string | null | undefined,
+): 'neutral' | 'info' | 'success' | 'warning' | 'danger' {
   switch ((status ?? '').toLowerCase()) {
     case 'new':
       return 'warning';
@@ -17,7 +19,11 @@ export function contactStatusTone(status: string | null | undefined): 'neutral' 
   }
 }
 
-export function formatContactDate(value: string | null | undefined, locale: Locale, withTime = false) {
+export function formatContactDate(
+  value: string | null | undefined,
+  locale: Locale,
+  withTime = false,
+) {
   if (!value) {
     return '-';
   }
@@ -28,7 +34,10 @@ export function formatContactDate(value: string | null | undefined, locale: Loca
     return '-';
   }
 
-  return new Intl.DateTimeFormat(locale, withTime ? { dateStyle: 'medium', timeStyle: 'short' } : { dateStyle: 'medium' }).format(date);
+  return new Intl.DateTimeFormat(
+    locale,
+    withTime ? { dateStyle: 'medium', timeStyle: 'short' } : { dateStyle: 'medium' },
+  ).format(date);
 }
 
 export function formatFileSize(bytes: number | null | undefined) {

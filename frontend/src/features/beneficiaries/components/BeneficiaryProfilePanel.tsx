@@ -1,4 +1,14 @@
-import { BookOpen, FileText, History, School, ShieldCheck, UserRound, WalletCards, X, type LucideIcon } from 'lucide-react';
+import {
+  BookOpen,
+  FileText,
+  History,
+  School,
+  ShieldCheck,
+  UserRound,
+  WalletCards,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { DashboardPanel } from '../../../components/staff/DashboardPanel';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
@@ -16,9 +26,16 @@ interface BeneficiaryProfilePanelProps {
   onClose: () => void;
 }
 
-type TabKey = 'overview' | 'education' | 'needs' | 'funding' | 'documents' | 'history' | 'mentorship' | 'audit';
+type TabKey =
+  'overview' | 'education' | 'needs' | 'funding' | 'documents' | 'history' | 'mentorship' | 'audit';
 
-export function BeneficiaryProfilePanel({ copy, locale, beneficiary, isLoading, onClose }: BeneficiaryProfilePanelProps) {
+export function BeneficiaryProfilePanel({
+  copy,
+  locale,
+  beneficiary,
+  isLoading,
+  onClose,
+}: BeneficiaryProfilePanelProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const tabs = useMemo(() => {
     const base: Array<{ key: TabKey; label: string; icon: LucideIcon }> = [
@@ -79,12 +96,21 @@ export function BeneficiaryProfilePanel({ copy, locale, beneficiary, isLoading, 
                 <UserRound className="h-7 w-7" aria-hidden="true" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold uppercase text-ink-400">{beneficiary.internal_id}</p>
+                <p className="text-xs font-bold uppercase text-ink-400">
+                  {beneficiary.internal_id}
+                </p>
                 <h3 className="mt-1 text-xl font-black text-ink-900">{beneficiary.display_name}</h3>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <StatusBadge label={beneficiary.status_label ?? beneficiary.status} tone={statusTone(beneficiary.status)} />
                   <StatusBadge
-                    label={beneficiary.funding_summary.has_funding_gap ? copy.filters.fundingGap : copy.filters.funded}
+                    label={beneficiary.status_label ?? beneficiary.status}
+                    tone={statusTone(beneficiary.status)}
+                  />
+                  <StatusBadge
+                    label={
+                      beneficiary.funding_summary.has_funding_gap
+                        ? copy.filters.fundingGap
+                        : copy.filters.funded
+                    }
                     tone={beneficiary.funding_summary.has_funding_gap ? 'warning' : 'success'}
                   />
                 </div>
@@ -101,7 +127,9 @@ export function BeneficiaryProfilePanel({ copy, locale, beneficiary, isLoading, 
                   onClick={() => setActiveTab(tab.key)}
                   className={cn(
                     'focus-ring inline-flex min-h-10 shrink-0 items-center gap-2 rounded-md px-3 text-sm font-bold transition',
-                    activeTab === tab.key ? 'bg-foundation-600 text-white' : 'text-ink-600 hover:bg-ink-50',
+                    activeTab === tab.key
+                      ? 'bg-foundation-600 text-white'
+                      : 'text-ink-600 hover:bg-ink-50',
                   )}
                 >
                   <tab.icon className="h-4 w-4" aria-hidden="true" />
@@ -112,16 +140,30 @@ export function BeneficiaryProfilePanel({ copy, locale, beneficiary, isLoading, 
           </div>
 
           <div className="p-5">
-            {activeTab === 'overview' ? <OverviewTab beneficiary={beneficiary} copy={copy} locale={locale} /> : null}
-            {activeTab === 'education' ? <EducationTab beneficiary={beneficiary} copy={copy} locale={locale} /> : null}
-            {activeTab === 'needs' ? <NeedsTab beneficiary={beneficiary} copy={copy} locale={locale} /> : null}
+            {activeTab === 'overview' ? (
+              <OverviewTab beneficiary={beneficiary} copy={copy} locale={locale} />
+            ) : null}
+            {activeTab === 'education' ? (
+              <EducationTab beneficiary={beneficiary} copy={copy} locale={locale} />
+            ) : null}
+            {activeTab === 'needs' ? (
+              <NeedsTab beneficiary={beneficiary} copy={copy} locale={locale} />
+            ) : null}
             {activeTab === 'funding' && beneficiary.permissions.can_view_funding ? (
               <FundingTab beneficiary={beneficiary} copy={copy} locale={locale} />
             ) : null}
-            {activeTab === 'history' ? <HistoryTab beneficiary={beneficiary} copy={copy} locale={locale} /> : null}
-            {activeTab === 'documents' ? <EmptyPanel icon={FileText} text={copy.profile.documentsQueued} /> : null}
-            {activeTab === 'mentorship' ? <EmptyPanel icon={ShieldCheck} text={copy.profile.mentorshipQueued} /> : null}
-            {activeTab === 'audit' ? <EmptyPanel icon={History} text={copy.profile.auditQueued} /> : null}
+            {activeTab === 'history' ? (
+              <HistoryTab beneficiary={beneficiary} copy={copy} locale={locale} />
+            ) : null}
+            {activeTab === 'documents' ? (
+              <EmptyPanel icon={FileText} text={copy.profile.documentsQueued} />
+            ) : null}
+            {activeTab === 'mentorship' ? (
+              <EmptyPanel icon={ShieldCheck} text={copy.profile.mentorshipQueued} />
+            ) : null}
+            {activeTab === 'audit' ? (
+              <EmptyPanel icon={History} text={copy.profile.auditQueued} />
+            ) : null}
           </div>
         </div>
       )}
@@ -129,7 +171,15 @@ export function BeneficiaryProfilePanel({ copy, locale, beneficiary, isLoading, 
   );
 }
 
-function OverviewTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRecord; copy: BeneficiariesCopy; locale: Locale }) {
+function OverviewTab({
+  beneficiary,
+  copy,
+  locale,
+}: {
+  beneficiary: BeneficiaryRecord;
+  copy: BeneficiariesCopy;
+  locale: Locale;
+}) {
   const workflow = [
     copy.profile.application,
     copy.profile.verification,
@@ -146,21 +196,37 @@ function OverviewTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRe
         <Metric
           label={copy.profile.fundingStatus}
           value={`${beneficiary.funding_summary.funding_percentage}%`}
-          subValue={formatMoney(beneficiary.funding_summary.funding_gap, beneficiary.funding_summary.currency, locale)}
+          subValue={formatMoney(
+            beneficiary.funding_summary.funding_gap,
+            beneficiary.funding_summary.currency,
+            locale,
+          )}
         />
-        <Metric label={copy.profile.sponsorCount} value={String(beneficiary.case_summary.sponsor_count)} />
-        <Metric label={copy.profile.schoolVisit} value={formatDate(beneficiary.case_summary.latest_update_at, locale)} />
+        <Metric
+          label={copy.profile.sponsorCount}
+          value={String(beneficiary.case_summary.sponsor_count)}
+        />
+        <Metric
+          label={copy.profile.schoolVisit}
+          value={formatDate(beneficiary.case_summary.latest_update_at, locale)}
+        />
       </div>
 
       <div className="rounded-md border border-ink-100 bg-white p-4">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Fact label={copy.profile.gender} value={displayValue(beneficiary.gender)} />
-          <Fact label={copy.profile.sourceApplication} value={beneficiary.application?.application_number ?? '-'} />
+          <Fact
+            label={copy.profile.sourceApplication}
+            value={beneficiary.application?.application_number ?? '-'}
+          />
           <Fact label={copy.profile.region} value={beneficiary.region?.name ?? '-'} />
           <Fact label={copy.profile.village} value={beneficiary.village?.name ?? '-'} />
           <Fact label={copy.profile.guardian} value={beneficiary.guardian_name ?? '-'} />
           <Fact label={copy.profile.phone} value={beneficiary.guardian_phone ?? '-'} />
-          <Fact label={copy.profile.joined} value={formatDate(beneficiary.admission_date ?? beneficiary.created_at, locale)} />
+          <Fact
+            label={copy.profile.joined}
+            value={formatDate(beneficiary.admission_date ?? beneficiary.created_at, locale)}
+          />
         </div>
       </div>
 
@@ -183,18 +249,37 @@ function OverviewTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRe
   );
 }
 
-function EducationTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRecord; copy: BeneficiariesCopy; locale: Locale }) {
+function EducationTab({
+  beneficiary,
+  copy,
+  locale,
+}: {
+  beneficiary: BeneficiaryRecord;
+  copy: BeneficiariesCopy;
+  locale: Locale;
+}) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <Metric label={copy.profile.school} value={beneficiary.school?.name ?? '-'} />
-      <Metric label={copy.profile.region} value={beneficiary.school?.region?.name ?? beneficiary.region?.name ?? '-'} />
+      <Metric
+        label={copy.profile.region}
+        value={beneficiary.school?.region?.name ?? beneficiary.region?.name ?? '-'}
+      />
       <Metric label={copy.table.classLevel} value={beneficiary.education_level ?? '-'} />
       <Metric label={copy.profile.joined} value={formatDate(beneficiary.admission_date, locale)} />
     </div>
   );
 }
 
-function NeedsTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRecord; copy: BeneficiariesCopy; locale: Locale }) {
+function NeedsTab({
+  beneficiary,
+  copy,
+  locale,
+}: {
+  beneficiary: BeneficiaryRecord;
+  copy: BeneficiariesCopy;
+  locale: Locale;
+}) {
   const needs = beneficiary.needs ?? [];
 
   if (!needs.length) {
@@ -213,8 +298,18 @@ function NeedsTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRecor
             <StatusBadge label={need.status_label ?? need.status} tone={statusTone(need.status)} />
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <Fact label={copy.profile.amountRequired} value={formatMoney(need.amount_required, beneficiary.funding_summary.currency, locale)} />
-            <Fact label={copy.profile.amountFunded} value={formatMoney(need.amount_funded, beneficiary.funding_summary.currency, locale)} />
+            <Fact
+              label={copy.profile.amountRequired}
+              value={formatMoney(
+                need.amount_required,
+                beneficiary.funding_summary.currency,
+                locale,
+              )}
+            />
+            <Fact
+              label={copy.profile.amountFunded}
+              value={formatMoney(need.amount_funded, beneficiary.funding_summary.currency, locale)}
+            />
             <Fact label={copy.profile.fundingStatus} value={`${need.funding_percentage}%`} />
           </div>
         </article>
@@ -223,21 +318,41 @@ function NeedsTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRecor
   );
 }
 
-function FundingTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRecord; copy: BeneficiariesCopy; locale: Locale }) {
+function FundingTab({
+  beneficiary,
+  copy,
+  locale,
+}: {
+  beneficiary: BeneficiaryRecord;
+  copy: BeneficiariesCopy;
+  locale: Locale;
+}) {
   return (
     <div className="space-y-5">
       <div className="grid gap-3 sm:grid-cols-3">
         <Metric
           label={copy.profile.amountFunded}
-          value={formatMoney(beneficiary.funding_summary.amount_funded, beneficiary.funding_summary.currency, locale)}
+          value={formatMoney(
+            beneficiary.funding_summary.amount_funded,
+            beneficiary.funding_summary.currency,
+            locale,
+          )}
         />
         <Metric
           label={copy.profile.gap}
-          value={formatMoney(beneficiary.funding_summary.funding_gap, beneficiary.funding_summary.currency, locale)}
+          value={formatMoney(
+            beneficiary.funding_summary.funding_gap,
+            beneficiary.funding_summary.currency,
+            locale,
+          )}
         />
         <Metric
           label={copy.profile.payments}
-          value={formatMoney(beneficiary.funding_summary.payments_total, beneficiary.funding_summary.currency, locale)}
+          value={formatMoney(
+            beneficiary.funding_summary.payments_total,
+            beneficiary.funding_summary.currency,
+            locale,
+          )}
         />
       </div>
       <RelatedList
@@ -264,7 +379,15 @@ function FundingTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRec
   );
 }
 
-function HistoryTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRecord; copy: BeneficiariesCopy; locale: Locale }) {
+function HistoryTab({
+  beneficiary,
+  copy,
+  locale,
+}: {
+  beneficiary: BeneficiaryRecord;
+  copy: BeneficiariesCopy;
+  locale: Locale;
+}) {
   const history = beneficiary.support_history ?? [];
 
   if (!history.length) {
@@ -274,22 +397,39 @@ function HistoryTab({ beneficiary, copy, locale }: { beneficiary: BeneficiaryRec
   return (
     <div className="space-y-3">
       {history.map((item, index) => (
-        <article key={`${item.type}-${item.happened_at}-${index}`} className="rounded-md border border-ink-100 bg-white p-4">
+        <article
+          key={`${item.type}-${item.happened_at}-${index}`}
+          className="rounded-md border border-ink-100 bg-white p-4"
+        >
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm font-black text-ink-900">{item.title}</p>
-              {item.description ? <p className="mt-1 text-sm text-ink-500">{item.description}</p> : null}
+              {item.description ? (
+                <p className="mt-1 text-sm text-ink-500">{item.description}</p>
+              ) : null}
             </div>
-            <p className="shrink-0 text-xs font-bold text-ink-400">{formatDate(item.happened_at, locale)}</p>
+            <p className="shrink-0 text-xs font-bold text-ink-400">
+              {formatDate(item.happened_at, locale)}
+            </p>
           </div>
-          {item.actor ? <p className="mt-3 text-xs font-semibold uppercase text-ink-400">{item.actor}</p> : null}
+          {item.actor ? (
+            <p className="mt-3 text-xs font-semibold uppercase text-ink-400">{item.actor}</p>
+          ) : null}
         </article>
       ))}
     </div>
   );
 }
 
-function RelatedList({ title, rows, empty }: { title: string; empty: string; rows: Array<{ id: string; title: string; meta: string; value: string }> }) {
+function RelatedList({
+  title,
+  rows,
+  empty,
+}: {
+  title: string;
+  empty: string;
+  rows: Array<{ id: string; title: string; meta: string; value: string }>;
+}) {
   return (
     <div className="rounded-md border border-ink-100 bg-white">
       <h4 className="border-b border-ink-100 px-4 py-3 text-sm font-black text-ink-900">{title}</h4>

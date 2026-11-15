@@ -53,7 +53,12 @@ export function UsersPage() {
   const users = usersQuery.data?.data ?? [];
   const pagination = usersQuery.data?.meta;
   const selectedUser = userQuery.data ?? null;
-  const isWorking = createUser.isPending || updateUser.isPending || updateAccess.isPending || transitionStatus.isPending || terminateSessions.isPending;
+  const isWorking =
+    createUser.isPending ||
+    updateUser.isPending ||
+    updateAccess.isPending ||
+    transitionStatus.isPending ||
+    terminateSessions.isPending;
 
   const pageLabel = useMemo(() => {
     if (!pagination) {
@@ -124,7 +129,10 @@ export function UsersPage() {
               onClick={() => usersQuery.refetch()}
               className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md border border-ink-200 bg-white px-4 text-sm font-bold text-ink-700 transition hover:bg-ink-50"
             >
-              <RefreshCcw className={cn('h-4 w-4', usersQuery.isFetching ? 'animate-spin' : '')} aria-hidden="true" />
+              <RefreshCcw
+                className={cn('h-4 w-4', usersQuery.isFetching ? 'animate-spin' : '')}
+                aria-hidden="true"
+              />
               {copy.refresh}
             </button>
           </div>
@@ -148,16 +156,25 @@ export function UsersPage() {
           title={copy.table.title}
           description={copy.table.description}
           className="min-w-0"
-          action={pagination ? (
-            <PaginationControls
-              copy={copy}
-              pageLabel={pageLabel}
-              canPrevious={Boolean(usersQuery.data?.links.prev)}
-              canNext={Boolean(usersQuery.data?.links.next)}
-              onPrevious={() => setFilters((current) => ({ ...current, page: Math.max((current.page ?? 1) - 1, 1) }))}
-              onNext={() => setFilters((current) => ({ ...current, page: (current.page ?? 1) + 1 }))}
-            />
-          ) : null}
+          action={
+            pagination ? (
+              <PaginationControls
+                copy={copy}
+                pageLabel={pageLabel}
+                canPrevious={Boolean(usersQuery.data?.links.prev)}
+                canNext={Boolean(usersQuery.data?.links.next)}
+                onPrevious={() =>
+                  setFilters((current) => ({
+                    ...current,
+                    page: Math.max((current.page ?? 1) - 1, 1),
+                  }))
+                }
+                onNext={() =>
+                  setFilters((current) => ({ ...current, page: (current.page ?? 1) + 1 }))
+                }
+              />
+            ) : null
+          }
           bodyClassName="p-4"
         >
           {usersQuery.isError ? (
@@ -208,9 +225,15 @@ export function UsersPage() {
             onAccessSave={async (uuid, roles, directPermissions) => {
               setMutationError(null);
               try {
-                await updateAccess.mutateAsync({ uuid, roles, direct_permissions: directPermissions });
+                await updateAccess.mutateAsync({
+                  uuid,
+                  roles,
+                  direct_permissions: directPermissions,
+                });
               } catch (error) {
-                setMutationError(error instanceof Error ? error.message : 'Unable to update access.');
+                setMutationError(
+                  error instanceof Error ? error.message : 'Unable to update access.',
+                );
               }
             }}
             onStatusAction={async (uuid, action) => {
@@ -218,7 +241,9 @@ export function UsersPage() {
               try {
                 await transitionStatus.mutateAsync({ uuid, action });
               } catch (error) {
-                setMutationError(error instanceof Error ? error.message : 'Unable to update status.');
+                setMutationError(
+                  error instanceof Error ? error.message : 'Unable to update status.',
+                );
               }
             }}
             onTerminateSessions={async (uuid) => {
@@ -226,7 +251,9 @@ export function UsersPage() {
               try {
                 await terminateSessions.mutateAsync(uuid);
               } catch (error) {
-                setMutationError(error instanceof Error ? error.message : 'Unable to terminate sessions.');
+                setMutationError(
+                  error instanceof Error ? error.message : 'Unable to terminate sessions.',
+                );
               }
             }}
           />
@@ -261,7 +288,9 @@ function PaginationControls({
       >
         {copy.table.previous}
       </button>
-      <span className="min-h-10 rounded-md bg-ink-50 px-3 py-2 text-sm font-bold text-ink-700">{pageLabel}</span>
+      <span className="min-h-10 rounded-md bg-ink-50 px-3 py-2 text-sm font-bold text-ink-700">
+        {pageLabel}
+      </span>
       <button
         type="button"
         disabled={!canNext}

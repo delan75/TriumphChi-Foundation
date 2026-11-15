@@ -9,7 +9,16 @@ interface ContactMessageFiltersProps {
 }
 
 const statuses = ['new', 'reviewing', 'replied', 'archived', 'spam'];
-const reasons = ['general', 'sponsorship', 'assistance', 'school', 'volunteer', 'partnership', 'church', 'corporate'];
+const reasons = [
+  'general',
+  'sponsorship',
+  'assistance',
+  'school',
+  'volunteer',
+  'partnership',
+  'church',
+  'corporate',
+];
 
 export function ContactMessageFilters({ copy, filters, onChange }: ContactMessageFiltersProps) {
   const setFilter = (next: Partial<ContactMessageListParams>) => {
@@ -22,7 +31,10 @@ export function ContactMessageFilters({ copy, filters, onChange }: ContactMessag
         <label className="block">
           <span className="text-xs font-bold uppercase text-ink-500">{copy.filters.search}</span>
           <span className="relative mt-1 block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" aria-hidden="true" />
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400"
+              aria-hidden="true"
+            />
             <input
               value={filters.search ?? ''}
               onChange={(event) => setFilter({ search: event.target.value || undefined })}
@@ -65,10 +77,14 @@ export function ContactMessageFilters({ copy, filters, onChange }: ContactMessag
         </label>
 
         <label className="block">
-          <span className="text-xs font-bold uppercase text-ink-500">{copy.filters.attachments}</span>
+          <span className="text-xs font-bold uppercase text-ink-500">
+            {copy.filters.attachments}
+          </span>
           <select
             value={filters.has_attachments === true ? 'yes' : ''}
-            onChange={(event) => setFilter({ has_attachments: event.target.value === 'yes' ? true : undefined })}
+            onChange={(event) =>
+              setFilter({ has_attachments: event.target.value === 'yes' ? true : undefined })
+            }
             className="focus-ring mt-1 min-h-11 w-full rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-800"
           >
             <option value="">{copy.filters.all}</option>
@@ -78,7 +94,14 @@ export function ContactMessageFilters({ copy, filters, onChange }: ContactMessag
 
         <button
           type="button"
-          onClick={() => onChange({ page: 1, per_page: filters.per_page ?? 12, sort: 'created_at', direction: 'desc' })}
+          onClick={() =>
+            onChange({
+              page: 1,
+              per_page: filters.per_page ?? 12,
+              sort: 'created_at',
+              direction: 'desc',
+            })
+          }
           className="focus-ring mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-ink-200 bg-white px-4 text-sm font-bold text-ink-700 transition hover:bg-ink-50 sm:col-span-2 xl:col-span-1 xl:mt-auto"
         >
           <RotateCcw className="h-4 w-4" aria-hidden="true" />

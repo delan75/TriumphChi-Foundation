@@ -246,7 +246,9 @@ function transitionTone(s: string): string {
 function formatDate(value: string | null | undefined, locale: string) {
   if (!value) return null;
   try {
-    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
+    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(
+      new Date(value),
+    );
   } catch {
     return value;
   }
@@ -258,14 +260,18 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
   return (
     <div className="grid grid-cols-[120px_1fr] gap-2 py-2.5 text-sm">
       <dt className="font-medium text-ink-500">{label}</dt>
-      <dd className="text-ink-900 wrap-break-word">{value ?? <span className="text-ink-400">—</span>}</dd>
+      <dd className="text-ink-900 wrap-break-word">
+        {value ?? <span className="text-ink-400">—</span>}
+      </dd>
     </div>
   );
 }
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="mt-5 mb-1 text-[11px] font-bold uppercase tracking-wide text-ink-400">{children}</h3>
+    <h3 className="mt-5 mb-1 text-[11px] font-bold uppercase tracking-wide text-ink-400">
+      {children}
+    </h3>
   );
 }
 
@@ -283,7 +289,9 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
   const [confirming, setConfirming] = useState<string | null>(null);
   const [transitioning, setTransitioning] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(
+    null,
+  );
 
   const transitions = TRANSITIONS[app.status] ?? [];
 
@@ -297,7 +305,10 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
       setNotes('');
       onTransitioned(updated);
     } catch (err) {
-      setFeedback({ type: 'error', text: err instanceof Error ? err.message : panel.transitionError });
+      setFeedback({
+        type: 'error',
+        text: err instanceof Error ? err.message : panel.transitionError,
+      });
     } finally {
       setTransitioning(false);
     }
@@ -333,7 +344,9 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
       {/* Header */}
       <div className="flex items-center justify-between border-b border-ink-100 px-5 py-4">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-wide text-ink-400">{panel.title}</p>
+          <p className="text-[11px] font-bold uppercase tracking-wide text-ink-400">
+            {panel.title}
+          </p>
           <h2 className="mt-0.5 text-base font-bold text-ink-900">{app.applicant_name}</h2>
         </div>
         <div className="flex items-center gap-2">
@@ -462,10 +475,10 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
         ) : null}
 
         {/* ── Household ── */}
-        {(app.household_income_range ||
-          app.household_size ||
-          app.primary_caregiver_occupation ||
-          (app.household_challenges?.length ?? 0) > 0) ? (
+        {app.household_income_range ||
+        app.household_size ||
+        app.primary_caregiver_occupation ||
+        (app.household_challenges?.length ?? 0) > 0 ? (
           <>
             <SectionHeading>{panel.household}</SectionHeading>
             <dl className="divide-y divide-ink-50 rounded-md border border-ink-100 bg-ink-50/40 px-4">
@@ -479,7 +492,10 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
                 <DetailRow label={panel.caregiver} value={app.primary_caregiver_occupation} />
               ) : null}
               {(app.household_challenges?.length ?? 0) > 0 ? (
-                <DetailRow label={panel.challenges} value={(app.household_challenges ?? []).join(', ')} />
+                <DetailRow
+                  label={panel.challenges}
+                  value={(app.household_challenges ?? []).join(', ')}
+                />
               ) : null}
             </dl>
           </>
@@ -865,8 +881,8 @@ export function ApplicationsPage() {
       {meta && meta.last_page > 1 ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-ink-500">
-            {c.page} {meta.current_page} {c.of} {meta.last_page} &nbsp;·&nbsp;{' '}
-            {meta.total} {c.results}
+            {c.page} {meta.current_page} {c.of} {meta.last_page} &nbsp;·&nbsp; {meta.total}{' '}
+            {c.results}
           </p>
           <div className="flex gap-2">
             <button

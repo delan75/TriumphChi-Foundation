@@ -18,7 +18,11 @@ test('localized navigation and migrated styles work in the production build', as
     element.className = 'bg-foundation-600 rounded-xs shadow-xs';
     document.body.append(element);
     const style = getComputedStyle(element);
-    const result = { background: style.backgroundColor, radius: style.borderRadius, shadow: style.boxShadow };
+    const result = {
+      background: style.backgroundColor,
+      radius: style.borderRadius,
+      shadow: style.boxShadow,
+    };
     element.remove();
     return result;
   });
@@ -36,7 +40,9 @@ test('staff guard preserves the requested localized path and query', async ({ pa
   await expect(page.locator('input[type="password"]')).toBeVisible();
 });
 
-test('root redirects preserve query and hash; nested public routes load directly', async ({ page }) => {
+test('root redirects preserve query and hash; nested public routes load directly', async ({
+  page,
+}) => {
   await page.goto('/?campaign=education#support');
   await expect(page).toHaveURL(/\/(en|fr)\?campaign=education#support$/);
   await page.goto('/en/donate/paypal/cancel');
@@ -48,4 +54,39 @@ test('unmatched nested routes render the recovery page', async ({ page }) => {
   await page.goto('/en/unknown/nested/page');
   await expect(page.getByRole('heading', { name: "We couldn't find that page" })).toBeVisible();
   await expect(page.locator('a[href="/en"]').first()).toBeVisible();
+});
+
+test('page navigation scrolls smoothly to top', async ({ page }) => {
+  await page.goto('/en');
+  await expect(page.locator('header')).toBeVisible();
+
+  await page.evaluate(() => {
+    (window as unknown as { __scrollToCalls: unknown[] }).__scrollToCalls = [];
+    const original = window.scrollTo.bind(window);
+    window.scrollTo = (...args: unknown[]) => {
+      (window as unknown as { __scrollToCalls: unknown[] }).__scrollToCalls.push(args);
+      return (original as (...a: unknown[]) => void)(...args);
+    };
+  });
+
+  const menu = page.getByRole('button', { name: 'Open navigation menu' });
+  if (await menu.isVisible()) {
+    await menu.click();
+  }
+  const about = page.locator('header a[href="/en/about"]:visible').first();
+  await about.click();
+  await expect(page).toHaveURL(/\/en\/about$/);
+
+  await expect
+    .poll(async () => {
+      return page.evaluate(() => {
+        const calls =
+          (window as unknown as { __scrollToCalls?: unknown[][] }).__scrollToCalls ?? [];
+        return calls.some((call) => {
+          const opts = (call as [ScrollToOptions])[0];
+          return typeof opts === 'object' && opts.top === 0 && opts.behavior === 'smooth';
+        });
+      });
+    })
+    .toBe(true);
 });

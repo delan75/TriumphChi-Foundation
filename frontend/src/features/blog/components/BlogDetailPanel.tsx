@@ -19,7 +19,18 @@ interface BlogDetailPanelProps {
   onClose: () => void;
 }
 
-export function BlogDetailPanel({ copy, locale, post, isLoading, isWorking, canUpdate, canPublish, onEdit, onTransition, onClose }: BlogDetailPanelProps) {
+export function BlogDetailPanel({
+  copy,
+  locale,
+  post,
+  isLoading,
+  isWorking,
+  canUpdate,
+  canPublish,
+  onEdit,
+  onTransition,
+  onClose,
+}: BlogDetailPanelProps) {
   return (
     <DashboardPanel
       title={copy.detail.title}
@@ -49,7 +60,16 @@ export function BlogDetailPanel({ copy, locale, post, isLoading, isWorking, canU
         <div className="space-y-5">
           <div className="rounded-md bg-foundation-950 p-5 text-white">
             <div className="flex flex-wrap items-center gap-2">
-              <StatusBadge label={copy.statuses[post.status] ?? post.status_label ?? post.status} tone={post.status === 'published' ? 'success' : post.status === 'review' ? 'warning' : 'info'} />
+              <StatusBadge
+                label={copy.statuses[post.status] ?? post.status_label ?? post.status}
+                tone={
+                  post.status === 'published'
+                    ? 'success'
+                    : post.status === 'review'
+                      ? 'warning'
+                      : 'info'
+                }
+              />
               {post.is_featured ? (
                 <span className="inline-flex min-h-7 items-center gap-1 rounded-md bg-white/10 px-2.5 text-xs font-black uppercase text-white">
                   <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
@@ -59,7 +79,9 @@ export function BlogDetailPanel({ copy, locale, post, isLoading, isWorking, canU
             </div>
             <p className="mt-3 text-xs font-black uppercase text-white/50">{post.reference}</p>
             <h3 className="mt-2 text-2xl font-black leading-tight">{post.current_title}</h3>
-            {post.current_excerpt ? <p className="mt-3 text-sm leading-7 text-white/75">{post.current_excerpt}</p> : null}
+            {post.current_excerpt ? (
+              <p className="mt-3 text-sm leading-7 text-white/75">{post.current_excerpt}</p>
+            ) : null}
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
@@ -72,22 +94,36 @@ export function BlogDetailPanel({ copy, locale, post, isLoading, isWorking, canU
           <section className="rounded-md border border-ink-100 bg-white p-4">
             <h4 className="text-sm font-black uppercase text-ink-500">{copy.detail.preview}</h4>
             <div className="mt-3 max-h-72 overflow-y-auto pr-2">
-              {post.current_body.split(/\n{2,}/).filter(Boolean).slice(0, 5).map((paragraph, index) => (
-                <p key={`${post.uuid}-preview-${index}`} className="mb-3 text-sm leading-7 text-ink-700">
-                  {paragraph}
-                </p>
-              ))}
+              {post.current_body
+                .split(/\n{2,}/)
+                .filter(Boolean)
+                .slice(0, 5)
+                .map((paragraph, index) => (
+                  <p
+                    key={`${post.uuid}-preview-${index}`}
+                    className="mb-3 text-sm leading-7 text-ink-700"
+                  >
+                    {paragraph}
+                  </p>
+                ))}
             </div>
           </section>
 
           <section className="rounded-md border border-ink-100 bg-ink-50 p-4">
             <h4 className="text-sm font-black uppercase text-ink-500">{copy.detail.tags}</h4>
             <div className="mt-3 flex flex-wrap gap-2">
-              {post.tags?.length ? post.tags.map((tag) => (
-                <span key={tag.uuid} className="rounded-md bg-white px-3 py-1 text-xs font-bold text-ink-700 shadow-xs">
-                  {tag.label}
-                </span>
-              )) : <span className="text-sm font-semibold text-ink-500">{copy.detail.noTags}</span>}
+              {post.tags?.length ? (
+                post.tags.map((tag) => (
+                  <span
+                    key={tag.uuid}
+                    className="rounded-md bg-white px-3 py-1 text-xs font-bold text-ink-700 shadow-xs"
+                  >
+                    {tag.label}
+                  </span>
+                ))
+              ) : (
+                <span className="text-sm font-semibold text-ink-500">{copy.detail.noTags}</span>
+              )}
             </div>
           </section>
 
@@ -164,5 +200,9 @@ function formatDate(value: string | null | undefined, locale: Locale): string {
     return '-';
   }
 
-  return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value));
+  return new Intl.DateTimeFormat(locale, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(value));
 }
