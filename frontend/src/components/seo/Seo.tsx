@@ -24,11 +24,15 @@ export function Seo({ meta, structuredData }: SeoProps) {
     upsertMeta('property', 'og:site_name', siteConfig.name);
     upsertMeta('property', 'og:locale', siteConfig.localeNames[meta.locale]);
     document.head
-      .querySelectorAll<HTMLMetaElement>('meta[property="og:locale:alternate"][data-managed-seo="true"]')
+      .querySelectorAll<HTMLMetaElement>(
+        'meta[property="og:locale:alternate"][data-managed-seo="true"]',
+      )
       .forEach((tag) => tag.remove());
     locales
       .filter((locale) => locale !== meta.locale)
-      .forEach((locale) => upsertMeta('property', 'og:locale:alternate', siteConfig.localeNames[locale], locale));
+      .forEach((locale) =>
+        upsertMeta('property', 'og:locale:alternate', siteConfig.localeNames[locale], locale),
+      );
     upsertMeta('property', 'og:title', title);
     upsertMeta('property', 'og:description', meta.description);
     upsertMeta('property', 'og:type', meta.type ?? 'website');
@@ -57,14 +61,22 @@ export function Seo({ meta, structuredData }: SeoProps) {
 
 function formatTitle(title: string, locale: 'en' | 'fr'): string {
   const brand = locale === 'fr' ? 'Fondation TriumphChi' : siteConfig.name;
-  return title.includes(siteConfig.name) || title.includes('Fondation TriumphChi') ? title : `${title} | ${brand}`;
+  return title.includes(siteConfig.name) || title.includes('Fondation TriumphChi')
+    ? title
+    : `${title} | ${brand}`;
 }
 
-function upsertMeta(attribute: 'name' | 'property', key: string, content: string, instance?: string) {
+function upsertMeta(
+  attribute: 'name' | 'property',
+  key: string,
+  content: string,
+  instance?: string,
+) {
   const selector = instance
     ? `meta[${attribute}="${key}"][data-managed-seo-instance="${instance}"]`
     : `meta[${attribute}="${key}"]:not([data-managed-seo-instance])`;
-  const tag = document.head.querySelector<HTMLMetaElement>(selector) ?? document.createElement('meta');
+  const tag =
+    document.head.querySelector<HTMLMetaElement>(selector) ?? document.createElement('meta');
   tag.setAttribute(attribute, key);
   tag.dataset.managedSeo = 'true';
 
@@ -78,7 +90,9 @@ function upsertMeta(attribute: 'name' | 'property', key: string, content: string
 
 function maybeUpsertMeta(attribute: 'name' | 'property', key: string, content: string | undefined) {
   if (!content) {
-    document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"][data-managed-seo="true"]`)?.remove();
+    document.head
+      .querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"][data-managed-seo="true"]`)
+      ?.remove();
     return;
   }
 
@@ -109,14 +123,18 @@ function upsertArticleMeta(meta: SeoMeta) {
 }
 
 function upsertCanonical(href: string) {
-  const tag = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]') ?? document.createElement('link');
+  const tag =
+    document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]') ??
+    document.createElement('link');
   tag.rel = 'canonical';
   tag.href = href;
   document.head.appendChild(tag);
 }
 
 function upsertAlternateLinks(links: Array<{ hrefLang: string; href: string }>) {
-  document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach((node) => node.remove());
+  document.head
+    .querySelectorAll('link[rel="alternate"][hreflang]')
+    .forEach((node) => node.remove());
 
   links.forEach((link) => {
     const tag = document.createElement('link');
@@ -128,7 +146,9 @@ function upsertAlternateLinks(links: Array<{ hrefLang: string; href: string }>) 
   });
 }
 
-function upsertStructuredData(data: Record<string, unknown> | Array<Record<string, unknown>> | undefined) {
+function upsertStructuredData(
+  data: Record<string, unknown> | Array<Record<string, unknown>> | undefined,
+) {
   document.head
     .querySelectorAll<HTMLScriptElement>('script[data-managed-structured-data="true"]')
     .forEach((tag) => tag.remove());

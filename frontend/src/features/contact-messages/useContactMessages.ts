@@ -41,8 +41,15 @@ export function useUpdateContactMessage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ uuid, status, staff_notes }: { uuid: string; status: string; staff_notes?: string | null }) =>
-      apiUpdateContactMessage(uuid, { status, staff_notes }),
+    mutationFn: ({
+      uuid,
+      status,
+      staff_notes,
+    }: {
+      uuid: string;
+      status: string;
+      staff_notes?: string | null;
+    }) => apiUpdateContactMessage(uuid, { status, staff_notes }),
     onSuccess: (message) => {
       queryClient.setQueryData(['staff-contact-message', message.uuid], message);
       void queryClient.invalidateQueries({ queryKey: ['staff-contact-messages'] });

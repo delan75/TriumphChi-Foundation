@@ -13,7 +13,9 @@ test('impact formatting rejects invalid values and preserves legitimate zero val
   expect(formatImpactPercentage(100, '—')).toEqual({ value: '100%', usedFallback: false });
 });
 
-test('discovery endpoints serve Markdown and JSON rather than the SPA shell', async ({ request }) => {
+test('discovery endpoints serve Markdown and JSON rather than the SPA shell', async ({
+  request,
+}) => {
   const llms = await request.get('/llms.txt');
   expect(llms.ok()).toBe(true);
   expect(llms.headers()['content-type']).toContain('text/plain');
@@ -28,19 +30,35 @@ test('discovery endpoints serve Markdown and JSON rather than the SPA shell', as
     expect(response.ok()).toBe(true);
     expect(response.headers()['content-type']).toContain('json');
     const catalog = await response.json();
-    expect(catalog).toEqual({ specVersion: '1.0', host: {
-      displayName: 'TriumphChi Foundation', documentationUrl: 'https://triumphchi.org/llms.txt',
-    }, entries: [] });
+    expect(catalog).toEqual({
+      specVersion: '1.0',
+      host: {
+        displayName: 'TriumphChi Foundation',
+        documentationUrl: 'https://triumphchi.org/llms.txt',
+      },
+      entries: [],
+    });
     catalogs.push(catalog);
   }
   expect(catalogs[0]).toEqual(catalogs[1]);
 });
 
 for (const locale of ['en', 'fr']) {
-  test(`${locale}: donation text has intended contrast and language control includes its visible label`, async ({ page }) => {
-    await page.route('**/api/v1/public/impact-summary', (route) => route.fulfill({ json: { data: {
-      children_supported: 0, partner_schools: 0, regions_reached: 0, school_continuation_rate: null,
-    } } }));
+  test(`${locale}: donation text has intended contrast and language control includes its visible label`, async ({
+    page,
+  }) => {
+    await page.route('**/api/v1/public/impact-summary', (route) =>
+      route.fulfill({
+        json: {
+          data: {
+            children_supported: 0,
+            partner_schools: 0,
+            regions_reached: 0,
+            school_continuation_rate: null,
+          },
+        },
+      }),
+    );
     await page.goto(`/${locale}`);
     const donatePath = locale === 'fr' ? 'donner' : 'donate';
     const donate = page.locator(`header a[href="/${locale}/${donatePath}"]:visible`).first();
@@ -51,32 +69,69 @@ for (const locale of ['en', 'fr']) {
     await expect(language).toHaveText(new RegExp(locale, 'i'));
   });
 
-  test(`${locale}: valid impact metrics including zero do not show a data-unavailable warning`, async ({ page }) => {
-    await page.route('**/api/v1/public/impact-summary', (route) => route.fulfill({ json: { data: {
-      children_supported: 0, partner_schools: 0, regions_reached: 0, school_continuation_rate: 0,
-    } } }));
+  test(`${locale}: valid impact metrics including zero do not show a data-unavailable warning`, async ({
+    page,
+  }) => {
+    await page.route('**/api/v1/public/impact-summary', (route) =>
+      route.fulfill({
+        json: {
+          data: {
+            children_supported: 0,
+            partner_schools: 0,
+            regions_reached: 0,
+            school_continuation_rate: 0,
+          },
+        },
+      }),
+    );
     await page.goto(`/${locale}/impact`);
     const grid = page.locator('div[aria-busy]');
     await expect(grid).toHaveAttribute('aria-busy', 'false');
     await expect(grid.locator('article').first()).toContainText('0');
     await expect(grid.locator('article').nth(3)).toContainText('0%');
     await expect(grid.locator('article')).toHaveCount(6);
-    await expect(page.getByText(locale === 'fr' ? /catégories indiquées/ : /Program categories marked/)).toBeVisible();
-    await expect(page.getByText(locale === 'fr' ? /indicateurs vérifiés sont indisponibles/ : /Some verified figures are unavailable/)).toHaveCount(0);
-    await expect(page).toHaveTitle(locale === 'fr' ? 'Impact éducatif au Cameroun | Fondation TriumphChi' : 'Education Impact in Cameroon | TriumphChi Foundation');
+    await expect(
+      page.getByText(locale === 'fr' ? /catégories indiquées/ : /Program categories marked/),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        locale === 'fr'
+          ? /indicateurs vérifiés sont indisponibles/
+          : /Some verified figures are unavailable/,
+      ),
+    ).toHaveCount(0);
+    await expect(page).toHaveTitle(
+      locale === 'fr'
+        ? 'Impact éducatif au Cameroun | Fondation TriumphChi'
+        : 'Education Impact in Cameroon | TriumphChi Foundation',
+    );
     await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(3);
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://triumphchi.org/${locale}/impact`);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      `https://triumphchi.org/${locale}/impact`,
+    );
   });
 }
 
-test('impact loading, partial data, and API failure keep useful content and neutral fallback values', async ({ page }) => {
+test('impact loading, partial data, and API failure keep useful content and neutral fallback values', async ({
+  page,
+}) => {
   let release!: () => void;
-  const pending = new Promise<void>((resolve) => { release = resolve; });
+  const pending = new Promise<void>((resolve) => {
+    release = resolve;
+  });
   await page.route('**/api/v1/public/impact-summary', async (route) => {
     await pending;
-    await route.fulfill({ json: { data: {
-      children_supported: 1234, partner_schools: null, regions_reached: -1, school_continuation_rate: 101,
-    } } });
+    await route.fulfill({
+      json: {
+        data: {
+          children_supported: 1234,
+          partner_schools: null,
+          regions_reached: -1,
+          school_continuation_rate: 101,
+        },
+      },
+    });
   });
   await page.goto('/en/impact');
   await expect(page.getByText('Loading verified impact figures.')).toBeVisible();
@@ -91,7 +146,9 @@ test('impact loading, partial data, and API failure keep useful content and neut
   await expect(page.getByText(/not verified beneficiary stories/)).toBeVisible();
 
   await page.unroute('**/api/v1/public/impact-summary');
-  await page.route('**/api/v1/public/impact-summary', (route) => route.fulfill({ status: 503, json: { message: 'Unavailable' } }));
+  await page.route('**/api/v1/public/impact-summary', (route) =>
+    route.fulfill({ status: 503, json: { message: 'Unavailable' } }),
+  );
   await page.goto('/fr/impact');
   await expect(page.getByText(/indicateurs vérifiés sont indisponibles/)).toBeVisible();
   await expect(page.locator('div[aria-busy] article').first()).toContainText('—');

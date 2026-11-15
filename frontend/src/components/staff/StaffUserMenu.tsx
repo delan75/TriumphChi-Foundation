@@ -70,7 +70,9 @@ export function StaffUserMenu({ locale, user, labels }: StaffUserMenuProps) {
           {initials}
         </span>
         <span className="hidden min-w-0 lg:block">
-          <span className="block truncate text-sm font-semibold text-ink-900">{user?.name ?? labels.roleFallback}</span>
+          <span className="block truncate text-sm font-semibold text-ink-900">
+            {user?.name ?? labels.roleFallback}
+          </span>
           <span className="block truncate text-xs text-ink-500">{primaryRole}</span>
         </span>
         <ChevronDown className="h-4 w-4 text-ink-400" aria-hidden="true" />
@@ -79,7 +81,9 @@ export function StaffUserMenu({ locale, user, labels }: StaffUserMenuProps) {
       {open ? (
         <div className="absolute right-0 z-40 mt-2 w-64 overflow-hidden rounded-md border border-ink-100 bg-white shadow-xl">
           <div className="border-b border-ink-100 px-4 py-4">
-            <p className="text-sm font-semibold text-ink-900">{user?.name ?? labels.roleFallback}</p>
+            <p className="text-sm font-semibold text-ink-900">
+              {user?.name ?? labels.roleFallback}
+            </p>
             <p className="mt-1 text-sm text-ink-500">{user?.email}</p>
           </div>
 

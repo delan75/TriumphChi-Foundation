@@ -16,4 +16,3 @@ export const siteConfig = {
   },
   sameAs: [] as string[],
 };
-

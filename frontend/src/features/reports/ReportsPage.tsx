@@ -1,4 +1,12 @@
-import { CalendarPlus, FileText, ListChecks, RefreshCcw, Save, Search, Sparkles } from 'lucide-react';
+import {
+  CalendarPlus,
+  FileText,
+  ListChecks,
+  RefreshCcw,
+  Save,
+  Search,
+  Sparkles,
+} from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DashboardPanel } from '../../components/staff/DashboardPanel';
@@ -16,7 +24,15 @@ import { ReportQueueDrawer } from './components/ReportQueueDrawer';
 import { ReportLibraryTable } from './components/ReportLibraryTable';
 import { QuickReportsGrid } from './components/QuickReportsGrid';
 import { hasAnyPermission, hasPermission } from './reportPermissions';
-import { reportsContent, type OperationalInsight, type QuickReport, type ReportCategory, type ReportCategoryKey, type ReportTemplate, type SavedReport } from './reportsContent';
+import {
+  reportsContent,
+  type OperationalInsight,
+  type QuickReport,
+  type ReportCategory,
+  type ReportCategoryKey,
+  type ReportTemplate,
+  type SavedReport,
+} from './reportsContent';
 import { useGenerateReport, useReportDashboard, useReportQueue } from './useReports';
 
 export function ReportsPage() {
@@ -38,11 +54,16 @@ export function ReportsPage() {
   const generateReport = useGenerateReport();
   const dashboard = reportDashboardQuery.data;
 
-  const categoryLabels = useMemo(() => new Map(copy.categories.map((category) => [category.key, category.label])), [copy.categories]);
+  const categoryLabels = useMemo(
+    () => new Map(copy.categories.map((category) => [category.key, category.label])),
+    [copy.categories],
+  );
 
   const categories = useMemo<ReportCategory[]>(() => {
     if (!dashboard?.categories) {
-      return copy.categories.filter((category) => hasAnyPermission(permissions, category.permissions));
+      return copy.categories.filter((category) =>
+        hasAnyPermission(permissions, category.permissions),
+      );
     }
 
     return dashboard.categories.map((category) => ({
@@ -87,7 +108,9 @@ export function ReportsPage() {
 
   const templates = useMemo<ReportTemplate[]>(() => {
     if (!dashboard?.templates) {
-      return copy.templates.filter((template) => hasAnyPermission(permissions, template.permissions));
+      return copy.templates.filter((template) =>
+        hasAnyPermission(permissions, template.permissions),
+      );
     }
 
     return dashboard.templates.map((template) => {
@@ -106,9 +129,13 @@ export function ReportsPage() {
     });
   }, [categoryLabels, copy.templates, dashboard?.templates, permissions]);
 
-  const queue = useMemo(() => reportQueueQuery.data ?? dashboard?.queue ?? [], [reportQueueQuery.data, dashboard?.queue]);
+  const queue = useMemo(
+    () => reportQueueQuery.data ?? dashboard?.queue ?? [],
+    [reportQueueQuery.data, dashboard?.queue],
+  );
   const savedReports = useMemo<SavedReport[]>(() => {
-    const completed = dashboard?.saved_reports ?? queue.filter((request) => request.status === 'completed');
+    const completed =
+      dashboard?.saved_reports ?? queue.filter((request) => request.status === 'completed');
 
     return completed.map((request) => ({
       title: request.title,
@@ -203,11 +230,17 @@ export function ReportsPage() {
             >
               <ListChecks className="h-4 w-4" aria-hidden="true" />
               {copy.actions.openQueue}
-              {queue.length ? <span className="rounded-full bg-foundation-50 px-2 py-0.5 text-xs text-foundation-700">{queue.length}</span> : null}
+              {queue.length ? (
+                <span className="rounded-full bg-foundation-50 px-2 py-0.5 text-xs text-foundation-700">
+                  {queue.length}
+                </span>
+              ) : null}
             </button>
             <button
               type="button"
-              onClick={() => libraryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              onClick={() =>
+                libraryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
               className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-foundation-600 px-4 text-sm font-bold text-white transition hover:bg-foundation-900"
             >
               <FileText className="h-4 w-4" aria-hidden="true" />
@@ -215,7 +248,9 @@ export function ReportsPage() {
             </button>
             <button
               type="button"
-              onClick={() => savedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              onClick={() =>
+                savedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
               className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md border border-ink-200 bg-white px-4 text-sm font-bold text-ink-700 transition hover:bg-ink-50"
             >
               <Save className="h-4 w-4" aria-hidden="true" />
@@ -223,7 +258,9 @@ export function ReportsPage() {
             </button>
             <button
               type="button"
-              onClick={() => scheduledRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              onClick={() =>
+                scheduledRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
               className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md border border-ink-200 bg-white px-4 text-sm font-bold text-ink-700 transition hover:bg-ink-50"
             >
               <CalendarPlus className="h-4 w-4" aria-hidden="true" />
@@ -251,7 +288,11 @@ export function ReportsPage() {
         onClose={() => setQueueOpen(false)}
       />
 
-      <DashboardPanel title={copy.sections.summary} description={copy.sections.summaryDescription} bodyClassName="p-4">
+      <DashboardPanel
+        title={copy.sections.summary}
+        description={copy.sections.summaryDescription}
+        bodyClassName="p-4"
+      >
         <ReportCategoryCards
           copy={copy}
           categories={categories}
@@ -269,7 +310,11 @@ export function ReportsPage() {
         <OperationalInsights copy={copy} insights={insights} locale={activeLocale} />
       </DashboardPanel>
 
-      <DashboardPanel title={copy.sections.quick} description={copy.sections.quickDescription} bodyClassName="p-4">
+      <DashboardPanel
+        title={copy.sections.quick}
+        description={copy.sections.quickDescription}
+        bodyClassName="p-4"
+      >
         <QuickReportsGrid copy={copy} reports={quickReports} onGenerate={handleQuickReport} />
       </DashboardPanel>
 
@@ -295,7 +340,9 @@ export function ReportsPage() {
         >
           <div className="mb-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
             <label className="block">
-              <span className="text-xs font-bold uppercase text-ink-500">{copy.filters.search}</span>
+              <span className="text-xs font-bold uppercase text-ink-500">
+                {copy.filters.search}
+              </span>
               <div className="focus-within:ring-focus mt-1 flex min-h-11 items-center gap-2 rounded-md border border-ink-200 bg-white px-3">
                 <Search className="h-4 w-4 text-ink-400" aria-hidden="true" />
                 <input
@@ -307,7 +354,9 @@ export function ReportsPage() {
               </div>
             </label>
             <label className="block">
-              <span className="text-xs font-bold uppercase text-ink-500">{copy.filters.category}</span>
+              <span className="text-xs font-bold uppercase text-ink-500">
+                {copy.filters.category}
+              </span>
               <select
                 value={activeCategory}
                 onChange={(event) => setActiveCategory(event.target.value as ReportCategoryKey)}
@@ -315,13 +364,19 @@ export function ReportsPage() {
               >
                 <option value="all">{copy.filters.all}</option>
                 {categories.map((category) => (
-                  <option key={category.key} value={category.key}>{category.label}</option>
+                  <option key={category.key} value={category.key}>
+                    {category.label}
+                  </option>
                 ))}
               </select>
             </label>
           </div>
 
-          <ReportLibraryTable copy={copy} reports={visibleTemplates} onAction={handleTemplateAction} />
+          <ReportLibraryTable
+            copy={copy}
+            reports={visibleTemplates}
+            onAction={handleTemplateAction}
+          />
         </DashboardPanel>
       </div>
 
@@ -342,7 +397,11 @@ export function ReportsPage() {
 
       <div className="grid gap-6 xl:grid-cols-2">
         <div ref={savedRef} className="scroll-mt-24">
-          <DashboardPanel title={copy.sections.saved} description={copy.sections.savedDescription} bodyClassName="p-4">
+          <DashboardPanel
+            title={copy.sections.saved}
+            description={copy.sections.savedDescription}
+            bodyClassName="p-4"
+          >
             <SavedReportsPanel
               copy={copy}
               reports={savedReports}
@@ -357,7 +416,11 @@ export function ReportsPage() {
         </div>
 
         <div ref={scheduledRef} className="scroll-mt-24">
-          <DashboardPanel title={copy.sections.scheduled} description={copy.sections.scheduledDescription} bodyClassName="p-4">
+          <DashboardPanel
+            title={copy.sections.scheduled}
+            description={copy.sections.scheduledDescription}
+            bodyClassName="p-4"
+          >
             <ScheduledReportsPanel copy={copy} reports={[]} />
           </DashboardPanel>
         </div>

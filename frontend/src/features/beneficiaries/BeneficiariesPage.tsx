@@ -76,7 +76,10 @@ export function BeneficiariesPage() {
               onClick={() => beneficiariesQuery.refetch()}
               className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-foundation-600 px-4 text-sm font-bold text-white transition hover:bg-foundation-900"
             >
-              <RefreshCcw className={cn('h-4 w-4', beneficiariesQuery.isFetching ? 'animate-spin' : '')} aria-hidden="true" />
+              <RefreshCcw
+                className={cn('h-4 w-4', beneficiariesQuery.isFetching ? 'animate-spin' : '')}
+                aria-hidden="true"
+              />
               {copy.refresh}
             </button>
           </div>
@@ -99,21 +102,32 @@ export function BeneficiariesPage() {
           title={copy.table.title}
           description={copy.table.description}
           className="min-w-0"
-          action={pagination ? (
-            <PaginationControls
-              copy={copy}
-              pageLabel={pageLabel}
-              canPrevious={Boolean(beneficiariesQuery.data?.links.prev)}
-              canNext={Boolean(beneficiariesQuery.data?.links.next)}
-              onPrevious={() => setFilters((current) => ({ ...current, page: Math.max((current.page ?? 1) - 1, 1) }))}
-              onNext={() => setFilters((current) => ({ ...current, page: (current.page ?? 1) + 1 }))}
-            />
-          ) : null}
+          action={
+            pagination ? (
+              <PaginationControls
+                copy={copy}
+                pageLabel={pageLabel}
+                canPrevious={Boolean(beneficiariesQuery.data?.links.prev)}
+                canNext={Boolean(beneficiariesQuery.data?.links.next)}
+                onPrevious={() =>
+                  setFilters((current) => ({
+                    ...current,
+                    page: Math.max((current.page ?? 1) - 1, 1),
+                  }))
+                }
+                onNext={() =>
+                  setFilters((current) => ({ ...current, page: (current.page ?? 1) + 1 }))
+                }
+              />
+            ) : null
+          }
           bodyClassName="p-4"
         >
           {beneficiariesQuery.isError ? (
             <div className="rounded-md border border-red-100 bg-red-50 p-4 text-sm font-semibold text-red-700">
-              {beneficiariesQuery.error instanceof Error ? beneficiariesQuery.error.message : copy.table.empty}
+              {beneficiariesQuery.error instanceof Error
+                ? beneficiariesQuery.error.message
+                : copy.table.empty}
             </div>
           ) : (
             <BeneficiaryRecords
@@ -164,7 +178,9 @@ function PaginationControls({
       >
         {copy.table.previous}
       </button>
-      <span className="min-h-10 rounded-md bg-ink-50 px-3 py-2 text-sm font-bold text-ink-700">{pageLabel}</span>
+      <span className="min-h-10 rounded-md bg-ink-50 px-3 py-2 text-sm font-bold text-ink-700">
+        {pageLabel}
+      </span>
       <button
         type="button"
         disabled={!canNext}
@@ -195,7 +211,9 @@ function exportBeneficiaries(beneficiaries: BeneficiaryRecord[], locale: Locale)
   const headers = Object.keys(rows[0]);
   const csv = [
     headers.join(','),
-    ...rows.map((row) => headers.map((header) => csvValue(row[header as keyof typeof row])).join(',')),
+    ...rows.map((row) =>
+      headers.map((header) => csvValue(row[header as keyof typeof row])).join(','),
+    ),
   ].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = window.URL.createObjectURL(blob);

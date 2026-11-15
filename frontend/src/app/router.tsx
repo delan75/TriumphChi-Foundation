@@ -11,24 +11,86 @@ import { isLocale } from '../lib/i18n';
 import { buildLocalizedPath, resolveLocale, storeLocalePreference } from '../lib/localeRecovery';
 
 // Keep route wrappers eager so locale and authentication checks run before page imports.
-const StaffDashboardPage = lazy(() => import('../features/staff/StaffDashboardPage').then((module) => ({ default: module.StaffDashboardPage })));
-const StaffProfilePage = lazy(() => import('../features/staff/StaffProfilePage').then((module) => ({ default: module.StaffProfilePage })));
-const StaffSettingsPage = lazy(() => import('../features/staff/StaffSettingsPage').then((module) => ({ default: module.StaffSettingsPage })));
-const ApplicationsPage = lazy(() => import('../features/applications/ApplicationsPage').then((module) => ({ default: module.ApplicationsPage })));
-const BeneficiariesPage = lazy(() => import('../features/beneficiaries/BeneficiariesPage').then((module) => ({ default: module.BeneficiariesPage })));
-const ContactMessagesPage = lazy(() => import('../features/contact-messages/ContactMessagesPage').then((module) => ({ default: module.ContactMessagesPage })));
-const FundingPage = lazy(() => import('../features/funding/FundingPage').then((module) => ({ default: module.FundingPage })));
-const ReportsPage = lazy(() => import('../features/reports/ReportsPage').then((module) => ({ default: module.ReportsPage })));
-const UsersPage = lazy(() => import('../features/users/UsersPage').then((module) => ({ default: module.UsersPage })));
-const BlogManagementPage = lazy(() => import('../features/blog/BlogManagementPage').then((module) => ({ default: module.BlogManagementPage })));
-const LoginPage = lazy(() => import('../features/auth/LoginPage').then((module) => ({ default: module.LoginPage })));
-const RegisterPage = lazy(() => import('../features/auth/RegisterPage').then((module) => ({ default: module.RegisterPage })));
-const ForgotPasswordPage = lazy(() => import('../features/auth/ForgotPasswordPage').then((module) => ({ default: module.ForgotPasswordPage })));
-const ResetPasswordPage = lazy(() => import('../features/auth/ResetPasswordPage').then((module) => ({ default: module.ResetPasswordPage })));
-const OAuthCallbackPage = lazy(() => import('../features/auth/OAuthCallbackPage').then((module) => ({ default: module.OAuthCallbackPage })));
-const VerifyAccountPage = lazy(() => import('../features/auth/VerifyAccountPage').then((module) => ({ default: module.VerifyAccountPage })));
-const PaypalDonationReturnPage = lazy(() => import('../features/public/donate/PaypalDonationReturnPage').then((module) => ({ default: module.PaypalDonationReturnPage })));
-const BlogArticlePage = lazy(() => import('../features/public/blog/BlogArticlePage').then((module) => ({ default: module.BlogArticlePage })));
+const StaffDashboardPage = lazy(() =>
+  import('../features/staff/StaffDashboardPage').then((module) => ({
+    default: module.StaffDashboardPage,
+  })),
+);
+const StaffProfilePage = lazy(() =>
+  import('../features/staff/StaffProfilePage').then((module) => ({
+    default: module.StaffProfilePage,
+  })),
+);
+const StaffSettingsPage = lazy(() =>
+  import('../features/staff/StaffSettingsPage').then((module) => ({
+    default: module.StaffSettingsPage,
+  })),
+);
+const ApplicationsPage = lazy(() =>
+  import('../features/applications/ApplicationsPage').then((module) => ({
+    default: module.ApplicationsPage,
+  })),
+);
+const BeneficiariesPage = lazy(() =>
+  import('../features/beneficiaries/BeneficiariesPage').then((module) => ({
+    default: module.BeneficiariesPage,
+  })),
+);
+const ContactMessagesPage = lazy(() =>
+  import('../features/contact-messages/ContactMessagesPage').then((module) => ({
+    default: module.ContactMessagesPage,
+  })),
+);
+const FundingPage = lazy(() =>
+  import('../features/funding/FundingPage').then((module) => ({ default: module.FundingPage })),
+);
+const ReportsPage = lazy(() =>
+  import('../features/reports/ReportsPage').then((module) => ({ default: module.ReportsPage })),
+);
+const UsersPage = lazy(() =>
+  import('../features/users/UsersPage').then((module) => ({ default: module.UsersPage })),
+);
+const BlogManagementPage = lazy(() =>
+  import('../features/blog/BlogManagementPage').then((module) => ({
+    default: module.BlogManagementPage,
+  })),
+);
+const LoginPage = lazy(() =>
+  import('../features/auth/LoginPage').then((module) => ({ default: module.LoginPage })),
+);
+const RegisterPage = lazy(() =>
+  import('../features/auth/RegisterPage').then((module) => ({ default: module.RegisterPage })),
+);
+const ForgotPasswordPage = lazy(() =>
+  import('../features/auth/ForgotPasswordPage').then((module) => ({
+    default: module.ForgotPasswordPage,
+  })),
+);
+const ResetPasswordPage = lazy(() =>
+  import('../features/auth/ResetPasswordPage').then((module) => ({
+    default: module.ResetPasswordPage,
+  })),
+);
+const OAuthCallbackPage = lazy(() =>
+  import('../features/auth/OAuthCallbackPage').then((module) => ({
+    default: module.OAuthCallbackPage,
+  })),
+);
+const VerifyAccountPage = lazy(() =>
+  import('../features/auth/VerifyAccountPage').then((module) => ({
+    default: module.VerifyAccountPage,
+  })),
+);
+const PaypalDonationReturnPage = lazy(() =>
+  import('../features/public/donate/PaypalDonationReturnPage').then((module) => ({
+    default: module.PaypalDonationReturnPage,
+  })),
+);
+const BlogArticlePage = lazy(() =>
+  import('../features/public/blog/BlogArticlePage').then((module) => ({
+    default: module.BlogArticlePage,
+  })),
+);
 
 export const router = createBrowserRouter([
   {
@@ -59,8 +121,14 @@ export const router = createBrowserRouter([
               { path: 'users', element: <UsersPage /> },
             ],
           },
-          { path: 'donate/paypal/return', element: <PaypalDonationReturnPageWrapper mode="return" /> },
-          { path: 'donate/paypal/cancel', element: <PaypalDonationReturnPageWrapper mode="cancel" /> },
+          {
+            path: 'donate/paypal/return',
+            element: <PaypalDonationReturnPageWrapper mode="return" />,
+          },
+          {
+            path: 'donate/paypal/cancel',
+            element: <PaypalDonationReturnPageWrapper mode="cancel" />,
+          },
           { path: 'blog/:articleSlug', element: <BlogArticlePageWrapper /> },
           { path: ':pageSlug', element: <PublicPage /> },
           { path: '*', element: <NotFoundPageWrapper /> },
@@ -122,7 +190,12 @@ function LocaleRouteGate() {
 
   if (!activeLocale) {
     const recovery = resolveLocale(location.pathname);
-    const localizedPath = buildLocalizedPath(location.pathname, location.search, location.hash, recovery.locale);
+    const localizedPath = buildLocalizedPath(
+      location.pathname,
+      location.search,
+      location.hash,
+      recovery.locale,
+    );
 
     return <Navigate to={localizedPath} replace />;
   }
@@ -161,7 +234,11 @@ function ProtectedStaffOutlet() {
     return <Navigate to={buildAuthPath(activeLocale, 'login', requestedPath)} replace />;
   }
 
-  return <Suspense fallback={<PageLoading />}><Outlet /></Suspense>;
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <Outlet />
+    </Suspense>
+  );
 }
 
 function RegisterPageWrapper() {
@@ -246,4 +323,3 @@ function NotFoundPageWrapper() {
 
   return <NotFoundPage locale={activeLocale} />;
 }
-

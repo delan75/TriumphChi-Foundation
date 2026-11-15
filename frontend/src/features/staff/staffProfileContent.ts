@@ -160,11 +160,14 @@ export const staffProfileContent: Record<Locale, StaffProfileCopy> = {
   },
   fr: {
     title: 'Profil',
-    description: 'Votre profil professionnel, votre activite recente, la securite du compte et vos preferences.',
+    description:
+      'Votre profil professionnel, votre activite recente, la securite du compte et vos preferences.',
     loadingTitle: 'Chargement du profil',
-    loadingDescription: 'Preparation de votre profil, de votre activite, de vos acces et de vos informations de securite.',
+    loadingDescription:
+      'Preparation de votre profil, de votre activite, de vos acces et de vos informations de securite.',
     errorTitle: 'Impossible de charger le profil',
-    errorDescription: 'Nous ne pouvons pas recuperer les informations de votre profil. Veuillez actualiser et reessayer.',
+    errorDescription:
+      'Nous ne pouvons pas recuperer les informations de votre profil. Veuillez actualiser et reessayer.',
     tabs: {
       overview: 'Apercu',
       activity: 'Activite',
@@ -222,7 +225,8 @@ export const staffProfileContent: Record<Locale, StaffProfileCopy> = {
       providers: 'Aucun compte connecte pour le moment.',
       sessions: 'Aucune session active trouvee.',
       permissions: 'Aucune permission disponible.',
-      profile: 'La biographie, les competences, les langues et les certifications pourront etre ajoutees depuis la modification du profil.',
+      profile:
+        'La biographie, les competences, les langues et les certifications pourront etre ajoutees depuis la modification du profil.',
     },
     values: {
       systemAdministrator: 'Administrateur systeme',

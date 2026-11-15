@@ -87,9 +87,15 @@ export function readStoredAuthUser(): AuthUser | null {
   }
 }
 
-export function buildAuthPath(locale: Locale, page: 'login' | 'register' | 'forgot-password' | 'reset-password' | 'verify-account', redirectTo?: string | null): string {
+export function buildAuthPath(
+  locale: Locale,
+  page: 'login' | 'register' | 'forgot-password' | 'reset-password' | 'verify-account',
+  redirectTo?: string | null,
+): string {
   const query = sanitizeRedirectTo(redirectTo);
-  return query ? `/${locale}/${page}?redirectTo=${encodeURIComponent(query)}` : `/${locale}/${page}`;
+  return query
+    ? `/${locale}/${page}?redirectTo=${encodeURIComponent(query)}`
+    : `/${locale}/${page}`;
 }
 
 export function resolvePostAuthPath(locale: Locale, redirectTo?: string | null): string {
@@ -154,7 +160,9 @@ export function sanitizeRedirectTo(redirectTo?: string | null): string | null {
     }
   }
 
-  const normalized = (slashNormalized.startsWith('/') ? slashNormalized : `/${slashNormalized}`).replace(/\/{2,}/g, '/');
+  const normalized = (
+    slashNormalized.startsWith('/') ? slashNormalized : `/${slashNormalized}`
+  ).replace(/\/{2,}/g, '/');
 
   return isProtectedRedirectPath(normalized) ? normalized : null;
 }

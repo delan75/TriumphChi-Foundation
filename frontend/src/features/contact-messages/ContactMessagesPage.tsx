@@ -39,7 +39,10 @@ export function ContactMessagesPage() {
   const detailPanelRef = useRef<HTMLDivElement | null>(null);
 
   const messagesQuery = useContactMessages(filters, canViewMessages);
-  const messageQuery = useContactMessage(selectedMessageUuid, canViewMessages && Boolean(selectedMessageUuid));
+  const messageQuery = useContactMessage(
+    selectedMessageUuid,
+    canViewMessages && Boolean(selectedMessageUuid),
+  );
   const assigneesQuery = useContactAssignees(canUpdateMessages);
   const assignMessage = useAssignContactMessage();
   const updateMessage = useUpdateContactMessage();
@@ -49,7 +52,11 @@ export function ContactMessagesPage() {
   const messages = messagesQuery.data?.data ?? [];
   const pagination = messagesQuery.data?.meta;
   const selectedMessage = messageQuery.data ?? null;
-  const isWorking = assignMessage.isPending || updateMessage.isPending || forwardMessage.isPending || archiveMessage.isPending;
+  const isWorking =
+    assignMessage.isPending ||
+    updateMessage.isPending ||
+    forwardMessage.isPending ||
+    archiveMessage.isPending;
 
   const pageLabel = useMemo(() => {
     if (!pagination) {
@@ -96,7 +103,10 @@ export function ContactMessagesPage() {
             onClick={() => messagesQuery.refetch()}
             className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md bg-foundation-600 px-4 text-sm font-bold text-white transition hover:bg-foundation-900"
           >
-            <RefreshCcw className={cn('h-4 w-4', messagesQuery.isFetching ? 'animate-spin' : '')} aria-hidden="true" />
+            <RefreshCcw
+              className={cn('h-4 w-4', messagesQuery.isFetching ? 'animate-spin' : '')}
+              aria-hidden="true"
+            />
             {copy.refresh}
           </button>
         }
@@ -118,16 +128,25 @@ export function ContactMessagesPage() {
           title={copy.tableTitle}
           description={copy.tableDescription}
           className="min-w-0"
-          action={pagination ? (
-            <PaginationControls
-              copy={copy}
-              pageLabel={pageLabel}
-              canPrevious={Boolean(messagesQuery.data?.links.prev)}
-              canNext={Boolean(messagesQuery.data?.links.next)}
-              onPrevious={() => setFilters((current) => ({ ...current, page: Math.max((current.page ?? 1) - 1, 1) }))}
-              onNext={() => setFilters((current) => ({ ...current, page: (current.page ?? 1) + 1 }))}
-            />
-          ) : null}
+          action={
+            pagination ? (
+              <PaginationControls
+                copy={copy}
+                pageLabel={pageLabel}
+                canPrevious={Boolean(messagesQuery.data?.links.prev)}
+                canNext={Boolean(messagesQuery.data?.links.next)}
+                onPrevious={() =>
+                  setFilters((current) => ({
+                    ...current,
+                    page: Math.max((current.page ?? 1) - 1, 1),
+                  }))
+                }
+                onNext={() =>
+                  setFilters((current) => ({ ...current, page: (current.page ?? 1) + 1 }))
+                }
+              />
+            ) : null
+          }
           bodyClassName="min-w-0 p-4"
         >
           {messagesQuery.isError ? (
@@ -160,7 +179,12 @@ export function ContactMessagesPage() {
               await updateMessage.mutateAsync({ uuid, status, staff_notes: staffNotes });
             }}
             onForward={async (uuid, toEmail, note, markAsReplied) => {
-              await forwardMessage.mutateAsync({ uuid, to_email: toEmail, note, mark_as_replied: markAsReplied });
+              await forwardMessage.mutateAsync({
+                uuid,
+                to_email: toEmail,
+                note,
+                mark_as_replied: markAsReplied,
+              });
             }}
             onArchive={async (uuid) => {
               await archiveMessage.mutateAsync(uuid);
@@ -199,7 +223,9 @@ function PaginationControls({
       >
         {copy.previous}
       </button>
-      <span className="min-h-10 rounded-md bg-ink-50 px-3 py-2 text-sm font-bold text-ink-700">{pageLabel}</span>
+      <span className="min-h-10 rounded-md bg-ink-50 px-3 py-2 text-sm font-bold text-ink-700">
+        {pageLabel}
+      </span>
       <button
         type="button"
         disabled={!canNext}

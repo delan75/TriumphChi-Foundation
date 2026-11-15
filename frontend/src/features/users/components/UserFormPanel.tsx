@@ -16,7 +16,16 @@ interface UserFormPanelProps {
   onSubmit: (payload: ManagedUserPayload) => Promise<void>;
 }
 
-export function UserFormPanel({ copy, mode, user, accessOptions, isWorking, error, onClose, onSubmit }: UserFormPanelProps) {
+export function UserFormPanel({
+  copy,
+  mode,
+  user,
+  accessOptions,
+  isWorking,
+  error,
+  onClose,
+  onSubmit,
+}: UserFormPanelProps) {
   const [name, setName] = useState(user?.name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
@@ -28,26 +37,45 @@ export function UserFormPanel({ copy, mode, user, accessOptions, isWorking, erro
   const [officeLocation, setOfficeLocation] = useState(user?.profile?.office_location ?? '');
   const [bio, setBio] = useState(user?.profile?.bio ?? '');
   const [roles, setRoles] = useState<string[]>(user?.roles.map((role) => role.name) ?? []);
-  const [directPermissions, setDirectPermissions] = useState<string[]>(user?.direct_permissions ?? []);
+  const [directPermissions, setDirectPermissions] = useState<string[]>(
+    user?.direct_permissions ?? [],
+  );
 
   const canAssignAccess = mode === 'create';
   const title = mode === 'create' ? copy.form.title : copy.form.editTitle;
-  const payload = useMemo<ManagedUserPayload>(() => ({
-    name,
-    email,
-    phone: phone || null,
-    employee_number: employeeNumber || null,
-    preferred_locale: locale,
-    roles: canAssignAccess ? roles : undefined,
-    direct_permissions: canAssignAccess ? directPermissions : undefined,
-    profile: {
-      department: department || null,
-      position: position || null,
-      employment_type: employmentType || null,
-      office_location: officeLocation || null,
-      bio: bio || null,
-    },
-  }), [bio, canAssignAccess, department, directPermissions, email, employeeNumber, employmentType, locale, name, officeLocation, phone, position, roles]);
+  const payload = useMemo<ManagedUserPayload>(
+    () => ({
+      name,
+      email,
+      phone: phone || null,
+      employee_number: employeeNumber || null,
+      preferred_locale: locale,
+      roles: canAssignAccess ? roles : undefined,
+      direct_permissions: canAssignAccess ? directPermissions : undefined,
+      profile: {
+        department: department || null,
+        position: position || null,
+        employment_type: employmentType || null,
+        office_location: officeLocation || null,
+        bio: bio || null,
+      },
+    }),
+    [
+      bio,
+      canAssignAccess,
+      department,
+      directPermissions,
+      email,
+      employeeNumber,
+      employmentType,
+      locale,
+      name,
+      officeLocation,
+      phone,
+      position,
+      roles,
+    ],
+  );
 
   return (
     <DashboardPanel
@@ -70,13 +98,21 @@ export function UserFormPanel({ copy, mode, user, accessOptions, isWorking, erro
           void onSubmit(payload);
         }}
       >
-        {error ? <div className="rounded-md border border-red-100 bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</div> : null}
+        {error ? (
+          <div className="rounded-md border border-red-100 bg-red-50 p-3 text-sm font-semibold text-red-700">
+            {error}
+          </div>
+        ) : null}
 
         <div className="grid gap-3 sm:grid-cols-2">
           <Field required label={copy.form.name} value={name} onChange={setName} />
           <Field required type="email" label={copy.form.email} value={email} onChange={setEmail} />
           <Field type="tel" label={copy.form.phone} value={phone} onChange={setPhone} />
-          <Field label={copy.form.employeeNumber} value={employeeNumber} onChange={setEmployeeNumber} />
+          <Field
+            label={copy.form.employeeNumber}
+            value={employeeNumber}
+            onChange={setEmployeeNumber}
+          />
           <label className="min-w-0">
             <span className="text-xs font-bold uppercase text-ink-500">{copy.form.locale}</span>
             <select
@@ -90,8 +126,16 @@ export function UserFormPanel({ copy, mode, user, accessOptions, isWorking, erro
           </label>
           <Field label={copy.form.department} value={department} onChange={setDepartment} />
           <Field label={copy.form.position} value={position} onChange={setPosition} />
-          <Field label={copy.form.employmentType} value={employmentType} onChange={setEmploymentType} />
-          <Field label={copy.form.officeLocation} value={officeLocation} onChange={setOfficeLocation} />
+          <Field
+            label={copy.form.employmentType}
+            value={employmentType}
+            onChange={setEmploymentType}
+          />
+          <Field
+            label={copy.form.officeLocation}
+            value={officeLocation}
+            onChange={setOfficeLocation}
+          />
         </div>
 
         <label className="block">
@@ -112,19 +156,34 @@ export function UserFormPanel({ copy, mode, user, accessOptions, isWorking, erro
                   key={role.name}
                   label={role.label}
                   checked={roles.includes(role.name)}
-                  onChange={(checked) => setRoles((current) => checked ? [...current, role.name] : current.filter((item) => item !== role.name))}
+                  onChange={(checked) =>
+                    setRoles((current) =>
+                      checked
+                        ? [...current, role.name]
+                        : current.filter((item) => item !== role.name),
+                    )
+                  }
                 />
               ))}
             </CheckboxGroup>
             <CheckboxGroup title={copy.form.directPermissions}>
-              {(accessOptions?.permission_groups ?? []).flatMap((group) => group.permissions).slice(0, 24).map((permission) => (
-                <Checkbox
-                  key={permission.name}
-                  label={permission.label}
-                  checked={directPermissions.includes(permission.name)}
-                  onChange={(checked) => setDirectPermissions((current) => checked ? [...current, permission.name] : current.filter((item) => item !== permission.name))}
-                />
-              ))}
+              {(accessOptions?.permission_groups ?? [])
+                .flatMap((group) => group.permissions)
+                .slice(0, 24)
+                .map((permission) => (
+                  <Checkbox
+                    key={permission.name}
+                    label={permission.label}
+                    checked={directPermissions.includes(permission.name)}
+                    onChange={(checked) =>
+                      setDirectPermissions((current) =>
+                        checked
+                          ? [...current, permission.name]
+                          : current.filter((item) => item !== permission.name),
+                      )
+                    }
+                  />
+                ))}
             </CheckboxGroup>
           </div>
         ) : null}
@@ -156,7 +215,10 @@ function Field({
 }) {
   return (
     <label className="min-w-0">
-      <span className="text-xs font-bold uppercase text-ink-500">{label}{required ? ' *' : ''}</span>
+      <span className="text-xs font-bold uppercase text-ink-500">
+        {label}
+        {required ? ' *' : ''}
+      </span>
       <input
         required={required}
         type={type}
@@ -177,7 +239,15 @@ function CheckboxGroup({ title, children }: { title: string; children: ReactNode
   );
 }
 
-function Checkbox({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
+function Checkbox({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
   return (
     <label className="flex min-h-10 items-center gap-3 rounded-md bg-ink-50 px-3 py-2 text-sm font-semibold text-ink-700">
       <input

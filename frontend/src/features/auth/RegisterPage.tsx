@@ -9,7 +9,12 @@ import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { PasswordField } from '../../components/ui/PasswordField';
 import { GoogleAuthButton, SocialAuthButton } from '../../components/ui/GoogleAuthButton';
-import { buildAuthPath, resolvePostAuthPath, sanitizeRedirectTo, storeAuthSession } from '../../lib/auth';
+import {
+  buildAuthPath,
+  resolvePostAuthPath,
+  sanitizeRedirectTo,
+  storeAuthSession,
+} from '../../lib/auth';
 import { getPublicContactSupportText } from '../../lib/publicContact';
 import communityImage from '../../assets/landing/education_aid_project.jpg';
 import ruralImage from '../../assets/landing/rural-home-cameroon.jpg';
@@ -61,7 +66,9 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
       if (!storeAuthSession(response)) {
         setSuccessMessage(response.message ?? copy.verifyEmailNotice);
         persistVerificationContext(response.user);
-        navigate(`/${locale}/verify-account?email=${encodeURIComponent(formData.email)}`, { replace: true });
+        navigate(`/${locale}/verify-account?email=${encodeURIComponent(formData.email)}`, {
+          replace: true,
+        });
         setFormData({
           name: '',
           email: '',
@@ -140,9 +147,7 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
                 </div>
               )}
 
-              <GoogleAuthButton
-                onClick={() => beginSocialAuth('google')}
-              >
+              <GoogleAuthButton onClick={() => beginSocialAuth('google')}>
                 {copy.continueWithGoogle}
               </GoogleAuthButton>
               <SocialAuthButton
@@ -158,7 +163,9 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
                   <div className="w-full border-t border-ink-100" />
                 </div>
                 <div className="relative flex justify-center">
-                  <span className="bg-white px-3 text-xs uppercase tracking-wider text-ink-400">{copy.orContinueWith}</span>
+                  <span className="bg-white px-3 text-xs uppercase tracking-wider text-ink-400">
+                    {copy.orContinueWith}
+                  </span>
                 </div>
               </div>
 
@@ -261,7 +268,10 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
               </div>
 
               <div className="mt-6 text-center">
-                <Link to={`/${locale}`} className="text-sm text-ink-400 hover:underline hover:underline-offset-4 hover:text-ink-600">
+                <Link
+                  to={`/${locale}`}
+                  className="text-sm text-ink-400 hover:underline hover:underline-offset-4 hover:text-ink-600"
+                >
                   {'←'} {copy.backHome}
                 </Link>
               </div>
@@ -278,12 +288,15 @@ export function RegisterPage({ locale, redirectTo }: RegisterPageProps) {
 }
 
 function persistVerificationContext(user: AuthUser): void {
-  window.sessionStorage.setItem('triumphchi.verification', JSON.stringify({
-    email: user.email,
-    masked_email: maskEmail(user.email),
-    masked_phone: user.phone ? maskPhone(user.phone) : null,
-    has_phone: Boolean(user.phone),
-  }));
+  window.sessionStorage.setItem(
+    'triumphchi.verification',
+    JSON.stringify({
+      email: user.email,
+      masked_email: maskEmail(user.email),
+      masked_phone: user.phone ? maskPhone(user.phone) : null,
+      has_phone: Boolean(user.phone),
+    }),
+  );
 }
 
 function maskEmail(email: string): string {
@@ -301,7 +314,13 @@ function maskPhone(phone: string): string {
 }
 
 function validateRegister(
-  formData: { name: string; email: string; phone: string; password: string; confirmPassword: string },
+  formData: {
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    confirmPassword: string;
+  },
   copy: typeof registerCopy.en,
 ) {
   const errors: Record<string, string> = {};
@@ -337,14 +356,26 @@ const sharedLeftPanel = {
   en: {
     title: 'TriumphChi Foundation',
     tagline: 'Giving from a covenant, not from leftovers.',
-    description: 'Helping orphaned and vulnerable children in rural Cameroon continue learning through education support, mentorship, and community partnership.',
-    highlights: ['Education Support', 'Community Partnership', 'Mentorship', 'Dignity and Opportunity'],
+    description:
+      'Helping orphaned and vulnerable children in rural Cameroon continue learning through education support, mentorship, and community partnership.',
+    highlights: [
+      'Education Support',
+      'Community Partnership',
+      'Mentorship',
+      'Dignity and Opportunity',
+    ],
   },
   fr: {
     title: 'Fondation TriumphChi',
     tagline: 'Donner par alliance, pas avec les restes.',
-    description: "Aider les orphelins et enfants vulnérables du Cameroun rural à continuer d'apprendre grâce au soutien éducatif, au mentorat et au partenariat communautaire.",
-    highlights: ['Soutien éducatif', 'Partenariat communautaire', 'Mentorat', 'Dignité et opportunité'],
+    description:
+      "Aider les orphelins et enfants vulnérables du Cameroun rural à continuer d'apprendre grâce au soutien éducatif, au mentorat et au partenariat communautaire.",
+    highlights: [
+      'Soutien éducatif',
+      'Partenariat communautaire',
+      'Mentorat',
+      'Dignité et opportunité',
+    ],
   },
 };
 
@@ -382,7 +413,8 @@ const registerCopy = {
   },
   fr: {
     title: 'Créer votre compte',
-    subtitle: "Rejoignez une communauté engagée à aider les enfants à rester à l'école et à s'épanouir.",
+    subtitle:
+      "Rejoignez une communauté engagée à aider les enfants à rester à l'école et à s'épanouir.",
     nameLabel: 'Nom complet',
     namePlaceholder: 'Jean Dupont',
     emailLabel: 'Adresse email',

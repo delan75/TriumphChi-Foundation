@@ -34,7 +34,9 @@ export function OAuthCallbackPage({ locale }: OAuthCallbackPageProps) {
           throw new Error(copy.failed);
         }
 
-        const redirectTo = sanitizeRedirectTo(window.localStorage.getItem('triumphchi.oauth.redirectTo'));
+        const redirectTo = sanitizeRedirectTo(
+          window.localStorage.getItem('triumphchi.oauth.redirectTo'),
+        );
         window.localStorage.removeItem('triumphchi.oauth.redirectTo');
 
         if (isMounted) {

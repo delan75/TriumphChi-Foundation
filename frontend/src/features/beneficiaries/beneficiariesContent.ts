@@ -62,17 +62,22 @@ export const beneficiariesContent = {
     },
     tableHelp: {
       case: 'Shows whether the child is currently in the foundation support lifecycle.',
-      funding: 'Shows whether approved educational needs are financially covered by allocations or payments.',
-      sponsorship: 'Shows whether sponsorship commitments are attached to this beneficiary. Funding may still come from general funds.',
+      funding:
+        'Shows whether approved educational needs are financially covered by allocations or payments.',
+      sponsorship:
+        'Shows whether sponsorship commitments are attached to this beneficiary. Funding may still come from general funds.',
       currentNeed: 'Shows the most immediate educational need attached to this case.',
       noNeed: 'No open educational need is currently attached to this beneficiary.',
-      fundingFullyFunded: 'Approved needs are covered. This does not necessarily mean a sponsor is attached.',
+      fundingFullyFunded:
+        'Approved needs are covered. This does not necessarily mean a sponsor is attached.',
       fundingPartiallyFunded: 'Some support has been allocated, but a funding gap remains.',
       fundingAwaiting: 'Approved needs exist, but no funding has been allocated yet.',
       fundingOverfunded: 'Allocated support is greater than the current recorded need.',
-      sponsorshipNone: 'No sponsorship commitment is currently attached. The child may still be funded through general donations.',
+      sponsorshipNone:
+        'No sponsorship commitment is currently attached. The child may still be funded through general donations.',
       sponsorshipOne: 'One sponsorship commitment is attached to this beneficiary.',
-      sponsorshipShared: 'This case has sponsorship support that may be shared with other funding sources.',
+      sponsorshipShared:
+        'This case has sponsorship support that may be shared with other funding sources.',
       sponsorshipMultiple: 'Multiple sponsorship commitments are attached to this beneficiary.',
     },
     profile: {
@@ -116,7 +121,8 @@ export const beneficiariesContent = {
       payments: 'Payments',
       contributions: 'Contributions',
       documentsQueued: 'Document workspace is ready for uploads and review history.',
-      mentorshipQueued: 'Follow-up notes, mentor sessions, concerns, and next visits will appear here.',
+      mentorshipQueued:
+        'Follow-up notes, mentor sessions, concerns, and next visits will appear here.',
       auditQueued: 'Change history appears here when audit activity is linked to this case.',
     },
   },
@@ -126,7 +132,8 @@ export const beneficiariesContent = {
     refresh: 'Actualiser',
     export: 'Exporter',
     accessDeniedTitle: 'Accès aux bénéficiaires requis',
-    accessDeniedBody: "Votre compte n'a pas l'autorisation de consulter les dossiers des bénéficiaires.",
+    accessDeniedBody:
+      "Votre compte n'a pas l'autorisation de consulter les dossiers des bénéficiaires.",
     summary: {
       total: 'Total bénéficiaires',
       active: 'Soutien actif',
@@ -137,7 +144,7 @@ export const beneficiariesContent = {
     },
     filters: {
       search: 'Rechercher des bénéficiaires',
-      searchPlaceholder: "Nom, référence, école, tuteur, région, numéro de demande",
+      searchPlaceholder: 'Nom, référence, école, tuteur, région, numéro de demande',
       status: 'Statut',
       funding: 'Financement',
       sponsor: 'Parrainage',
@@ -183,17 +190,24 @@ export const beneficiariesContent = {
     },
     tableHelp: {
       case: "Indique si l'enfant est actuellement dans le cycle de soutien de la fondation.",
-      funding: 'Indique si les besoins éducatifs approuvés sont couverts par des allocations ou paiements.',
-      sponsorship: 'Indique si des engagements de parrainage sont liés au bénéficiaire. Le financement peut aussi venir de fonds généraux.',
+      funding:
+        'Indique si les besoins éducatifs approuvés sont couverts par des allocations ou paiements.',
+      sponsorship:
+        'Indique si des engagements de parrainage sont liés au bénéficiaire. Le financement peut aussi venir de fonds généraux.',
       currentNeed: 'Montre le besoin éducatif le plus immédiat lié à ce dossier.',
       noNeed: 'Aucun besoin éducatif ouvert n’est actuellement lié à ce bénéficiaire.',
-      fundingFullyFunded: 'Les besoins approuvés sont couverts. Cela ne signifie pas forcément qu’un parrain est attaché.',
-      fundingPartiallyFunded: 'Une partie du soutien est allouée, mais un écart de financement reste ouvert.',
-      fundingAwaiting: 'Des besoins approuvés existent, mais aucun financement n’est encore alloué.',
+      fundingFullyFunded:
+        'Les besoins approuvés sont couverts. Cela ne signifie pas forcément qu’un parrain est attaché.',
+      fundingPartiallyFunded:
+        'Une partie du soutien est allouée, mais un écart de financement reste ouvert.',
+      fundingAwaiting:
+        'Des besoins approuvés existent, mais aucun financement n’est encore alloué.',
       fundingOverfunded: 'Le soutien alloué dépasse le besoin actuellement enregistré.',
-      sponsorshipNone: "Aucun engagement de parrainage n'est actuellement lié. L'enfant peut quand même être financé par des dons généraux.",
+      sponsorshipNone:
+        "Aucun engagement de parrainage n'est actuellement lié. L'enfant peut quand même être financé par des dons généraux.",
       sponsorshipOne: 'Un engagement de parrainage est lié à ce bénéficiaire.',
-      sponsorshipShared: 'Ce dossier bénéficie d’un parrainage qui peut être partagé avec d’autres sources de financement.',
+      sponsorshipShared:
+        'Ce dossier bénéficie d’un parrainage qui peut être partagé avec d’autres sources de financement.',
       sponsorshipMultiple: 'Plusieurs engagements de parrainage sont liés à ce bénéficiaire.',
     },
     profile: {
@@ -236,8 +250,10 @@ export const beneficiariesContent = {
       gap: 'Écart',
       payments: 'Paiements',
       contributions: 'Contributions',
-      documentsQueued: "L'espace documents est prêt pour les téléversements et l'historique de revue.",
-      mentorshipQueued: 'Les notes de suivi, séances de mentorat, préoccupations et prochaines visites apparaîtront ici.',
+      documentsQueued:
+        "L'espace documents est prêt pour les téléversements et l'historique de revue.",
+      mentorshipQueued:
+        'Les notes de suivi, séances de mentorat, préoccupations et prochaines visites apparaîtront ici.',
       auditQueued: "L'historique des changements apparaîtra ici lorsqu'il sera lié à ce dossier.",
     },
   },

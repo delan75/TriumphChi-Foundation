@@ -12,12 +12,21 @@ interface DonationRecordsProps {
   onOpen: (uuid: string) => void;
 }
 
-export function DonationRecords({ copy, locale, donations, isLoading, onOpen }: DonationRecordsProps) {
+export function DonationRecords({
+  copy,
+  locale,
+  donations,
+  isLoading,
+  onOpen,
+}: DonationRecordsProps) {
   if (isLoading) {
     return (
       <div className="grid gap-3">
         {Array.from({ length: 5 }).map((_, index) => (
-          <div key={index} className="h-20 animate-pulse rounded-md border border-ink-100 bg-white" />
+          <div
+            key={index}
+            className="h-20 animate-pulse rounded-md border border-ink-100 bg-white"
+          />
         ))}
       </div>
     );
@@ -46,11 +55,20 @@ export function DonationRecords({ copy, locale, donations, isLoading, onOpen }: 
                 <p className="text-sm font-bold text-ink-900">{donation.reference_number}</p>
                 <p className="mt-1 truncate text-sm text-ink-500">{donation.donor?.name ?? '-'}</p>
               </div>
-              <StatusBadge label={donation.status_label ?? donation.status} tone={statusTone(donation.status)} />
+              <StatusBadge
+                label={donation.status_label ?? donation.status}
+                tone={statusTone(donation.status)}
+              />
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <Compact label={copy.amount} value={formatMoney(donation.amount, donation.currency, locale)} />
-              <Compact label={copy.allocated} value={`${donation.allocation_summary.allocated_amount} ${donation.currency}`} />
+              <Compact
+                label={copy.amount}
+                value={formatMoney(donation.amount, donation.currency, locale)}
+              />
+              <Compact
+                label={copy.allocated}
+                value={`${donation.allocation_summary.allocated_amount} ${donation.currency}`}
+              />
               <Compact label={copy.method} value={donation.method_label ?? donation.method} />
               <Compact label={copy.date} value={formatDate(donation.donated_at, locale)} />
             </div>
@@ -62,8 +80,20 @@ export function DonationRecords({ copy, locale, donations, isLoading, onOpen }: 
         <table className="min-w-full divide-y divide-ink-100">
           <thead className="bg-ink-50">
             <tr>
-              {[copy.donor, copy.amount, copy.method, copy.fund, copy.allocated, copy.date, copy.actions].map((heading) => (
-                <th key={heading} scope="col" className="px-4 py-3 text-left text-xs font-bold uppercase text-ink-500">
+              {[
+                copy.donor,
+                copy.amount,
+                copy.method,
+                copy.fund,
+                copy.allocated,
+                copy.date,
+                copy.actions,
+              ].map((heading) => (
+                <th
+                  key={heading}
+                  scope="col"
+                  className="px-4 py-3 text-left text-xs font-bold uppercase text-ink-500"
+                >
                   {heading}
                 </th>
               ))}
@@ -78,22 +108,35 @@ export function DonationRecords({ copy, locale, donations, isLoading, onOpen }: 
                       <FileText className="h-5 w-5" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-ink-900">{donation.donor?.name ?? '-'}</p>
+                      <p className="text-sm font-bold text-ink-900">
+                        {donation.donor?.name ?? '-'}
+                      </p>
                       <p className="mt-1 text-xs text-ink-500">{donation.reference_number}</p>
                       <div className="mt-2">
-                        <StatusBadge label={donation.status_label ?? donation.status} tone={statusTone(donation.status)} />
+                        <StatusBadge
+                          label={donation.status_label ?? donation.status}
+                          tone={statusTone(donation.status)}
+                        />
                       </div>
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-4 text-sm font-bold text-ink-900">{formatMoney(donation.amount, donation.currency, locale)}</td>
-                <td className="px-4 py-4 text-sm text-ink-600">{donation.method_label ?? donation.method}</td>
+                <td className="px-4 py-4 text-sm font-bold text-ink-900">
+                  {formatMoney(donation.amount, donation.currency, locale)}
+                </td>
+                <td className="px-4 py-4 text-sm text-ink-600">
+                  {donation.method_label ?? donation.method}
+                </td>
                 <td className="px-4 py-4 text-sm text-ink-600">{donation.fund?.name ?? '-'}</td>
                 <td className="px-4 py-4 text-sm text-ink-600">
-                  <span className="font-bold text-ink-900">{donation.allocation_summary.allocated_amount}</span>
+                  <span className="font-bold text-ink-900">
+                    {donation.allocation_summary.allocated_amount}
+                  </span>
                   <span className="text-ink-400"> / {donation.amount}</span>
                 </td>
-                <td className="px-4 py-4 text-sm text-ink-600">{formatDate(donation.donated_at, locale)}</td>
+                <td className="px-4 py-4 text-sm text-ink-600">
+                  {formatDate(donation.donated_at, locale)}
+                </td>
                 <td className="px-4 py-4">
                   <button
                     type="button"
@@ -122,7 +165,9 @@ function Compact({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function statusTone(status: string | null | undefined): 'neutral' | 'info' | 'success' | 'warning' | 'danger' {
+export function statusTone(
+  status: string | null | undefined,
+): 'neutral' | 'info' | 'success' | 'warning' | 'danger' {
   if (!status) {
     return 'neutral';
   }
@@ -148,7 +193,11 @@ export function statusTone(status: string | null | undefined): 'neutral' | 'info
   return 'neutral';
 }
 
-export function formatMoney(amount: string | number | null | undefined, currency: string | null | undefined, locale: Locale) {
+export function formatMoney(
+  amount: string | number | null | undefined,
+  currency: string | null | undefined,
+  locale: Locale,
+) {
   const numericAmount = Number(amount ?? 0);
   const normalizedCurrency = typeof currency === 'string' ? currency.trim().toUpperCase() : '';
 

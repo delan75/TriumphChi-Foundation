@@ -19,12 +19,16 @@ export function formatImpactPercentage(value: unknown, fallback: string) {
 export const impactSummaryMessages = {
   en: {
     loading: 'Loading verified impact figures.',
-    unavailable: 'Some verified figures are unavailable. A dash means no figure has been reported; available figures come from our records.',
-    placeholders: 'Program categories marked “Growing” describe ongoing work, not measured outcomes.',
+    unavailable:
+      'Some verified figures are unavailable. A dash means no figure has been reported; available figures come from our records.',
+    placeholders:
+      'Program categories marked “Growing” describe ongoing work, not measured outcomes.',
   },
   fr: {
     loading: 'Chargement des indicateurs vérifiés.',
-    unavailable: 'Certains indicateurs vérifiés sont indisponibles. Un tiret indique une donnée non publiée ; les chiffres disponibles proviennent de nos dossiers.',
-    placeholders: 'Les catégories indiquées « En croissance » décrivent le travail en cours, pas des résultats mesurés.',
+    unavailable:
+      'Certains indicateurs vérifiés sont indisponibles. Un tiret indique une donnée non publiée ; les chiffres disponibles proviennent de nos dossiers.',
+    placeholders:
+      'Les catégories indiquées « En croissance » décrivent le travail en cours, pas des résultats mesurés.',
   },
 };

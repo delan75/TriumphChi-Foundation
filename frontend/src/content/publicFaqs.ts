@@ -13,7 +13,10 @@ interface PublicFaqSection {
 export const publicFaqSections: Record<PublicFaqKey, PublicFaqSection> = {
   home: {
     eyebrow: { en: 'Common questions', fr: 'Questions frequentes' },
-    title: { en: 'Questions people ask before they reach out.', fr: 'Questions posees avant de nous contacter.' },
+    title: {
+      en: 'Questions people ask before they reach out.',
+      fr: 'Questions posees avant de nous contacter.',
+    },
     body: {
       en: 'A few simple answers for families, schools, donors, churches, and partners who want to understand the work.',
       fr: 'Quelques reponses simples pour les familles, ecoles, donateurs, eglises et partenaires qui veulent comprendre le travail.',
@@ -121,7 +124,10 @@ export const publicFaqSections: Record<PublicFaqKey, PublicFaqSection> = {
   },
   contact: {
     eyebrow: { en: 'Before you message us', fr: 'Avant de nous ecrire' },
-    title: { en: 'Helpful answers for the first conversation.', fr: 'Reponses utiles pour commencer.' },
+    title: {
+      en: 'Helpful answers for the first conversation.',
+      fr: 'Reponses utiles pour commencer.',
+    },
     body: {
       en: 'If you are not sure where your message fits, send it anyway. A genuine conversation is a good first step.',
       fr: 'Si vous ne savez pas dans quelle categorie placer votre message, envoyez-le quand meme. Une conversation sincere est un bon premier pas.',
@@ -175,7 +181,10 @@ export const publicFaqSections: Record<PublicFaqKey, PublicFaqSection> = {
   },
   privacy: {
     eyebrow: { en: 'Privacy questions', fr: 'Questions de confidentialite' },
-    title: { en: 'Clear answers about information and care.', fr: 'Reponses claires sur les informations.' },
+    title: {
+      en: 'Clear answers about information and care.',
+      fr: 'Reponses claires sur les informations.',
+    },
     body: {
       en: 'Privacy should be understandable. These answers explain how the foundation thinks about personal information in daily practice.',
       fr: 'La confidentialite doit etre comprehensible. Ces reponses expliquent comment la fondation traite les informations personnelles dans la pratique.',

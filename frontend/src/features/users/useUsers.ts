@@ -68,8 +68,15 @@ export function useUpdateManagedUserAccess() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ uuid, roles, direct_permissions }: { uuid: string; roles: string[]; direct_permissions: string[] }) =>
-      apiUpdateManagedUserAccess(uuid, { roles, direct_permissions }),
+    mutationFn: ({
+      uuid,
+      roles,
+      direct_permissions,
+    }: {
+      uuid: string;
+      roles: string[];
+      direct_permissions: string[];
+    }) => apiUpdateManagedUserAccess(uuid, { roles, direct_permissions }),
     onSuccess: (user) => {
       queryClient.setQueryData(['managed-user', user.uuid], user);
       void queryClient.invalidateQueries({ queryKey: ['managed-users'] });
@@ -81,8 +88,15 @@ export function useTransitionManagedUserStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ uuid, action, note }: { uuid: string; action: 'activate' | 'suspend' | 'archive'; note?: string }) =>
-      apiTransitionManagedUserStatus(uuid, action, note),
+    mutationFn: ({
+      uuid,
+      action,
+      note,
+    }: {
+      uuid: string;
+      action: 'activate' | 'suspend' | 'archive';
+      note?: string;
+    }) => apiTransitionManagedUserStatus(uuid, action, note),
     onSuccess: (user) => {
       queryClient.setQueryData(['managed-user', user.uuid], user);
       void queryClient.invalidateQueries({ queryKey: ['managed-users'] });

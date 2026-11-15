@@ -26,4 +26,3 @@ export interface DashboardMetric {
   value: string;
   detail: string;
 }
-

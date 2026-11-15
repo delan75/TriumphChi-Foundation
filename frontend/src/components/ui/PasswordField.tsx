@@ -29,7 +29,7 @@ export const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldPro
               error
                 ? 'border-support-red focus:border-support-red focus:ring-support-red/20'
                 : 'border-ink-200 focus:border-foundation-500 focus:ring-2 focus:ring-foundation-500/20',
-              className
+              className,
             )}
             aria-invalid={!!error}
             aria-describedby={error ? errorId : undefined}
@@ -53,12 +53,10 @@ export const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldPro
             {error}
           </p>
         )}
-        {helpText && !error && (
-          <p className="mt-1 text-xs text-ink-400">{helpText}</p>
-        )}
+        {helpText && !error && <p className="mt-1 text-xs text-ink-400">{helpText}</p>}
       </div>
     );
-  }
+  },
 );
 
 PasswordField.displayName = 'PasswordField';

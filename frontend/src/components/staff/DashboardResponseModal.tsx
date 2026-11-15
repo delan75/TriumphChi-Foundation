@@ -106,7 +106,10 @@ export function DashboardResponseModal({
           </button>
         </div>
         <div className="h-1 bg-ink-100" aria-hidden="true">
-          <div className="h-full bg-emerald-500 transition-[width] duration-100 ease-linear" style={{ width: `${progress}%` }} />
+          <div
+            className="h-full bg-emerald-500 transition-[width] duration-100 ease-linear"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
     </div>

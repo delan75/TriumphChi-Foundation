@@ -30,7 +30,9 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
   const storedContext = readVerificationContext();
   const [email, setEmail] = useState(storedContext?.email ?? searchParams.get('email') ?? '');
   const [maskedEmail, setMaskedEmail] = useState(storedContext?.masked_email ?? maskEmail(email));
-  const [maskedPhone, setMaskedPhone] = useState<string | null>(storedContext?.masked_phone ?? null);
+  const [maskedPhone, setMaskedPhone] = useState<string | null>(
+    storedContext?.masked_phone ?? null,
+  );
   const [code, setCode] = useState('');
   const [channel, setChannel] = useState<OtpChannel>('email');
   const [message, setMessage] = useState<string | null>(copy.initialMessage);
@@ -159,7 +161,9 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
           <div className="w-full max-w-md">
             <div className="rounded-xl border border-ink-100 bg-white p-8 shadow-lg">
               <div className="mb-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foundation-700">{copy.eyebrow}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foundation-700">
+                  {copy.eyebrow}
+                </p>
                 <h1 className="mt-3 text-2xl font-bold text-ink-900">{copy.title}</h1>
                 <p className="mt-2 text-sm leading-6 text-ink-500">{copy.subtitle}</p>
               </div>
@@ -178,7 +182,11 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
               </div>
 
               {isEditingContact && (
-                <form onSubmit={updateContact} className="mb-6 space-y-4 rounded-lg border border-ink-100 p-4" noValidate>
+                <form
+                  onSubmit={updateContact}
+                  className="mb-6 space-y-4 rounded-lg border border-ink-100 p-4"
+                  noValidate
+                >
                   <p className="text-sm leading-6 text-ink-600">{copy.contactHelp}</p>
                   <InputField
                     label={copy.newEmailLabel}
@@ -186,7 +194,9 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
                     type="email"
                     autoComplete="email"
                     value={contactForm.email}
-                    onChange={(event) => setContactForm((current) => ({ ...current, email: event.target.value }))}
+                    onChange={(event) =>
+                      setContactForm((current) => ({ ...current, email: event.target.value }))
+                    }
                   />
                   <InputField
                     label={copy.newPhoneLabel}
@@ -194,7 +204,9 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
                     type="tel"
                     autoComplete="tel"
                     value={contactForm.phone}
-                    onChange={(event) => setContactForm((current) => ({ ...current, phone: event.target.value }))}
+                    onChange={(event) =>
+                      setContactForm((current) => ({ ...current, phone: event.target.value }))
+                    }
                   />
                   <InputField
                     label={copy.passwordLabel}
@@ -202,7 +214,9 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
                     type="password"
                     autoComplete="current-password"
                     value={contactForm.password}
-                    onChange={(event) => setContactForm((current) => ({ ...current, password: event.target.value }))}
+                    onChange={(event) =>
+                      setContactForm((current) => ({ ...current, password: event.target.value }))
+                    }
                     required
                   />
                   <button
@@ -264,10 +278,14 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
                   <div
                     className={cn(
                       'rounded-md border p-3',
-                      error ? 'border-support-red/20 bg-support-red/5' : 'border-foundation-200 bg-foundation-50',
+                      error
+                        ? 'border-support-red/20 bg-support-red/5'
+                        : 'border-foundation-200 bg-foundation-50',
                     )}
                   >
-                    <p className={cn('text-sm', error ? 'text-support-red' : 'text-foundation-900')}>
+                    <p
+                      className={cn('text-sm', error ? 'text-support-red' : 'text-foundation-900')}
+                    >
                       {error ?? message}
                     </p>
                   </div>
@@ -287,20 +305,20 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
 
               <div className="mt-5 flex flex-col gap-3 text-center text-sm sm:flex-row sm:items-center sm:justify-between">
                 <button
-  type="button"
-  onClick={resend}
-  disabled={isSending}
-  className="font-semibold text-foundation-700 transition-all duration-200 ease-out hover:underline hover:underline-offset-4 hover:-translate-y-0.5 hover:text-foundation-900 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
->
-  {isSending ? copy.sending : copy.resend}
-</button>
+                  type="button"
+                  onClick={resend}
+                  disabled={isSending}
+                  className="font-semibold text-foundation-700 transition-all duration-200 ease-out hover:underline hover:underline-offset-4 hover:-translate-y-0.5 hover:text-foundation-900 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                >
+                  {isSending ? copy.sending : copy.resend}
+                </button>
 
                 <Link
-  to={`/${locale}/login`}
-  className="inline-block text-ink-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:text-ink-700 hover:underline hover:underline-offset-4 active:translate-y-0"
->
-  {copy.backToLogin}
-</Link>
+                  to={`/${locale}/login`}
+                  className="inline-block text-ink-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:text-ink-700 hover:underline hover:underline-offset-4 active:translate-y-0"
+                >
+                  {copy.backToLogin}
+                </Link>
               </div>
             </div>
           </div>
@@ -313,7 +331,7 @@ export function VerifyAccountPage({ locale, redirectTo }: VerifyAccountPageProps
 function readVerificationContext(): VerificationContext | null {
   try {
     const raw = window.sessionStorage.getItem('triumphchi.verification');
-    return raw ? JSON.parse(raw) as VerificationContext : null;
+    return raw ? (JSON.parse(raw) as VerificationContext) : null;
   } catch {
     return null;
   }
@@ -334,14 +352,26 @@ const sharedLeftPanel = {
   en: {
     title: 'TriumphChi Foundation',
     tagline: 'Giving from a covenant, not from leftovers.',
-    description: 'Thank you for joining a community committed to helping children continue learning with dignity.',
-    highlights: ['Confirm your contact', 'Enter the code', 'Continue securely', 'Support the mission'],
+    description:
+      'Thank you for joining a community committed to helping children continue learning with dignity.',
+    highlights: [
+      'Confirm your contact',
+      'Enter the code',
+      'Continue securely',
+      'Support the mission',
+    ],
   },
   fr: {
     title: 'Fondation TriumphChi',
     tagline: 'Donner par alliance, pas avec les restes.',
-    description: 'Merci de rejoindre une communaute engagee a aider les enfants a continuer leur education avec dignite.',
-    highlights: ['Confirmer le contact', 'Entrer le code', 'Continuer en securite', 'Soutenir la mission'],
+    description:
+      'Merci de rejoindre une communaute engagee a aider les enfants a continuer leur education avec dignite.',
+    highlights: [
+      'Confirmer le contact',
+      'Entrer le code',
+      'Continuer en securite',
+      'Soutenir la mission',
+    ],
   },
 };
 
@@ -367,14 +397,17 @@ const verifyCopy = {
     sendFailed: 'We could not send a verification code. Please try again.',
     changeContact: 'Wrong email or phone?',
     cancelContactEdit: 'Keep these details',
-    contactHelp: 'If you mistyped your email or phone number, correct it here. For your safety, please enter your password before we make the change.',
+    contactHelp:
+      'If you mistyped your email or phone number, correct it here. For your safety, please enter your password before we make the change.',
     newEmailLabel: 'Correct Email Address',
     newPhoneLabel: 'Correct Phone Number',
     passwordLabel: 'Password',
     updateContact: 'Update and send code',
     updatingContact: 'Updating...',
-    contactPasswordRequired: 'Please enter your password before updating your verification details.',
-    contactUpdateFailed: 'We could not update your verification details. Please check the information and try again.',
+    contactPasswordRequired:
+      'Please enter your password before updating your verification details.',
+    contactUpdateFailed:
+      'We could not update your verification details. Please check the information and try again.',
     channels: {
       email: 'Email',
       sms: 'SMS',
@@ -403,14 +436,17 @@ const verifyCopy = {
     sendFailed: 'Nous n avons pas pu envoyer de code. Veuillez reessayer.',
     changeContact: 'Email ou telephone incorrect ?',
     cancelContactEdit: 'Garder ces informations',
-    contactHelp: 'Si vous avez mal saisi votre email ou numero de telephone, corrigez-le ici. Pour votre securite, entrez votre mot de passe avant la modification.',
+    contactHelp:
+      'Si vous avez mal saisi votre email ou numero de telephone, corrigez-le ici. Pour votre securite, entrez votre mot de passe avant la modification.',
     newEmailLabel: 'Adresse email correcte',
     newPhoneLabel: 'Numero de telephone correct',
     passwordLabel: 'Mot de passe',
     updateContact: 'Mettre a jour et envoyer le code',
     updatingContact: 'Mise a jour...',
-    contactPasswordRequired: 'Veuillez entrer votre mot de passe avant de modifier vos informations de verification.',
-    contactUpdateFailed: 'Nous n avons pas pu modifier vos informations. Veuillez verifier et reessayer.',
+    contactPasswordRequired:
+      'Veuillez entrer votre mot de passe avant de modifier vos informations de verification.',
+    contactUpdateFailed:
+      'Nous n avons pas pu modifier vos informations. Veuillez verifier et reessayer.',
     channels: {
       email: 'Email',
       sms: 'SMS',

@@ -121,7 +121,9 @@ export function ForgotPasswordPage({ locale, redirectTo }: ForgotPasswordPagePro
                       disabled={isLoading}
                       className={cn(
                         'focus-ring flex w-full justify-center rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition duration-200',
-                        isLoading ? 'cursor-not-allowed bg-foundation-400' : 'bg-foundation-600 hover:bg-foundation-900',
+                        isLoading
+                          ? 'cursor-not-allowed bg-foundation-400'
+                          : 'bg-foundation-600 hover:bg-foundation-900',
                       )}
                     >
                       {isLoading ? (
@@ -157,14 +159,26 @@ const leftPanel = {
   en: {
     title: 'TriumphChi Foundation',
     tagline: 'Giving from a covenant, not from leftovers.',
-    description: 'Helping orphaned and vulnerable children in rural Cameroon continue learning through education support, mentorship, and community partnership.',
-    highlights: ['Education Support', 'Community Partnership', 'Mentorship', 'Dignity and Opportunity'],
+    description:
+      'Helping orphaned and vulnerable children in rural Cameroon continue learning through education support, mentorship, and community partnership.',
+    highlights: [
+      'Education Support',
+      'Community Partnership',
+      'Mentorship',
+      'Dignity and Opportunity',
+    ],
   },
   fr: {
     title: 'Fondation TriumphChi',
     tagline: 'Donner par alliance, pas avec les restes.',
-    description: "Aider les orphelins et enfants vulnérables du Cameroun rural à continuer d'apprendre grâce au soutien éducatif, au mentorat et au partenariat communautaire.",
-    highlights: ['Soutien éducatif', 'Partenariat communautaire', 'Mentorat', 'Dignité et opportunité'],
+    description:
+      "Aider les orphelins et enfants vulnérables du Cameroun rural à continuer d'apprendre grâce au soutien éducatif, au mentorat et au partenariat communautaire.",
+    highlights: [
+      'Soutien éducatif',
+      'Partenariat communautaire',
+      'Mentorat',
+      'Dignité et opportunité',
+    ],
   },
 };
 
@@ -186,7 +200,8 @@ const forgotPasswordCopy = {
   },
   fr: {
     title: 'Réinitialiser votre mot de passe',
-    subtitle: 'Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
+    subtitle:
+      'Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
     emailLabel: 'Adresse email',
     submit: 'Envoyer le lien',
     sending: 'Envoi...',

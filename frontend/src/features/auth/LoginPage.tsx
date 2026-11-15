@@ -8,7 +8,12 @@ import { AuthLayout } from '../../components/auth/AuthLayout';
 import { InputField } from '../../components/ui/InputField';
 import { PasswordField } from '../../components/ui/PasswordField';
 import { GoogleAuthButton, SocialAuthButton } from '../../components/ui/GoogleAuthButton';
-import { buildAuthPath, resolvePostAuthPath, sanitizeRedirectTo, storeAuthSession } from '../../lib/auth';
+import {
+  buildAuthPath,
+  resolvePostAuthPath,
+  sanitizeRedirectTo,
+  storeAuthSession,
+} from '../../lib/auth';
 import { getPublicContactSupportText } from '../../lib/publicContact';
 import classroomImage from '../../assets/landing/classroom-support.png';
 import kidsImage from '../../assets/landing/kids_studying_tree.webp';
@@ -63,7 +68,9 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
     } catch (error) {
       if (error instanceof ApiRequestError && error.code === 'email_not_verified') {
         persistVerificationContext(error.data, formData.email);
-        navigate(`/${locale}/verify-account?email=${encodeURIComponent(formData.email)}`, { replace: true });
+        navigate(`/${locale}/verify-account?email=${encodeURIComponent(formData.email)}`, {
+          replace: true,
+        });
         return;
       }
 
@@ -132,9 +139,7 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
                 </div>
               )}
 
-              <GoogleAuthButton
-                onClick={() => beginSocialAuth('google')}
-              >
+              <GoogleAuthButton onClick={() => beginSocialAuth('google')}>
                 {copy.continueWithGoogle}
               </GoogleAuthButton>
               <SocialAuthButton
@@ -150,7 +155,9 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
                   <div className="w-full border-t border-ink-100" />
                 </div>
                 <div className="relative flex justify-center">
-                  <span className="bg-white px-3 text-xs uppercase tracking-wider text-ink-400">{copy.orContinueWith}</span>
+                  <span className="bg-white px-3 text-xs uppercase tracking-wider text-ink-400">
+                    {copy.orContinueWith}
+                  </span>
                 </div>
               </div>
 
@@ -237,7 +244,10 @@ export function LoginPage({ locale, redirectTo }: LoginPageProps) {
               </div>
 
               <div className="mt-6 text-center">
-                <Link to={`/${locale}`} className="text-sm text-ink-400 hover:underline hover:underline-offset-4 hover:text-ink-600">
+                <Link
+                  to={`/${locale}`}
+                  className="text-sm text-ink-400 hover:underline hover:underline-offset-4 hover:text-ink-600"
+                >
                   {'←'} {copy.backHome}
                 </Link>
               </div>
@@ -268,12 +278,12 @@ function persistVerificationContext(data: unknown, fallbackEmail: string): void 
 
 function isVerificationContext(data: unknown): data is VerificationContext {
   return Boolean(
-    data
-      && typeof data === 'object'
-      && 'email' in data
-      && typeof (data as VerificationContext).email === 'string'
-      && 'masked_email' in data
-      && typeof (data as VerificationContext).masked_email === 'string',
+    data &&
+    typeof data === 'object' &&
+    'email' in data &&
+    typeof (data as VerificationContext).email === 'string' &&
+    'masked_email' in data &&
+    typeof (data as VerificationContext).masked_email === 'string',
   );
 }
 
@@ -311,14 +321,26 @@ const sharedLeftPanel = {
   en: {
     title: 'TriumphChi Foundation',
     tagline: 'Giving from a covenant, not from leftovers.',
-    description: 'Helping orphaned and vulnerable children in rural Cameroon continue learning through education support, mentorship, and community partnership.',
-    highlights: ['Education Support', 'Community Partnership', 'Mentorship', 'Dignity and Opportunity'],
+    description:
+      'Helping orphaned and vulnerable children in rural Cameroon continue learning through education support, mentorship, and community partnership.',
+    highlights: [
+      'Education Support',
+      'Community Partnership',
+      'Mentorship',
+      'Dignity and Opportunity',
+    ],
   },
   fr: {
     title: 'Fondation TriumphChi',
     tagline: 'Donner par alliance, pas avec les restes.',
-    description: "Aider les orphelins et enfants vulnérables du Cameroun rural à continuer d'apprendre grâce au soutien éducatif, au mentorat et au partenariat communautaire.",
-    highlights: ['Soutien éducatif', 'Partenariat communautaire', 'Mentorat', 'Dignité et opportunité'],
+    description:
+      "Aider les orphelins et enfants vulnérables du Cameroun rural à continuer d'apprendre grâce au soutien éducatif, au mentorat et au partenariat communautaire.",
+    highlights: [
+      'Soutien éducatif',
+      'Partenariat communautaire',
+      'Mentorat',
+      'Dignité et opportunité',
+    ],
   },
 };
 
@@ -372,7 +394,8 @@ const loginCopy = {
     oauthErrors: {
       oauth_failed: 'La connexion sociale n a pas pu aboutir. Veuillez reessayer.',
       email_required: 'Votre compte social n a pas partage d adresse email.',
-      email_not_verified: 'Veuillez verifier l email de votre compte social avant de vous connecter.',
+      email_not_verified:
+        'Veuillez verifier l email de votre compte social avant de vous connecter.',
       account_inactive: 'Ce compte n est pas actif. Veuillez contacter le support.',
       server_error: 'Connexion impossible pour le moment. Veuillez reessayer.',
     },

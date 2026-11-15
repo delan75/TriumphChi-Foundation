@@ -1,5 +1,18 @@
 import { useMemo } from 'react';
-import { ArrowRight, Clock3, Layers3, RefreshCcw, Sparkles, UsersRound, FileText, Wallet, ShieldCheck, ListChecks, Search, type LucideIcon } from 'lucide-react';
+import {
+  ArrowRight,
+  Clock3,
+  Layers3,
+  RefreshCcw,
+  Sparkles,
+  UsersRound,
+  FileText,
+  Wallet,
+  ShieldCheck,
+  ListChecks,
+  Search,
+  type LucideIcon,
+} from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { DashboardPanel } from '../../components/staff/DashboardPanel';
 import { StatusBadge } from '../../components/ui/StatusBadge';
@@ -52,7 +65,10 @@ export function StaffDashboardPage() {
   const lastLogin = formatDateTime(user?.last_login_at, activeLocale);
   const generatedAt = formatDateTime(summary?.snapshot.generated_at, activeLocale, true);
 
-  const queuePreview = useMemo(() => (summary?.priority_queues ?? []).slice(0, 4), [summary?.priority_queues]);
+  const queuePreview = useMemo(
+    () => (summary?.priority_queues ?? []).slice(0, 4),
+    [summary?.priority_queues],
+  );
 
   const topActions = quickActions.slice(0, 2);
 
@@ -72,7 +88,7 @@ export function StaffDashboardPage() {
               {copy.retryLabel}
             </button>
           }
-          >
+        >
           <div className="rounded-md border border-amber-100 bg-amber-50 p-4 text-sm text-amber-900">
             <p className="font-semibold">{copy.errorTitle}</p>
             <p className="mt-1 leading-6">{copy.errorDescription}</p>
@@ -140,7 +156,9 @@ export function StaffDashboardPage() {
           <section className="space-y-4">
             <div className="flex items-end justify-between gap-3">
               <h2 className="text-base font-semibold text-ink-900">{copy.metricsSectionTitle}</h2>
-              <span className="text-xs font-semibold uppercase tracking-normal text-ink-500">{copy.liveLabel}</span>
+              <span className="text-xs font-semibold uppercase tracking-normal text-ink-500">
+                {copy.liveLabel}
+              </span>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {metrics.length ? (
@@ -152,7 +170,12 @@ export function StaffDashboardPage() {
                       className="rounded-md border border-ink-100 bg-white p-5 shadow-xs transition duration-200 hover:-translate-y-0.5"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <div className={cn('grid h-11 w-11 place-items-center rounded-md ring-1', metricToneClasses[metric.tone as MetricTone] ?? metricToneClasses.info)}>
+                        <div
+                          className={cn(
+                            'grid h-11 w-11 place-items-center rounded-md ring-1',
+                            metricToneClasses[metric.tone as MetricTone] ?? metricToneClasses.info,
+                          )}
+                        >
                           <Icon className="h-5 w-5" aria-hidden="true" />
                         </div>
                         <Link
@@ -163,7 +186,9 @@ export function StaffDashboardPage() {
                           <ArrowRight className="h-4 w-4" aria-hidden="true" />
                         </Link>
                       </div>
-                      <p className="mt-4 text-sm font-medium text-ink-500">{copy.metricLabels[metric.key] ?? metric.key}</p>
+                      <p className="mt-4 text-sm font-medium text-ink-500">
+                        {copy.metricLabels[metric.key] ?? metric.key}
+                      </p>
                       <p className="mt-2 text-3xl font-bold tracking-tight text-ink-900 tabular-nums">
                         {formatNumber(metric.count, activeLocale)}
                       </p>
@@ -196,12 +221,18 @@ export function StaffDashboardPage() {
               {queuePreview.length ? (
                 <div className="grid gap-4 md:grid-cols-2">
                   {queuePreview.map((queue) => (
-                    <article key={queue.key} className="rounded-md border border-ink-100 bg-ink-50/60 p-4">
+                    <article
+                      key={queue.key}
+                      className="rounded-md border border-ink-100 bg-ink-50/60 p-4"
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <p className="text-sm font-semibold text-ink-900">{copy.queueLabels[queue.key] ?? queue.key}</p>
+                          <p className="text-sm font-semibold text-ink-900">
+                            {copy.queueLabels[queue.key] ?? queue.key}
+                          </p>
                           <p className="mt-1 text-xs text-ink-500">
-                            {formatNumber(queue.count, activeLocale)} {queue.count === 1 ? copy.recordLabel : copy.recordsLabel}
+                            {formatNumber(queue.count, activeLocale)}{' '}
+                            {queue.count === 1 ? copy.recordLabel : copy.recordsLabel}
                           </p>
                         </div>
                         <Link
@@ -223,18 +254,29 @@ export function StaffDashboardPage() {
                             >
                               <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <p className="truncate text-sm font-semibold text-ink-900">{item.title}</p>
+                                  <p className="truncate text-sm font-semibold text-ink-900">
+                                    {item.title}
+                                  </p>
                                   {item.reference ? (
                                     <span className="rounded-md bg-ink-100 px-2 py-1 text-[11px] font-semibold text-ink-600">
                                       {item.reference}
                                     </span>
                                   ) : null}
                                 </div>
-                                {item.secondary ? <p className="mt-1 text-xs leading-5 text-ink-500">{item.secondary}</p> : null}
+                                {item.secondary ? (
+                                  <p className="mt-1 text-xs leading-5 text-ink-500">
+                                    {item.secondary}
+                                  </p>
+                                ) : null}
                               </div>
                               <div className="shrink-0 text-right">
-                                <StatusBadge label={item.status_label} tone={statusTone(item.status)} />
-                                <p className="mt-2 text-[11px] text-ink-500">{formatRelativeTime(item.updated_at, activeLocale)}</p>
+                                <StatusBadge
+                                  label={item.status_label}
+                                  tone={statusTone(item.status)}
+                                />
+                                <p className="mt-2 text-[11px] text-ink-500">
+                                  {formatRelativeTime(item.updated_at, activeLocale)}
+                                </p>
                               </div>
                             </Link>
                           ))
@@ -255,7 +297,7 @@ export function StaffDashboardPage() {
             </DashboardPanel>
 
             <div className="space-y-6">
-            <DashboardPanel title={copy.activitySectionTitle}>
+              <DashboardPanel title={copy.activitySectionTitle}>
                 {activity.length ? (
                   <div className="space-y-3">
                     {activity.slice(0, 6).map((item, index) => (
@@ -273,7 +315,9 @@ export function StaffDashboardPage() {
                               </span>
                             ) : null}
                           </div>
-                          <p className="mt-1 text-sm leading-6 text-ink-500">{item.subtitle ?? item.description}</p>
+                          <p className="mt-1 text-sm leading-6 text-ink-500">
+                            {item.subtitle ?? item.description}
+                          </p>
                         </div>
                         <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-ink-400">
                           <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -290,8 +334,14 @@ export function StaffDashboardPage() {
               <DashboardPanel title={copy.overviewSectionTitle}>
                 <div className="space-y-4">
                   <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                    <SummaryPill label={copy.overviewLabels.accessibleModules} value={formatNumber(accessibleModules.length, activeLocale)} />
-                    <SummaryPill label={copy.overviewLabels.directPermissions} value={formatNumber(directPermissions, activeLocale)} />
+                    <SummaryPill
+                      label={copy.overviewLabels.accessibleModules}
+                      value={formatNumber(accessibleModules.length, activeLocale)}
+                    />
+                    <SummaryPill
+                      label={copy.overviewLabels.directPermissions}
+                      value={formatNumber(directPermissions, activeLocale)}
+                    />
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {accessibleModules.length ? (
@@ -343,10 +393,17 @@ export function StaffDashboardPage() {
                         <div className="grid h-11 w-11 place-items-center rounded-md bg-foundation-50 text-foundation-700 transition group-hover:bg-foundation-600 group-hover:text-white">
                           <ActionIcon className="h-5 w-5" aria-hidden="true" />
                         </div>
-                        <ArrowRight className="h-4 w-4 text-ink-400 transition group-hover:text-foundation-700" aria-hidden="true" />
+                        <ArrowRight
+                          className="h-4 w-4 text-ink-400 transition group-hover:text-foundation-700"
+                          aria-hidden="true"
+                        />
                       </div>
-                      <h3 className="mt-4 text-sm font-semibold text-ink-900">{actionCopy.title}</h3>
-                      <p className="mt-2 text-sm leading-6 text-ink-500">{actionCopy.description}</p>
+                      <h3 className="mt-4 text-sm font-semibold text-ink-900">
+                        {actionCopy.title}
+                      </h3>
+                      <p className="mt-2 text-sm leading-6 text-ink-500">
+                        {actionCopy.description}
+                      </p>
                     </Link>
                   );
                 })}
@@ -404,9 +461,23 @@ function TopActionLink({
     >
       <div className="min-w-0">
         <p className="text-sm font-semibold">{label}</p>
-        <p className={cn('mt-1 text-xs leading-5', tone === 'foundation' ? 'text-white/80' : 'text-ink-500')}>{hint}</p>
+        <p
+          className={cn(
+            'mt-1 text-xs leading-5',
+            tone === 'foundation' ? 'text-white/80' : 'text-ink-500',
+          )}
+        >
+          {hint}
+        </p>
       </div>
-      <span className={cn('grid h-10 w-10 shrink-0 place-items-center rounded-md transition', tone === 'foundation' ? 'bg-white/10 text-white' : 'bg-foundation-50 text-foundation-700 group-hover:bg-foundation-600 group-hover:text-white')}>
+      <span
+        className={cn(
+          'grid h-10 w-10 shrink-0 place-items-center rounded-md transition',
+          tone === 'foundation'
+            ? 'bg-white/10 text-white'
+            : 'bg-foundation-50 text-foundation-700 group-hover:bg-foundation-600 group-hover:text-white',
+        )}
+      >
         <Icon className="h-5 w-5" aria-hidden="true" />
       </span>
     </Link>
@@ -418,7 +489,10 @@ function DashboardSkeleton() {
     <div className="space-y-6" aria-hidden="true">
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (
-          <div key={index} className="h-32 animate-pulse rounded-md border border-ink-100 bg-white" />
+          <div
+            key={index}
+            className="h-32 animate-pulse rounded-md border border-ink-100 bg-white"
+          />
         ))}
       </section>
       <section className="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
@@ -485,15 +559,27 @@ function formatRelativeTime(value: string | null | undefined, locale: Locale) {
 function statusTone(status: string): 'neutral' | 'info' | 'success' | 'warning' | 'danger' {
   const normalized = status.toLowerCase();
 
-  if (normalized.includes('verified') || normalized.includes('active') || normalized.includes('approved')) {
+  if (
+    normalized.includes('verified') ||
+    normalized.includes('active') ||
+    normalized.includes('approved')
+  ) {
     return 'success';
   }
 
-  if (normalized.includes('pending') || normalized.includes('review') || normalized.includes('verification')) {
+  if (
+    normalized.includes('pending') ||
+    normalized.includes('review') ||
+    normalized.includes('verification')
+  ) {
     return 'warning';
   }
 
-  if (normalized.includes('rejected') || normalized.includes('failed') || normalized.includes('declined')) {
+  if (
+    normalized.includes('rejected') ||
+    normalized.includes('failed') ||
+    normalized.includes('declined')
+  ) {
     return 'danger';
   }
 

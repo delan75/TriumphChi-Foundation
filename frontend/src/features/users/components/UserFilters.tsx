@@ -19,7 +19,10 @@ export function UserFilters({ copy, filters, accessOptions, onChange }: UserFilt
         <label className="min-w-0">
           <span className="text-xs font-bold uppercase text-ink-500">{copy.filters.search}</span>
           <span className="relative mt-2 block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" aria-hidden="true" />
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400"
+              aria-hidden="true"
+            />
             <input
               value={filters.search ?? ''}
               onChange={(event) => update({ search: event.target.value || undefined })}
@@ -29,27 +32,54 @@ export function UserFilters({ copy, filters, accessOptions, onChange }: UserFilt
           </span>
         </label>
 
-        <Select label={copy.filters.status} value={filters.status ?? ''} onChange={(value) => update({ status: value || undefined })}>
+        <Select
+          label={copy.filters.status}
+          value={filters.status ?? ''}
+          onChange={(value) => update({ status: value || undefined })}
+        >
           <option value="">{copy.filters.allStatuses}</option>
           {(accessOptions?.statuses ?? []).map((status) => (
-            <option key={status.value} value={status.value}>{status.label}</option>
+            <option key={status.value} value={status.value}>
+              {status.label}
+            </option>
           ))}
         </Select>
 
-        <Select label={copy.filters.role} value={filters.role ?? ''} onChange={(value) => update({ role: value || undefined })}>
+        <Select
+          label={copy.filters.role}
+          value={filters.role ?? ''}
+          onChange={(value) => update({ role: value || undefined })}
+        >
           <option value="">{copy.filters.allRoles}</option>
           {(accessOptions?.roles ?? []).map((role) => (
-            <option key={role.name} value={role.name}>{role.label}</option>
+            <option key={role.name} value={role.name}>
+              {role.label}
+            </option>
           ))}
         </Select>
 
-        <Field label={copy.filters.department} value={filters.department ?? ''} onChange={(value) => update({ department: value || undefined })} />
-        <Field label={copy.filters.position} value={filters.position ?? ''} onChange={(value) => update({ position: value || undefined })} />
+        <Field
+          label={copy.filters.department}
+          value={filters.department ?? ''}
+          onChange={(value) => update({ department: value || undefined })}
+        />
+        <Field
+          label={copy.filters.position}
+          value={filters.position ?? ''}
+          onChange={(value) => update({ position: value || undefined })}
+        />
 
         <div className="flex items-end">
           <button
             type="button"
-            onClick={() => onChange({ page: 1, per_page: filters.per_page ?? 12, sort: 'created_at', direction: 'desc' })}
+            onClick={() =>
+              onChange({
+                page: 1,
+                per_page: filters.per_page ?? 12,
+                sort: 'created_at',
+                direction: 'desc',
+              })
+            }
             className="focus-ring inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-ink-200 px-3 text-sm font-bold text-ink-700 transition hover:bg-ink-50 xl:w-auto"
           >
             <X className="h-4 w-4" aria-hidden="true" />
@@ -61,7 +91,15 @@ export function UserFilters({ copy, filters, accessOptions, onChange }: UserFilt
   );
 }
 
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+function Field({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
   return (
     <label className="min-w-0">
       <span className="text-xs font-bold uppercase text-ink-500">{label}</span>

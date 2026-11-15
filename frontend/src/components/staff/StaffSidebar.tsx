@@ -47,7 +47,9 @@ export function StaffSidebar({ locale, user, labels, onNavigate }: StaffSidebarP
 
         return (
           <section key={groupKey}>
-            <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-normal text-ink-500">{groupLabel}</p>
+            <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-normal text-ink-500">
+              {groupLabel}
+            </p>
             <div className="space-y-1">
               {items.map((item) => (
                 <NavLink
