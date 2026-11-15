@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { createBrowserRouter, Navigate, Outlet, useLocation, useParams } from 'react-router-dom';
 import { AppShell } from './shell/AppShell';
 import { PageLoading } from '../components/ui/PageLoading';
+import { ScrollToTop } from '../components/ui/ScrollToTop';
 import { PublicPage } from '../features/public/PublicPage';
 import { NotFoundPage } from '../features/errors/NotFoundPage';
 import { LocaleRecoveryWrapper } from '../features/errors/LocaleRecoveryWrapper';
@@ -126,7 +127,14 @@ function LocaleRouteGate() {
     return <Navigate to={localizedPath} replace />;
   }
 
-  return <Suspense fallback={<PageLoading />}><Outlet /></Suspense>;
+  return (
+    <>
+      <ScrollToTop />
+      <Suspense fallback={<PageLoading />}>
+        <Outlet />
+      </Suspense>
+    </>
+  );
 }
 
 function LoginPageWrapper() {
