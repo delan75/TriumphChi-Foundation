@@ -1,6 +1,7 @@
 import { resolveLocale } from './localeRecovery';
+import { isPublicDonationConfig } from './donationConfig';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'https://api.triumphchi.org/api/v1';
 
 export interface TokenResponse {
   access_token: string;
@@ -1758,7 +1759,11 @@ export async function apiGenerateReport(payload: ReportGeneratePayload): Promise
 }
 
 export async function apiGetDonationConfig(locale: string): Promise<PublicDonationConfig> {
-  return apiPublicGet<PublicDonationConfig>('/public/donation-config', locale);
+  const config = await apiPublicGet<unknown>('/public/donation-config', locale);
+  if (!isPublicDonationConfig(config)) {
+    throw new Error(locale === 'fr' ? 'La configuration des dons est indisponible.' : 'Donation configuration is unavailable.');
+  }
+  return config;
 }
 
 export async function apiCreateDonationIntent(

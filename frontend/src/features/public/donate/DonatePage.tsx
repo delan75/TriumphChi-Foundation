@@ -186,6 +186,8 @@ export function DonatePage({ locale, page }: DonatePageProps) {
             copy={copy}
             config={donationConfig.data}
             isConfigLoading={donationConfig.isLoading}
+            isConfigError={donationConfig.isError}
+            onRetryConfig={() => void donationConfig.refetch()}
             locale={locale}
             className="order-1 lg:sticky lg:top-24 lg:order-2"
           />
@@ -312,12 +314,16 @@ function DonationCard({
   copy,
   config,
   isConfigLoading,
+  isConfigError,
+  onRetryConfig,
   locale,
   className,
 }: {
   copy: DonateCopy;
   config?: PublicDonationConfig;
   isConfigLoading: boolean;
+  isConfigError: boolean;
+  onRetryConfig: () => void;
   locale: Locale;
   className?: string;
 }) {
@@ -353,7 +359,7 @@ function DonationCard({
   const [createdIntentUuid, setCreatedIntentUuid] = useState<string | null>(null);
   const [createdIntentStatus, setCreatedIntentStatus] = useState<string | null>(null);
 
-  const currencyConfig = config?.currencies[state.currency];
+  const currencyConfig = config?.currencies?.[state.currency];
   const suggestedAmounts = currencyConfig?.suggested_amounts ?? [];
   const supportedProviders = useMemo(
     () => filterProviders(config?.payment_providers ?? [], state.currency, state.country),
@@ -784,6 +790,20 @@ function DonationCard({
     } finally {
       setIsSendingMomoSupportNote(false);
     }
+  }
+
+  if (isConfigError && !config) {
+    return (
+      <section aria-label={copy.formTitle} className={cn('rounded-md border border-foundation-100 bg-white p-6 shadow-xl', className)}>
+        <h2 className="text-2xl font-black text-ink-900">{copy.formTitle}</h2>
+        <p role="alert" className="mt-3 text-sm leading-6 text-ink-700">
+          {locale === 'fr' ? 'Le formulaire de don est temporairement indisponible. Veuillez réessayer.' : 'The donation form is temporarily unavailable. Please try again.'}
+        </p>
+        <button type="button" onClick={onRetryConfig} className="focus-ring mt-4 min-h-11 rounded-md bg-foundation-600 px-4 font-bold text-white">
+          {locale === 'fr' ? 'Réessayer' : 'Try again'}
+        </button>
+      </section>
+    );
   }
 
   if (isConfigLoading || !config) {

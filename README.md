@@ -230,6 +230,10 @@ Copy `frontend/.env.example` and configure:
 
 Frontend environment values are embedded at build time. Rebuild after changing them, and never put secrets in `VITE_*` variables. The backend must allow the frontend origin in its CORS configuration.
 
+Production builds use the public API URL in `frontend/.env.production`: `https://api.triumphchi.org/api/v1`. Local development uses `.env`; build-server environment variables can override either file. Ensure any deployment-level `VITE_API_BASE_URL` uses the production API origin, then rebuild and publish the complete `dist/` directory.
+
+For donation setup, `${VITE_API_BASE_URL}/public/donation-config` must return the Laravel JSON configuration. If the donation form reports that it is unavailable, verify this response and the API routing before rebuilding. API requests must reach the backend before any SPA fallback rule.
+
 ### Frontend Checks and Deployment
 
 Run from `frontend/`:
