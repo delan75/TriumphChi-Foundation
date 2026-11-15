@@ -13,7 +13,7 @@ export function Seo({ meta, structuredData }: SeoProps) {
     const pageUrl = localizedUrl(meta.locale, meta.path[meta.locale]);
     const image = absoluteUrl(meta.image ?? siteConfig.defaultImage);
     const imageAlt = meta.imageAlt ?? siteConfig.defaultImageAlt;
-    const title = formatTitle(meta.title);
+    const title = formatTitle(meta.title, meta.locale);
 
     document.documentElement.lang = meta.locale;
     document.title = title;

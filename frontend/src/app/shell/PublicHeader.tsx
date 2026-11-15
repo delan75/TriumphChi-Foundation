@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { HeartHandshake, Menu, ShieldCheck, UserRound, X } from 'lucide-react';
+import { HeartHandshake, Mail, Menu, Phone, ShieldCheck, UserRound, X } from 'lucide-react';
 import { cn } from '../../components/ui/cn';
 import { publicNavigation, publicPages } from '../../content/publicPages';
 import { Locale, t } from '../../lib/i18n';
 import { LocaleSelector } from '../../components/ui/LocaleSelector';
 import { buildAuthPath, isAuthenticated } from '../../lib/auth';
+import { publicContact } from '../../lib/publicContact';
 
 interface PublicHeaderProps {
   locale: Locale;
@@ -13,6 +14,8 @@ interface PublicHeaderProps {
 
 export function PublicHeader({ locale }: PublicHeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const location = useLocation();
   const donatePath = `/${locale}${publicPages.find((page) => page.key === 'donate')?.path[locale] ?? '/donate'}`;
   const authState = isAuthenticated() || readPublicAuthState();

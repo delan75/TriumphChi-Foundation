@@ -116,7 +116,7 @@ class PublicContactMessageTest extends TestCase
         $this->assertDatabaseCount('contact_message_attachments', 0);
     }
 
-    public function test_public_contact_message_accepts_text_file_containing_sql_keywords(): void
+    public function test_public_contact_message_accepts_text_file_with_sql_words(): void
     {
         Storage::fake('local');
 
@@ -173,6 +173,7 @@ class PublicContactMessageTest extends TestCase
     public function test_public_contact_message_rejects_draft_paths_outside_expected_folder(): void
     {
         Storage::fake('local');
+        Storage::disk('local')->put('drafts/contact-messages/file.pdf', 'dummy');
 
         $this->postJson('/api/v1/public/contact-messages', [
             'name' => 'Path Sender',

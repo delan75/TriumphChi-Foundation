@@ -81,7 +81,7 @@ export function validateDob(
   }
 
   // Year bounds
-  if (Number.isNaN(y) || y < MIN_YEAR || y > new Date().getFullYear()) {
+  if (Number.isNaN(y) || y < MIN_YEAR || y > new Date().getFullYear() + 1) {
     return msgs.tooOld;
   }
 
@@ -219,8 +219,6 @@ export function DateOfBirthInput({
     setMonth(digits);
     emit(day, digits, year);
 
-    // Auto-advance: 2 digits entered, or single leading digit > 1
-    // (months are 01-12, so 2-9 can only be single-digit months).
     if (digits.length === 2 || (digits.length === 1 && parseInt(digits, 10) > 1)) {
       yearRef.current?.focus();
       yearRef.current?.select();
@@ -273,7 +271,7 @@ export function DateOfBirthInput({
     segmentBase,
     hasError || (touched && !value) ? segmentError : segmentNormal,
   );
-  
+
   return (
     <fieldset className={cn('min-w-0', className)} aria-required={required || undefined}>
       <legend className="block text-sm font-bold text-ink-700">

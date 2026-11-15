@@ -182,6 +182,8 @@ Beneficiary records are private. Public pages use curated content and aggregate 
 
 ## Local Development
 
+Use PHP 8.2 or later, Composer, MySQL, and Node.js 24. Start the API before testing frontend workflows that need backend data.
+
 Backend:
 
 ```bash
@@ -191,14 +193,15 @@ cp .env.example .env
 php artisan key:generate
 php artisan migrate --seed
 php artisan test
-php artisan serve
+php artisan serve --port=9000
 ```
 
 Frontend:
 
 ```bash
 cd frontend
-npm install
+cp .env.example .env
+npm ci
 npm run dev
 ```
 
@@ -220,6 +223,7 @@ Copy `backend/.env.example` and configure:
 
 Copy `frontend/.env.example` and configure:
 
+- `VITE_API_BASE_URL` (defaults in the example to `http://localhost:9000/api/v1`; match the backend port)
 - `VITE_PUBLIC_CONTACT_EMAIL`
 - `VITE_PUBLIC_CONTACT_PHONE_DISPLAY`
 - `VITE_PUBLIC_CONTACT_PHONE_TEL`

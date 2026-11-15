@@ -8,6 +8,7 @@ interface LocaleSelectorProps {
   locale: Locale;
   currentPath?: string;
   theme?: 'light' | 'dark';
+  openAbove?: boolean;
 }
 
 export function LocaleSelector({
@@ -47,8 +48,8 @@ export function LocaleSelector({
     const handleScrollOrResize = () => {
       if (isOpen && buttonRef.current) {
         const rect = buttonRef.current.getBoundingClientRect();
-        const dropdownHeight = 110;
-        const dropdownWidth = 192;
+        const dropdownHeight = (dropdownRef.current?.scrollHeight ?? 192) + 8;
+        const dropdownWidth = dropdownRef.current?.offsetWidth ?? 192;
 
         const spaceBelow = window.innerHeight - rect.bottom;
         const spaceAbove = rect.top;
@@ -94,7 +95,7 @@ export function LocaleSelector({
             ? 'border-white/20 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm'
             : 'border-ink-100 bg-white text-ink-700 hover:border-foundation-100 hover:bg-foundation-50',
         )}
-        aria-label="Language selector"
+        aria-label={`${locale.toUpperCase()} — ${locale === 'fr' ? 'Choisir la langue' : 'Choose language'}`}
         aria-haspopup="true"
         aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
@@ -116,6 +117,7 @@ export function LocaleSelector({
 
       <div
         ref={dropdownRef}
+        hidden={!isOpen}
         className={cn(
           'absolute z-50 w-48 overflow-hidden rounded-md border shadow-lg transition-all duration-200',
           !openAbove && position.vertical === 'bottom'

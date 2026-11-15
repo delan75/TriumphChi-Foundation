@@ -208,8 +208,8 @@ export const publicPages: PublicPageDefinition[] = [
       fr: "Decouvrez comment le soutien scolaire aide les enfants a rester a l'ecole, les familles a retrouver l'espoir et les communautes a avancer ensemble.",
     },
     seoTitle: {
-      en: 'Impact | TriumphChi Foundation',
-      fr: 'Impact | Fondation TriumphChi',
+      en: 'Education Impact in Cameroon | TriumphChi Foundation',
+      fr: 'Impact éducatif au Cameroun | Fondation TriumphChi',
     },
     seoDescription: {
       en: 'Explore the impact of TriumphChi Foundation education support in rural Cameroon, including children supported, partner schools, stories of progress, and responsible stewardship.',
