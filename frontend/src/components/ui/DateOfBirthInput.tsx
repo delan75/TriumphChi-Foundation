@@ -273,9 +273,7 @@ export function DateOfBirthInput({
     segmentBase,
     hasError || (touched && !value) ? segmentError : segmentNormal,
   );
-  const isSegmentEmpty = !day && !month && !year;
-  const segmentClass = cn(segmentBase, hasError || (touched && isSegmentEmpty) ? segmentError : segmentNormal);
-
+  
   return (
     <fieldset className={cn('min-w-0', className)} aria-required={required || undefined}>
       <legend className="block text-sm font-bold text-ink-700">
