@@ -24,14 +24,16 @@ class StorePublicDonationIntentRequest extends FormRequest
             ->pluck('key')
             ->all();
 
+        $isAnonymous = $this->boolean('anonymous');
+
         return [
             'frequency' => ['required', 'string', Rule::in($frequencies)],
             'currency' => ['required', 'string', Rule::in($currencies)],
             'amount' => ['required', 'numeric', 'min:0.01'],
             'purpose' => ['required', 'string', Rule::in($purposes)],
             'payment_provider' => ['required', 'string', Rule::in($providers)],
-            'donor.name' => ['required', 'string', 'max:180'],
-            'donor.email' => ['required', 'email', 'max:180'],
+            'donor.name' => $isAnonymous ? ['nullable', 'string', 'max:180'] : ['required', 'string', 'max:180'],
+            'donor.email' => $isAnonymous ? ['nullable', 'email', 'max:180'] : ['required', 'email', 'max:180'],
             'donor.phone' => ['nullable', 'string', 'max:40'],
             'donor.country' => ['required', 'string', 'size:2'],
             'anonymous' => ['sometimes', 'boolean'],

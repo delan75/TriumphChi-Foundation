@@ -58,6 +58,7 @@ class PublicDonationService
                 'label' => __('labels.donation_purposes.'.$purpose['key'], [], app()->getLocale()) ?: $purpose['label'],
             ])->values(),
             'payment_providers' => $providers,
+            'bank_transfer' => config('donations.bank_transfer'),
         ];
     }
 
@@ -125,6 +126,18 @@ class PublicDonationService
             return $this->paypal->initiate($intent, $data['donor']);
         }
 
+        if ($intent->provider->key === 'bank_transfer') {
+            $donorEmail = $data['donor']['email'] ?? null;
+            if (! empty($donorEmail) && filter_var($donorEmail, FILTER_VALIDATE_EMAIL) && config('donations.bank_transfer.email_instructions', true)) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($donorEmail)
+                        ->send(new \App\Mail\BankTransferInstructionsMail($intent->donation, config('donations.bank_transfer', [])));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to send bank transfer instructions email: '.$e->getMessage());
+                }
+            }
+        }
+
         return $intent;
     }
 
@@ -146,13 +159,18 @@ class PublicDonationService
 
     private function findSimilarPendingDonation(array $data): ?Donation
     {
+        $email = $data['donor']['email'] ?? null;
+        if (blank($email)) {
+            return null;
+        }
+
         return Donation::query()
             ->where('amount', $data['amount'])
             ->where('currency', $data['currency'])
             ->where('provider', $data['payment_provider'])
             ->where('status', 'pending')
             ->where('created_at', '>=', now()->subMinutes(30))
-            ->whereHas('donor', fn ($query) => $query->where('email', strtolower($data['donor']['email'])))
+            ->whereHas('donor', fn ($query) => $query->where('email', strtolower($email)))
             ->with(['donor', 'paymentIntents.provider'])
             ->latest()
             ->first();
@@ -213,30 +231,50 @@ class PublicDonationService
 
     private function findOrCreateDonor(array $donorData, bool $anonymous): Donor
     {
-        $donor = Donor::firstOrCreate(
-            ['email' => strtolower($donorData['email'])],
-            [
-                'name' => $donorData['name'],
-                'phone' => $donorData['phone'] ?? null,
-                'type' => 'individual',
-                'status' => 'active',
-                'communication_preferences' => [
-                    'country' => strtoupper($donorData['country']),
-                    'anonymous_giving' => $anonymous,
-                    'source' => 'public_donate_page',
+        $email = ! empty($donorData['email']) ? strtolower(trim($donorData['email'])) : null;
+        $name = ! empty($donorData['name']) ? trim($donorData['name']) : ($anonymous ? 'Anonymous Donor' : 'Valued Donor');
+        $phone = ! empty($donorData['phone']) ? trim($donorData['phone']) : null;
+        $country = ! empty($donorData['country']) ? strtoupper(trim($donorData['country'])) : 'CM';
+
+        if ($email) {
+            $donor = Donor::firstOrCreate(
+                ['email' => $email],
+                [
+                    'name' => $name,
+                    'phone' => $phone,
+                    'type' => 'individual',
+                    'status' => 'active',
+                    'communication_preferences' => [
+                        'country' => $country,
+                        'anonymous_giving' => $anonymous,
+                        'source' => 'public_donate_page',
+                    ],
                 ],
+            );
+
+            $donor->fill([
+                'name' => $name,
+                'phone' => $phone ?? $donor->phone,
+                'communication_preferences' => array_merge($donor->communication_preferences ?? [], [
+                    'country' => $country,
+                    'anonymous_giving' => $anonymous,
+                ]),
+            ])->save();
+
+            return $donor;
+        }
+
+        return Donor::create([
+            'name' => $name,
+            'email' => null,
+            'phone' => $phone,
+            'type' => 'individual',
+            'status' => 'active',
+            'communication_preferences' => [
+                'country' => $country,
+                'anonymous_giving' => true,
+                'source' => 'public_donate_page',
             ],
-        );
-
-        $donor->fill([
-            'name' => $donorData['name'],
-            'phone' => $donorData['phone'] ?? $donor->phone,
-            'communication_preferences' => array_merge($donor->communication_preferences ?? [], [
-                'country' => strtoupper($donorData['country']),
-                'anonymous_giving' => $anonymous,
-            ]),
-        ])->save();
-
-        return $donor;
+        ]);
     }
 }
