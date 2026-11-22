@@ -68,4 +68,14 @@ return [
             'country_codes' => ['*'],
         ],
     ],
+
+    'bank_transfer' => [
+        'bank_name' => env('DONATION_BANK_NAME', 'Afriland First Bank'),
+        'account_name' => env('DONATION_BANK_ACCOUNT_NAME', 'TriumphChi Foundation'),
+        'account_number' => env('DONATION_BANK_ACCOUNT_NUMBER', '10005 00001 01234567890 12'),
+        'iban' => env('DONATION_BANK_IBAN', 'CM21 1000 5000 0101 2345 6789 012'),
+        'swift_bic' => env('DONATION_BANK_SWIFT', 'AFRICMCX'),
+        'branch' => env('DONATION_BANK_BRANCH', 'Yaounde Central Branch'),
+        'email_instructions' => (bool) env('DONATION_BANK_EMAIL_INSTRUCTIONS', true),
+    ],
 ];

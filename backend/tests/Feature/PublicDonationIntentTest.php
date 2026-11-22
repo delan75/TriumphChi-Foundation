@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Mail\BankTransferInstructionsMail;
 use App\Models\Donation;
 use App\Models\Donor;
 use App\Models\PaymentIntent;
@@ -11,6 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
@@ -111,6 +113,79 @@ class PublicDonationIntentTest extends TestCase
         $this->assertSame(1, Donation::count());
         $this->assertSame(1, PaymentProvider::count());
         $this->assertSame(1, PaymentIntent::count());
+    }
+
+    public function test_public_donation_intent_allows_anonymous_giving_without_name_and_email(): void
+    {
+        $payload = [
+            'frequency' => 'one_time',
+            'currency' => 'USD',
+            'amount' => 50,
+            'purpose' => 'general_education',
+            'payment_provider' => 'cards',
+            'donor' => [
+                'country' => 'US',
+            ],
+            'anonymous' => true,
+        ];
+
+        $this->postJson('/api/v1/public/donation-intents', $payload)
+            ->assertCreated()
+            ->assertJsonPath('data.currency', 'USD')
+            ->assertJsonPath('data.amount', '50.00')
+            ->assertJsonPath('data.payment_provider.key', 'cards');
+
+        $this->assertDatabaseHas('donors', [
+            'name' => 'Anonymous Donor',
+            'email' => null,
+        ]);
+
+        $this->assertDatabaseHas('donations', [
+            'amount' => 50,
+            'currency' => 'USD',
+            'provider' => 'cards',
+            'status' => 'pending',
+        ]);
+    }
+
+    public function test_public_donation_intent_creates_bank_transfer_intent_and_sends_email(): void
+    {
+        Mail::fake();
+
+        $payload = [
+            'frequency' => 'one_time',
+            'currency' => 'USD',
+            'amount' => 100,
+            'purpose' => 'greatest_need',
+            'payment_provider' => 'bank_transfer',
+            'donor' => [
+                'name' => 'Wire Donor',
+                'email' => 'wiredonor@example.com',
+                'country' => 'US',
+            ],
+            'anonymous' => false,
+        ];
+
+        $response = $this->postJson('/api/v1/public/donation-intents', $payload)
+            ->assertCreated()
+            ->assertJsonPath('data.payment_provider.key', 'bank_transfer')
+            ->assertJsonStructure([
+                'data' => [
+                    'uuid',
+                    'intent_reference',
+                    'bank_transfer' => [
+                        'bank_name',
+                        'account_name',
+                        'account_number',
+                    ],
+                ],
+            ]);
+
+        Mail::assertSent(BankTransferInstructionsMail::class, function (BankTransferInstructionsMail $mail) {
+            return $mail->hasTo('wiredonor@example.com') &&
+                   $mail->donation->amount == 100 &&
+                   !empty($mail->bankDetails['account_number']);
+        });
     }
 
     public function test_public_donation_intent_rejects_amount_below_currency_minimum(): void
