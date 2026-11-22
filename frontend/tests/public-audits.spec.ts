@@ -41,6 +41,30 @@ test('discovery endpoints serve Markdown and JSON rather than the SPA shell', as
     catalogs.push(catalog);
   }
   expect(catalogs[0]).toEqual(catalogs[1]);
+
+  const ardManifests = [];
+  for (const url of ['/ard.json', '/.well-known/ard.json']) {
+    const response = await request.get(url);
+    expect(response.ok()).toBe(true);
+    expect(response.headers()['content-type']).toContain('json');
+    const manifest = await response.json();
+    expect(Array.isArray(manifest.entries)).toBe(true);
+    expect(manifest.entries.length).toBeGreaterThan(0);
+    for (const entry of manifest.entries) {
+      expect(entry.identifier).toMatch(/^urn:air:triumphchi\.org:/);
+      expect(typeof entry.displayName).toBe('string');
+      expect(typeof entry.type).toBe('string');
+      expect(typeof entry.url).toBe('string');
+      expect(entry.url).toMatch(/^https:\/\/(triumphchi\.org|api\.triumphchi\.org)\//);
+      expect(typeof entry.description).toBe('string');
+      expect(Array.isArray(entry.tags)).toBe(true);
+      expect(Array.isArray(entry.representativeQueries)).toBe(true);
+      expect(entry.representativeQueries.length).toBeGreaterThanOrEqual(2);
+      expect(entry.representativeQueries.length).toBeLessThanOrEqual(5);
+    }
+    ardManifests.push(manifest);
+  }
+  expect(ardManifests[0]).toEqual(ardManifests[1]);
 });
 
 for (const locale of ['en', 'fr']) {

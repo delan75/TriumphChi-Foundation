@@ -1,0 +1,186 @@
+{
+  "entries": [
+    {
+      "identifier": "urn:air:triumphchi.org:website:home",
+      "displayName": "TriumphChi Foundation",
+      "type": "text/html",
+      "url": "https://triumphchi.org/en",
+      "description": "Official website and overview of TriumphChi Foundation, dedicated to supporting orphaned and vulnerable children in rural Cameroon with school needs, community care, and dignified assistance.",
+      "tags": ["nonprofit", "foundation", "NGO", "charity", "Cameroon", "education"],
+      "representativeQueries": [
+        "What is TriumphChi Foundation and what does it do?",
+        "Tell me about the mission and activities of TriumphChi Foundation.",
+        "How does TriumphChi Foundation support vulnerable children in Cameroon?"
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:organization:about",
+      "displayName": "About TriumphChi Foundation",
+      "type": "text/html",
+      "url": "https://triumphchi.org/en/about",
+      "description": "Background, mission, vision, values, and community partnership approach of TriumphChi Foundation.",
+      "tags": ["about", "organization", "mission", "vision", "values"],
+      "representativeQueries": [
+        "What is the history and background of TriumphChi Foundation?",
+        "What are the core values and mission of TriumphChi Foundation?",
+        "Who founded TriumphChi Foundation and why?"
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:programs:education",
+      "displayName": "Educational Programs and Support Initiatives",
+      "type": "text/html",
+      "url": "https://triumphchi.org/en/programs",
+      "description": "Information on educational assistance programs including school tuition, textbooks, uniforms, exam fees, mentorship, and school partnerships.",
+      "tags": ["programs", "education", "schooling", "mentorship", "child-welfare"],
+      "representativeQueries": [
+        "What educational programs does TriumphChi Foundation offer?",
+        "How does TriumphChi Foundation keep children in school?",
+        "What school supplies and assistance are provided to children?"
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:impact:outcomes",
+      "displayName": "Foundation Impact and Evidence",
+      "type": "text/html",
+      "url": "https://triumphchi.org/en/impact",
+      "description": "Public impact information, verified educational progress, partner schools reached, and transparent reporting on community outcomes.",
+      "tags": ["impact", "reporting", "transparency", "metrics", "education-outcomes"],
+      "representativeQueries": [
+        "What impact has TriumphChi Foundation achieved?",
+        "How many children and partner schools does the foundation support?",
+        "How does TriumphChi Foundation track its educational impact?"
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:donations:public",
+      "displayName": "Donation Information and Options",
+      "type": "text/html",
+      "url": "https://triumphchi.org/en/donate",
+      "description": "Public donation portal providing giving options, supported currencies, payment methods, and education sponsorship options.",
+      "tags": ["donations", "fundraising", "giving", "support"],
+      "representativeQueries": [
+        "How can I donate to TriumphChi Foundation?",
+        "What payment methods and currencies are supported for donations?",
+        "How are donor funds used to support children?"
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:sponsorship:child",
+      "displayName": "Child Sponsorship Program",
+      "type": "text/html",
+      "url": "https://triumphchi.org/en/sponsor-a-child",
+      "description": "Guidance on sponsoring an orphaned or vulnerable child's education and basic learning needs with dignity and child-protection safeguards.",
+      "tags": ["sponsorship", "sponsor-a-child", "education-support", "mentorship"],
+      "representativeQueries": [
+        "How does child sponsorship work with TriumphChi Foundation?",
+        "Can I sponsor a vulnerable child's schooling in Cameroon?",
+        "What does child sponsorship cover?"
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:partnerships:corporate",
+      "displayName": "Corporate and Community Partnerships",
+      "type": "text/html",
+      "url": "https://triumphchi.org/en/corporate-partnerships",
+      "description": "Opportunities for businesses, churches, and civic institutions to partner with TriumphChi Foundation on educational and community initiatives.",
+      "tags": ["partnerships", "corporate-social-responsibility", "collaboration", "CSR"],
+      "representativeQueries": [
+        "How can companies or institutions partner with TriumphChi Foundation?",
+        "What corporate social responsibility partnership opportunities are available?",
+        "How can organizations collaborate on school infrastructure or educational funds?"
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:application:education-support",
+      "displayName": "Public Education Support Application",
+      "type": "text/html",
+      "url": "https://triumphchi.org/en/apply",
+      "description": "Public intake portal to request educational support for orphaned or vulnerable children in rural Cameroon for intake review.",
+      "tags": ["apply", "application", "intake", "education-aid"],
+      "representativeQueries": [
+        "How do I request education support for a child in Cameroon?",
+        "Where can guardians or schools apply for education aid?",
+        "What is the application process for child support?"
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:publications:blog",
+      "displayName": "Foundation Field Notes and Blog",
+      "type": "text/html",
+      "url": "https://triumphchi.org/en/blog",
+      "description": "Field notes, educational perspectives, program updates, and articles from TriumphChi Foundation.",
+      "tags": ["blog", "publications", "articles", "stories", "insights"],
+      "representativeQueries": [
+        "Where can I read news and articles from TriumphChi Foundation?",
+        "What are the latest field updates from Cameroon?",
+        "Find blog posts from TriumphChi Foundation."
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:contact:public",
+      "displayName": "Public Contact Information",
+      "type": "text/html",
+      "url": "https://triumphchi.org/en/contact",
+      "description": "Public communication channels, contact forms, verified email, and phone contact for TriumphChi Foundation.",
+      "tags": ["contact", "inquiries", "support", "email"],
+      "representativeQueries": [
+        "How do I contact TriumphChi Foundation?",
+        "What is the email and phone number for TriumphChi Foundation?",
+        "Where is TriumphChi Foundation located?"
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:policy:privacy",
+      "displayName": "Privacy and Child Protection Policy",
+      "type": "text/html",
+      "url": "https://triumphchi.org/en/privacy-policy",
+      "description": "Privacy policy detailing data governance, donor privacy, child protection safeguards, and information handling practices.",
+      "tags": ["privacy", "policy", "child-protection", "data-governance"],
+      "representativeQueries": [
+        "What is TriumphChi Foundation's privacy and data protection policy?",
+        "How does TriumphChi Foundation protect child data and beneficiary privacy?",
+        "How are donor and user personal information safeguarded?"
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:documentation:llms",
+      "displayName": "TriumphChi Foundation AI Documentation (llms.txt)",
+      "type": "text/plain",
+      "url": "https://triumphchi.org/llms.txt",
+      "description": "Machine-readable public documentation giving an architectural and contextual overview of TriumphChi Foundation for AI agents and LLMs.",
+      "tags": ["documentation", "AI", "llm", "context", "machine-readable"],
+      "representativeQueries": [
+        "Where can AI agents find documentation about TriumphChi Foundation?",
+        "What public information and resources does TriumphChi Foundation provide?",
+        "Find machine-readable documentation about TriumphChi Foundation."
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:api:donation-config",
+      "displayName": "Public Donation Configuration API",
+      "type": "application/json",
+      "url": "https://api.triumphchi.org/api/v1/public/donation-config",
+      "description": "Public REST API endpoint returning supported currencies, suggested donation amounts, frequencies, purposes, and active payment providers.",
+      "tags": ["api", "donations", "configuration", "payments", "json"],
+      "representativeQueries": [
+        "What currencies and payment gateways are currently active on the donation API?",
+        "Retrieve the JSON configuration for donating to TriumphChi Foundation.",
+        "What donation frequencies and purposes are accepted?"
+      ]
+    },
+    {
+      "identifier": "urn:air:triumphchi.org:api:impact-summary",
+      "displayName": "Public Impact Summary API",
+      "type": "application/json",
+      "url": "https://api.triumphchi.org/api/v1/public/impact-summary",
+      "description": "Public REST API endpoint returning aggregated educational metrics including children supported, partner schools, and regions reached.",
+      "tags": ["api", "impact", "metrics", "statistics", "json"],
+      "representativeQueries": [
+        "What are the latest verified impact metrics in JSON format?",
+        "Retrieve the public aggregate statistics for TriumphChi Foundation.",
+        "How many children and partner schools are currently recorded?"
+      ]
+    }
+  ]
+}

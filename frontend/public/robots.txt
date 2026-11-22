@@ -18,3 +18,4 @@ Disallow: /en/oauth/
 Disallow: /fr/oauth/
 
 Sitemap: https://triumphchi.org/sitemap.xml
+Agentmap: https://triumphchi.org/.well-known/ard.json
