@@ -63,19 +63,21 @@ const checks = [
       }
     },
   ],
-  ...['/ai-catalog.json', '/.well-known/ai-catalog.json'].map((path) => [
-    path,
-    async () => {
-      const { response, text } = await get(path);
-      if (!/json/.test(response.headers.get('content-type') ?? ''))
-        throw new Error(`${path}: expected JSON content type, not an HTML fallback.`);
-      const expected = JSON.parse(
-        await readFile(new URL(`../public${path}`, import.meta.url), 'utf8'),
-      );
-      if (JSON.stringify(JSON.parse(text)) !== JSON.stringify(expected))
-        throw new Error(`${path}: does not match the checked-in catalog.`);
-    },
-  ]),
+  ...['/ai-catalog.json', '/.well-known/ai-catalog.json', '/ard.json', '/.well-known/ard.json'].map(
+    (path) => [
+      path,
+      async () => {
+        const { response, text } = await get(path);
+        if (!/json/.test(response.headers.get('content-type') ?? ''))
+          throw new Error(`${path}: expected JSON content type, not an HTML fallback.`);
+        const expected = JSON.parse(
+          await readFile(new URL(`../public${path}`, import.meta.url), 'utf8'),
+        );
+        if (JSON.stringify(JSON.parse(text)) !== JSON.stringify(expected))
+          throw new Error(`${path}: does not match the checked-in catalog.`);
+      },
+    ],
+  ),
 ];
 
 const results = await Promise.allSettled(

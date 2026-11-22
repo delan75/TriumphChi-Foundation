@@ -66,5 +66,16 @@ export function isPublicDonationConfig(value: unknown): value is PublicDonationC
         typeof value.detected_country.country !== 'string'))
   )
     return false;
+  if (
+    value.bank_transfer !== undefined &&
+    (!record(value.bank_transfer) ||
+      (value.bank_transfer.bank_name != null &&
+        typeof value.bank_transfer.bank_name !== 'string') ||
+      (value.bank_transfer.account_name != null &&
+        typeof value.bank_transfer.account_name !== 'string') ||
+      (value.bank_transfer.account_number != null &&
+        typeof value.bank_transfer.account_number !== 'string'))
+  )
+    return false;
   return true;
 }

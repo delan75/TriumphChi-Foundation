@@ -163,6 +163,7 @@ class PublicDonationController extends Controller
             'purpose' => $intent->purpose,
             'status' => $intent->status,
             'checkout_url' => $intent->checkout_url,
+            'bank_transfer' => $intent->provider->key === 'bank_transfer' ? config('donations.bank_transfer') : null,
             'expires_at' => $intent->expires_at,
         ];
     }
