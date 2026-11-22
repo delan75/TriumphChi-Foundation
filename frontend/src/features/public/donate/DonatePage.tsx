@@ -21,6 +21,7 @@ import { ImpactSummaryGrid, type ImpactSummaryItem } from '../../../components/p
 import { FaqSection, type FaqItem } from '../../../components/public/FaqSection';
 import { GivingChannels } from '../../../components/public/GivingChannels';
 import { MomoPaymentWaitingOverlay, type MomoPaymentOverlayStatus, type MomoPaymentWaitingOverlayCopy } from '../../../components/public/MomoPaymentWaitingOverlay';
+import { BankTransferModal } from '../../../components/public/BankTransferModal';
 import { PublicArticlePreviewGrid } from '../../../components/public/PublicArticlePreviewGrid';
 import { Seo } from '../../../components/seo/Seo';
 import { cn } from '../../../components/ui/cn';
@@ -34,6 +35,7 @@ import {
   type PublicDonationConfig,
   type PublicDonationIntentResponse,
   type PublicDonationProvider,
+  type PublicBankTransferDetails,
   type DonationDocumentRecord,
   apiGetDonationIntentStatus,
 } from '../../../lib/api';
@@ -358,6 +360,19 @@ function DonationCard({
   const [similarDonation, setSimilarDonation] = useState<SimilarDonationWarning | null>(null);
   const [createdIntentUuid, setCreatedIntentUuid] = useState<string | null>(null);
   const [createdIntentStatus, setCreatedIntentStatus] = useState<string | null>(null);
+  const [bankTransferModal, setBankTransferModal] = useState<{
+    isOpen: boolean;
+    referenceNumber: string;
+    amount: string;
+    currency: string;
+    bankDetails?: PublicBankTransferDetails | null;
+    donorEmail?: string;
+  }>({
+    isOpen: false,
+    referenceNumber: '',
+    amount: '',
+    currency: '',
+  });
 
   const currencyConfig = config?.currencies?.[state.currency];
   const suggestedAmounts = currencyConfig?.suggested_amounts ?? [];
@@ -424,7 +439,7 @@ function DonationCard({
   }, [config, state.paymentProvider, supportedProviders]);
 
   useEffect(() => {
-    if (!createdIntentUuid || createdIntentStatus !== 'pending') {
+    if (!createdIntentUuid || createdIntentStatus !== 'pending' || state.paymentProvider !== 'momo') {
       return;
     }
 
@@ -519,7 +534,7 @@ function DonationCard({
     }, 5000);
 
     return () => window.clearInterval(interval);
-  }, [copy, createdIntentStatus, createdIntentUuid, locale, momoPollingCycle]);
+  }, [copy, createdIntentStatus, createdIntentUuid, locale, momoPollingCycle, state.paymentProvider]);
 
   function updateField<K extends keyof DonationFormState>(field: K, value: DonationFormState[K]) {
     setState((current) => ({ ...current, [field]: value }));
@@ -534,6 +549,7 @@ function DonationCard({
     setMomoModalMessage('');
     setMomoPollingAttempt(0);
     setMomoSupportStatusMessage('');
+    setBankTransferModal((current) => ({ ...current, isOpen: false }));
     setSimilarDonation(null);
   }
 
@@ -555,6 +571,7 @@ function DonationCard({
     setIsSubmitting(true);
     setStatusMessage('');
     setStatusKind('');
+    setBankTransferModal((current) => ({ ...current, isOpen: false }));
     setMomoPollingAttempt(0);
     setMomoModalMessage('');
     setMomoStatusHistory([]);
@@ -589,8 +606,8 @@ function DonationCard({
           purpose: state.purpose,
           payment_provider: selectedProvider.key,
           donor: {
-            name: state.name.trim(),
-            email: state.email.trim(),
+            name: state.name.trim() || undefined,
+            email: state.email.trim() || undefined,
             phone: state.phone.trim() || undefined,
             country: state.country.trim().toUpperCase(),
           },
@@ -620,6 +637,16 @@ function DonationCard({
             checkedAt: new Date().toISOString(),
           },
         ]);
+      }
+      if (selectedProvider.key === 'bank_transfer') {
+        setBankTransferModal({
+          isOpen: true,
+          referenceNumber: response.data?.donation.reference_number ?? '',
+          amount: formatDonationAmountOnly(amountNumber || 0, locale),
+          currency: state.currency,
+          bankDetails: response.data?.bank_transfer ?? config?.bank_transfer ?? null,
+          donorEmail: state.email.trim() || undefined,
+        });
       }
       setStatusMessage(selectedProvider.key === 'momo' ? '' : response.data?.checkout_url ? copy.redirectingMessage : response.message || copy.intentCreatedMessage);
 
@@ -847,6 +874,16 @@ function DonationCard({
         amountLabel={copy.summaryAmount}
         providerLabel={copy.summaryProvider}
       />
+      <BankTransferModal
+        isOpen={bankTransferModal.isOpen}
+        onClose={() => setBankTransferModal((current) => ({ ...current, isOpen: false }))}
+        locale={locale}
+        referenceNumber={bankTransferModal.referenceNumber}
+        amount={bankTransferModal.amount}
+        currency={bankTransferModal.currency}
+        bankDetails={bankTransferModal.bankDetails}
+        donorEmail={bankTransferModal.donorEmail}
+      />
       <form
         onSubmit={handleSubmit}
         className={cn('rounded-md border border-foundation-100 bg-white p-4 shadow-xl shadow-foundation-950/10 sm:p-6', className)}
@@ -980,8 +1017,21 @@ function DonationCard({
         </fieldset>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <TextField id="donor-name" label={copy.nameLabel} value={state.name} error={errors.name} onChange={(value) => updateField('name', value)} />
-          <TextField id="donor-email" label={copy.emailLabel} value={state.email} error={errors.email} type="email" onChange={(value) => updateField('email', value)} />
+          <TextField
+            id="donor-name"
+            label={state.anonymous ? `${copy.nameLabel} (${copy.optionalLabel})` : copy.nameLabel}
+            value={state.name}
+            error={errors.name}
+            onChange={(value) => updateField('name', value)}
+          />
+          <TextField
+            id="donor-email"
+            label={state.anonymous ? `${copy.emailLabel} (${copy.optionalLabel})` : copy.emailLabel}
+            value={state.email}
+            error={errors.email}
+            type="email"
+            onChange={(value) => updateField('email', value)}
+          />
           <TextField
             id="donor-phone"
             label={copy.phoneLabel}
@@ -1060,7 +1110,7 @@ function DonationCard({
             className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-foundation-600 px-5 text-sm font-black text-white shadow-xs transition hover:bg-foundation-900 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <HandHeart className="h-4 w-4" aria-hidden="true" />}
-            {isSubmitting ? copy.submittingLabel : copy.submitLabel}
+            {isSubmitting ? copy.submittingLabel : (copy.submitLabels[state.paymentProvider] ?? copy.submitLabel)}
           </button>
           {statusMessage ? (
             <p
@@ -1536,12 +1586,18 @@ function validateDonation(
     errors.paymentProvider = copy.providerError;
   }
 
-  if (state.name.trim().length < 2) {
-    errors.name = copy.nameError;
-  }
+  if (!state.anonymous) {
+    if (state.name.trim().length < 2) {
+      errors.name = copy.nameError;
+    }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim())) {
-    errors.email = copy.emailError;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim())) {
+      errors.email = copy.emailError;
+    }
+  } else {
+    if (state.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim())) {
+      errors.email = copy.emailError;
+    }
   }
 
   if (!/^[A-Za-z]{2}$/.test(state.country.trim())) {
@@ -1691,6 +1747,8 @@ interface DonateCopy {
   impactMessage: string;
   submitLabel: string;
   submittingLabel: string;
+  optionalLabel: string;
+  submitLabels: Record<string, string>;
   fixErrorsMessage: string;
   intentCreatedMessage: string;
   redirectingMessage: string;
@@ -1886,6 +1944,13 @@ const donateCopy = {
       'Your gift could help provide learning materials, examination support, or educational assistance where it is most needed.',
     submitLabel: 'Give Securely',
     submittingLabel: 'Preparing donation...',
+    optionalLabel: 'Optional',
+    submitLabels: {
+      momo: 'Proceed with MoMo',
+      paypal: 'Proceed to PayPal',
+      bank_transfer: 'Get Bank Transfer Details',
+      cards: 'Give Securely with Card',
+    },
     fixErrorsMessage: 'Please review the highlighted details before continuing.',
     intentCreatedMessage: 'Thank you. Your donation has been prepared securely.',
     redirectingMessage: 'Thank you. Redirecting you to complete your gift.',
@@ -2101,6 +2166,13 @@ const donateCopy = {
       "Votre don peut aider a fournir du materiel, un soutien aux examens ou une aide scolaire la ou le besoin est le plus urgent.",
     submitLabel: 'Donner securise',
     submittingLabel: 'Preparation du don...',
+    optionalLabel: 'Optionnel',
+    submitLabels: {
+      momo: 'Payer par MoMo',
+      paypal: 'Continuer vers PayPal',
+      bank_transfer: 'Obtenir les coordonnées bancaires',
+      cards: 'Donner par carte en toute sécurité',
+    },
     fixErrorsMessage: 'Veuillez verifier les informations indiquees avant de continuer.',
     intentCreatedMessage: 'Merci. Votre don a ete prepare de maniere securisee.',
     redirectingMessage: 'Merci. Redirection pour terminer votre don.',

@@ -367,6 +367,16 @@ export interface PublicDonationProvider {
   country_currency_map?: Record<string, string> | null;
 }
 
+export interface PublicBankTransferDetails {
+  bank_name?: string;
+  account_name?: string;
+  account_number?: string;
+  iban?: string;
+  swift_bic?: string;
+  branch?: string;
+  email_instructions?: boolean;
+}
+
 export interface PublicDonationConfig {
   default_currency: string;
   default_frequency: string;
@@ -380,6 +390,7 @@ export interface PublicDonationConfig {
   currencies: Record<string, PublicDonationCurrencyConfig>;
   purposes: PublicDonationOption[];
   payment_providers: PublicDonationProvider[];
+  bank_transfer?: PublicBankTransferDetails;
 }
 
 export interface PublicDonationIntentPayload {
@@ -389,8 +400,8 @@ export interface PublicDonationIntentPayload {
   purpose: string;
   payment_provider: string;
   donor: {
-    name: string;
-    email: string;
+    name?: string;
+    email?: string;
     phone?: string;
     country: string;
   };
@@ -420,6 +431,7 @@ export interface PublicDonationIntentResponse {
   purpose: string;
   status: string;
   checkout_url?: string | null;
+  bank_transfer?: PublicBankTransferDetails | null;
   expires_at?: string | null;
 }
 
