@@ -1,3 +1,4 @@
+
 name: CodeQL
 
 on:
@@ -5,16 +6,19 @@ on:
     branches:
       - dev
       - main
+
   push:
     branches:
       - dev
       - main
+
   schedule:
     - cron: "34 2 * * 1"
 
 permissions:
   actions: read
   contents: read
+  security-events: write
 
 jobs:
   codeql-js-ts:
@@ -34,12 +38,4 @@ jobs:
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
         with:
-          output: codeql-results
-          upload: never
-
-      - name: Upload CodeQL SARIF artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: codeql-js-ts-sarif
-          path: codeql-results
-          if-no-files-found: error
+          category: "/language:javascript-typescript"
