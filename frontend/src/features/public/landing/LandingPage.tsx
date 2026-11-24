@@ -44,7 +44,7 @@ const assistanceIcons = [HandHeart, School, ShieldCheck, UsersRound];
 const workIcons = [HeartHandshake, BookOpen, UsersRound, GraduationCap];
 const impactIcons = [School, BookOpen, UsersRound, GraduationCap];
 const supportStepIcons = [HandHeart, ShieldCheck, BookOpen, HeartHandshake];
-const highPriorityImageProps = { fetchpriority: 'high' } as Record<string, string>;
+const highPriorityImageProps = { fetchPriority: 'high' } as Record<string, string>;
 
 interface PublicImpactSummary {
   data: {

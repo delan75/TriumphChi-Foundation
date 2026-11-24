@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\ApplicationStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreApplicationNoteRequest;
 use App\Http\Requests\StoreApplicationRequest;
 use App\Http\Requests\TransitionApplicationStatusRequest;
 use App\Http\Resources\ApplicationResource;
@@ -20,7 +21,7 @@ class ApplicationController extends Controller
         $this->authorize('viewAny', Application::class);
 
         $query = Application::query()
-            ->with(['region', 'village', 'school.region', 'school.village'])
+            ->with(['region', 'village', 'school.region', 'school.village', 'statusHistory.actor', 'notes.author'])
             ->latest();
 
         // Status filter: accepts comma-separated values, e.g. ?status=submitted,verification_pending
@@ -64,7 +65,7 @@ class ApplicationController extends Controller
         $this->authorize('view', $application);
 
         return $this->success(
-            ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village'])),
+            ApplicationResource::make($application->load(['region', 'village', 'school.region', 'school.village', 'statusHistory.actor', 'notes.author'])),
             __('api.applications.retrieved_single')
         );
     }
@@ -118,40 +119,89 @@ class ApplicationController extends Controller
         $next = ApplicationStatus::from($request->validated('status'));
         abort_unless($application->status->canTransitionTo($next), 422, __('api.applications.invalid_transition'));
         $previous = $application->status;
+        $noteText = $request->validated('notes');
+        $isPublic = $request->boolean('is_public', false);
 
-        DB::transaction(function () use ($application, $beneficiaries, $next, $previous, $request): void {
-            $application->update([
+        DB::transaction(function () use ($application, $beneficiaries, $next, $previous, $noteText, $isPublic, $request): void {
+            $updateData = [
                 'status' => $next,
-                'verification_notes' => $request->validated('notes') ?? $application->verification_notes,
                 'submitted_at' => $next === ApplicationStatus::Submitted ? now() : $application->submitted_at,
                 'verified_at' => $next === ApplicationStatus::Verified ? now() : $application->verified_at,
                 'reviewed_at' => in_array($next, [ApplicationStatus::Accepted, ApplicationStatus::Rejected], true)
                     ? now()
                     : $application->reviewed_at,
-            ]);
+            ];
+
+            if ($noteText !== null && $noteText !== '') {
+                if ($isPublic) {
+                    $updateData['public_comment'] = $noteText;
+                } else {
+                    $updateData['verification_notes'] = $noteText;
+                }
+            }
+
+            $application->update($updateData);
 
             $application->statusHistory()->create([
                 'from_status' => $previous->value,
                 'to_status' => $next->value,
                 'changed_by' => $request->user()?->id,
                 'changed_at' => now(),
-                'notes' => $request->validated('notes'),
+                'notes' => $noteText,
+                'is_public' => $isPublic,
                 'ip_address' => $request->ip(),
             ]);
+
+            if ($noteText !== null && $noteText !== '') {
+                $application->notes()->create([
+                    'user_id' => $request->user()?->id,
+                    'stage' => $next->value,
+                    'note' => $noteText,
+                    'is_public' => $isPublic,
+                ]);
+            }
 
             if ($next === ApplicationStatus::Accepted) {
                 $beneficiaries->createFromAcceptedApplication(
                     $application,
                     $request->user()?->id,
                     $request->ip(),
-                    $request->validated('notes')
+                    $noteText
                 );
             }
         });
 
         return $this->success(
-            ApplicationResource::make($application->fresh(['region', 'village', 'school.region', 'school.village', 'beneficiary'])),
+            ApplicationResource::make($application->fresh(['region', 'village', 'school.region', 'school.village', 'beneficiary', 'statusHistory.actor', 'notes.author'])),
             __('api.applications.transitioned')
+        );
+    }
+
+    public function storeNote(StoreApplicationNoteRequest $request, Application $application)
+    {
+        $this->authorize('addNote', $application);
+
+        $noteText = $request->validated('note');
+        $isPublic = $request->boolean('is_public', false);
+
+        DB::transaction(function () use ($application, $noteText, $isPublic, $request): void {
+            $application->notes()->create([
+                'user_id' => $request->user()?->id,
+                'stage' => $application->status->value,
+                'note' => $noteText,
+                'is_public' => $isPublic,
+            ]);
+
+            if ($isPublic) {
+                $application->update(['public_comment' => $noteText]);
+            } else {
+                $application->update(['verification_notes' => $noteText]);
+            }
+        });
+
+        return $this->created(
+            ApplicationResource::make($application->fresh(['region', 'village', 'school.region', 'school.village', 'beneficiary', 'statusHistory.actor', 'notes.author'])),
+            __('api.applications.note_added')
         );
     }
 

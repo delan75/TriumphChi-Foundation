@@ -32,6 +32,11 @@ class ApplicationPolicy
         return $user->can('applications.verify');
     }
 
+    public function addNote(User $user, Application $application): bool
+    {
+        return $user->can('applications.verify') || $user->can('applications.update');
+    }
+
     public function delete(User $user, Application $application): bool
     {
         return $user->can('applications.delete');

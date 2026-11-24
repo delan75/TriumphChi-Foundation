@@ -18,6 +18,7 @@ class TransitionApplicationStatusRequest extends FormRequest
         return [
             'status' => ['required', Rule::enum(ApplicationStatus::class)],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'is_public' => ['sometimes', 'boolean'],
         ];
     }
 }

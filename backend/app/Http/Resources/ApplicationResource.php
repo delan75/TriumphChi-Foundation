@@ -45,6 +45,49 @@ class ApplicationResource extends JsonResource
             'household_challenges' => $this->household_challenges,
             'intake_payload' => $this->intake_payload,
             'verification_notes' => $this->verification_notes,
+            'public_comment' => $this->public_comment,
+            'status_history' => $this->whenLoaded('statusHistory', function () {
+                return $this->statusHistory->map(function ($history) {
+                    $from = $history->from_status ? $this->normalizedLabelValue($history->from_status) : null;
+                    $to = $this->normalizedLabelValue($history->to_status);
+
+                    return [
+                        'id' => $history->id,
+                        'from_status' => $from,
+                        'from_status_label' => $from ? $this->localizedLabel('application_statuses', $from) : null,
+                        'to_status' => $to,
+                        'to_status_label' => $this->localizedLabel('application_statuses', $to),
+                        'changed_by' => $history->actor ? [
+                            'id' => $history->actor->id,
+                            'name' => $history->actor->name,
+                            'email' => $history->actor->email,
+                        ] : null,
+                        'changed_at' => $history->changed_at?->toISOString() ?? $history->created_at?->toISOString(),
+                        'reason' => $history->reason,
+                        'notes' => $history->notes,
+                        'is_public' => (bool) $history->is_public,
+                    ];
+                })->values();
+            }),
+            'notes' => $this->whenLoaded('notes', function () {
+                return $this->notes->map(function ($note) {
+                    $stage = $note->stage ? $this->normalizedLabelValue($note->stage) : null;
+
+                    return [
+                        'id' => $note->id,
+                        'user' => $note->author ? [
+                            'id' => $note->author->id,
+                            'name' => $note->author->name,
+                            'email' => $note->author->email,
+                        ] : null,
+                        'stage' => $stage,
+                        'stage_label' => $stage ? $this->localizedLabel('application_statuses', $stage) : null,
+                        'note' => $note->note,
+                        'is_public' => (bool) $note->is_public,
+                        'created_at' => $note->created_at?->toISOString(),
+                    ];
+                })->values();
+            }),
             'submitted_at' => $this->submitted_at,
             'verified_at' => $this->verified_at,
             'reviewed_at' => $this->reviewed_at,

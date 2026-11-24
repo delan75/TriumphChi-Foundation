@@ -68,7 +68,7 @@ export function BlogArticlePage({ locale }: BlogArticlePageProps) {
               alt=""
               className="h-full w-full object-cover opacity-55 saturate-[0.68]"
               loading="eager"
-              {...({ fetchpriority: 'high' } as Record<string, string>)}
+              {...({ fetchPriority: 'high' } as Record<string, string>)}
               decoding="async"
             />
             <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(8,36,31,0.96),rgba(8,36,31,0.74)_50%,rgba(8,36,31,0.42))]" />
