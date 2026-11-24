@@ -35,7 +35,10 @@ class PublicApplicationTrackingController extends Controller
                 'applicant_name' => $application->applicant_name,
                 'submitted_at' => $application->submitted_at?->toISOString(),
                 'reviewed_at' => $application->reviewed_at?->toISOString(),
-                'verification_notes' => $application->verification_notes,
+                'current_stage' => $application->status->value,
+                'current_stage_label' => __('labels.application_statuses.' . $application->status->value),
+                'public_comment' => $application->public_comment,
+                'verification_notes' => $application->public_comment,
             ],
         ]);
     }

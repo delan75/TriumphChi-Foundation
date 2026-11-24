@@ -30,6 +30,7 @@ class Application extends Model
         'needs_assessment',
         'intake_payload',
         'verification_notes',
+        'public_comment',
         'submitted_at',
         'verified_at',
         'reviewed_at',
@@ -81,7 +82,12 @@ class Application extends Model
 
     public function statusHistory()
     {
-        return $this->hasMany(ApplicationStatusHistory::class);
+        return $this->hasMany(ApplicationStatusHistory::class)->orderByDesc('changed_at');
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(ApplicationNote::class)->orderByDesc('created_at');
     }
 
     public function steps()
