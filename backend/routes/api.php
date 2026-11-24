@@ -255,6 +255,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::patch('applications/{application}/status', [ApplicationController::class, 'transition'])
             ->middleware('can:applications.verify');
 
+        Route::post('applications/{application}/notes', [ApplicationController::class, 'storeNote'])
+            ->middleware('can:applications.verify')
+            ->name('applications.notes.store');
+
         Route::apiResource('beneficiaries', BeneficiaryController::class)
             ->middlewareFor(['index', 'show'], 'can:beneficiaries.view')
             ->middlewareFor('store', 'can:beneficiaries.create')

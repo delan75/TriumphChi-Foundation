@@ -420,7 +420,7 @@ function ApplyFormHeader({
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div>
         <p className="text-sm font-black uppercase text-foundation-600">{copy.formEyebrow}</p>
-        <h2 className="mt-2 text-3xl font-black leading-tight text-ink-900">{copy.formTitle}</h2>
+        <h5 className="mt-2 font-black leading-tight text-ink-900">{copy.formTitle}</h5>
       </div>
       <div className="flex items-center gap-2">
         <StatusPill

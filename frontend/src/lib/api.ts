@@ -563,6 +563,37 @@ export interface PublicLookupResponse {
   count: number;
 }
 
+export interface ApplicationStatusHistoryItem {
+  id: number;
+  from_status: string | null;
+  from_status_label: string | null;
+  to_status: string;
+  to_status_label: string | null;
+  changed_by: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+  changed_at: string;
+  reason?: string | null;
+  notes?: string | null;
+  is_public: boolean;
+}
+
+export interface ApplicationNoteItem {
+  id: number;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+  stage: string | null;
+  stage_label: string | null;
+  note: string;
+  is_public: boolean;
+  created_at: string;
+}
+
 export interface ApplicationRecord {
   id: number;
   uuid: string;
@@ -587,11 +618,14 @@ export interface ApplicationRecord {
   household_challenges: string[] | null;
   intake_payload: Record<string, unknown> | null;
   verification_notes: string | null;
+  public_comment?: string | null;
   submitted_at: string | null;
   verified_at: string | null;
   reviewed_at: string | null;
   created_at: string;
   updated_at: string;
+  status_history?: ApplicationStatusHistoryItem[];
+  notes?: ApplicationNoteItem[];
   beneficiary?: {
     uuid: string;
     internal_id: string;
@@ -1577,14 +1611,29 @@ export async function apiTransitionApplicationStatus(
   uuid: string,
   status: string,
   notes?: string,
+  is_public = false,
 ): Promise<ApplicationRecord> {
   const response = await fetch(`${API_BASE_URL}/applications/${uuid}/status`, {
     method: 'PATCH',
     headers: buildHeaders({ 'Content-Type': 'application/json' }),
     credentials: 'include',
-    body: JSON.stringify({ status, notes }),
+    body: JSON.stringify({ status, notes, is_public }),
   });
   return parseJsonResponse<ApplicationRecord>(response, 'Failed to update application status.');
+}
+
+export async function apiAddApplicationNote(
+  uuid: string,
+  note: string,
+  is_public = false,
+): Promise<ApplicationRecord> {
+  const response = await fetch(`${API_BASE_URL}/applications/${uuid}/notes`, {
+    method: 'POST',
+    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    credentials: 'include',
+    body: JSON.stringify({ note, is_public }),
+  });
+  return parseJsonResponse<ApplicationRecord>(response, 'Failed to add application note.');
 }
 
 export async function apiGet<T>(path: string): Promise<T> {

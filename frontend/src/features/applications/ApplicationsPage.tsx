@@ -7,7 +7,10 @@ import {
   ChevronDown,
   ClipboardList,
   Download,
+  Globe,
   Loader2,
+  Lock,
+  MessageSquare,
   Phone,
   RefreshCcw,
   Search,
@@ -15,10 +18,12 @@ import {
   X,
 } from 'lucide-react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { MakeNotePublicConfirmModal } from '../../components/staff/MakeNotePublicConfirmModal';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { cn } from '../../components/ui/cn';
 import {
+  apiAddApplicationNote,
   apiDownloadApplicationPdf,
   apiListApplications,
   apiTransitionApplicationStatus,
@@ -116,6 +121,35 @@ const copy = {
       transitionSuccess: 'Status updated.',
       transitionError: 'Failed to update status.',
       noTransitions: 'No further actions available for this application.',
+      // Notes & Staff Comments
+      notesSectionTitle: 'Staff Notes & Deliberations',
+      notesSectionSubtitle:
+        'Internal observations and public remarks recorded by reviewers and staff.',
+      addNote: 'Add Note',
+      newNotePlaceholder:
+        'Write an internal staff observation, interview remark or review finding…',
+      makeNotePublicLabel: 'Make visible on public tracking page (applicant can see this note)',
+      makeTransitionPublicLabel: 'Make transition note visible on public tracking page',
+      publicNoteAlert:
+        'Public Note: This note will be visible to the applicant on their tracking page.',
+      internalBadge: 'Internal Note',
+      publicBadge: 'Public Note',
+      postingNote: 'Saving…',
+      postNote: 'Save Note',
+      noteSaved: 'Note recorded successfully.',
+      noteError: 'Failed to record note.',
+      noNotes: 'No notes recorded for this application yet.',
+      // Stage History & Audit Trail
+      auditTrailTitle: 'Stage History & Audit Trail',
+      auditTrailSubtitle:
+        'Chronological timeline of stage movements, timestamps, actors and stage notes.',
+      noHistory: 'No status history recorded.',
+      fromStatus: 'From',
+      toStatus: 'To',
+      changedBy: 'by',
+      systemActor: 'System',
+      // Current Public Message
+      currentPublicComment: 'Current Message on Public Tracking',
     },
   },
   fr: {
@@ -203,6 +237,37 @@ const copy = {
       transitionSuccess: 'Statut mis à jour.',
       transitionError: 'Échec de la mise à jour du statut.',
       noTransitions: 'Aucune action supplémentaire disponible pour cette demande.',
+      // Notes & Staff Comments
+      notesSectionTitle: 'Notes et délibérations du personnel',
+      notesSectionSubtitle:
+        'Observations internes et remarques publiques enregistrées par le personnel.',
+      addNote: 'Ajouter une note',
+      newNotePlaceholder:
+        "Rédigez une observation interne, une remarque d'entrevue ou une conclusion…",
+      makeNotePublicLabel:
+        'Rendre visible sur la page de suivi public (le demandeur peut voir cette note)',
+      makeTransitionPublicLabel:
+        'Rendre cette note de transition visible sur la page de suivi public',
+      publicNoteAlert:
+        'Note publique : cette note sera visible par le demandeur sur son portail de suivi.',
+      internalBadge: 'Note interne',
+      publicBadge: 'Note publique',
+      postingNote: 'Enregistrement…',
+      postNote: 'Enregistrer la note',
+      noteSaved: 'Note enregistrée avec succès.',
+      noteError: "Échec de l'enregistrement de la note.",
+      noNotes: 'Aucune note enregistrée pour cette demande pour le moment.',
+      // Stage History & Audit Trail
+      auditTrailTitle: "Historique des étapes et piste d'audit",
+      auditTrailSubtitle:
+        "Journal chronologique des changements d'étapes, horodatages, acteurs et notes.",
+      noHistory: 'Aucun historique de statut enregistré.',
+      fromStatus: 'De',
+      toStatus: 'À',
+      changedBy: 'par',
+      systemActor: 'Système',
+      // Current Public Message
+      currentPublicComment: 'Message actuel sur le suivi public',
     },
   },
 };
@@ -293,16 +358,39 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
     null,
   );
 
+  // New Note state
+  const [newNoteText, setNewNoteText] = useState('');
+  const [isNewNotePublic, setIsNewNotePublic] = useState(false);
+  const [isSavingNewNote, setIsSavingNewNote] = useState(false);
+
+  // Transition Note state
+  const [isTransitionPublic, setIsTransitionPublic] = useState(false);
+
+  // Modal state
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    target: 'new_note' | 'transition';
+  }>({
+    isOpen: false,
+    target: 'new_note',
+  });
+
   const transitions = TRANSITIONS[app.status] ?? [];
 
   async function doTransition(toStatus: string) {
     setTransitioning(true);
     setFeedback(null);
     try {
-      const updated = await apiTransitionApplicationStatus(app.uuid, toStatus, notes || undefined);
+      const updated = await apiTransitionApplicationStatus(
+        app.uuid,
+        toStatus,
+        notes || undefined,
+        isTransitionPublic,
+      );
       setFeedback({ type: 'success', text: panel.transitionSuccess });
       setConfirming(null);
       setNotes('');
+      setIsTransitionPublic(false);
       onTransitioned(updated);
     } catch (err) {
       setFeedback({
@@ -311,6 +399,27 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
       });
     } finally {
       setTransitioning(false);
+    }
+  }
+
+  async function handleSaveNewNote(e: FormEvent) {
+    e.preventDefault();
+    if (!newNoteText.trim()) return;
+    setIsSavingNewNote(true);
+    setFeedback(null);
+    try {
+      const updated = await apiAddApplicationNote(app.uuid, newNoteText.trim(), isNewNotePublic);
+      setNewNoteText('');
+      setIsNewNotePublic(false);
+      setFeedback({ type: 'success', text: panel.noteSaved });
+      onTransitioned(updated);
+    } catch (err) {
+      setFeedback({
+        type: 'error',
+        text: err instanceof Error ? err.message : panel.noteError,
+      });
+    } finally {
+      setIsSavingNewNote(false);
     }
   }
 
@@ -335,262 +444,502 @@ function DetailPanel({ app, locale, c, onClose, onTransitioned }: DetailPanelPro
   const intake = app.intake_payload as Record<string, unknown> | null;
 
   return (
-    <aside
-      role="dialog"
-      aria-label={panel.title}
-      aria-modal="true"
-      className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-white shadow-2xl ring-1 ring-ink-100"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-ink-100 px-5 py-4">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-wide text-ink-400">
-            {panel.title}
-          </p>
-          <h2 className="mt-0.5 text-base font-bold text-ink-900">{app.applicant_name}</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={downloadPdf}
-            disabled={pdfLoading}
-            aria-label={pdfLoading ? panel.pdfLoading : panel.pdf}
-            className="focus-ring inline-flex min-h-9 items-center gap-2 rounded-md border border-foundation-200 bg-foundation-50 px-3 py-2 text-xs font-bold text-foundation-800 transition hover:border-foundation-300 hover:bg-foundation-100 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {pdfLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <Download className="h-4 w-4" aria-hidden="true" />
-            )}
-            <span className="hidden sm:inline">{pdfLoading ? panel.pdfLoading : panel.pdf}</span>
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={panel.close}
-            className="focus-ring grid h-9 w-9 place-items-center rounded-md text-ink-400 transition hover:bg-ink-100 hover:text-ink-700"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Body */}
-      <div className="flex-1 overflow-y-auto px-5 pb-8 pt-4">
-        {/* Status pill + reference */}
-        <div className="flex flex-wrap items-center gap-3">
-          <StatusBadge label={app.status_label ?? app.status} tone={statusTone(app.status)} />
-          <span className="rounded-md bg-ink-100 px-2.5 py-1 text-[11px] font-semibold text-ink-600">
-            {app.application_number}
-          </span>
-          <span className="rounded-md bg-ink-50 px-2.5 py-1 text-[11px] font-semibold text-ink-500">
-            {app.source_label ?? app.source}
-          </span>
-        </div>
-
-        {/* Feedback */}
-        {feedback ? (
-          <div
-            className={cn(
-              'mt-4 flex items-start gap-2 rounded-md p-3 text-sm font-medium',
-              feedback.type === 'success'
-                ? 'bg-emerald-50 text-emerald-800'
-                : 'bg-red-50 text-red-800',
-            )}
-          >
-            {feedback.type === 'success' ? (
-              <Check className="mt-0.5 h-4 w-4 shrink-0" />
-            ) : (
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-            )}
-            {feedback.text}
+    <>
+      <aside
+        role="dialog"
+        aria-label={panel.title}
+        aria-modal="true"
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-white shadow-2xl ring-1 ring-ink-100"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-ink-100 px-5 py-4">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-ink-400">
+              {panel.title}
+            </p>
+            <h2 className="mt-0.5 text-base font-bold text-ink-900">{app.applicant_name}</h2>
           </div>
-        ) : null}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={downloadPdf}
+              disabled={pdfLoading}
+              aria-label={pdfLoading ? panel.pdfLoading : panel.pdf}
+              className="focus-ring inline-flex min-h-9 items-center gap-2 rounded-md border border-foundation-200 bg-foundation-50 px-3 py-2 text-xs font-bold text-foundation-800 transition hover:border-foundation-300 hover:bg-foundation-100 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {pdfLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Download className="h-4 w-4" aria-hidden="true" />
+              )}
+              <span className="hidden sm:inline">{pdfLoading ? panel.pdfLoading : panel.pdf}</span>
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={panel.close}
+              className="focus-ring grid h-9 w-9 place-items-center rounded-md text-ink-400 transition hover:bg-ink-100 hover:text-ink-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
 
-        {/* ── Applicant ── */}
-        <SectionHeading>{panel.applicant}</SectionHeading>
-        <dl className="divide-y divide-ink-50 rounded-md border border-ink-100 bg-ink-50/40 px-4">
-          <DetailRow label={panel.applicant} value={app.applicant_name} />
-          <DetailRow label={panel.gender} value={app.gender} />
-          <DetailRow label={panel.dob} value={app.date_of_birth} />
-          <DetailRow label={panel.guardian} value={app.guardian_name} />
-          <DetailRow
-            label={panel.phone}
-            value={
-              app.guardian_phone ? (
-                <a
-                  href={`tel:${app.guardian_phone}`}
-                  className="inline-flex items-center gap-1 text-foundation-700 underline-offset-2 hover:underline"
-                >
-                  <Phone className="h-3.5 w-3.5" />
-                  {app.guardian_phone}
-                </a>
-              ) : null
-            }
-          />
-        </dl>
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-5 pb-8 pt-4">
+          {/* Status pill + reference */}
+          <div className="flex flex-wrap items-center gap-3">
+            <StatusBadge label={app.status_label ?? app.status} tone={statusTone(app.status)} />
+            <span className="rounded-md bg-ink-100 px-2.5 py-1 text-[11px] font-semibold text-ink-600">
+              {app.application_number}
+            </span>
+            <span className="rounded-md bg-ink-50 px-2.5 py-1 text-[11px] font-semibold text-ink-500">
+              {app.source_label ?? app.source}
+            </span>
+          </div>
 
-        {/* ── Location / School ── */}
-        <SectionHeading>{panel.region}</SectionHeading>
-        <dl className="divide-y divide-ink-50 rounded-md border border-ink-100 bg-ink-50/40 px-4">
-          <DetailRow label={panel.region} value={app.region?.name} />
-          <DetailRow label={panel.village} value={app.village?.name} />
-          <DetailRow label={panel.school} value={app.school?.name} />
-        </dl>
-
-        {/* ── Needs assessment ── */}
-        {app.needs_assessment ? (
-          <>
-            <SectionHeading>{panel.needsAssessment}</SectionHeading>
-            <div className="rounded-md border border-ink-100 bg-ink-50/40 px-4 py-3 text-sm leading-6 text-ink-800 whitespace-pre-wrap">
-              {app.needs_assessment}
+          {/* Current Public Tracking Message preview */}
+          {app.public_comment ? (
+            <div className="mt-4 rounded-md border border-foundation-200 bg-foundation-50/70 p-3.5">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-foundation-800">
+                <Globe className="h-4 w-4 text-foundation-600" />
+                <span>{panel.currentPublicComment}</span>
+              </div>
+              <p className="mt-1 text-sm text-ink-800 whitespace-pre-wrap">{app.public_comment}</p>
             </div>
-          </>
-        ) : null}
+          ) : null}
 
-        {/* ── Intake payload (submitted form data) ── */}
-        {intake ? (
-          <>
-            <SectionHeading>{panel.intakePayload}</SectionHeading>
-            <dl className="divide-y divide-ink-50 rounded-md border border-ink-100 bg-ink-50/40 px-4">
-              {Object.entries(intake)
-                .filter(([, v]) => v !== null && v !== undefined && v !== '')
-                .map(([key, val]) => (
-                  <DetailRow
-                    key={key}
-                    label={key.replace(/_/g, ' ')}
-                    value={
-                      typeof val === 'boolean'
-                        ? val
-                          ? '✓'
-                          : '✗'
-                        : Array.isArray(val)
-                          ? (val as string[]).join(', ')
-                          : String(val)
-                    }
-                  />
-                ))}
-            </dl>
-          </>
-        ) : null}
-
-        {/* ── Household ── */}
-        {app.household_income_range ||
-        app.household_size ||
-        app.primary_caregiver_occupation ||
-        (app.household_challenges?.length ?? 0) > 0 ? (
-          <>
-            <SectionHeading>{panel.household}</SectionHeading>
-            <dl className="divide-y divide-ink-50 rounded-md border border-ink-100 bg-ink-50/40 px-4">
-              {app.household_income_range ? (
-                <DetailRow label={panel.householdIncome} value={app.household_income_range} />
-              ) : null}
-              {app.household_size ? (
-                <DetailRow label={panel.householdSize} value={String(app.household_size)} />
-              ) : null}
-              {app.primary_caregiver_occupation ? (
-                <DetailRow label={panel.caregiver} value={app.primary_caregiver_occupation} />
-              ) : null}
-              {(app.household_challenges?.length ?? 0) > 0 ? (
-                <DetailRow
-                  label={panel.challenges}
-                  value={(app.household_challenges ?? []).join(', ')}
-                />
-              ) : null}
-            </dl>
-          </>
-        ) : null}
-
-        {/* ── Verification notes ── */}
-        {app.verification_notes ? (
-          <>
-            <SectionHeading>{panel.verificationNotes}</SectionHeading>
-            <div className="rounded-md border border-amber-100 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900 whitespace-pre-wrap">
-              {app.verification_notes}
+          {/* Feedback */}
+          {feedback ? (
+            <div
+              className={cn(
+                'mt-4 flex items-start gap-2 rounded-md p-3 text-sm font-medium',
+                feedback.type === 'success'
+                  ? 'bg-emerald-50 text-emerald-800'
+                  : 'bg-red-50 text-red-800',
+              )}
+            >
+              {feedback.type === 'success' ? (
+                <Check className="mt-0.5 h-4 w-4 shrink-0" />
+              ) : (
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              )}
+              {feedback.text}
             </div>
-          </>
-        ) : null}
+          ) : null}
 
-        {/* ── Timeline ── */}
-        <SectionHeading>Timeline</SectionHeading>
-        <dl className="divide-y divide-ink-50 rounded-md border border-ink-100 bg-ink-50/40 px-4">
-          <DetailRow label={panel.submittedAt} value={formatDate(app.submitted_at, locale)} />
-          <DetailRow label={panel.verifiedAt} value={formatDate(app.verified_at, locale)} />
-          <DetailRow label={panel.reviewedAt} value={formatDate(app.reviewed_at, locale)} />
-        </dl>
-
-        {/* ── Actions ── */}
-        <SectionHeading>{panel.actions}</SectionHeading>
-        {transitions.length === 0 ? (
-          <p className="rounded-md border border-dashed border-ink-200 px-4 py-3 text-sm text-ink-500">
-            {panel.noTransitions}
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {/* Notes textarea */}
-            <textarea
-              id="transition-notes"
-              rows={3}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder={panel.notesPlaceholder}
-              className="w-full rounded-md border border-ink-200 bg-white px-3 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-foundation-400 focus:outline-hidden focus:ring-2 focus:ring-foundation-200"
+          {/* ── Applicant ── */}
+          <SectionHeading>{panel.applicant}</SectionHeading>
+          <dl className="divide-y divide-ink-50 rounded-md border border-ink-100 bg-ink-50/40 px-4">
+            <DetailRow label={panel.applicant} value={app.applicant_name} />
+            <DetailRow label={panel.gender} value={app.gender} />
+            <DetailRow label={panel.dob} value={app.date_of_birth} />
+            <DetailRow label={panel.guardian} value={app.guardian_name} />
+            <DetailRow
+              label={panel.phone}
+              value={
+                app.guardian_phone ? (
+                  <a
+                    href={`tel:${app.guardian_phone}`}
+                    className="inline-flex items-center gap-1 text-foundation-700 underline-offset-2 hover:underline"
+                  >
+                    <Phone className="h-3.5 w-3.5" />
+                    {app.guardian_phone}
+                  </a>
+                ) : null
+              }
             />
+          </dl>
 
-            {/* Transition buttons */}
-            <div className="flex flex-wrap gap-2">
-              {transitions.map((toStatus) => {
-                const isConfirming = confirming === toStatus;
-                return (
-                  <div key={toStatus} className="flex gap-1.5">
-                    {isConfirming ? (
-                      <>
-                        <button
-                          type="button"
-                          disabled={transitioning}
-                          onClick={() => doTransition(toStatus)}
+          {/* ── Location / School ── */}
+          <SectionHeading>{panel.region}</SectionHeading>
+          <dl className="divide-y divide-ink-50 rounded-md border border-ink-100 bg-ink-50/40 px-4">
+            <DetailRow label={panel.region} value={app.region?.name} />
+            <DetailRow label={panel.village} value={app.village?.name} />
+            <DetailRow label={panel.school} value={app.school?.name} />
+          </dl>
+
+          {/* ── Needs assessment ── */}
+          {app.needs_assessment ? (
+            <>
+              <SectionHeading>{panel.needsAssessment}</SectionHeading>
+              <div className="rounded-md border border-ink-100 bg-ink-50/40 px-4 py-3 text-sm leading-6 text-ink-800 whitespace-pre-wrap">
+                {app.needs_assessment}
+              </div>
+            </>
+          ) : null}
+
+          {/* ── Intake payload (submitted form data) ── */}
+          {intake ? (
+            <>
+              <SectionHeading>{panel.intakePayload}</SectionHeading>
+              <dl className="divide-y divide-ink-50 rounded-md border border-ink-100 bg-ink-50/40 px-4">
+                {Object.entries(intake)
+                  .filter(([, v]) => v !== null && v !== undefined && v !== '')
+                  .map(([key, val]) => (
+                    <DetailRow
+                      key={key}
+                      label={key.replace(/_/g, ' ')}
+                      value={
+                        typeof val === 'boolean'
+                          ? val
+                            ? '✓'
+                            : '✗'
+                          : Array.isArray(val)
+                            ? (val as string[]).join(', ')
+                            : String(val)
+                      }
+                    />
+                  ))}
+              </dl>
+            </>
+          ) : null}
+
+          {/* ── Household ── */}
+          {app.household_income_range ||
+          app.household_size ||
+          app.primary_caregiver_occupation ||
+          (app.household_challenges?.length ?? 0) > 0 ? (
+            <>
+              <SectionHeading>{panel.household}</SectionHeading>
+              <dl className="divide-y divide-ink-50 rounded-md border border-ink-100 bg-ink-50/40 px-4">
+                {app.household_income_range ? (
+                  <DetailRow label={panel.householdIncome} value={app.household_income_range} />
+                ) : null}
+                {app.household_size ? (
+                  <DetailRow label={panel.householdSize} value={String(app.household_size)} />
+                ) : null}
+                {app.primary_caregiver_occupation ? (
+                  <DetailRow label={panel.caregiver} value={app.primary_caregiver_occupation} />
+                ) : null}
+                {(app.household_challenges?.length ?? 0) > 0 ? (
+                  <DetailRow
+                    label={panel.challenges}
+                    value={(app.household_challenges ?? []).join(', ')}
+                  />
+                ) : null}
+              </dl>
+            </>
+          ) : null}
+
+          {/* ── Verification notes (legacy) ── */}
+          {app.verification_notes ? (
+            <>
+              <SectionHeading>{panel.verificationNotes}</SectionHeading>
+              <div className="rounded-md border border-amber-100 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900 whitespace-pre-wrap">
+                {app.verification_notes}
+              </div>
+            </>
+          ) : null}
+
+          {/* ── Timeline ── */}
+          <SectionHeading>Timeline</SectionHeading>
+          <dl className="divide-y divide-ink-50 rounded-md border border-ink-100 bg-ink-50/40 px-4">
+            <DetailRow label={panel.submittedAt} value={formatDate(app.submitted_at, locale)} />
+            <DetailRow label={panel.verifiedAt} value={formatDate(app.verified_at, locale)} />
+            <DetailRow label={panel.reviewedAt} value={formatDate(app.reviewed_at, locale)} />
+          </dl>
+
+          {/* ── Stage History & Audit Trail ── */}
+          <SectionHeading>{panel.auditTrailTitle}</SectionHeading>
+          <p className="mb-2 text-xs text-ink-500">{panel.auditTrailSubtitle}</p>
+          {app.status_history && app.status_history.length > 0 ? (
+            <div className="space-y-3 rounded-md border border-ink-100 bg-ink-50/40 p-3.5">
+              {app.status_history.map((hist) => (
+                <div
+                  key={hist.id}
+                  className="relative border-l-2 border-foundation-300 pl-3.5 pb-1"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-1.5">
+                    <div className="flex items-center gap-1 text-xs font-semibold text-ink-800">
+                      <span className="text-ink-500">
+                        {hist.from_status
+                          ? (c.statusLabels[hist.from_status] ?? hist.from_status)
+                          : '—'}
+                      </span>
+                      <ArrowRight className="h-3 w-3 text-ink-400" />
+                      <span className="font-bold text-foundation-700">
+                        {c.statusLabels[hist.to_status] ?? hist.to_status}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-ink-500">
+                      {formatDate(hist.changed_at, locale)}
+                    </span>
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-ink-500">
+                    {panel.changedBy}{' '}
+                    <span className="font-medium text-ink-700">
+                      {hist.changed_by?.name || hist.changed_by?.email || panel.systemActor}
+                    </span>
+                  </div>
+                  {hist.notes ? (
+                    <div className="mt-1.5 rounded-md border border-ink-100 bg-white p-2">
+                      <div className="mb-1">
+                        <span
                           className={cn(
-                            'focus-ring inline-flex h-9 items-center gap-2 rounded-md px-4 text-sm font-semibold transition disabled:opacity-60',
-                            transitionTone(toStatus),
+                            'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase',
+                            hist.is_public
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-ink-100 text-ink-600',
                           )}
                         >
-                          {transitioning ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                          {hist.is_public ? (
+                            <>
+                              <Globe className="h-2.5 w-2.5" />
+                              {panel.publicBadge}
+                            </>
                           ) : (
-                            <Check className="h-4 w-4" />
+                            <>
+                              <Lock className="h-2.5 w-2.5" />
+                              {panel.internalBadge}
+                            </>
                           )}
-                          {transitioning ? panel.transitioning : panel.confirm}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setConfirming(null)}
-                          className="focus-ring inline-flex h-9 items-center gap-1 rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-700 transition hover:bg-ink-50"
-                        >
-                          {panel.cancelling}
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setConfirming(toStatus)}
+                        </span>
+                      </div>
+                      <p className="whitespace-pre-wrap text-xs text-ink-800">{hist.notes}</p>
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-md border border-dashed border-ink-200 px-4 py-2.5 text-xs text-ink-500 italic">
+              {panel.noHistory}
+            </p>
+          )}
+
+          {/* ── Notes & Staff Deliberations ── */}
+          <SectionHeading>{panel.notesSectionTitle}</SectionHeading>
+          <p className="mb-2 text-xs text-ink-500">{panel.notesSectionSubtitle}</p>
+
+          {/* Form to add note */}
+          <form
+            onSubmit={handleSaveNewNote}
+            className="space-y-2.5 rounded-md border border-ink-100 bg-ink-50/40 p-3.5"
+          >
+            <textarea
+              id="new-application-note"
+              rows={2}
+              value={newNoteText}
+              onChange={(e) => setNewNoteText(e.target.value)}
+              placeholder={panel.newNotePlaceholder}
+              className="w-full rounded-md border border-ink-200 bg-white px-3 py-2 text-xs text-ink-900 placeholder:text-ink-400 focus:border-foundation-400 focus:outline-hidden focus:ring-2 focus:ring-foundation-200"
+            />
+            <div className="flex flex-col gap-1.5">
+              <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-ink-700">
+                <input
+                  type="checkbox"
+                  checked={isNewNotePublic}
+                  onChange={() => {}}
+                  onClick={(e) => {
+                    if (!isNewNotePublic) {
+                      e.preventDefault();
+                      setConfirmModal({ isOpen: true, target: 'new_note' });
+                    } else {
+                      setIsNewNotePublic(false);
+                    }
+                  }}
+                  className="h-4 w-4 rounded border-ink-300 text-foundation-600 focus:ring-foundation-500"
+                />
+                <span>{panel.makeNotePublicLabel}</span>
+              </label>
+              {isNewNotePublic && (
+                <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-900">
+                  <Globe className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+                  <span>{panel.publicNoteAlert}</span>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end pt-1">
+              <button
+                type="submit"
+                disabled={isSavingNewNote || !newNoteText.trim()}
+                className="focus-ring inline-flex h-8 items-center gap-1.5 rounded-md bg-foundation-600 px-3 text-xs font-semibold text-white transition hover:bg-foundation-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSavingNewNote ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <MessageSquare className="h-3.5 w-3.5" />
+                )}
+                {isSavingNewNote ? panel.postingNote : panel.postNote}
+              </button>
+            </div>
+          </form>
+
+          {/* Notes list */}
+          {app.notes && app.notes.length > 0 ? (
+            <div className="mt-3 space-y-2.5">
+              {app.notes.map((item) => (
+                <div
+                  key={item.id}
+                  className={cn(
+                    'rounded-md border p-3 text-xs transition',
+                    item.is_public
+                      ? 'border-emerald-200 bg-emerald-50/50'
+                      : 'border-ink-100 bg-white',
+                  )}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-1.5 border-b border-ink-100 pb-1.5 mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <span
                         className={cn(
-                          'focus-ring inline-flex h-9 items-center gap-2 rounded-md px-4 text-sm font-semibold transition',
-                          toStatus === 'rejected'
-                            ? 'border border-red-200 bg-red-50 text-red-700 hover:bg-red-100'
-                            : 'border border-ink-200 bg-white text-ink-700 hover:border-foundation-200 hover:bg-foundation-50 hover:text-foundation-800',
+                          'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider',
+                          item.is_public
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-ink-100 text-ink-700',
                         )}
                       >
-                        {panel.transitionLabels[toStatus] ?? toStatus}
-                      </button>
-                    )}
+                        {item.is_public ? (
+                          <>
+                            <Globe className="h-2.5 w-2.5" />
+                            {panel.publicBadge}
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="h-2.5 w-2.5" />
+                            {panel.internalBadge}
+                          </>
+                        )}
+                      </span>
+                      {item.stage ? (
+                        <span className="rounded bg-ink-100 px-1.5 py-0.5 text-[10px] font-semibold text-ink-600">
+                          {c.statusLabels[item.stage] ?? item.stage}
+                        </span>
+                      ) : null}
+                    </div>
+                    <span className="text-[11px] text-ink-500">
+                      {formatDate(item.created_at, locale)}
+                    </span>
                   </div>
-                );
-              })}
+                  <p className="whitespace-pre-wrap text-ink-900 leading-relaxed">{item.note}</p>
+                  <div className="mt-1.5 text-[11px] text-ink-500">
+                    {panel.changedBy}{' '}
+                    <span className="font-medium text-ink-700">
+                      {item.user?.name || item.user?.email || panel.systemActor}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        )}
-      </div>
-    </aside>
+          ) : (
+            <p className="mt-2 text-xs text-ink-500 italic">{panel.noNotes}</p>
+          )}
+
+          {/* ── Actions ── */}
+          <SectionHeading>{panel.actions}</SectionHeading>
+          {transitions.length === 0 ? (
+            <p className="rounded-md border border-dashed border-ink-200 px-4 py-3 text-sm text-ink-500">
+              {panel.noTransitions}
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {/* Notes textarea */}
+              <textarea
+                id="transition-notes"
+                rows={3}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder={panel.notesPlaceholder}
+                className="w-full rounded-md border border-ink-200 bg-white px-3 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-foundation-400 focus:outline-hidden focus:ring-2 focus:ring-foundation-200"
+              />
+
+              {/* Public transition note checkbox */}
+              <div className="flex flex-col gap-1.5">
+                <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-ink-700">
+                  <input
+                    type="checkbox"
+                    checked={isTransitionPublic}
+                    onChange={() => {}}
+                    onClick={(e) => {
+                      if (!isTransitionPublic) {
+                        e.preventDefault();
+                        setConfirmModal({ isOpen: true, target: 'transition' });
+                      } else {
+                        setIsTransitionPublic(false);
+                      }
+                    }}
+                    className="h-4 w-4 rounded border-ink-300 text-foundation-600 focus:ring-foundation-500"
+                  />
+                  <span>{panel.makeTransitionPublicLabel}</span>
+                </label>
+                {isTransitionPublic && (
+                  <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-900">
+                    <Globe className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+                    <span>{panel.publicNoteAlert}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Transition buttons */}
+              <div className="flex flex-wrap gap-2">
+                {transitions.map((toStatus) => {
+                  const isConfirming = confirming === toStatus;
+                  return (
+                    <div key={toStatus} className="flex gap-1.5">
+                      {isConfirming ? (
+                        <>
+                          <button
+                            type="button"
+                            disabled={transitioning}
+                            onClick={() => doTransition(toStatus)}
+                            className={cn(
+                              'focus-ring inline-flex h-9 items-center gap-2 rounded-md px-4 text-sm font-semibold transition disabled:opacity-60',
+                              transitionTone(toStatus),
+                            )}
+                          >
+                            {transitioning ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Check className="h-4 w-4" />
+                            )}
+                            {transitioning ? panel.transitioning : panel.confirm}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirming(null)}
+                            className="focus-ring inline-flex h-9 items-center gap-1 rounded-md border border-ink-200 bg-white px-3 text-sm font-semibold text-ink-700 transition hover:bg-ink-50"
+                          >
+                            {panel.cancelling}
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setConfirming(toStatus)}
+                          className={cn(
+                            'focus-ring inline-flex h-9 items-center gap-2 rounded-md px-4 text-sm font-semibold transition',
+                            toStatus === 'rejected'
+                              ? 'border border-red-200 bg-red-50 text-red-700 hover:bg-red-100'
+                              : 'border border-ink-200 bg-white text-ink-700 hover:border-foundation-200 hover:bg-foundation-50 hover:text-foundation-800',
+                          )}
+                        >
+                          {panel.transitionLabels[toStatus] ?? toStatus}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* Confirmation Modal */}
+      <MakeNotePublicConfirmModal
+        isOpen={confirmModal.isOpen}
+        onCancel={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={() => {
+          if (confirmModal.target === 'new_note') {
+            setIsNewNotePublic(true);
+          } else {
+            setIsTransitionPublic(true);
+          }
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        }}
+        locale={locale}
+      />
+    </>
   );
 }
 

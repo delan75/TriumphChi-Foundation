@@ -51,6 +51,18 @@ return [
         'deleted' => 'Demande supprimée avec succès.',
         'transitioned' => 'Statut de la demande mis à jour avec succès.',
         'invalid_transition' => 'Cette transition de statut n\'est pas autorisée pour l\'état actuel de la demande.',
+        'note_added' => 'Note sur la demande ajoutée avec succès.',
+    ],
+
+    'applications' => [
+        'retrieved' => 'Demandes récupérées avec succès.',
+        'retrieved_single' => 'Demande récupérée avec succès.',
+        'created' => 'Demande créée avec succès.',
+        'updated' => 'Demande mise à jour avec succès.',
+        'deleted' => 'Demande supprimée avec succès.',
+        'transitioned' => 'Statut de la demande mis à jour avec succès.',
+        'invalid_transition' => 'Cette transition de statut n\'est pas autorisée pour l\'état actuel de la demande.',
+        'note_added' => 'Note sur la demande ajoutée avec succès.',
     ],
 
     'beneficiaries' => [

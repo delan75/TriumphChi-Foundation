@@ -16,12 +16,16 @@ class ApplicationStatusHistory extends Model
         'changed_at',
         'reason',
         'notes',
+        'is_public',
         'ip_address',
     ];
 
     protected function casts(): array
     {
-        return ['changed_at' => 'datetime'];
+        return [
+            'changed_at' => 'datetime',
+            'is_public' => 'boolean',
+        ];
     }
 
     public function application()
